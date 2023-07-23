@@ -2,89 +2,89 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://example.com/posts/creating-a-new-theme/</loc>
+    <loc>https://tty503.github.io/posts/creating-a-new-theme/</loc>
     <lastmod>2014-09-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/hugo/</loc>
+    <loc>https://tty503.github.io/tags/hugo/</loc>
     <lastmod>2014-09-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/</loc>
+    <loc>https://tty503.github.io/posts/</loc>
     <lastmod>2014-09-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/</loc>
+    <loc>https://tty503.github.io/tags/</loc>
     <lastmod>2014-09-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/themes/</loc>
+    <loc>https://tty503.github.io/tags/themes/</loc>
     <lastmod>2014-09-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/</loc>
+    <loc>https://tty503.github.io/</loc>
     <lastmod>2014-09-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/goisforlovers/</loc>
+    <loc>https://tty503.github.io/posts/goisforlovers/</loc>
     <lastmod>2014-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/configuration/</loc>
+    <loc>https://tty503.github.io/tags/configuration/</loc>
     <lastmod>2014-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/development/</loc>
+    <loc>https://tty503.github.io/tags/development/</loc>
     <lastmod>2014-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/docs/</loc>
+    <loc>https://tty503.github.io/tags/docs/</loc>
     <lastmod>2014-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/hugoisforlovers/</loc>
+    <loc>https://tty503.github.io/posts/hugoisforlovers/</loc>
     <lastmod>2014-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/go/</loc>
+    <loc>https://tty503.github.io/tags/go/</loc>
     <lastmod>2014-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/golang/</loc>
+    <loc>https://tty503.github.io/tags/golang/</loc>
     <lastmod>2014-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/templates/</loc>
+    <loc>https://tty503.github.io/tags/templates/</loc>
     <lastmod>2014-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/tutorial/</loc>
+    <loc>https://tty503.github.io/tags/tutorial/</loc>
     <lastmod>2014-04-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/jekyll/</loc>
+    <loc>https://tty503.github.io/tags/jekyll/</loc>
     <lastmod>2014-03-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/migrate-from-jekyll/</loc>
+    <loc>https://tty503.github.io/posts/migrate-from-jekyll/</loc>
     <lastmod>2014-03-10T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/tags/test/</loc>
+    <loc>https://tty503.github.io/tags/test/</loc>
     <lastmod>1012-01-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/test-9/</loc>
+    <loc>https://tty503.github.io/posts/test-9/</loc>
     <lastmod>1012-01-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/test-8/</loc>
+    <loc>https://tty503.github.io/posts/test-8/</loc>
     <lastmod>1012-01-08T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/test-7/</loc>
+    <loc>https://tty503.github.io/posts/test-7/</loc>
     <lastmod>1012-01-07T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/test-6/</loc>
+    <loc>https://tty503.github.io/posts/test-6/</loc>
     <lastmod>1012-01-06T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/test-5/</loc>
+    <loc>https://tty503.github.io/posts/test-5/</loc>
     <lastmod>1012-01-05T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/test-4/</loc>
+    <loc>https://tty503.github.io/posts/test-4/</loc>
     <lastmod>1012-01-04T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/test-3/</loc>
+    <loc>https://tty503.github.io/posts/test-3/</loc>
     <lastmod>1012-01-03T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/test-2/</loc>
+    <loc>https://tty503.github.io/posts/test-2/</loc>
     <lastmod>1012-01-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/posts/test-1/</loc>
+    <loc>https://tty503.github.io/posts/test-1/</loc>
     <lastmod>1012-01-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://example.com/about/</loc>
+    <loc>https://tty503.github.io/about/</loc>
   </url><url>
-    <loc>https://example.com/categories/</loc>
+    <loc>https://tty503.github.io/categories/</loc>
   </url>
 </urlset>
