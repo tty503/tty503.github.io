@@ -3,6 +3,11 @@ languageCode = 'es-ve'
 title = 'tty503'
 theme = "hugo-blog-awesome"
 
+[params.author]
+  avatar = "avatar.jpg" 
+  name = "Christian Marquez"
+  description = "A passionate software development🧑‍💻 and computer security🏴‍☠️."
+
 [params]
   goToTop = true
 

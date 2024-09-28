@@ -1,5 +1,4 @@
 ---
-author: Hugo Authors
 title: Math Typesetting - use Mathematical notation in blog posts
 date: 2023-04-01
 description: A brief guide to setup KaTeX
