@@ -1,0 +1,47 @@
+baseURL = 'https://tty503.github.io/'
+languageCode = 'es-ve'
+title = 'tty503'
+theme = "hugo-blog-awesome"
+
+[params]
+  goToTop = true
+
+[[params.socialIcons]]
+name = "linkedin"
+url = "https://linkedin.com/in/tty503"
+
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/tty503"
+
+[[params.socialIcons]]
+name = "twitter"
+url = "https://x.com/tty_503"
+
+[[params.socialIcons]]
+name = "Telegram"
+url = "https://t.me/tty503"
+
+[[params.socialIcons]]
+name = "Signal"
+url = "https://signal.me/#eu/Z1E7im-MuyhBGh0-_F3gMIV7lVHuBGAUwkuc7U3HTmXu5kV0rcdEuLaxAo_IDqnG"
+
+[menu]
+[[menu.main]]
+    pageRef="/"
+    name = 'Inicio'
+    url = '/'
+    weight = 10
+[[menu.main]]
+    pageRef="posts"
+    name = 'Blog'
+    url = '/posts/'
+    weight = 20
+[[menu.main]]
+    pageRef="about"
+    name = 'Sobre Mi'
+    url = '/about/'
+    weight = 30
+
+
+
