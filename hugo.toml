@@ -1,4 +1,4 @@
-baseURL = 'https://tty503.github.io/'
+baseURL = 'https://tty503.com/'
 languageCode = 'es-ve'
 title = 'tty503'
 theme = "hugo-blog-awesome"
@@ -7,6 +7,9 @@ theme = "hugo-blog-awesome"
   avatar = "avatar.jpg" 
   name = "Christian Marquez"
   description = "A passionate software development🧑‍💻 and computer security🏴‍☠️."
+
+[sitemap]
+  changeFreq = 'hourly'
 
 [params]
   goToTop = true
