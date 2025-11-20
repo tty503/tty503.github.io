@@ -5,6 +5,62 @@
     <link>http://localhost:1313/categories/</link>
     <description>Recent content in Categories on tty503</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>es-ve</language><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
+    <language>es-ve</language>
+    <lastBuildDate>Sat, 26 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>DevLog</title>
+      <link>http://localhost:1313/categories/devlog/</link>
+      <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/categories/devlog/</guid>
+      
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>Research</title>
+      <link>http://localhost:1313/categories/research/</link>
+      <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/categories/research/</guid>
+      
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>Portafolio</title>
+      <link>http://localhost:1313/categories/portafolio/</link>
+      <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/categories/portafolio/</guid>
+      
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>Desarrollo</title>
+      <link>http://localhost:1313/categories/desarrollo/</link>
+      <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/categories/desarrollo/</guid>
+      
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>Proyectos</title>
+      <link>http://localhost:1313/categories/proyectos/</link>
+      <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/categories/proyectos/</guid>
+      
+      <description></description>
+      
+    </item>
+    
   </channel>
 </rss>

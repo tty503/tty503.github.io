@@ -6,31 +6,42 @@
     <description>Recent content in Entradas on tty503</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>es-ve</language>
-    <lastBuildDate>Tue, 02 May 2023 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 26 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Table of content</title>
-      <link>http://localhost:1313/posts/table-of-content/</link>
-      <pubDate>Tue, 02 May 2023 00:00:00 +0000</pubDate>
+      <title>DevLog : comprendiendo la seguridad OT investigación de PLCs S5 a S7</title>
+      <link>http://localhost:1313/posts/devlog-plc/</link>
+      <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/posts/table-of-content/</guid>
+      <guid>http://localhost:1313/posts/devlog-plc/</guid>
       
-      <description>Table of content This theme supports displaying table of content (ToC) in blog posts.
-Parameters You can manage a ToC with two parameters:
-global toc parameter; post toc parameter. The post toc parameter has higher priority than the global toc parameter.
-Enable table of content on all posts To enable ToC on all posts (globally) set parameter toc to true in hugo.toml.
-[params] toc = true To disable ToC globally, simply ignore the toc parameter or set it to false.</description>
+      <description>&lt;p&gt;El camino para entender la seguridad ofensiva en infraestructuras críticas a menudo comienza mirando hacia atrás. Entre febrero y abril de 2025, mi investigación se centró en diseccionar la &amp;ldquo;caja negra&amp;rdquo; que controla la industria: los Controladores Lógicos Programables (PLC).&lt;/p&gt;
+&lt;p&gt;Lo que comenzó como un curso básico de programación en equipos Siemens S5 legados (algunos datan de 1974), se transformó rápidamente en un proyecto de ingeniería inversa. La primera impresión al llegar al laboratorio fue la de estar en un museo funcional; máquinas corriendo software sobre interfaces que recordaban a Windows 95, controlando procesos físicos reales.&lt;/p&gt;</description>
       
     </item>
     
     <item>
-      <title>Math Typesetting - use Mathematical notation in blog posts</title>
-      <link>http://localhost:1313/posts/math-typesetting/</link>
-      <pubDate>Sat, 01 Apr 2023 00:00:00 +0000</pubDate>
+      <title>DevLog : Reversing, Hardware y la construcción de un Laboratorio</title>
+      <link>http://localhost:1313/posts/projects-2021-2023/</link>
+      <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/posts/math-typesetting/</guid>
+      <guid>http://localhost:1313/posts/projects-2021-2023/</guid>
       
-      <description>&lt;p&gt;Mathematical notation in a Hugo project can be enabled by using
-&lt;a href=&#34;https://github.com/hugo-sid/hugo-blog-awesome/blob/main/layouts/partials/helpers/katex.html&#34;&gt;third party JavaScript libraries&lt;/a&gt;.&lt;/p&gt;</description>
+      <description>&lt;p&gt;El camino para entender la ciberseguridad ofensiva y defensiva rara vez es una línea recta. Entre 2021 y 2023, mi enfoque osciló entre el &lt;strong&gt;software de alto nivel&lt;/strong&gt;, el &lt;strong&gt;bajo nivel&lt;/strong&gt;  y, eventualmente, la &lt;strong&gt;capa física&lt;/strong&gt; y la infraestructura que sostiene todo esto.&lt;/p&gt;
+&lt;p&gt;Este &lt;em&gt;DevLog&lt;/em&gt; documenta cronológicamente los proyectos, los errores y los aprendizajes de esos años.&lt;/p&gt;
+&lt;h2 id=&#34;2021-rompiendo-el-hielo-con-el-reversing&#34;&gt;2021: Rompiendo el hielo con el Reversing&lt;/h2&gt;
+&lt;p&gt;Mis inicios estuvieron marcados por la resolución de desafíos de ingeniería inversa, específicamente los de &lt;strong&gt;MalwareTech&lt;/strong&gt;. En esta etapa, el objetivo era simple pero fundamental: entender cómo un binario oculta sus secretos.&lt;/p&gt;</description>
+      
+    </item>
+    
+    <item>
+      <title>Automatizando la Disección de Binarios: preview de analystty</title>
+      <link>http://localhost:1313/posts/analyst-preview/</link>
+      <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/posts/analyst-preview/</guid>
+      
+      <description>&lt;p&gt;El análisis de malware suele comenzar como un proceso manual y meticuloso. Sin embargo, cuando te enfrentas a un lote de muestras (como el set de &lt;em&gt;Bazaar 2020.02&lt;/em&gt; con el que he estado trabajando), la repetición se vuelve el enemigo.&lt;/p&gt;
+&lt;p&gt;Desde julio de 2024, he estado trabajando en &lt;strong&gt;Analystty&lt;/strong&gt;, un proyecto personal que nació de una necesidad simple: dejar de repetir las mismas tareas básicas en cada binario. Lo que comenzó como scripts de Python dispersos para analizar cabeceras PE, hoy es una herramienta CLI en desarrollo que busca cerrar la brecha entre el análisis estático y el dinámico.&lt;/p&gt;</description>
       
     </item>
     
@@ -42,39 +53,6 @@ Enable table of content on all posts To enable ToC on all posts (globally) set p
       <guid>http://localhost:1313/posts/markdown-syntax/</guid>
       
       <description>&lt;p&gt;This article offers a sample of basic Markdown syntax that can be used in Hugo content files, also it shows whether basic HTML elements are decorated with CSS in a Hugo theme.&lt;/p&gt;</description>
-      
-    </item>
-    
-    <item>
-      <title>Rich Content</title>
-      <link>http://localhost:1313/posts/rich-content/</link>
-      <pubDate>Thu, 09 Feb 2023 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/posts/rich-content/</guid>
-      
-      <description>&lt;p&gt;Hugo ships with several &lt;a href=&#34;https://gohugo.io/content-management/shortcodes/#use-hugos-built-in-shortcodes&#34;&gt;Built-in Shortcodes&lt;/a&gt; for rich content, along with a &lt;a href=&#34;https://gohugo.io/about/hugo-and-gdpr/&#34;&gt;Privacy Config&lt;/a&gt; and a set of Simple Shortcodes that enable static and no-JS versions of various social media embeds.&lt;/p&gt;</description>
-      
-    </item>
-    
-    <item>
-      <title>Placeholder Text</title>
-      <link>http://localhost:1313/posts/placeholder-text/</link>
-      <pubDate>Tue, 07 Feb 2023 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/posts/placeholder-text/</guid>
-      
-      <description>&lt;p&gt;Lorem est tota propiore conpellat pectoribus de pectora summo.&lt;/p&gt;</description>
-      
-    </item>
-    
-    <item>
-      <title>Emoji Support</title>
-      <link>http://localhost:1313/posts/emoji-support/</link>
-      <pubDate>Wed, 01 Feb 2023 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/posts/emoji-support/</guid>
-      
-      <description>&lt;p&gt;Emoji can be enabled in a Hugo project in a number of ways.&lt;/p&gt;</description>
       
     </item>
     

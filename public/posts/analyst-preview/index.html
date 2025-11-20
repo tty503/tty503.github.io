@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es-ve"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title itemprop="name">Automatizando la Disección de Binarios: preview de analystty | tty503</title>
+<meta property="og:title" content="Automatizando la Disección de Binarios: preview de analystty | tty503" />
+<meta name="twitter:title" content="Automatizando la Disección de Binarios: preview de analystty | tty503" />
+<meta itemprop="name" content="Automatizando la Disección de Binarios: preview de analystty | tty503" />
+<meta name="application-name" content="Automatizando la Disección de Binarios: preview de analystty | tty503" />
+<meta property="og:site_name" content="" />
+
+<meta name="description" content="Cómo transformé una colección de scripts de análisis en una herramienta CLI capaz de identificar TTPs y resolver direccionamiento relativo en x64.">
+<meta itemprop="description" content="Cómo transformé una colección de scripts de análisis en una herramienta CLI capaz de identificar TTPs y resolver direccionamiento relativo en x64." />
+<meta property="og:description" content="Cómo transformé una colección de scripts de análisis en una herramienta CLI capaz de identificar TTPs y resolver direccionamiento relativo en x64." />
+<meta name="twitter:description" content="Cómo transformé una colección de scripts de análisis en una herramienta CLI capaz de identificar TTPs y resolver direccionamiento relativo en x64." />
+
+<meta property="og:locale" content="es-ve" />
+<meta name="language" content="es-ve" />
+
+  <link rel="alternate" hreflang="en" href="http://localhost:1313/posts/analyst-preview/" title="" />
+
+
+
+
+
+    
+    
+    
+
+    <meta property="og:type" content="article" />
+    <meta property="og:article:published_time" content=2024-10-30T00:00:00Z />
+    <meta property="article:published_time" content=2024-10-30T00:00:00Z />
+    <meta property="og:url" content="http://localhost:1313/posts/analyst-preview/" />
+
+    
+    <meta property="og:article:author" content="Christian Marquez" />
+    <meta property="article:author" content="Christian Marquez" />
+    <meta name="author" content="Christian Marquez" />
+    
+    
+
+    
+
+    <script defer type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "Article",
+        "headline": "Automatizando la Disección de Binarios: preview de analystty",
+        "author": {
+        "@type": "Person",
+        "name": ""
+        },
+        "datePublished": "2024-10-30",
+        "description": "Cómo transformé una colección de scripts de análisis en una herramienta CLI capaz de identificar TTPs y resolver direccionamiento relativo en x64.",
+        "wordCount":  666 ,
+        "mainEntityOfPage": "True",
+        "dateModified": "2024-10-30",
+        "image": {
+        "@type": "imageObject",
+        "url": ""
+        },
+        "publisher": {
+        "@type": "Organization",
+        "name": "tty503"
+        }
+    }
+    </script>
+
+
+<meta name="generator" content="Hugo 0.150.0">
+
+    
+    <meta property="og:url" content="http://localhost:1313/posts/analyst-preview/">
+  <meta property="og:site_name" content="tty503">
+  <meta property="og:title" content="Automatizando la Disección de Binarios: preview de analystty">
+  <meta property="og:description" content="Cómo transformé una colección de scripts de análisis en una herramienta CLI capaz de identificar TTPs y resolver direccionamiento relativo en x64.">
+  <meta property="og:locale" content="es_ve">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-10-30T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-10-30T00:00:00+00:00">
+    <meta property="article:tag" content="Malware Analysis">
+    <meta property="article:tag" content="Python">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Automation">
+    <meta property="article:tag" content="Assembly">
+    <meta property="article:tag" content="X64dbg">
+
+
+    
+    
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Automatizando la Disección de Binarios: preview de analystty">
+  <meta name="twitter:description" content="Cómo transformé una colección de scripts de análisis en una herramienta CLI capaz de identificar TTPs y resolver direccionamiento relativo en x64.">
+
+
+    
+
+    <link rel="canonical" href="http://localhost:1313/posts/analyst-preview/">
+    <link href="/style.min.2d921c18cf1ec555ffc03d59a8adc211c402c68c930c27d6a0c306ab175a8d09.css" rel="stylesheet">
+    <link href="/code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+
+
+
+<link rel="manifest" href="http://localhost:1313/site.webmanifest">
+
+<meta name="msapplication-config" content="/browserconfig.xml">
+<meta name="msapplication-TileColor" content="#2d89ef">
+<meta name="theme-color" content="#434648">
+    <meta name="color-scheme" content="light dark">
+
+    
+    <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+
+    
+    
+</head>
+<body data-theme = "" class="notransition">
+
+<script src="/js/theme.js"></script>
+
+<div class="navbar" role="navigation">
+    <nav class="menu" aria-label="Main Navigation">
+        <a href="http://localhost:1313/" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" 
+viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+stroke-linejoin="round" class="feather feather-home">
+<title></title>
+<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+<polyline points="9 22 9 12 15 12 15 22"></polyline>
+</svg>
+        </a>
+        <input type="checkbox" id="menu-trigger" class="menu-trigger" />
+        <label for="menu-trigger">
+            <span class="menu-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" stroke="currentColor" fill="none" viewBox="0 0 14 14"><title>Menu</title><path stroke-linecap="round" stroke-linejoin="round" d="M10.595 7L3.40726 7"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 3.51488L3.49301 3.51488"></path><path stroke-linecap="round" stroke-linejoin="round" d="M10.5096 10.4851H3.49301"></path><path stroke-linecap="round" stroke-linejoin="round" d="M0.5 12.5V1.5C0.5 0.947715 0.947715 0.5 1.5 0.5H12.5C13.0523 0.5 13.5 0.947715 13.5 1.5V12.5C13.5 13.0523 13.0523 13.5 12.5 13.5H1.5C0.947715 13.5 0.5 13.0523 0.5 12.5Z"></path></svg>
+            </span>
+        </label>
+
+        <div class="trigger">
+            <ul class="trigger-container">
+                
+                
+                <li>
+                    <a class="menu-link " href="/">
+                        Inicio
+                    </a>
+                    
+                </li>
+                
+                <li>
+                    <a class="menu-link active" href="/posts/">
+                        Blog
+                    </a>
+                    
+                </li>
+                
+                <li>
+                    <a class="menu-link " href="/pages/about/">
+                        Sobre Mi
+                    </a>
+                    
+                </li>
+                
+                <li class="menu-separator">
+                    <span>|</span>
+                </li>
+                
+                
+            </ul>
+            <a id="mode" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-sunny" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>LIGHT</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="mode-moon" width="21" height="21" viewBox="0 0 14 14" stroke-width="1">
+<title>DARK</title><g><circle cx="7" cy="7" r="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></circle><line x1="7" y1="0.5" x2="7" y2="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="2.4" x2="3.82" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="0.5" y1="7" x2="2.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="2.4" y1="11.6" x2="3.82" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="7" y1="13.5" x2="7" y2="11.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="11.6" x2="10.18" y2="10.18" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="13.5" y1="7" x2="11.5" y2="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></line><line x1="11.6" y1="2.4" x2="10.18" y2="3.82" fill="none" stroke-linecap="round" stroke-linejoin="round"></line></g></svg>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<div class="wrapper post">
+    <main class="page-content" aria-label="Content">
+        <article>
+            <header class="header">
+                <h1 class="header-title">Automatizando la Disección de Binarios: preview de analystty</h1>
+                
+                
+                
+                <div class="post-meta">
+                    <time datetime="2024-10-30T00:00:00&#43;00:00" itemprop="datePublished"> Oct 30, 2024 </time>
+                </div>
+                
+            </header>
+            
+            <div class="page-content">
+                <p>El análisis de malware suele comenzar como un proceso manual y meticuloso. Sin embargo, cuando te enfrentas a un lote de muestras (como el set de <em>Bazaar 2020.02</em> con el que he estado trabajando), la repetición se vuelve el enemigo.</p>
+<p>Desde julio de 2024, he estado trabajando en <strong>Analystty</strong>, un proyecto personal que nació de una necesidad simple: dejar de repetir las mismas tareas básicas en cada binario. Lo que comenzó como scripts de Python dispersos para analizar cabeceras PE, hoy es una herramienta CLI en desarrollo que busca cerrar la brecha entre el análisis estático y el dinámico.</p>
+<h2 id="el-problema-escalar-el-análisis">El Problema: Escalar el Análisis</h2>
+<p>Cuando analizas una muestra de ransomware (como las variantes de <em>Djvu</em> que se ven en las capturas), el primer paso es siempre el mismo: identificar secciones, buscar importaciones sospechosas y mapear dónde se usan. Hacer esto manualmente en un desensamblador para 50 archivos no es viable.</p>
+<img src="/img/analystty-preview/post-5.jpg" alt="Entorno de desarrollo con VS Code y FlareVM" width="1000" height="400" />
+<h2 id="1-análisis-estático-y-detección-de-capacidades">1. Análisis Estático y Detección de Capacidades</h2>
+<p>El núcleo de la herramienta utiliza <code>pefile</code> y <code>capstone</code> para diseccionar el binario. No me interesaba solo ver las importaciones, sino <strong>clasificarlas</strong>. Implementé un sistema de etiquetado (basado en un <code>config.json</code> y listas de <em>MalApi</em>) que categoriza las funciones automáticamente.</p>
+<p>Si el malware importa <code>VirtualProtect</code> o <code>WriteProcessMemory</code>, la herramienta lo etiqueta inmediatamente como <strong>Injection</strong> o <strong>Evasion</strong>.</p>
+<img src="/img/analystty-preview/post-1.jpg" alt="Detección de APIs de Malware" width="800" height="600" />
+<p>Esto me permite obtener una &ldquo;radiografía&rdquo; rápida de las intenciones del binario antes de siquiera abrir un debugger.</p>
+<h2 id="2-el-desafío-de-x64-resolviendo-rip-relative-addressing">2. El Desafío de x64: Resolviendo RIP-Relative Addressing</h2>
+<p>Aquí es donde entra la parte de <strong>Desarrollo de Software</strong> aplicada a la ingeniería inversa. En arquitecturas x86 (32 bits), encontrar una llamada a una API suele ser directo. Pero en x64, el código hace un uso extensivo del direccionamiento relativo al puntero de instrucción (RIP).</p>
+<p>Ver una instrucción como <code>call qword ptr [rip + 0x6e58]</code> no te dice mucho a simple vista. Para saber a qué función está llamando realmente el malware, necesitas calcular ese offset.</p>
+<img src="/img/analystty-preview/post-6.jpg" alt="Output offsets" width="800" height="600" />
+<p>Implementé una lógica en <code>analystty.py</code> usando expresiones regulares y aritmética hexadecimal para resolver esto estáticamente:</p>
+<font size="1">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> mnemonic <span style="color:#f92672">in</span> [<span style="color:#e6db74">&#39;call&#39;</span>, <span style="color:#e6db74">&#39;jmp&#39;</span>]:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Agregar la capacidad de distinguir otros registros, </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># la misma logica es usada para ubicar los argumentos </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># que son cargandos en la funcion. Ademas, debe tener </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># la capacidad de adaptarse en caso de que sea 32 bits.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> operands <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;rax&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">match</span> <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;\[rip\s*([\+\-])\s*0x([0-9a-fA-F]+)\]&#39;</span>, previous[<span style="color:#e6db74">&#39;OPERATORS&#39;</span>])
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">match</span> <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;\[rip\s*([\+\-])\s*0x([0-9a-fA-F]+)\]&#39;</span>, operands)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">match</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># No hemos considerado la posibilidad de que use mas </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># elementos para calcular el offset debemos poder detectar </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># cuando se esta realizan un calculo de offset. </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Una idea podria ser encontrar la instruccion call equivalente, </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># identificar el registro en donde se carga la direccion calculada </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># y tracear hacia atras para saber que valores estuvieron involucrados en el calculo. </span>
+</span></span><span style="display:flex;"><span>        offset <span style="color:#f92672">=</span> int(<span style="color:#66d9ef">match</span><span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> <span style="color:#66d9ef">match</span><span style="color:#f92672">.</span>group(<span style="color:#ae81ff">2</span>), <span style="color:#ae81ff">16</span>)
+</span></span><span style="display:flex;"><span>        address <span style="color:#f92672">=</span> hex(int(address, <span style="color:#ae81ff">16</span>) <span style="color:#f92672">+</span> offset)
+</span></span></code></pre></div></font>
+<p>El script parsea el desensamblado, busca patrones [rip + offset], calcula la dirección física final y la cruza con la tabla de importaciones (IAT). La herramienta resolviendo automáticamente que [rip + 0x6e58] corresponde a Sleep y [rip + 0x6e55] a WinExec.</p>
+<p>Gracias a esto, puedo generar una tabla limpia que me dice exactamente en qué dirección de memoria se está invocando una función crítica. La visualización final de las llamadas resueltas: Dirección de inicio, Dirección de la instrucción y la API objetivo.</p>
+<img src="/img/analystty-preview/post-7.jpg" alt="Tabla limpia" width="800" height="400" />
+<p>El objetivo final de esta automatización no es solo imprimir texto en consola, sino preparar el terreno para el debugging.</p>
+<p>La clase medbg dentro de la herramienta está diseñada para interactuar con x64dbg. Utilizando la información recolectada estáticamente (los Entry Points y los offsets de las APIs maliciosas calculados anteriormente), el script puede:</p>
+<ul>
+<li>Conectarse al debugger.</li>
+<li>Calcular la dirección base dinámica (ASLR).</li>
+<li>Colocar breakpoints automáticamente en las llamadas a funciones de interés (como Sleep, WinExec o IsDebuggerPresent).</li>
+</ul>
+<img src="/img/analystty-preview/post-9.jpg" alt="Tabla resultante para el MalApi" width="800" height="400" />
+<p>x64dbg con breakpoints establecidos automáticamente por el script en el EntryPoint y en las llamadas a APIs críticas.</p>
+<p>Sin embargo, este proyecto aun esta en desarrollo en <a href="https://github.com/tty503/analystty">github</a> puedes conseguir el sketch sin actualizar pero pronto espero subir una version completa.</p>
+
+            </div>
+        </article></main>
+</div>
+<footer class="footer">
+    <span class="footer_item"> </span>
+    &nbsp;
+
+    <div class="footer_social-icons">
+<a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer me"
+    title="Linkedin">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+</svg>
+</a>
+<a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer me"
+    title="Github">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+    </path>
+</svg>
+</a>
+<a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer me"
+    title="Twitter">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+    </path>
+</svg>
+</a>
+<a href="https://t.me/tty503" target="_blank" rel="noopener noreferrer me"
+    title="Telegram">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path
+        d="M21.198 2.433a2.242 2.242 0 0 0-1.022.215l-8.609 3.33c-2.068.8-4.133 1.598-5.724 2.21a405.15 405.15 0 0 1-2.849 1.09c-.42.147-.99.332-1.473.901-.728.968.193 1.798.919 2.286 1.61.516 3.275 1.009 4.654 1.472.509 1.793.997 3.592 1.48 5.388.16.36.506.494.864.498l-.002.018s.281.028.555-.038a2.1 2.1 0 0 0 .933-.517c.345-.324 1.28-1.244 1.811-1.764l3.999 2.952.032.018s.442.311 1.09.355c.324.022.75-.04 1.116-.308.37-.27.613-.702.728-1.196.342-1.492 2.61-12.285 2.997-14.072l-.01.042c.27-1.006.17-1.928-.455-2.474a1.654 1.654 0 0 0-1.034-.407z" />
+</svg>
+</a>
+</div>
+    <small class="footer_copyright">
+        © 2025 Christian Marquez.
+        
+    </small>
+</footer><a href="#" title="" id="totop">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" stroke="currentColor" viewBox="0 96 960 960">
+    <path d="M283 704.739 234.261 656 480 410.261 725.739 656 677 704.739l-197-197-197 197Z"/>
+</svg>
+
+</a>
+
+
+    
+
+
+
+
+
+
+    
+    <script async src="http://localhost:1313/js/main.js" ></script>
+
+    
+
+</body>
+</html>

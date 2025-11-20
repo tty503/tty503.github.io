@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Automation on tty503</title>
+    <link>http://localhost:1313/tags/automation/</link>
+    <description>Recent content in Automation on tty503</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>es-ve</language>
+    <lastBuildDate>Wed, 30 Oct 2024 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/automation/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Automatizando la Disección de Binarios: preview de analystty</title>
+      <link>http://localhost:1313/posts/analyst-preview/</link>
+      <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/posts/analyst-preview/</guid>
+      
+      <description>&lt;p&gt;El análisis de malware suele comenzar como un proceso manual y meticuloso. Sin embargo, cuando te enfrentas a un lote de muestras (como el set de &lt;em&gt;Bazaar 2020.02&lt;/em&gt; con el que he estado trabajando), la repetición se vuelve el enemigo.&lt;/p&gt;
+&lt;p&gt;Desde julio de 2024, he estado trabajando en &lt;strong&gt;Analystty&lt;/strong&gt;, un proyecto personal que nació de una necesidad simple: dejar de repetir las mismas tareas básicas en cada binario. Lo que comenzó como scripts de Python dispersos para analizar cabeceras PE, hoy es una herramienta CLI en desarrollo que busca cerrar la brecha entre el análisis estático y el dinámico.&lt;/p&gt;</description>
+      
+    </item>
+    
+  </channel>
+</rss>

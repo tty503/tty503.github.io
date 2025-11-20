@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>AWL on tty503</title>
+    <link>http://localhost:1313/tags/awl/</link>
+    <description>Recent content in AWL on tty503</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>es-ve</language>
+    <lastBuildDate>Sat, 26 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/awl/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>DevLog : comprendiendo la seguridad OT investigación de PLCs S5 a S7</title>
+      <link>http://localhost:1313/posts/devlog-plc/</link>
+      <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/posts/devlog-plc/</guid>
+      
+      <description>&lt;p&gt;El camino para entender la seguridad ofensiva en infraestructuras críticas a menudo comienza mirando hacia atrás. Entre febrero y abril de 2025, mi investigación se centró en diseccionar la &amp;ldquo;caja negra&amp;rdquo; que controla la industria: los Controladores Lógicos Programables (PLC).&lt;/p&gt;
+&lt;p&gt;Lo que comenzó como un curso básico de programación en equipos Siemens S5 legados (algunos datan de 1974), se transformó rápidamente en un proyecto de ingeniería inversa. La primera impresión al llegar al laboratorio fue la de estar en un museo funcional; máquinas corriendo software sobre interfaces que recordaban a Windows 95, controlando procesos físicos reales.&lt;/p&gt;</description>
+      
+    </item>
+    
+  </channel>
+</rss>

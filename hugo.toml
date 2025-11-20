@@ -27,9 +27,6 @@ url = "https://x.com/tty_503"
 name = "Telegram"
 url = "https://t.me/tty503"
 
-[[params.socialIcons]]
-name = "Signal"
-url = "https://signal.me/#eu/Z1E7im-MuyhBGh0-_F3gMIV7lVHuBGAUwkuc7U3HTmXu5kV0rcdEuLaxAo_IDqnG"
 
 [menu]
 [[menu.main]]
@@ -49,4 +46,7 @@ url = "https://signal.me/#eu/Z1E7im-MuyhBGh0-_F3gMIV7lVHuBGAUwkuc7U3HTmXu5kV0rcd
     weight = 30
 
 
-
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
