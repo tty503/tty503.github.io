@@ -2,45 +2,45 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Inicio on tty503</title>
-    <link>tty503.com/</link>
+    <link>https://tty503.com/</link>
     <description>Recent content in Inicio on tty503</description>
     <generator>Hugo</generator>
     <language>es-ve</language>
     <lastBuildDate>Sat, 26 Apr 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="tty503.com/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://tty503.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>DevLog : comprendiendo la seguridad OT investigación de PLCs S5 a S7</title>
-      <link>tty503.com/posts/devlog-plc/</link>
+      <link>https://tty503.com/posts/devlog-plc/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>tty503.com/posts/devlog-plc/</guid>
+      <guid>https://tty503.com/posts/devlog-plc/</guid>
       <description>&lt;p&gt;El camino para entender la seguridad ofensiva en infraestructuras críticas a menudo comienza mirando hacia atrás. Entre febrero y abril de 2025, mi investigación se centró en diseccionar la &amp;ldquo;caja negra&amp;rdquo; que controla la industria: los Controladores Lógicos Programables (PLC).&lt;/p&gt;&#xA;&lt;p&gt;Lo que comenzó como un curso básico de programación en equipos Siemens S5 legados (algunos datan de 1974), se transformó rápidamente en un proyecto de ingeniería inversa. La primera impresión al llegar al laboratorio fue la de estar en un museo funcional; máquinas corriendo software sobre interfaces que recordaban a Windows 95, controlando procesos físicos reales.&lt;/p&gt;</description>
     </item>
     <item>
       <title>DevLog : Reversing, Hardware y la construcción de un Laboratorio</title>
-      <link>tty503.com/posts/projects-2021-2023/</link>
+      <link>https://tty503.com/posts/projects-2021-2023/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>tty503.com/posts/projects-2021-2023/</guid>
+      <guid>https://tty503.com/posts/projects-2021-2023/</guid>
       <description>&lt;p&gt;El camino para entender la ciberseguridad ofensiva y defensiva rara vez es una línea recta. Entre 2021 y 2023, mi enfoque osciló entre el &lt;strong&gt;software de alto nivel&lt;/strong&gt;, el &lt;strong&gt;bajo nivel&lt;/strong&gt;  y, eventualmente, la &lt;strong&gt;capa física&lt;/strong&gt; y la infraestructura que sostiene todo esto.&lt;/p&gt;&#xA;&lt;p&gt;Este &lt;em&gt;DevLog&lt;/em&gt; documenta cronológicamente los proyectos, los errores y los aprendizajes de esos años.&lt;/p&gt;&#xA;&lt;h2 id=&#34;2021-rompiendo-el-hielo-con-el-reversing&#34;&gt;2021: Rompiendo el hielo con el Reversing&lt;/h2&gt;&#xA;&lt;p&gt;Mis inicios estuvieron marcados por la resolución de desafíos de ingeniería inversa, específicamente los de &lt;strong&gt;MalwareTech&lt;/strong&gt;. En esta etapa, el objetivo era simple pero fundamental: entender cómo un binario oculta sus secretos.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Automatizando la Disección de Binarios: preview de analystty</title>
-      <link>tty503.com/posts/analyst-preview/</link>
+      <link>https://tty503.com/posts/analyst-preview/</link>
       <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>tty503.com/posts/analyst-preview/</guid>
+      <guid>https://tty503.com/posts/analyst-preview/</guid>
       <description>&lt;p&gt;El análisis de malware suele comenzar como un proceso manual y meticuloso. Sin embargo, cuando te enfrentas a un lote de muestras (como el set de &lt;em&gt;Bazaar 2020.02&lt;/em&gt; con el que he estado trabajando), la repetición se vuelve el enemigo.&lt;/p&gt;&#xA;&lt;p&gt;Desde julio de 2024, he estado trabajando en &lt;strong&gt;Analystty&lt;/strong&gt;, un proyecto personal que nació de una necesidad simple: dejar de repetir las mismas tareas básicas en cada binario. Lo que comenzó como scripts de Python dispersos para analizar cabeceras PE, hoy es una herramienta CLI en desarrollo que busca cerrar la brecha entre el análisis estático y el dinámico.&lt;/p&gt;</description>
     </item>
     <item>
       <title>whoami</title>
-      <link>tty503.com/whoami/</link>
+      <link>https://tty503.com/whoami/</link>
       <pubDate>Sat, 21 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>tty503.com/whoami/</guid>
-      <description>&lt;img src=&#34;tty503.com/img/aboutme/whoami-1.jpg&#34; alt=&#34;whoami&#34; width=&#34;400&#34; height=&#34;300&#34; /&gt;&#xA;&lt;p&gt;Hola. Soy &lt;strong&gt;Christian Marquez&lt;/strong&gt;, conocido en estos lares como (&lt;a href=&#34;https://linkedin.com/in/tty503/&#34;&gt;tty503&lt;/a&gt;).&lt;/p&gt;&#xA;&lt;p&gt;Mi perfil se mueve en una zona gris entre el Desarrollo de Software y la Ciberseguridad Defensiva. No me limito a escribir código que funcione; me obsesiona entender por qué falla. Mi premisa es práctica: para blindar un sistema, primero necesitas pensar como quien intenta derribarlo.&#xA;A día de hoy, mi trabajo se centra en tres pilares:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;Análisis de Malware:&lt;/strong&gt; Entender la amenaza real mediante ingeniería inversa y disección de binarios.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Infraestructura Defensiva:&lt;/strong&gt; Construcción de laboratorios SOC (Wazuh, Grafana) y despliegue de HoneyPots para estudiar al adversario.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Investigación:&lt;/strong&gt; Seguridad en sistemas industriales (OT/PLC) y detección de amenazas.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Si buscas un resumen técnico, ahí lo tienes. Pero si quieres saber qué hay detrás del teclado y cómo he llegado hasta aquí sin seguir el camino académico tradicional, sigue leyendo.&lt;/p&gt;</description>
+      <guid>https://tty503.com/whoami/</guid>
+      <description>&lt;img src=&#34;https://tty503.com/img/aboutme/whoami-1.jpg&#34; alt=&#34;whoami&#34; width=&#34;400&#34; height=&#34;300&#34; /&gt;&#xA;&lt;p&gt;Hola. Soy &lt;strong&gt;Christian Marquez&lt;/strong&gt;, conocido en estos lares como (&lt;a href=&#34;https://linkedin.com/in/tty503/&#34;&gt;tty503&lt;/a&gt;).&lt;/p&gt;&#xA;&lt;p&gt;Mi perfil se mueve en una zona gris entre el Desarrollo de Software y la Ciberseguridad Defensiva. No me limito a escribir código que funcione; me obsesiona entender por qué falla. Mi premisa es práctica: para blindar un sistema, primero necesitas pensar como quien intenta derribarlo.&#xA;A día de hoy, mi trabajo se centra en tres pilares:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;Análisis de Malware:&lt;/strong&gt; Entender la amenaza real mediante ingeniería inversa y disección de binarios.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Infraestructura Defensiva:&lt;/strong&gt; Construcción de laboratorios SOC (Wazuh, Grafana) y despliegue de HoneyPots para estudiar al adversario.&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;Investigación:&lt;/strong&gt; Seguridad en sistemas industriales (OT/PLC) y detección de amenazas.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Si buscas un resumen técnico, ahí lo tienes. Pero si quieres saber qué hay detrás del teclado y cómo he llegado hasta aquí sin seguir el camino académico tradicional, sigue leyendo.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Markdown Syntax Guide</title>
-      <link>tty503.com/posts/markdown-syntax/</link>
+      <link>https://tty503.com/posts/markdown-syntax/</link>
       <pubDate>Sat, 11 Feb 2023 00:00:00 +0000</pubDate>
-      <guid>tty503.com/posts/markdown-syntax/</guid>
+      <guid>https://tty503.com/posts/markdown-syntax/</guid>
       <description>&lt;p&gt;This article offers a sample of basic Markdown syntax that can be used in Hugo content files, also it shows whether basic HTML elements are decorated with CSS in a Hugo theme.&lt;/p&gt;</description>
     </item>
   </channel>

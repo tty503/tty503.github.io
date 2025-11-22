@@ -2,45 +2,45 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on tty503</title>
-    <link>tty503.com/categories/</link>
+    <link>https://tty503.com/categories/</link>
     <description>Recent content in Categories on tty503</description>
     <generator>Hugo</generator>
     <language>es-ve</language>
     <lastBuildDate>Sat, 26 Apr 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="tty503.com/categories/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://tty503.com/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>DevLog</title>
-      <link>tty503.com/categories/devlog/</link>
+      <link>https://tty503.com/categories/devlog/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>tty503.com/categories/devlog/</guid>
+      <guid>https://tty503.com/categories/devlog/</guid>
       <description></description>
     </item>
     <item>
       <title>Research</title>
-      <link>tty503.com/categories/research/</link>
+      <link>https://tty503.com/categories/research/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>tty503.com/categories/research/</guid>
+      <guid>https://tty503.com/categories/research/</guid>
       <description></description>
     </item>
     <item>
       <title>Portafolio</title>
-      <link>tty503.com/categories/portafolio/</link>
+      <link>https://tty503.com/categories/portafolio/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>tty503.com/categories/portafolio/</guid>
+      <guid>https://tty503.com/categories/portafolio/</guid>
       <description></description>
     </item>
     <item>
       <title>Desarrollo</title>
-      <link>tty503.com/categories/desarrollo/</link>
+      <link>https://tty503.com/categories/desarrollo/</link>
       <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>tty503.com/categories/desarrollo/</guid>
+      <guid>https://tty503.com/categories/desarrollo/</guid>
       <description></description>
     </item>
     <item>
       <title>Proyectos</title>
-      <link>tty503.com/categories/proyectos/</link>
+      <link>https://tty503.com/categories/proyectos/</link>
       <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>tty503.com/categories/proyectos/</guid>
+      <guid>https://tty503.com/categories/proyectos/</guid>
       <description></description>
     </item>
   </channel>
