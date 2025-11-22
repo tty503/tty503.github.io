@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Python on tty503</title>
-    <link>https://tty503.com/tags/python/</link>
-    <description>Recent content in Python on tty503</description>
+    <title>Herramientas on tty503</title>
+    <link>https://tty503.com/categories/herramientas/</link>
+    <description>Recent content in Herramientas on tty503</description>
     <generator>Hugo</generator>
     <language>es-ve</language>
     <lastBuildDate>Wed, 30 Oct 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://tty503.com/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://tty503.com/categories/herramientas/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>analystty - preview</title>
       <link>https://tty503.com/var/log-analyst-preview/</link>
