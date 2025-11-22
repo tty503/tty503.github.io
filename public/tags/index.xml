@@ -2,252 +2,165 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on tty503</title>
-    <link>http://localhost:1313/tags/</link>
+    <link>--theme/tags/</link>
     <description>Recent content in Tags on tty503</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>es-ve</language>
-    <lastBuildDate>Sat, 26 Apr 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 26 Apr 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="--theme/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Assembly</title>
-      <link>http://localhost:1313/tags/assembly/</link>
+      <link>--theme/tags/assembly/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/assembly/</guid>
-      
+      <guid>--theme/tags/assembly/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>AWL</title>
-      <link>http://localhost:1313/tags/awl/</link>
+      <link>--theme/tags/awl/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/awl/</guid>
-      
+      <guid>--theme/tags/awl/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Hardware Hacking</title>
-      <link>http://localhost:1313/tags/hardware-hacking/</link>
+      <link>--theme/tags/hardware-hacking/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/hardware-hacking/</guid>
-      
+      <guid>--theme/tags/hardware-hacking/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>ICS Security</title>
-      <link>http://localhost:1313/tags/ics-security/</link>
+      <link>--theme/tags/ics-security/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/ics-security/</guid>
-      
+      <guid>--theme/tags/ics-security/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>MC7</title>
-      <link>http://localhost:1313/tags/mc7/</link>
+      <link>--theme/tags/mc7/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/mc7/</guid>
-      
+      <guid>--theme/tags/mc7/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Reverse Engineering</title>
-      <link>http://localhost:1313/tags/reverse-engineering/</link>
+      <link>--theme/tags/reverse-engineering/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/reverse-engineering/</guid>
-      
+      <guid>--theme/tags/reverse-engineering/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>S7-300</title>
-      <link>http://localhost:1313/tags/s7-300/</link>
+      <link>--theme/tags/s7-300/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/s7-300/</guid>
-      
+      <guid>--theme/tags/s7-300/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Scada</title>
-      <link>http://localhost:1313/tags/scada/</link>
+      <link>--theme/tags/scada/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/scada/</guid>
-      
+      <guid>--theme/tags/scada/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Shellcode</title>
-      <link>http://localhost:1313/tags/shellcode/</link>
+      <link>--theme/tags/shellcode/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/shellcode/</guid>
-      
+      <guid>--theme/tags/shellcode/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Siemens S5</title>
-      <link>http://localhost:1313/tags/siemens-s5/</link>
+      <link>--theme/tags/siemens-s5/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/siemens-s5/</guid>
-      
+      <guid>--theme/tags/siemens-s5/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Stuxnet</title>
-      <link>http://localhost:1313/tags/stuxnet/</link>
+      <link>--theme/tags/stuxnet/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/stuxnet/</guid>
-      
+      <guid>--theme/tags/stuxnet/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Virtual Machine</title>
-      <link>http://localhost:1313/tags/virtual-machine/</link>
+      <link>--theme/tags/virtual-machine/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/virtual-machine/</guid>
-      
+      <guid>--theme/tags/virtual-machine/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>C2 Development</title>
-      <link>http://localhost:1313/tags/c2-development/</link>
+      <link>--theme/tags/c2-development/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/c2-development/</guid>
-      
+      <guid>--theme/tags/c2-development/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Djvu</title>
-      <link>http://localhost:1313/tags/djvu/</link>
+      <link>--theme/tags/djvu/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/djvu/</guid>
-      
+      <guid>--theme/tags/djvu/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Ghidra</title>
-      <link>http://localhost:1313/tags/ghidra/</link>
+      <link>--theme/tags/ghidra/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/ghidra/</guid>
-      
+      <guid>--theme/tags/ghidra/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>INetSim</title>
-      <link>http://localhost:1313/tags/inetsim/</link>
+      <link>--theme/tags/inetsim/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/inetsim/</guid>
-      
+      <guid>--theme/tags/inetsim/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Infrastructure</title>
-      <link>http://localhost:1313/tags/infrastructure/</link>
+      <link>--theme/tags/infrastructure/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/infrastructure/</guid>
-      
+      <guid>--theme/tags/infrastructure/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Malware Analysis</title>
-      <link>http://localhost:1313/tags/malware-analysis/</link>
+      <link>--theme/tags/malware-analysis/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/malware-analysis/</guid>
-      
+      <guid>--theme/tags/malware-analysis/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>PCB Design</title>
-      <link>http://localhost:1313/tags/pcb-design/</link>
+      <link>--theme/tags/pcb-design/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/pcb-design/</guid>
-      
+      <guid>--theme/tags/pcb-design/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Automation</title>
-      <link>http://localhost:1313/tags/automation/</link>
+      <link>--theme/tags/automation/</link>
       <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/automation/</guid>
-      
+      <guid>--theme/tags/automation/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>Python</title>
-      <link>http://localhost:1313/tags/python/</link>
+      <link>--theme/tags/python/</link>
       <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/python/</guid>
-      
+      <guid>--theme/tags/python/</guid>
       <description></description>
-      
     </item>
-    
     <item>
       <title>X64dbg</title>
-      <link>http://localhost:1313/tags/x64dbg/</link>
+      <link>--theme/tags/x64dbg/</link>
       <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1313/tags/x64dbg/</guid>
-      
+      <guid>--theme/tags/x64dbg/</guid>
       <description></description>
-      
     </item>
-    
   </channel>
 </rss>

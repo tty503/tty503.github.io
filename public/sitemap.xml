@@ -1,375 +1,149 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
-    <url>
-      <loc>http://localhost:1313/tags/assembly/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/awl/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/categories/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/categories/devlog/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/posts/devlog-plc/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/posts/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/hardware-hacking/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/ics-security/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/mc7/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/categories/research/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/reverse-engineering/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/s7-300/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/scada/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/shellcode/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/siemens-s5/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/stuxnet/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/virtual-machine/</loc>
-      
-        <lastmod>2025-04-26T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/c2-development/</loc>
-      
-        <lastmod>2024-11-19T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/posts/projects-2021-2023/</loc>
-      
-        <lastmod>2024-11-19T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/djvu/</loc>
-      
-        <lastmod>2024-11-19T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/ghidra/</loc>
-      
-        <lastmod>2024-11-19T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/inetsim/</loc>
-      
-        <lastmod>2024-11-19T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/infrastructure/</loc>
-      
-        <lastmod>2024-11-19T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/malware-analysis/</loc>
-      
-        <lastmod>2024-11-19T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/pcb-design/</loc>
-      
-        <lastmod>2024-11-19T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/categories/portafolio/</loc>
-      
-        <lastmod>2024-11-19T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/automation/</loc>
-      
-        <lastmod>2024-10-30T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/posts/analyst-preview/</loc>
-      
-        <lastmod>2024-10-30T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/categories/desarrollo/</loc>
-      
-        <lastmod>2024-10-30T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/categories/proyectos/</loc>
-      
-        <lastmod>2024-10-30T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/python/</loc>
-      
-        <lastmod>2024-10-30T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/tags/x64dbg/</loc>
-      
-        <lastmod>2024-10-30T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/pages/</loc>
-      
-        <lastmod>2024-09-21T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/pages/about/</loc>
-      
-        <lastmod>2024-09-21T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
-    <url>
-      <loc>http://localhost:1313/posts/markdown-syntax/</loc>
-      
-        <lastmod>2023-02-11T00:00:00+00:00</lastmod>
-      
-      
-        <changefreq>hourly</changefreq>
-      
-    </url>
-  
+  <url>
+    <loc>--theme/tags/assembly/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/awl/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/categories/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/categories/devlog/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/posts/devlog-plc/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/posts/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/hardware-hacking/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/ics-security/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/mc7/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/categories/research/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/reverse-engineering/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/s7-300/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/scada/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/shellcode/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/siemens-s5/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/stuxnet/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/virtual-machine/</loc>
+    <lastmod>2025-04-26T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/c2-development/</loc>
+    <lastmod>2024-11-19T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/posts/projects-2021-2023/</loc>
+    <lastmod>2024-11-19T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/djvu/</loc>
+    <lastmod>2024-11-19T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/ghidra/</loc>
+    <lastmod>2024-11-19T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/inetsim/</loc>
+    <lastmod>2024-11-19T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/infrastructure/</loc>
+    <lastmod>2024-11-19T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/malware-analysis/</loc>
+    <lastmod>2024-11-19T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/pcb-design/</loc>
+    <lastmod>2024-11-19T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/categories/portafolio/</loc>
+    <lastmod>2024-11-19T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/automation/</loc>
+    <lastmod>2024-10-30T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/posts/analyst-preview/</loc>
+    <lastmod>2024-10-30T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/categories/desarrollo/</loc>
+    <lastmod>2024-10-30T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/categories/proyectos/</loc>
+    <lastmod>2024-10-30T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/python/</loc>
+    <lastmod>2024-10-30T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/tags/x64dbg/</loc>
+    <lastmod>2024-10-30T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/whoami/</loc>
+    <lastmod>2024-09-21T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url><url>
+    <loc>--theme/posts/markdown-syntax/</loc>
+    <lastmod>2023-02-11T00:00:00+00:00</lastmod>
+    <changefreq>hourly</changefreq>
+  </url>
 </urlset>
