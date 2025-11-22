@@ -4,3 +4,6 @@
 [submodule "public/--forece"]
 	path = public/--forece
 	url = https://github.com/tty503/tty503.github.io.git
+[submodule "public/--force"]
+	path = public/--force
+	url = https://github.com/tty503/tty503.github.io.git
