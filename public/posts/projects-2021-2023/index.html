@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> DevLog : Reversing, Hardware y la construcción de un Laboratorio &middot; tty503 </title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.150.0">
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.1/css/all.css" integrity="sha384-QI8z31KmtR+tk1MYi0DfgxrjYgpTpLLol3bqZA/Q1Y8BvH+6k7/Huoj38gQOaCS7" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="--theme/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="#ZgotmplZ">
+
+
+
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Concert+One&display=swap" rel="stylesheet">
+
+
+
+
+
+
+</head>
+
+<body>
+    <header>
+	<nav class="navbar navbar-dark bg-dark fixed-top navbar-expand-lg font-header">
+		<div class="container-fluid">
+			<a class="navbar-brand" id="green-terminal" href='--theme/--theme/'>
+				tty503@website ~ $
+			</a>
+			<button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse-1" 
+					aria-controls="navbar-collapse-1" aria-expanded="false">
+				<span class="visually-hidden">Toggle navigation</span>
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			
+			<div class="collapse navbar-collapse" id="navbar-collapse-1">
+				<ul class="nav navbar-nav ms-auto">
+					<li class="nav-item">
+						<a class="nav-link" href='--theme/--theme/'>
+							/home/tty503</a>
+					</li>
+					
+					
+					
+					<li class="nav-item dropdown">
+						
+						<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" 
+								aria-haspopup="true" aria-expanded="false">posts <span class="caret"></span></a>
+						<ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+							
+							<li>
+								<a class="dropdown-item" href="--theme/--theme/posts">~/all posts</a>
+							</li>
+							
+							<li>
+								<a class="dropdown-item" href="--theme/--theme/categories">~/categories</a>
+							</li>
+							
+							<li>
+								<a class="dropdown-item" href="--theme/--theme/tags">~/tags</a>
+							</li>
+							
+						</ul>
+						
+					</li>
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+    <div class="flex-wrapper">
+        <div class="container wrapper">
+            <h1><a href="--theme/posts/projects-2021-2023/">DevLog : Reversing, Hardware y la construcción de un Laboratorio</a></h1>
+            
+            
+            
+            <span class="post-date">2024-11-19</span>
+            
+                        
+            <div class="post-content">
+                <p>El camino para entender la ciberseguridad ofensiva y defensiva rara vez es una línea recta. Entre 2021 y 2023, mi enfoque osciló entre el <strong>software de alto nivel</strong>, el <strong>bajo nivel</strong>  y, eventualmente, la <strong>capa física</strong> y la infraestructura que sostiene todo esto.</p>
+<p>Este <em>DevLog</em> documenta cronológicamente los proyectos, los errores y los aprendizajes de esos años.</p>
+<h2 id="2021-rompiendo-el-hielo-con-el-reversing">2021: Rompiendo el hielo con el Reversing</h2>
+<p>Mis inicios estuvieron marcados por la resolución de desafíos de ingeniería inversa, específicamente los de <strong>MalwareTech</strong>. En esta etapa, el objetivo era simple pero fundamental: entender cómo un binario oculta sus secretos.</p>
+<p>Pasé horas trazando la ejecución en debuggers, aprendiendo a identificar estructuras de datos en memoria y &ldquo;cazando&rdquo; flags ofuscadas.</p>
+<img src="/img/projects-2021-2023/post-1.jpg" alt="Resolviendo flags de strings básico en desafíos CTF" width="800" height="400" />
+<img src="/img/projects-2021-2023/post-5.jpg" alt="MalwareTech CTF" width="800" height="400" />
+<p>Rápidamente, la necesidad de herramientas más potentes me llevó a <strong>Ghidra</strong> e <strong>IDA Pro</strong>. No bastaba con ver el código ensamblador; necesitaba entender el flujo de control global. Aquí, por ejemplo, analicé cómo un binario calculaba hashes MD5 para validar su integridad o verificar claves, una técnica común en malware para evitar ser modificado.</p>
+<img src="/img/projects-2021-2023/post-6.jpg" alt="Análisis estático inicial en IDA Pro mostrando strings referenciadas" width="800" height="400" />
+<img src="/img/projects-2021-2023/post-10.jpg" alt="Vista de decompilación en Ghidra analizando rutinas de hash" width="800" height="400"/>
+<h2 id="2022-la-trinchera-del-malware-djvu--bazarbackdoor">2022: La Trinchera del Malware (Djvu &amp; BazarBackdoor)</h2>
+<p>Con los fundamentos claros, salté al análisis de amenazas reales. Mi proyecto más largo fue el seguimiento del <strong>Ransomware Djvu</strong>. Durante meses, documenté sus variantes entre 2020 y 2022.</p>
+<p>Uno de los mayores retos fue analizar la <strong>entropía de las secciones</strong>. El malware moderno suele venir &ldquo;empaquetado&rdquo; (packed) para evadir antivirus. Visualizar la entropía me permitía identificar rápidamente qué secciones contenían código cifrado o comprimido, diferenciando el <em>loader</em> del <em>payload</em> real.</p>
+<img src="/img/projects-2021-2023/post-4.jpg" alt="Análisis de entropía y secciones PE en Djvu Ransomware" width="800" height="400" />
+<p>Posteriormente, al analizar <strong>BazarBackdoor</strong>, el enfoque cambió de &ldquo;¿cómo funciona el binario?&rdquo; a &ldquo;¿qué quiere el atacante?&rdquo;.</p>
+<p>Correlacioné el código desensamblado con las TTPs (Técnicas, Tácticas y Procedimientos) de reconocimiento de red. Descubrí que el malware ejecutaba comandos específicos de <strong>PowerShell</strong> y <strong>CMD</strong> para enumerar usuarios del Directorio Activo. Mapear estas instrucciones a comandos como <code>net users /img/projects-2021-2023/domain</code> o <code>Get-ADUser</code> fue clave para entender el impacto operativo de la infección.</p>
+<img src="/img/projects-2021-2023/post-12.jpg" alt="Correlación de código de BazarBackdoor con comandos de enumeración de AD" width="800" height="400" />
+<p>Todo este análisis manual desembocó en la creación de documentación técnica y reglas YARA para la detección proactiva.</p>
+<img src="/img/projects-2021-2023/post-2.jpg" alt="Reporte técnico y reglas YARA basadas en el análisis" width="800" height="400" />
+<h2 id="infraestructura-cuando-el-hardware-es-el-límite">Infraestructura: Cuando el Hardware es el Límite</h2>
+<p>Montar un laboratorio de análisis de malware requiere recursos. Necesitas aislar la amenaza en una red virtual controlada, simular servicios de internet y ejecutar herramientas pesadas.</p>
+<p>Me topé con la realidad del hardware limitado. Al intentar correr <strong>INetSim</strong> (para simular respuestas DNS/img/projects-2021-2023/HTTP y engañar al malware creyendo que tiene internet) junto con máquinas víctimas en un entorno virtualizado, la memoria RAM se convirtió en un cuello de botella crítico.</p>
+<p>Aprendí a optimizar servicios en Debian y a trabajar en <em>Low Memory Mode</em>, gestionando cada megabyte para mantener el laboratorio operativo sin colgar el host.</p>
+<img src="/img/projects-2021-2023/post-15.jpg" alt="Debian ejecutando INetSim en modo de baja memoria" width="800" height="400" />
+<h2 id="2023-descendiendo-al-hardware-pcb">2023: Descendiendo al Hardware (PCB)</h2>
+<p>En febrero de 2023, mi curiosidad técnica se expandió hacia el hardware. En el trabajo, recibí una inducción sobre <strong>diseño de PCBs</strong> (Circuitos Impresos).</p>
+<p>Aunque mi perfil es de software, entender cómo se diseñan los circuitos, cómo se ubican los componentes y cómo fluyen las señales eléctricas me dio una nueva perspectiva sobre la seguridad en sistemas embebidos y IoT. Es el nivel más bajo posible: donde el código se encuentra con el silicio.</p>
+<img src="/img/projects-2021-2023/post-14.jpg" alt="Diseño de PCB y visualización 3D de componentes electrónicos" width="800" height="400" />
+<h2 id="desarrollo-ofensivo-c-bits-y-c2">Desarrollo Ofensivo: C, Bits y C2</h2>
+<p>De vuelta al código, me obsesioné con entender cómo el malware interactúa con el sistema operativo a bajo nivel. Profundicé en <strong>C</strong> y las operaciones <em>bitwise</em> (desplazamientos, máscaras XOR, AND/img/projects-2021-2023/OR), esenciales para entender algoritmos de cifrado y ofuscación de strings.</p>
+<img src="/img/projects-2021-2023/post-8.jpg" alt="Código C: Implementación de máscaras y desplazamiento de bits" width="800" height="400" />
+<img src="/img/projects-2021-2023/post-9.jpg" alt="Snippet de C mostrando lógica de manipulación de bytes" width="800" height="400" />
+<img src="/img/projects-2021-2023/post-7.jpg" alt="Bitwise snippet" width="800" height="400" />
+<p>Paralelamente, seguí mejorando mis habilidades de SysAdmin utilizando <strong>OpenBSD</strong> y automatizando configuraciones con <strong>Ansible</strong>, buscando siempre la simplicidad y seguridad por diseño.</p>
+<img src="/img/projects-2021-2023/post-11.jpg" alt="Automatización de servidores OpenBSD con Ansible" width="800" height="400" />
+<h2 id="el-presente-analystty">El Presente: Analystty</h2>
+<p>Toda esta experiencia —el dolor de cabeza con la gestión de memoria, el análisis manual tedioso de Djvu y la comprensión del código de bajo nivel— culminó con : <strong>Analystty</strong>.</p>
+<p>Es una herramienta CLI en Python que automatiza lo que antes me tomaba horas: parsear cabeceras PE, detectar capacidades maliciosas y resolver direcciones de memoria dinámicamente.</p>
+<img src="/img/projects-2021-2023/post-3.jpg" alt="Código fuente en Python para la automatización del análisis" width="800" height="400" />
+<p>Este viaje me enseñó que la especialización es importante, pero tener una visión general —desde el diseño de la placa base hasta el script de automatización— es lo que realmente te da ventaja en ciberseguridad.</p>
+
+            </div>
+            
+            <div class="post-comments">
+                
+            </div>
+            
+        </div>
+        <footer class="footer text-center">
+<p>Copyright &copy; 2025 Christian Marquez -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </div>
+</body>

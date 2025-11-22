@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Assembly on tty503</title>
+    <link>--theme/tags/assembly/</link>
+    <description>Recent content in Assembly on tty503</description>
+    <generator>Hugo</generator>
+    <language>es-ve</language>
+    <lastBuildDate>Sat, 26 Apr 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="--theme/tags/assembly/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>DevLog : comprendiendo la seguridad OT investigación de PLCs S5 a S7</title>
+      <link>--theme/posts/devlog-plc/</link>
+      <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
+      <guid>--theme/posts/devlog-plc/</guid>
+      <description>&lt;p&gt;El camino para entender la seguridad ofensiva en infraestructuras críticas a menudo comienza mirando hacia atrás. Entre febrero y abril de 2025, mi investigación se centró en diseccionar la &amp;ldquo;caja negra&amp;rdquo; que controla la industria: los Controladores Lógicos Programables (PLC).&lt;/p&gt;&#xA;&lt;p&gt;Lo que comenzó como un curso básico de programación en equipos Siemens S5 legados (algunos datan de 1974), se transformó rápidamente en un proyecto de ingeniería inversa. La primera impresión al llegar al laboratorio fue la de estar en un museo funcional; máquinas corriendo software sobre interfaces que recordaban a Windows 95, controlando procesos físicos reales.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Automatizando la Disección de Binarios: preview de analystty</title>
+      <link>--theme/posts/analyst-preview/</link>
+      <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>--theme/posts/analyst-preview/</guid>
+      <description>&lt;p&gt;El análisis de malware suele comenzar como un proceso manual y meticuloso. Sin embargo, cuando te enfrentas a un lote de muestras (como el set de &lt;em&gt;Bazaar 2020.02&lt;/em&gt; con el que he estado trabajando), la repetición se vuelve el enemigo.&lt;/p&gt;&#xA;&lt;p&gt;Desde julio de 2024, he estado trabajando en &lt;strong&gt;Analystty&lt;/strong&gt;, un proyecto personal que nació de una necesidad simple: dejar de repetir las mismas tareas básicas en cada binario. Lo que comenzó como scripts de Python dispersos para analizar cabeceras PE, hoy es una herramienta CLI en desarrollo que busca cerrar la brecha entre el análisis estático y el dinámico.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
