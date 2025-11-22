@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>analystty - preview &middot; tty503</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1117"> 
+<meta name="generator" content="Hugo 0.150.0">
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.1/css/all.css">
+
+
+<link rel="stylesheet" href="css/tty503.css">
+
+
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+<meta name="keywords" content="tty503, kr0pl0its, ciberseguridad, cybersecurity, blog, minimal, terminal, venezuela, developer, software" />
+
+</head>
+<body>
+    <header>
+    <nav class="navbar navbar-dark bg-dark fixed-top navbar-expand-lg font-header">
+        <div class="container-fluid">
+            
+            
+            <a class="navbar-brand" id="green-terminal" href='https://tty503.com/'>
+                <span class="text-success">➜</span> tty503<span class="text-muted">@</span>website <span class="text-warning">~ $</span>
+            </a>
+            
+            
+            <button type="button" class="navbar-toggler border-0" data-bs-toggle="collapse" data-bs-target="#navbar-collapse-1" 
+                    aria-controls="navbar-collapse-1" aria-expanded="false" style="font-family: monospace;">
+                <span class="text-muted">[</span> MENU <span class="text-muted">]</span>
+            </button>
+
+            
+            <div class="collapse navbar-collapse" id="navbar-collapse-1">
+                <ul class="nav navbar-nav ms-auto align-items-lg-center">
+                    
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href='https://tty503.com/'>
+                            <span class="text-primary">cd</span> ~
+                        </a>
+                    </li>
+                    
+                    
+                    <li class="nav-item">
+                        
+                        <a class="nav-link" href='https://tty503.com/whoami'>
+                            <span class="text-success">./</span>whoami
+                        </a>
+                    </li>
+                    
+
+                    
+                    
+                    
+                    <li class="nav-item dropdown">
+                        
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" 
+                                aria-haspopup="true" aria-expanded="false">ls ~/<span class="caret"></span></a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                            
+                            <li>
+                                <a class="dropdown-item" href="https://tty503.com/var">cd ~/var</a>
+                            </li>
+                            
+                            <li>
+                                <a class="dropdown-item" href="https://tty503.com/categories">cd ~/var/categories</a>
+                            </li>
+                            
+                            <li>
+                                <a class="dropdown-item" href="https://tty503.com/tags">cd ~/var/tags</a>
+                            </li>
+                            
+                        </ul>
+                        
+                    </li>
+                    
+
+                    
+                    <li class="nav-item d-none d-lg-block mx-2">
+                        <span class="text-muted">|</span>
+                    </li>
+
+                    
+                    
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+    
+    <div class="flex-wrapper">
+        <div class="container mt-4">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-9">
+                    
+                    
+                    <div class="text-muted font-monospace mb-3" style="font-size: 0.9em;">
+                        <span class="text-success">root@website</span>:
+                        <span class="text-primary">/posts/</span>index
+                    </div>
+
+                    <article class="tui-panel">
+                        
+                        <header class="mb-5 border-bottom border-secondary pb-3">
+                            <h1 class="mb-2">analystty - preview</h1>
+                            <div class="font-monospace text-muted">
+                                <i class="fas fa-calendar-alt me-2"></i>2024-10-30
+                                
+                            </div>
+                        </header>
+
+                        
+                        <div class="post-content">
+                            <p>La repetición mata la creatividad, y en este oficio, también mata la paciencia. Cuando tienes enfrente un montón de muestras de malware (como las del famoso set Bazaar 2020.02 con el que estuve peleándome), la rutina se vuelve tu peor enemiga. Ponerte a configurar el entorno, abrir el desensamblador, buscar el main, y repetir el proceso para 50 archivos idénticos&hellip; bueno, cansa bastante. Es la receta perfecta para el &ldquo;burnout&rdquo; del analista.</p>
+<p>Llegó un punto en julio de 2024 en el que dije &ldquo;basta&rdquo;. No podía seguir perdiendo 15 minutos por muestra solo en tareas de triviales.</p>
+<p>Por eso escribi <code>analystty</code>. Básicamente, es un proyecto con la intencion de  automatizar todo ese trabajo sucio inicial por
+mi cuenta.</p>
+<h2 id="qué-hace-detectando-ttps-y-capacidades">¿Qué hace? (Detectando TTPs y Capacidades)</h2>
+<p>Mirar la tabla de importaciones (IAT) está bien, es lo primero que nos enseñan. Pero seamos honestos: ver una lista plana de 200 funciones no te dice mucho a menos que tengas una memoria enciclopédica. ¡Entenderla es mejor!</p>
+<p>Usando la librería pefile para parsear las cabeceras y una base de datos personalizada inspirada en MalApi (que vive en un fichero malapi.json bastante completo), la herramienta no solo me lista las funciones, sino que me dice para qué sirven. Le da semántica al código muerto.</p>
+<p><code>analystty</code> cruza cada importación con categorías predefinidas. Por ejemplo:</p>
+<ul>
+<li>Si el malware trae VirtualProtect, WriteProcessMemory o CreateRemoteThread, <code>analystty</code> me grita al instante: ¡Ojo, esto es Injection!.</li>
+<li>Si ve IsDebuggerPresent o CheckRemoteDebuggerPresent, lo marca como Evasion o Anti-Debugging.</li>
+<li>Si aparecen CreateToolhelp32Snapshot o EnumProcesses, sabemos que está en fase de Enumeration (reconocimiento).</li>
+</ul>
+<p>Así ya sé a qué atenerme antes de abrir nada más. Es la diferencia entre entrar a una habitación a oscuras o entrar con visión nocturna.</p>
+<img src="/img/analystty-preview/post-1.jpg" alt="Detección de APIs de Malware" width="800" height="400" />
+<h2 id="el-dolor-de-cabeza-de-x64-rip-relative-addressing">El dolor de cabeza de x64: RIP-Relative Addressing</h2>
+<p>Si vienes de analizar binarios de 32 bits (x86), seguro recuerdas que la vida era más sencilla: las llamadas a las APIs solían ser absolutas o fáciles de seguir. Veías un <code>call 0x401000</code> y sabías exactamente a dónde ibas.</p>
+<p>Pero en x64, la cosa se complica —y mucho— con el <strong>direccionamiento relativo al puntero de instrucción (RIP-Relative Addressing)</strong>. Esto se hace para facilitar el <strong>Position Independent Code (PIC)</strong>, pero para nosotros es un dolor de muelas.</p>
+<p>Ahora, en lugar de una dirección clara, ves cosas como <code>call [rip + 0x6e58]</code>. Esto significa: <strong>&ldquo;salta a la dirección donde estoy ahora + 0x6e58 bytes&rdquo;</strong>. A simple vista, eso no te dice absolutamente nada. No sabes si está llamando a Sleep, a Wannacry o a la función de imprimir por pantalla.</p>
+<p>Para no tener que sacar la calculadora hexadecimal cada dos por tres (o confiar ciegamente en que el desensamblador acierte siempre), escribí una lógica en Python dentro de <code>analystty.py</code> que lo resuelve estáticamente:</p>
+<ul>
+<li><strong>Desarma</strong> el código binario usando el motor de capstone.</li>
+<li><strong>Busca</strong> patrones de instrucciones específicas (<code>CALL</code> o <code>JMP</code>) que usen <code>RIP</code> como base.</li>
+</ul>
+<p>Así es como se ve el &ldquo;dump&rdquo; crudo que procesa la herramienta. Capstone nos permite iterar sobre cada instrucción, dándonos los opcodes y mnemónicos necesarios para identificar dónde ocurren estos saltos relativos:
+<img src="/img/analystty-preview/post-2.jpg" alt="Disassembly raw output showing opcodes" width="800" height="400" /></p>
+<ul>
+<li><strong>Calcula</strong> la dirección real. La fórmula mágica es: <code>Dirección de la siguiente instrucción + Offset</code>.</li>
+</ul>
+<img src="/img/analystty-preview/post-6.jpg" alt="Output offsets" width="800" height="400" />
+<p>Mira cómo el script hace la &ldquo;magia&rdquo; con expresiones regulares para encontrar el offset y resolver el destino:</p>
+<font size="3.5">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> mnemonic <span style="color:#f92672">in</span> [<span style="color:#e6db74">&#39;call&#39;</span>, <span style="color:#e6db74">&#39;jmp&#39;</span>]:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Estas instrucciones pueden usar direccionamiento relativo a RIP.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Necesitamos identificar el destino para un posible análisis posterior (ej. resolución de llamadas).</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> operands <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;rax&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Caso especial: El operando es &#39;rax&#39; (registro), pero la instrucción previa pudo haber cargado </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># una dirección relativa a RIP en &#39;rax&#39; (por ejemplo, &#39;mov rax, [rip + 0x...]&#39;).</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Intentamos extraer el offset de RIP de los operadores de la instrucción anterior.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">match</span> <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;\[rip\s*([\+\-])\s*0x([0-9a-fA-F]+)\]&#39;</span>, previous[<span style="color:#e6db74">&#39;OPERATORS&#39;</span>])
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Caso general: El operando actual es una dirección relativa a RIP directa.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># ¿Es una dirección relativa fea tipo [rip + 0x123]? let&#39;s go!</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Usamos regex para capturar el signo (+/-) y el valor hexadecimal.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">match</span> <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;\[rip\s*([\+\-])\s*0x([0-9a-fA-F]+)\]&#39;</span>, operands)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">match</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Si encontramos un offset relativo a RIP: Calculamos la dirección física real del destino.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># match.group(1) es el signo (+ o -), match.group(2) es el valor hexadecimal.</span>
+</span></span><span style="display:flex;"><span>        offset <span style="color:#f92672">=</span> int(<span style="color:#66d9ef">match</span><span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> <span style="color:#66d9ef">match</span><span style="color:#f92672">.</span>group(<span style="color:#ae81ff">2</span>), <span style="color:#ae81ff">16</span>)   
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># ¡Bingo! Aquí está la dirección destino absoluta en el archivo.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># &#39;address&#39; es la dirección de la instrucción actual, &#39;offset&#39; es cuánto nos movemos.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Sumamos el offset a la dirección actual para obtener el destino absoluto.</span>
+</span></span><span style="display:flex;"><span>        address <span style="color:#f92672">=</span> hex(int(address, <span style="color:#ae81ff">16</span>) <span style="color:#f92672">+</span> offset)
+</span></span></code></pre></div></font>
+<p>¿El resultado? Una tabla preciosa donde <code>[rip + 0x6e58]</code> se convierte mágicamente en <code>WinExec</code> o <code>Sleep</code>. ¡Adiós a los cálculos manuales y a adivinar qué hace el código! Esto me permite <strong>trazar el flujo de ejecución estáticamente</strong> con una precisión que antes solo tenía ejecutándolo.</p>
+<img src="/img/analystty-preview/post-7.jpg" alt="Tabla limpia" width="800" height="400" />
+<h2 id="conectando-con-x64dbg-en-desarrollo">Conectando con x64dbg (en desarrollo)</h2>
+<p>Todo este análisis estático está genial para informes, pero la verdadera diversión empieza en el debugging dinámico. Aquí es donde <code>analystty</code> intenta cerrar el círculo, aunque aviso importante: esta feature aún está en el horno y no funciona al 100%. Es un trabajo en progreso, al igual que otras funcionalidades avanzadas que sigo puliendo.</p>
+<p>Implementé una clase llamada medbg (dentro del módulo <code>analystty.py</code>) que actúa como puente experimental. La meta es dejar de copiar y pegar direcciones manualmente de mi terminal al debugger.</p>
+<p>La visión es que la herramienta haga esto automáticamente (y ya lo logra en entornos controlados):</p>
+<ul>
+<li><strong>Conexión</strong>: Se conecta a una instancia de <strong>x64dbg</strong> que ya tengas corriendo mediante un socket o interfaz de plugin.</li>
+<li><strong>Cálculo</strong> de ASLR: Aquí viene lo interesante. El binario en disco tiene una ImageBase (por defecto suele ser 0x140000000), pero en memoria, Windows lo carga donde le da la gana por seguridad (ASLR). <code>analystty</code> calcula la diferencia (rebase) y ajusta todas las direcciones que encontró en el paso anterior.
+<ul>
+<li>Fórmula: <code>Dirección Dinámica = (Dirección Estática - ImageBase Estática) + ImageBase Dinámica</code>.</li>
+</ul>
+</li>
+<li><strong>Breakpoints</strong> Automáticos: Recorre la lista de APIs de interés detectadas en el paso 1 (esa inyección de código que vimos antes) y le dice al debugger: &ldquo;Pon un breakpoint aquí, aquí y allá&rdquo;.</li>
+</ul>
+<p>Para poder poner estos breakpoints, el script primero genera una matriz que ordena las funciones por las importaciones utilizadas. Esto permite saber exactamente en qué dirección de memoria se llama a WriteFile o Sleep, agrupándolas para facilitar la automatización:</p>
+<img src="/img/analystty-preview/post-4.jpg" alt="Functions ordered by imports used" width="800" height="400" />
+<img src="/img/analystty-preview/post-9.jpg" alt="Tabla resultante para el MalApi" width="800" height="400" />
+<p>Básicamente, lanzo el script y cuando miro el debugger, la idea es estar parado justo antes de que el malware intente inyectarse o conectarse a internet. Aún tiene sus fallos y casos borde, pero cuando funciona, te saltas todo el proceso del principio.</p>
+<p>Sigo trabajando en esto y puliendo cosas (la lista de malapi.json siempre puede crecer y la detección de patrones puede mejorar).</p>
+
+                        </div>
+                    </article>
+
+                    
+                    
+                    <div class="mt-5">
+                        
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <footer class="footer text-center">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<span class="status-dot"></span> SYSTEM ONLINE 
+				<span class="text-muted mx-2">|</span> 
+				UPTIME: 2025
+				<br class="d-block d-md-none"> 
+				<span class="blink-cursor">_</span>
+			</div>
+			<div class="col-12 mt-2 text-muted" style="font-size: 0.75rem;">
+				Powered by <a href="https://gohugo.io" target="_blank">Hugo</a> & Custom tty503 Theme
+			</div>
+		</div>
+	</div>
+</footer>
+    </div>
+</body>
+</html>
