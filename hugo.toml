@@ -1,53 +1,56 @@
 baseURL = 'https://tty503.com/'
 languageCode = 'es-ve'
 title = 'tty503'
-theme = "hugo-blog-awesome"
-
-[params.author]
-  avatar = "avatar.jpg" 
-  name = "Christian Marquez"
-  description = "A passionate software development🧑‍💻 and computer security🏴‍☠️."
+theme = "hugo-theme-nix"
 
 [sitemap]
   changeFreq = 'hourly'
 
 [params]
+  Name = "Christian Marquez"
+  HeaderUsername = "tty503"
+  HeaderHostname = "website"
+  About = "A passionate software development🧑‍💻 and computer security🏴‍☠️."
+  ProfilePicture = "avatar.jpg"
   goToTop = true
+  
+  GithubID = "tty503"
+  LinkedInID = "tty503"
+  TelegramID = "tty503"
+  TwitterID = "tty_503"
 
-[[params.socialIcons]]
-name = "linkedin"
-url = "https://linkedin.com/in/tty503"
+[params.whoami]
+  name = "whoami"
+  url = "/whoami"  
 
-[[params.socialIcons]]
-name = "github"
-url = "https://github.com/tty503"
-
-[[params.socialIcons]]
-name = "twitter"
-url = "https://x.com/tty_503"
-
-[[params.socialIcons]]
-name = "Telegram"
-url = "https://t.me/tty503"
+[params.Favicon]
+  name = "icon"
+  url = "/favicon.ico"  
 
 
-[menu]
-[[menu.main]]
-    pageRef="/"
-    name = 'Inicio'
-    url = '/'
-    weight = 10
-[[menu.main]]
-    pageRef="posts"
-    name = 'Blog'
-    url = '/posts/'
-    weight = 20
-[[menu.main]]
-    pageRef="about"
-    name = 'Sobre Mi'
-    url = '/about/'
-    weight = 30
+[[menu.header]]
+  identifier = "post"   
+  name = "posts"        
+  url = "/posts"
+  weight = 1
 
+[[menu.header]]
+  parent = "post"       
+  name = "All Posts"
+  url = "/posts"
+  weight = 1
+
+[[menu.header]]
+  parent = "post"
+  name = "Categories"
+  url = "/categories"
+  weight = 2
+
+[[menu.header]]
+  parent = "post"
+  name = "Tags"
+  url = "/tags"
+  weight = 3
 
 [markup]
   [markup.goldmark]
