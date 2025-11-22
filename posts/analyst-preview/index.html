@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title> Automatizando la Disección de Binarios: preview de analystty &middot; tty503 </title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.150.0">
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.7.1/css/all.css" integrity="sha384-QI8z31KmtR+tk1MYi0DfgxrjYgpTpLLol3bqZA/Q1Y8BvH+6k7/Huoj38gQOaCS7" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="--theme/css/nix.css">
+
+
+
+<link rel="shortcut icon" href="#ZgotmplZ">
+
+
+
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Concert+One&display=swap" rel="stylesheet">
+
+
+
+
+
+
+</head>
+
+<body>
+    <header>
+	<nav class="navbar navbar-dark bg-dark fixed-top navbar-expand-lg font-header">
+		<div class="container-fluid">
+			<a class="navbar-brand" id="green-terminal" href='--theme/--theme/'>
+				tty503@website ~ $
+			</a>
+			<button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse-1" 
+					aria-controls="navbar-collapse-1" aria-expanded="false">
+				<span class="visually-hidden">Toggle navigation</span>
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			
+			<div class="collapse navbar-collapse" id="navbar-collapse-1">
+				<ul class="nav navbar-nav ms-auto">
+					<li class="nav-item">
+						<a class="nav-link" href='--theme/--theme/'>
+							/home/tty503</a>
+					</li>
+					
+					
+					
+					<li class="nav-item dropdown">
+						
+						<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" 
+								aria-haspopup="true" aria-expanded="false">posts <span class="caret"></span></a>
+						<ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+							
+							<li>
+								<a class="dropdown-item" href="--theme/--theme/posts">~/all posts</a>
+							</li>
+							
+							<li>
+								<a class="dropdown-item" href="--theme/--theme/categories">~/categories</a>
+							</li>
+							
+							<li>
+								<a class="dropdown-item" href="--theme/--theme/tags">~/tags</a>
+							</li>
+							
+						</ul>
+						
+					</li>
+					
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+    <div class="flex-wrapper">
+        <div class="container wrapper">
+            <h1><a href="--theme/posts/analyst-preview/">Automatizando la Disección de Binarios: preview de analystty</a></h1>
+            
+            
+            
+            <span class="post-date">2024-10-30</span>
+            
+                        
+            <div class="post-content">
+                <p>El análisis de malware suele comenzar como un proceso manual y meticuloso. Sin embargo, cuando te enfrentas a un lote de muestras (como el set de <em>Bazaar 2020.02</em> con el que he estado trabajando), la repetición se vuelve el enemigo.</p>
+<p>Desde julio de 2024, he estado trabajando en <strong>Analystty</strong>, un proyecto personal que nació de una necesidad simple: dejar de repetir las mismas tareas básicas en cada binario. Lo que comenzó como scripts de Python dispersos para analizar cabeceras PE, hoy es una herramienta CLI en desarrollo que busca cerrar la brecha entre el análisis estático y el dinámico.</p>
+<h2 id="el-problema-escalar-el-análisis">El Problema: Escalar el Análisis</h2>
+<p>Cuando analizas una muestra de ransomware (como las variantes de <em>Djvu</em> que se ven en las capturas), el primer paso es siempre el mismo: identificar secciones, buscar importaciones sospechosas y mapear dónde se usan. Hacer esto manualmente en un desensamblador para 50 archivos no es viable.</p>
+<img src="/img/analystty-preview/post-5.jpg" alt="Entorno de desarrollo con VS Code y FlareVM" width="1000" height="400" />
+<h2 id="1-análisis-estático-y-detección-de-capacidades">1. Análisis Estático y Detección de Capacidades</h2>
+<p>El núcleo de la herramienta utiliza <code>pefile</code> y <code>capstone</code> para diseccionar el binario. No me interesaba solo ver las importaciones, sino <strong>clasificarlas</strong>. Implementé un sistema de etiquetado (basado en un <code>config.json</code> y listas de <em>MalApi</em>) que categoriza las funciones automáticamente.</p>
+<p>Si el malware importa <code>VirtualProtect</code> o <code>WriteProcessMemory</code>, la herramienta lo etiqueta inmediatamente como <strong>Injection</strong> o <strong>Evasion</strong>.</p>
+<img src="/img/analystty-preview/post-1.jpg" alt="Detección de APIs de Malware" width="800" height="600" />
+<p>Esto me permite obtener una &ldquo;radiografía&rdquo; rápida de las intenciones del binario antes de siquiera abrir un debugger.</p>
+<h2 id="2-el-desafío-de-x64-resolviendo-rip-relative-addressing">2. El Desafío de x64: Resolviendo RIP-Relative Addressing</h2>
+<p>Aquí es donde entra la parte de <strong>Desarrollo de Software</strong> aplicada a la ingeniería inversa. En arquitecturas x86 (32 bits), encontrar una llamada a una API suele ser directo. Pero en x64, el código hace un uso extensivo del direccionamiento relativo al puntero de instrucción (RIP).</p>
+<p>Ver una instrucción como <code>call qword ptr [rip + 0x6e58]</code> no te dice mucho a simple vista. Para saber a qué función está llamando realmente el malware, necesitas calcular ese offset.</p>
+<img src="/img/analystty-preview/post-6.jpg" alt="Output offsets" width="800" height="600" />
+<p>Implementé una lógica en <code>analystty.py</code> usando expresiones regulares y aritmética hexadecimal para resolver esto estáticamente:</p>
+<font size="1">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> mnemonic <span style="color:#f92672">in</span> [<span style="color:#e6db74">&#39;call&#39;</span>, <span style="color:#e6db74">&#39;jmp&#39;</span>]:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Agregar la capacidad de distinguir otros registros, </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># la misma logica es usada para ubicar los argumentos </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># que son cargandos en la funcion. Ademas, debe tener </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># la capacidad de adaptarse en caso de que sea 32 bits.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> operands <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;rax&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">match</span> <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;\[rip\s*([\+\-])\s*0x([0-9a-fA-F]+)\]&#39;</span>, previous[<span style="color:#e6db74">&#39;OPERATORS&#39;</span>])
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">match</span> <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;\[rip\s*([\+\-])\s*0x([0-9a-fA-F]+)\]&#39;</span>, operands)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">match</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># No hemos considerado la posibilidad de que use mas </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># elementos para calcular el offset debemos poder detectar </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># cuando se esta realizan un calculo de offset. </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Una idea podria ser encontrar la instruccion call equivalente, </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># identificar el registro en donde se carga la direccion calculada </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># y tracear hacia atras para saber que valores estuvieron involucrados en el calculo. </span>
+</span></span><span style="display:flex;"><span>        offset <span style="color:#f92672">=</span> int(<span style="color:#66d9ef">match</span><span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> <span style="color:#66d9ef">match</span><span style="color:#f92672">.</span>group(<span style="color:#ae81ff">2</span>), <span style="color:#ae81ff">16</span>)
+</span></span><span style="display:flex;"><span>        address <span style="color:#f92672">=</span> hex(int(address, <span style="color:#ae81ff">16</span>) <span style="color:#f92672">+</span> offset)
+</span></span></code></pre></div></font>
+<p>El script parsea el desensamblado, busca patrones [rip + offset], calcula la dirección física final y la cruza con la tabla de importaciones (IAT). La herramienta resolviendo automáticamente que [rip + 0x6e58] corresponde a Sleep y [rip + 0x6e55] a WinExec.</p>
+<p>Gracias a esto, puedo generar una tabla limpia que me dice exactamente en qué dirección de memoria se está invocando una función crítica. La visualización final de las llamadas resueltas: Dirección de inicio, Dirección de la instrucción y la API objetivo.</p>
+<img src="/img/analystty-preview/post-7.jpg" alt="Tabla limpia" width="800" height="400" />
+<p>El objetivo final de esta automatización no es solo imprimir texto en consola, sino preparar el terreno para el debugging.</p>
+<p>La clase medbg dentro de la herramienta está diseñada para interactuar con x64dbg. Utilizando la información recolectada estáticamente (los Entry Points y los offsets de las APIs maliciosas calculados anteriormente), el script puede:</p>
+<ul>
+<li>Conectarse al debugger.</li>
+<li>Calcular la dirección base dinámica (ASLR).</li>
+<li>Colocar breakpoints automáticamente en las llamadas a funciones de interés (como Sleep, WinExec o IsDebuggerPresent).</li>
+</ul>
+<img src="/img/analystty-preview/post-9.jpg" alt="Tabla resultante para el MalApi" width="800" height="400" />
+<p>x64dbg con breakpoints establecidos automáticamente por el script en el EntryPoint y en las llamadas a APIs críticas.</p>
+<p>Sin embargo, este proyecto aun esta en desarrollo en <a href="https://github.com/tty503/analystty">github</a> puedes conseguir el sketch sin actualizar pero pronto espero subir una version completa.</p>
+
+            </div>
+            
+            <div class="post-comments">
+                
+            </div>
+            
+        </div>
+        <footer class="footer text-center">
+<p>Copyright &copy; 2025 Christian Marquez -
+<span class="credit">
+	Powered by
+	<a target="_blank" href="https://gohugo.io">Hugo</a>
+	and
+	<a target="_blank" href="https://github.com/LordMathis/hugo-theme-nix/">Nix</a> theme.
+</span>
+</p>
+</footer>
+
+    </div>
+</body>
