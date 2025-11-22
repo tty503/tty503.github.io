@@ -2,164 +2,164 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on tty503</title>
-    <link>--theme/tags/</link>
+    <link>tty503.com/tags/</link>
     <description>Recent content in Tags on tty503</description>
     <generator>Hugo</generator>
     <language>es-ve</language>
     <lastBuildDate>Sat, 26 Apr 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="--theme/tags/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="tty503.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Assembly</title>
-      <link>--theme/tags/assembly/</link>
+      <link>tty503.com/tags/assembly/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/assembly/</guid>
+      <guid>tty503.com/tags/assembly/</guid>
       <description></description>
     </item>
     <item>
       <title>AWL</title>
-      <link>--theme/tags/awl/</link>
+      <link>tty503.com/tags/awl/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/awl/</guid>
+      <guid>tty503.com/tags/awl/</guid>
       <description></description>
     </item>
     <item>
       <title>Hardware Hacking</title>
-      <link>--theme/tags/hardware-hacking/</link>
+      <link>tty503.com/tags/hardware-hacking/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/hardware-hacking/</guid>
+      <guid>tty503.com/tags/hardware-hacking/</guid>
       <description></description>
     </item>
     <item>
       <title>ICS Security</title>
-      <link>--theme/tags/ics-security/</link>
+      <link>tty503.com/tags/ics-security/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/ics-security/</guid>
+      <guid>tty503.com/tags/ics-security/</guid>
       <description></description>
     </item>
     <item>
       <title>MC7</title>
-      <link>--theme/tags/mc7/</link>
+      <link>tty503.com/tags/mc7/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/mc7/</guid>
+      <guid>tty503.com/tags/mc7/</guid>
       <description></description>
     </item>
     <item>
       <title>Reverse Engineering</title>
-      <link>--theme/tags/reverse-engineering/</link>
+      <link>tty503.com/tags/reverse-engineering/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/reverse-engineering/</guid>
+      <guid>tty503.com/tags/reverse-engineering/</guid>
       <description></description>
     </item>
     <item>
       <title>S7-300</title>
-      <link>--theme/tags/s7-300/</link>
+      <link>tty503.com/tags/s7-300/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/s7-300/</guid>
+      <guid>tty503.com/tags/s7-300/</guid>
       <description></description>
     </item>
     <item>
       <title>Scada</title>
-      <link>--theme/tags/scada/</link>
+      <link>tty503.com/tags/scada/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/scada/</guid>
+      <guid>tty503.com/tags/scada/</guid>
       <description></description>
     </item>
     <item>
       <title>Shellcode</title>
-      <link>--theme/tags/shellcode/</link>
+      <link>tty503.com/tags/shellcode/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/shellcode/</guid>
+      <guid>tty503.com/tags/shellcode/</guid>
       <description></description>
     </item>
     <item>
       <title>Siemens S5</title>
-      <link>--theme/tags/siemens-s5/</link>
+      <link>tty503.com/tags/siemens-s5/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/siemens-s5/</guid>
+      <guid>tty503.com/tags/siemens-s5/</guid>
       <description></description>
     </item>
     <item>
       <title>Stuxnet</title>
-      <link>--theme/tags/stuxnet/</link>
+      <link>tty503.com/tags/stuxnet/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/stuxnet/</guid>
+      <guid>tty503.com/tags/stuxnet/</guid>
       <description></description>
     </item>
     <item>
       <title>Virtual Machine</title>
-      <link>--theme/tags/virtual-machine/</link>
+      <link>tty503.com/tags/virtual-machine/</link>
       <pubDate>Sat, 26 Apr 2025 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/virtual-machine/</guid>
+      <guid>tty503.com/tags/virtual-machine/</guid>
       <description></description>
     </item>
     <item>
       <title>C2 Development</title>
-      <link>--theme/tags/c2-development/</link>
+      <link>tty503.com/tags/c2-development/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/c2-development/</guid>
+      <guid>tty503.com/tags/c2-development/</guid>
       <description></description>
     </item>
     <item>
       <title>Djvu</title>
-      <link>--theme/tags/djvu/</link>
+      <link>tty503.com/tags/djvu/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/djvu/</guid>
+      <guid>tty503.com/tags/djvu/</guid>
       <description></description>
     </item>
     <item>
       <title>Ghidra</title>
-      <link>--theme/tags/ghidra/</link>
+      <link>tty503.com/tags/ghidra/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/ghidra/</guid>
+      <guid>tty503.com/tags/ghidra/</guid>
       <description></description>
     </item>
     <item>
       <title>INetSim</title>
-      <link>--theme/tags/inetsim/</link>
+      <link>tty503.com/tags/inetsim/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/inetsim/</guid>
+      <guid>tty503.com/tags/inetsim/</guid>
       <description></description>
     </item>
     <item>
       <title>Infrastructure</title>
-      <link>--theme/tags/infrastructure/</link>
+      <link>tty503.com/tags/infrastructure/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/infrastructure/</guid>
+      <guid>tty503.com/tags/infrastructure/</guid>
       <description></description>
     </item>
     <item>
       <title>Malware Analysis</title>
-      <link>--theme/tags/malware-analysis/</link>
+      <link>tty503.com/tags/malware-analysis/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/malware-analysis/</guid>
+      <guid>tty503.com/tags/malware-analysis/</guid>
       <description></description>
     </item>
     <item>
       <title>PCB Design</title>
-      <link>--theme/tags/pcb-design/</link>
+      <link>tty503.com/tags/pcb-design/</link>
       <pubDate>Tue, 19 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/pcb-design/</guid>
+      <guid>tty503.com/tags/pcb-design/</guid>
       <description></description>
     </item>
     <item>
       <title>Automation</title>
-      <link>--theme/tags/automation/</link>
+      <link>tty503.com/tags/automation/</link>
       <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/automation/</guid>
+      <guid>tty503.com/tags/automation/</guid>
       <description></description>
     </item>
     <item>
       <title>Python</title>
-      <link>--theme/tags/python/</link>
+      <link>tty503.com/tags/python/</link>
       <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/python/</guid>
+      <guid>tty503.com/tags/python/</guid>
       <description></description>
     </item>
     <item>
       <title>X64dbg</title>
-      <link>--theme/tags/x64dbg/</link>
+      <link>tty503.com/tags/x64dbg/</link>
       <pubDate>Wed, 30 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>--theme/tags/x64dbg/</guid>
+      <guid>tty503.com/tags/x64dbg/</guid>
       <description></description>
     </item>
   </channel>

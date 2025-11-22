@@ -1,0 +1,235 @@
+/* =========================================
+   1. CONFIGURACIÓN Y VARIABLES
+   ========================================= */
+:root {
+    --bg-body: #0d1117;       
+    --bg-panel: #161b22;      
+    --border-color: #30363d;  
+    --text-main: #c9d1d9;     
+    --text-muted: #8b949e;    
+    
+    --accent-primary: #58a6ff; 
+    --accent-success: #2ea043; 
+    --accent-warning: #d29922; 
+    --accent-danger: #f85149;  
+
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --font-sans: 'Inter', 'Segoe UI', sans-serif;
+
+    /* Espaciado Responsivo */
+    --container-width: 1400px; /* Ancho máximo del dashboard */
+    --header-height: 70px;
+}
+
+* { box-sizing: border-box; }
+
+html { height: 100%; }
+
+body {
+    background-color: var(--bg-body);
+    height: 100%;
+    font-family: var(--font-sans);
+    color: var(--text-main);
+    
+    /* Tipografía Fluida */
+    font-size: clamp(16px, 1.5vw, 18px); 
+    line-height: 1.7;
+
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+a:hover {
+    color: #79c0ff;
+    text-decoration: underline;
+    text-decoration-style: dashed;
+}
+
+/* =========================================
+   2. LAYOUT FLUIDO
+   ========================================= */
+.flex-wrapper {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: var(--header-height);
+}
+
+.container {
+    max-width: var(--container-width);
+    width: 100%;
+    padding: 0 20px;
+    margin: 0 auto;
+}
+
+.tui-panel {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* =========================================
+   3. COMPONENTES UI
+   ========================================= */
+.user-picture {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    padding: 4px;
+    background: var(--bg-body);
+}
+
+h1, h2, h3, h4 {
+    font-family: var(--font-mono);
+    color: #fff;
+    margin-top: 1.5em;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); letter-spacing: -1px; }
+
+/* =========================================
+   4. LISTAS Y LOGS
+   ========================================= */
+#post-list {
+    list-style: none;
+    padding: 0;
+}
+
+.post-list-item {
+    font-family: var(--font-mono);
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.log-meta {
+    font-size: 0.85em;
+    color: var(--accent-success);
+    margin-bottom: 8px;
+}
+
+.log-title {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+.log-title a { color: #fff; }
+.log-title a:hover { color: var(--accent-primary); }
+
+/* =========================================
+   5. ARTÍCULOS Y LECTURA
+   ========================================= */
+.post-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+/* Limitamos el ancho del texto para que sea cómodo de leer */
+.post-content p, .post-content li { 
+    margin-bottom: 1.5em;
+    max-width: 85ch; 
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* CÓDIGO */
+code {
+    font-family: var(--font-mono);
+    background: rgba(110, 118, 129, 0.2);
+    color: var(--accent-primary);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+pre {
+    background: #000 !important;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 20px;
+    overflow-x: auto;
+    width: 100%; 
+    margin: 2em 0;
+}
+
+/* --- CORRECCIÓN DE IMÁGENES --- */
+.post-content img {
+    /* ELIMINADO: width: 100%; -> Esto era lo que las estiraba */
+    
+    max-width: 100%;       /* No pasarse del ancho del contenedor */
+    height: auto;          /* Mantener proporción */
+    max-height: 70vh;      /* Límite vertical (70% de la pantalla) */
+    object-fit: contain;   /* Asegurar que se vea entera */
+    
+    display: block;
+    margin: 40px auto;     /* Centrado */
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    
+    filter: brightness(0.85) contrast(1.1); 
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.post-content img:hover {
+    filter: none;
+    cursor: zoom-in;
+    border-color: var(--accent-primary);
+    /* Opcional: si quieres que crezca un poquito al pasar el mouse */
+    /* transform: scale(1.01); */
+}
+
+/* =========================================
+   6. HEADER & FOOTER
+   ========================================= */
+.navbar {
+    background-color: rgba(22, 27, 34, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    height: var(--header-height);
+}
+#green-terminal, .nav-link { font-family: var(--font-mono); }
+
+.footer {
+    background-color: var(--bg-panel);
+    border-top: 1px solid var(--border-color);
+    padding: 20px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    margin-top: 60px;
+}
+
+/* Animación Blink */
+.blink-cursor::after {
+    content: " █";
+    color: var(--accent-success);
+    animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* =========================================
+   7. MEDIA QUERIES
+   ========================================= */
+@media (max-width: 992px) {
+    .container { max-width: 100%; padding: 0 15px; }
+    .post-content p { max-width: 100%; }
+}
+
+@media (max-width: 768px) {
+    .flex-wrapper { padding-top: 60px; }
+    .tui-panel { padding: 15px; }
+    .user-picture { width: 120px; height: 120px; }
+}
