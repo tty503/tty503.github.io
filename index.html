@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>tty503 — Christian Marquez | Especialista en Seguridad, Infraestructura y Automatización</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #1c2129;
+            --accent: #3fb950;
+            --accent-hover: #2ea043;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --border: rgba(63, 185, 80, 0.25);
+            --gradient-hero: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1c2129 100%);
+            --gradient-card: linear-gradient(145deg, #161b22 0%, #1c2129 100%);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 12px 40px rgba(63, 185, 80, 0.12);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        nav {
+            width: 100%;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-brand {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-brand span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 0.3rem 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-hero);
+            padding: 5rem 2rem 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(233, 69, 96, 0.08) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #e6edf3 0%, #3fb950 100%);            
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .hero .role {
+            font-size: 1rem;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .hero-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+        }
+
+        .hero-tag {
+            background: rgba(233, 69, 96, 0.1);
+            color: var(--accent);
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .hero-tag:hover {
+            background: rgba(233, 69, 96, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+        }
+
+        /* About section */
+        .about-text {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            max-width: 800px;
+        }
+
+        .about-text .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Cards grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.8rem;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(233, 69, 96, 0.4);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+        }
+
+        .card-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card li {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            padding-left: 1.4rem;
+            position: relative;
+        }
+
+        .card li::before {
+            content: "▹";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .card li .hl {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Articles */
+        .article-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .article-card:hover {
+            border-color: rgba(233, 69, 96, 0.4);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .article-card h3 {
+            color: var(--text-primary);
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .article-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        .article-card a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .article-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* Skills */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .skill-category h3 {
+            color: var(--accent);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .skill-category ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .skill-category li {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            padding-left: 1.4rem;
+            position: relative;
+        }
+
+        .skill-category li::before {
+            content: "▹";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 0.8rem 1rem;
+            }
+            .nav-inner {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+            .nav-links {
+                gap: 1rem;
+            }
+            .hero {
+                padding: 3rem 1rem;
+            }
+            .container {
+                padding: 2rem 1rem;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1300px;
+            }
+            .cards-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-inner">
+            <div class="nav-brand"><span>tty503</span> / Christian Marquez</div>
+            <div class="nav-links">
+                <a href="#about">Sobre mi</a>
+                <a href="#experiencia">Experiencia</a>
+                <a href="#articulos">Artículos</a>
+                <a href="#skills">Habilidades</a>
+                <a href="#contacto">Contacto</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Christian Marquez</h1>
+            <p class="subtitle">Especialista en Seguridad, Infraestructura y Automatización</p>
+            <p class="role">tty503 · Reverse Engineering & DevSecOps</p>
+            <div class="hero-tags">
+                <span class="hero-tag">Reverse Engineering iOS/ARM64</span>
+                <span class="hero-tag">Análisis de Malware</span>
+                <span class="hero-tag">Ansible & Terraform</span>
+                <span class="hero-tag">Python & Bash</span>
+                <span class="hero-tag">Proxmox & QEMU</span>
+                <span class="hero-tag">C / C# / PHP</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- About -->
+        <section id="about" class="section-header">
+            <h2 class="section-title">Sobre mi</h2>
+            <p class="about-text">
+                Combino una <span class="highlight">mentalidad ofensiva</span> con una <span class="highlight">disciplina de ingeniería</span>. 
+                No solo analizo cómo se rompen las cosas: construyo y automatizo sistemas complejos. 
+                Cierro la brecha entre la investigación de seguridad profunda y la infraestructura escalable. 
+                Desde firmware de microcontroladores hasta reversing de iOS y orquestación de entornos virtualizados, 
+                mi enfoque está en entender el sistema completo y hacerlo funcionar.
+            </p>
+        </section>
+
+        <!-- Experiencia -->
+        <section id="experiencia" class="section-header">
+            <h2 class="section-title">Experiencia</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-title">Consultor en Automatización e Infraestructura</div>
+                    <div class="card-meta">tty503 · Remoto · 2026</div>
+                    <ul>
+                        <li>Despliegues con <span class="hl">Ansible y Terraform</span></li>
+                        <li>Orquestación con <span class="hl">Proxmox, QEMU y Docker</span></li>
+                        <li>Automatización de VMs iOS para investigación</li>
+                        <li>Proxies residenciales y tunelizado</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Especialista en Ingeniería Inversa</div>
+                    <div class="card-meta">tty503 · Remoto · 2024</div>
+                    <ul>
+                        <li>Reversing de <span class="hl">iOS (IPA)</span> con Ghidra/IDA</li>
+                        <li>Extracción de lógica desde binarios ofuscados</li>
+                        <li>Parcheo <span class="hl">ARM64</span> anti-tamper</li>
+                        <li>Documentación de APIs con mitmproxy</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Desarrollador Backend</div>
+                    <div class="card-meta">tty503 · Remoto · 2024</div>
+                    <ul>
+                        <li>APIs REST con <span class="hl">FastAPI + Python</span></li>
+                        <li>PostgreSQL / MySQL con SQLAlchemy</li>
+                        <li>Automatización Linux con Bash</li>
+                        <li>Despliegue con Docker</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Desarrollador .NET</div>
+                    <div class="card-meta">Kexe · Remoto (México) · 2023-2024</div>
+                    <ul>
+                        <li><span class="hl">C# .NET Framework/.NET Core</span></li>
+                        <li>Frontend con <span class="hl">DevExpress</span></li>
+                        <li>SCRUM y revisión de Merge Requests</li>
+                        <li>Refactorización de controladores</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Firmware & Electrónica</div>
+                    <div class="card-meta">CENDIT · Presencial · 2022-2023</div>
+                    <ul>
+                        <li><span class="hl">C para PIC18/PIC24</span></li>
+                        <li>Protocolos <span class="hl">I2C, UART</span></li>
+                        <li>Diagramas UML con PlantUML y LaTeX</li>
+                        <li>Soporte a hardware de laboratorio</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Administrador de Sistemas</div>
+                    <div class="card-meta">tty503 · Remoto · 2022</div>
+                    <ul>
+                        <li>Servidores Debian/Ubuntu con <span class="hl">QEMU</span></li>
+                        <li>Redes, firewalls y conectividad</li>
+                        <li>Automatización de backups con Bash</li>
+                        <li>Diagnóstico de incidencias</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Artículos -->
+        <section id="articulos" class="section-header">
+            <h2 class="section-title">Artículos & Research</h2>
+
+            <div class="article-card">
+                <h3>▸ Reconstrucción de lógica ofuscada en binarios iOS (Meta) con Python</h3>
+                <p>Flujo de trabajo para volcar ASM, extraer metadatos del IPA y reconstruir el control de flujo frente al static dispatch intencional de Meta.</p>
+            </div>
+
+            <div class="article-card">
+                <h3>▸ Análisis: Nexilo-CC-Checker — Dropper multi-etapa con API Hashing</h3>
+                <p>Binario distribuido en canales de Telegram. Clipper (BTC/ETC) + InfoStealer con RDP. <a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-clipper-ugcPost-7392043572163661824-AFeZ" target="_blank">[LinkedIn]</a></p>
+            </div>
+
+            <div class="article-card">
+                <h3>▸ Campaña NetSupport RAT disfrazada de "Caja de Belleza Lancôme"</h3>
+                <p>Operación dirigida a España. Análisis completo con IoCs. <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-malwareanalysis-threatintel-ugcPost-7401771334181232640-FMcc" target="_blank">[LinkedIn]</a></p>
+            </div>
+
+            <div class="article-card">
+                <h3>▸ Mirai 0/65 en VirusTotal: evasión de firmas con Builder en C + Stub en ASM</h3>
+                <p>PoC que bajó la detección de 16/64 a 0/65 usando solo aritmética y Assembly x86. <a href="https://www.linkedin.com/posts/tty503_cybersecurity-malwareanalysis-assembly-activity-7400333681262870528-O57N" target="_blank">[LinkedIn]</a></p>
+            </div>
+
+            <div class="article-card">
+                <h3>▸ Laboratorio SOC/Threat Intelligence con Wazuh, Grafana y honeypots</h3>
+                <p>Entorno Blue Team con Proxmox, OPNsense, Terraform y Ansible. <a href="https://www.linkedin.com/posts/tty503_blueteam-cybersoc-soc-activity-7365751574985416704-pGHR" target="_blank">[LinkedIn]</a></p>
+            </div>
+
+            <div class="article-card">
+                <h3>▸ Lotus Wiper: fragilidad OT en Venezuela</h3>
+                <p>PLC Schneider Modicon Quantum sobre Modbus TCP sin cifrado. Análisis de amenaza real. <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-threatintelligence-venezuela-ugcPost-7453262188116602880-G01e" target="_blank">[LinkedIn]</a></p>
+            </div>
+        </section>
+
+        <!-- Skills -->
+        <section id="skills" class="section-header">
+            <h2 class="section-title">Mis habilidades</h2>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <h3>🛡️ Seguridad & Reversing</h3>
+                    <ul>
+                        <li>Análisis iOS/ARM64/x86</li>
+                        <li>Bypass anti-tamper</li>
+                        <li>mitmproxy & tráfico</li>
+                        <li>Forense en Bash</li>
+                        <li>Análisis de malware</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h3>⚙️ Infraestructura</h3>
+                    <ul>
+                        <li>Ansible, Terraform</li>
+                        <li>Proxmox, QEMU, Docker</li>
+                        <li>Tunelizado y proxies</li>
+                        <li>CI/CD</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h3>💻 Desarrollo</h3>
+                    <ul>
+                        <li>C# .NET / PHP</li>
+                        <li>Python (FastAPI)</li>
+                        <li>Bash scripting</li>
+                        <li>Firmware C para PIC</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer id="contacto">
+        <p>© 2026 Christian Marquez — tty503</p>
+        <div class="footer-links">
+            <a href="#">tty503.com</a>
+            <a href="https://github.com/tty503" target="_blank">GitHub</a>
+            <a href="https://www.linkedin.com/in/tty503" target="_blank">LinkedIn</a>
+        </div>
+    </footer>
+</body>
+</html>
