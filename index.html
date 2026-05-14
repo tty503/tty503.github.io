@@ -61,6 +61,8 @@
             --text-secondary: #a3a3a3;
             --text-muted: #666666;
             --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
             --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
@@ -371,7 +373,7 @@
             font-weight: 300;
             transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
             line-height: 1;
-            flex-shrink: 0; /* Previene que el ícono se encoja en móviles */
+            flex-shrink: 0;
         }
 
         .theme-group[open] .toggle-icon {
@@ -387,6 +389,50 @@
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== SEPARADOR DE FUENTES DE ARTÍCULOS ==================== */
+        .source-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0 1.2rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .source-divider::before,
+        .source-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-subtle);
+        }
+
+        .source-divider span {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+
+        .source-divider .divider-icon {
+            font-size: 0.9rem;
+        }
+
+        /* Badge para artículos propios */
+        .local-badge {
+            display: inline-block;
+            background: transparent;
+            color: var(--accent-green);
+            padding: 0.15rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            margin-left: 0.5rem;
+            vertical-align: middle;
+            letter-spacing: 0.3px;
         }
 
         /* ==================== ITEMS DE EXPERIENCIA ==================== */
@@ -472,6 +518,15 @@
         .article-link:hover {
             background: #181818;
             border-color: var(--border-hover);
+        }
+
+        /* Hover state para artículos locales */
+        .article-link.local-article:hover {
+            border-color: rgba(74, 222, 128, 0.3);
+        }
+
+        .article-link.local-article:hover .article-arrow {
+            color: var(--accent-green);
         }
 
         .article-date {
@@ -592,43 +647,38 @@
 
         /* Smartphones (iPhone, Androids, etc) */
         @media (max-width: 600px) {
-            /* Navegación */
             .nav-container { padding: 1rem 1.2rem; }
             .nav-links { display: none; }
             
-            /* Layout general y espacios */
             .section { padding: 4rem 1.2rem; }
             .section-header { margin-bottom: 2rem; }
             
-            /* Títulos de sección adaptativos */
             .section-title {
                 font-size: 1.5rem;
                 display: flex;
-                flex-direction: column; /* Apila el número sobre el texto si es muy largo */
+                flex-direction: column;
                 gap: 0.3rem;
                 word-wrap: break-word;
             }
             .section-title span { margin-right: 0; font-size: 1.2rem; }
             
-            /* Hero Section reorganizada */
             .hero { padding: 6.5rem 1.2rem 3rem; }
             .hero-container {
                 display: flex;
-                flex-direction: column; /* Texto arriba, foto abajo */
+                flex-direction: column;
                 gap: 2.5rem;
             }
             .hero-content h1 { font-size: 2.6rem; }
             .hero-description { font-size: 1rem; }
             .hero-handle { font-size: 0.9rem; padding: 0.3rem 0.8rem; margin-bottom: 1.5rem; }
             .hero-image-container {
-                max-width: 200px; /* Imagen mucho más controlada en móvil */
+                max-width: 200px;
                 margin: 0 auto;
             }
             .tag { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
             
-            /* Acordeones - Corrección de padding y texto aplastado */
             .theme-summary {
-                padding: 1.2rem 1rem; /* Menos espacio interno lateral */
+                padding: 1.2rem 1rem;
                 gap: 0.8rem;
             }
             .theme-title {
@@ -638,7 +688,6 @@
             .toggle-icon { font-size: 1.4rem; }
             .theme-content { padding: 0 1rem 1.2rem; }
             
-            /* Items de Experiencia */
             .exp-item { padding: 1.2rem 1rem; }
             .exp-header {
                 flex-direction: column;
@@ -646,13 +695,14 @@
             }
             .exp-title { font-size: 1.05rem; }
             
-            /* Items de Artículos */
             .article-link { padding: 1.2rem 1rem; }
             .article-title { font-size: 1rem; }
             
-            /* Footer */
             .footer { padding: 3rem 1.2rem; }
             .social-links { gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
+
+            .source-divider { font-size: 0.7rem; gap: 0.5rem; }
+            .source-divider span { gap: 0.2rem; }
         }
 
         /* Pantallas muy pequeñas (iPhone SE / Dispositivos Mini) */
@@ -965,18 +1015,35 @@
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
+                        
+                        <!-- ===== Artículos de LinkedIn ===== -->
                         <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-threatintelligence-venezuela-ugcPost-7453262188116602880-G01e" target="_blank" rel="noopener noreferrer" class="article-link">
                             <span class="article-date mono">Abr 2026</span>
                             <h3 class="article-title">Lotus Wiper y la fragilidad OT en Venezuela</h3>
                             <p class="article-desc">Análisis de infraestructura crítica, exposición de PLC Schneider Modicon Quantum sobre Modbus TCP y vulnerabilidades por falta de segmentación IT/OT.</p>
                             <span class="article-arrow">→</span>
                         </a>
+
                         <a href="https://www.linkedin.com/posts/tty503_plc-cybersecurity-reverseengineering-activity-7374521525460443137-Cllg" target="_blank" rel="noopener noreferrer" class="article-link">
                             <span class="article-date mono">Oct 2025</span>
                             <h3 class="article-title">Ingeniería Inversa en PLC Siemens S5/S7</h3>
                             <p class="article-desc">Análisis de bajo nivel de la arquitectura interna de autómatas, máquina virtual M7, protocolos industriales y vectores de seguridad ofensiva.</p>
                             <span class="article-arrow">→</span>
                         </a>
+
+                        <!-- ===== Separador: Artículos del Website ===== -->
+                        <div class="source-divider">
+                            <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
+                        </div>
+
+                        <!-- ===== Artículos propios del sitio ===== -->
+                        <a href="plc.html" class="article-link local-article">
+                            <span class="article-date mono">Abr 2026 · ~40 min de lectura</span>
+                            <h3 class="article-title">PLC Siemens S5/S7: Arquitectura, MC7, Seguridad OT y Hallazgos en Infraestructuras Venezolanas <span class="local-badge">NOTAS</span></h3>
+                            <p class="article-desc">Investigación extendida exportada desde notas personales: fundamentos de STEP5/AWL, transición a STEP7, máquina virtual MC7, ingeniería inversa de bytecodes, hallazgos en Venalum y CorpoElec, y exploración de shellcode para PLCs.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+
                     </div>
                 </details>
 
@@ -1043,7 +1110,7 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-                    observer.unobserve(entry.target); // Solo animar una vez
+                    observer.unobserve(entry.target);
                 }
             });
         }, revealOptions);
@@ -1064,7 +1131,7 @@
             }
         });
 
-        // Manejo exclusivo de Acordeones (Opcional, cierra uno al abrir otro)
+        // Manejo exclusivo de Acordeones
         const detailsElements = document.querySelectorAll('details.theme-group');
         detailsElements.forEach((targetDetail) => {
             targetDetail.addEventListener('click', () => {
