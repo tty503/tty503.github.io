@@ -1,11 +1,57 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>tty503 — Christian Marquez | Especialista en Seguridad, Infraestructura y Automatización</title>
+    
+    <!-- ==================== SEO AVANZADO ==================== -->
+    <title>Christian Márquez | Automatización, Infraestructura y Seguridad</title>
+    <meta name="description" content="Portafolio técnico de Christian Márquez (tty503). Especialista en automatización de infraestructura, seguridad ofensiva/defensiva, análisis de malware, ingeniería inversa y PLC.">
+    <meta name="keywords" content="Christian Marquez, tty503, automatización, ciberseguridad, infraestructura, malware analysis, PLC Siemens, reversing, Linux, Bash, Python, Ansible, Terraform, DevSecOps">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://tty503.com">
+    <meta name="theme-color" content="#050505">
+    
+    <!-- Open Graph / Redes Sociales -->
+    <meta property="og:locale" content="es_ES">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Christian Márquez — Infraestructura y Seguridad">
+    <meta property="og:description" content="Automatización, análisis de malware, reversing, PLC y scripting. Descubre mis investigaciones y experiencia.">
+    <meta property="og:url" content="https://tty503.com">
+    <meta property="og:site_name" content="tty503 Portfolio">
+    <meta property="og:image" content="https://tty503.com/p1.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Fotografía de Christian Márquez">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="Christian Márquez | Especialista en Seguridad e Infraestructura">
+    <meta name="twitter:description" content="Portafolio técnico, investigaciones de malware y arquitectura IT/OT.">
+    <meta name="twitter:image" content="https://tty503.com/p1.jpg">
+    
+    <!-- Preconexión de Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* ==================== VARIABLES Y RESET ==================== */
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
 
         * {
             margin: 0;
@@ -13,636 +59,971 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-card: #1c2129;
-            --accent: #3fb950;
-            --accent-hover: #2ea043;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --text-muted: #6e7681;
-            --border: rgba(63, 185, 80, 0.25);
-            --gradient-hero: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1c2129 100%);
-            --gradient-card: linear-gradient(145deg, #161b22 0%, #1c2129 100%);
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            --shadow-hover: 0 12px 40px rgba(63, 185, 80, 0.12);
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            background: var(--bg-primary);
+            background-color: var(--bg-base);
             color: var(--text-primary);
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             line-height: 1.6;
-            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
         }
 
-        /* Navbar */
-        nav {
-            width: 100%;
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
+        /* Utilidades Tipográficas */
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Efecto de Ruido (Film Grain) Global */
+        .noise-overlay {
+            position: fixed;
             top: 0;
-            z-index: 100;
-            padding: 1rem 2rem;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.06;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
         }
 
-        .nav-inner {
+        .text-gradient {
+            background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ==================== NAVEGACIÓN ==================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(3, 3, 3, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 1000;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 1.2rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
         }
 
         .nav-brand {
-            font-weight: 800;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
+            font-weight: 600;
             color: var(--text-primary);
-            letter-spacing: -0.5px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .nav-brand span {
-            color: var(--accent);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         .nav-links {
             display: flex;
             gap: 2rem;
-            flex-wrap: wrap;
-            align-items: center;
         }
 
         .nav-links a {
             color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
-            transition: all 0.3s;
-            padding: 0.3rem 0;
-            border-bottom: 2px solid transparent;
+            letter-spacing: 0.5px;
+            transition: var(--transition-smooth);
         }
 
         .nav-links a:hover {
             color: var(--accent);
-            border-bottom-color: var(--accent);
         }
 
-        /* Hero Section */
+        /* ==================== HERO SECTION ==================== */
         .hero {
-            background: var(--gradient-hero);
-            padding: 5rem 2rem 4rem 2rem;
-            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 8rem 2rem 4rem;
             position: relative;
-            overflow: hidden;
         }
 
         .hero::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 50%, rgba(233, 69, 96, 0.08) 0%, transparent 50%);
-            animation: pulse 8s ease-in-out infinite;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 70%);
+            z-index: 0;
+            pointer-events: none;
         }
 
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        .hero-content {
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
             position: relative;
             z-index: 1;
-            max-width: 800px;
-            margin: 0 auto;
         }
 
-        .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 3.5rem);
-            font-weight: 800;
+        .hero-content h1 {
+            font-size: clamp(3rem, 5vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
             letter-spacing: -1px;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #e6edf3 0%, #3fb950 100%);            
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero .subtitle {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
             margin-bottom: 0.5rem;
-            font-weight: 500;
         }
 
-        .hero .role {
-            font-size: 1rem;
-            color: var(--accent);
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+        .hero-handle {
+            display: inline-block;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
             margin-bottom: 2rem;
+            background: var(--bg-card);
+            padding: 0.4rem 1rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
         }
 
         .hero-tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.6rem;
-            justify-content: center;
+            gap: 0.8rem;
         }
 
-        .hero-tag {
-            background: rgba(233, 69, 96, 0.1);
-            color: var(--accent);
-            padding: 0.4rem 1rem;
-            border-radius: 25px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            border: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-
-        .hero-tag:hover {
-            background: rgba(233, 69, 96, 0.2);
-            transform: translateY(-2px);
-        }
-
-        /* Container */
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-        }
-
-        /* Section titles */
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 2rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background: var(--accent);
+        .tag {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
             border-radius: 2px;
+            font-size: 0.8rem;
+            border: 1px solid var(--border-subtle);
+            transition: var(--transition-smooth);
+            font-weight: 500;
+        }
+
+        .tag:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .hero-image-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-image-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 3/4;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            filter: grayscale(100%) contrast(1.1) brightness(0.9);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .hero-image-container:hover .profile-img {
+            filter: grayscale(0%) contrast(1.05) brightness(1);
+            transform: scale(1.02);
+        }
+
+        /* ==================== SECCIONES COMUNES ==================== */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .section-header {
             margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 1rem;
         }
 
-        /* About section */
-        .about-text {
-            color: var(--text-secondary);
-            font-size: 1.05rem;
-            line-height: 1.8;
-            max-width: 800px;
-        }
-
-        .about-text .highlight {
-            color: var(--accent);
+        .section-title {
+            font-size: 2rem;
             font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
         }
 
-        /* Cards grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .card {
-            background: var(--gradient-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.8rem;
-            transition: all 0.3s;
-            box-shadow: var(--shadow);
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-hover);
-            border-color: rgba(233, 69, 96, 0.4);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 0.4rem;
-        }
-
-        .card-meta {
-            font-size: 0.8rem;
+        .section-title span {
             color: var(--text-muted);
-            margin-bottom: 1rem;
+            font-weight: 400;
+            margin-right: 1rem;
+        }
+
+        .about-text {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            line-height: 1.8;
+        }
+
+        .about-text strong {
+            color: var(--text-primary);
             font-weight: 500;
         }
 
-        .card ul {
-            list-style: none;
-            padding: 0;
+        /* ==================== ACORDEONES (LISTAS DESPLEGABLES) ==================== */
+        .theme-group {
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            background: transparent;
+            overflow: hidden;
+            transition: var(--transition-smooth);
         }
 
-        .card li {
-            font-size: 0.9rem;
+        .theme-group[open] {
+            border-color: var(--border-hover);
+            background: var(--bg-card);
+        }
+
+        .theme-summary {
+            padding: 1.5rem 2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            list-style: none;
+            user-select: none;
+            transition: background 0.3s;
+        }
+
+        .theme-summary:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .theme-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .theme-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .theme-icon {
+            color: var(--text-muted);
+        }
+
+        .toggle-icon {
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            font-weight: 300;
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            line-height: 1;
+        }
+
+        .theme-group[open] .toggle-icon {
+            transform: rotate(45deg);
+            color: var(--text-primary);
+        }
+
+        .theme-content {
+            padding: 0 2rem 1.5rem;
+            animation: fadeInDown 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== ITEMS DE EXPERIENCIA ==================== */
+        .exp-item {
+            background: var(--bg-base);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: var(--transition-smooth);
+        }
+
+        .exp-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .exp-item:hover {
+            border-color: var(--border-hover);
+            background: #181818;
+        }
+
+        .exp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0.8rem;
+        }
+
+        .exp-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .exp-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .exp-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .exp-detail-row {
+            font-size: 0.95rem;
             color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-            padding-left: 1.4rem;
+            line-height: 1.6;
+        }
+
+        .exp-detail-row strong {
+            color: var(--text-primary);
+            font-weight: 500;
+            display: inline-block;
+            min-width: 110px;
+        }
+
+        /* ==================== ITEMS DE ARTÍCULOS ==================== */
+        .article-link {
+            display: block;
+            background: var(--bg-base);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-decoration: none;
+            transition: var(--transition-smooth);
             position: relative;
         }
 
-        .card li::before {
-            content: "▹";
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-            font-weight: bold;
+        .article-link:last-child {
+            margin-bottom: 0;
         }
 
-        .card li .hl {
-            color: var(--accent);
-            font-weight: 600;
+        .article-link:hover {
+            background: #181818;
+            border-color: var(--border-hover);
         }
 
-        /* Articles */
-        .article-card {
-            background: var(--gradient-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.2rem;
-            transition: all 0.3s;
-            box-shadow: var(--shadow);
+        .article-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: block;
         }
 
-        .article-card:hover {
-            border-color: rgba(233, 69, 96, 0.4);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .article-card h3 {
-            color: var(--text-primary);
+        .article-title {
             font-size: 1.05rem;
-            font-weight: 700;
+            color: var(--text-primary);
+            font-weight: 500;
             margin-bottom: 0.5rem;
         }
 
-        .article-card p {
-            color: var(--text-secondary);
+        .article-desc {
             font-size: 0.9rem;
-            line-height: 1.7;
+            color: var(--text-secondary);
+            line-height: 1.6;
         }
 
-        .article-card a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
+        .article-arrow {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            transition: var(--transition-smooth);
         }
 
-        .article-card a:hover {
-            text-decoration: underline;
+        .article-link:hover .article-arrow {
+            color: var(--text-primary);
+            transform: translate(5px, -50%);
         }
 
-        /* Skills */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        /* ==================== FOOTER ==================== */
+        .footer {
+            border-top: 1px solid var(--border-subtle);
+            padding: 4rem 2rem;
+            text-align: center;
+            background: var(--bg-surface);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
             gap: 2rem;
         }
 
-        .skill-category h3 {
-            color: var(--accent);
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .skill-category ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .skill-category li {
+        .social-links a {
             color: var(--text-secondary);
+            text-decoration: none;
             font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            padding-left: 1.4rem;
-            position: relative;
+            transition: var(--transition-smooth);
+            font-weight: 500;
         }
 
-        .skill-category li::before {
-            content: "▹";
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-            font-weight: bold;
+        .social-links a:hover {
+            color: var(--text-primary);
         }
 
-        /* Footer */
-        footer {
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border);
-            text-align: center;
-            padding: 2rem;
+        .copyright {
             color: var(--text-muted);
             font-size: 0.85rem;
         }
 
-        footer a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
+        /* ==================== ANIMACIONES SCROLL ==================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            margin-top: 0.8rem;
-            flex-wrap: wrap;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            nav {
-                padding: 0.8rem 1rem;
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 900px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 3rem;
             }
-            .nav-inner {
+            .hero-content {
+                display: flex;
                 flex-direction: column;
-                gap: 0.5rem;
-                align-items: flex-start;
+                align-items: center;
+                order: 2;
             }
-            .nav-links {
-                gap: 1rem;
+            .hero-image-wrapper {
+                order: 1;
             }
-            .hero {
-                padding: 3rem 1rem;
+            .hero-tags {
+                justify-content: center;
             }
-            .container {
-                padding: 2rem 1rem;
+            .article-arrow {
+                display: none;
             }
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-            .skills-grid {
-                grid-template-columns: 1fr;
+            .exp-header {
+                flex-direction: column;
+                gap: 0.2rem;
             }
         }
 
-        @media (min-width: 1400px) {
-            .container {
-                max-width: 1300px;
-            }
-            .cards-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
+        @media (max-width: 600px) {
+            .nav-links { display: none; }
+            .hero { padding-top: 6rem; }
+            .section { padding: 4rem 1.5rem; }
+            .theme-summary { padding: 1.2rem 1.5rem; }
+            .theme-content { padding: 0 1.5rem 1.5rem; }
+            .exp-detail-row strong { display: block; margin-bottom: 0.2rem; }
         }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="nav-inner">
-            <div class="nav-brand"><span>tty503</span> / Christian Marquez</div>
+
+    <!-- Capa global de ruido (Film Grain) -->
+    <div class="noise-overlay"></div>
+
+    <!-- Navegación Superior -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-brand mono">tty503 <span>_portfolio</span></a>
             <div class="nav-links">
-                <a href="#about">Sobre mi</a>
-                <a href="#experiencia">Experiencia</a>
-                <a href="#articulos">Artículos</a>
-                <a href="#skills">Habilidades</a>
-                <a href="#contacto">Contacto</a>
+                <a href="#about">01. Sobre mí</a>
+                <a href="#experience">02. Experiencia</a>
+                <a href="#research">03. Investigaciones</a>
             </div>
         </div>
     </nav>
 
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Christian Marquez</h1>
-            <p class="subtitle">Especialista en Seguridad, Infraestructura y Automatización</p>
-            <p class="role">tty503 · Reverse Engineering & DevSecOps</p>
-            <div class="hero-tags">
-                <span class="hero-tag">Reverse Engineering iOS/ARM64</span>
-                <span class="hero-tag">Análisis de Malware</span>
-                <span class="hero-tag">PLC Siemens & OT Security</span>
-                <span class="hero-tag">Ansible & Terraform</span>
-                <span class="hero-tag">Python & Bash</span>
-                <span class="hero-tag">Proxmox & QEMU</span>
-                <span class="hero-tag">C / C# / PHP</span>
+    <!-- Sección Principal (Hero) -->
+    <header class="hero">
+        <div class="hero-container">
+            <div class="hero-content reveal">
+                <div class="hero-handle mono">usuario@tty503:~$ whoami</div>
+                <h1 class="text-gradient">Christian<br>Márquez</h1>
+                <p class="hero-description">
+                    Especialista en automatización de infraestructura, análisis de malware e ingeniería inversa. Arquitectura de sistemas seguros y entornos OT/PLC.
+                </p>
+                <div class="hero-tags mono">
+                    <span class="tag">Malware Analysis</span>
+                    <span class="tag">DevSecOps</span>
+                    <span class="tag">Ansible/Terraform</span>
+                    <span class="tag">PLC Siemens</span>
+                    <span class="tag">Ghidra</span>
+                </div>
+            </div>
+            
+            <div class="hero-image-wrapper reveal" style="transition-delay: 0.2s;">
+                <div class="hero-image-container">
+                    <img src="p1.jpg" alt="Christian Márquez - Especialista en Ciberseguridad" class="profile-img">
+                </div>
             </div>
         </div>
-    </section>
+    </header>
 
-    <div class="container">
-        <!-- About -->
-        <section id="about" class="section-header">
-            <h2 class="section-title">Sobre mi</h2>
-            <p class="about-text">
-                Combino una <span class="highlight">mentalidad ofensiva</span> con una <span class="highlight">disciplina de ingeniería</span>. 
-                No solo analizo cómo se rompen las cosas: construyo y automatizo sistemas complejos. 
-                Cierro la brecha entre la investigación de seguridad profunda y la infraestructura escalable. 
-                Desde firmware de microcontroladores y reversing de PLC hasta análisis de iOS y orquestación de entornos virtualizados, 
-                mi enfoque está en entender el sistema completo y hacerlo funcionar.
+    <main>
+        <!-- Sección Sobre mí -->
+        <section id="about" class="section">
+            <div class="section-header reveal">
+                <h2 class="section-title mono"><span>01.</span>Sobre_mí</h2>
+            </div>
+            <p class="about-text reveal">
+                Combino una <strong>mentalidad de automatización</strong> con una rigurosa <strong>disciplina de ingeniería inversa</strong>. 
+                Mi enfoque no se limita al análisis de amenazas; diseño y construyo infraestructura escalable y resiliente. 
+                Poseo amplia experiencia en administración de sistemas Linux, virtualización avanzada (Proxmox, QEMU), 
+                scripting (Bash/Python) y orquestación con Ansible y Terraform.<br><br>
+                Investigo de manera activa el comportamiento de malware, técnicas de evasión de firmas y la seguridad en 
+                entornos industriales OT/PLC (Siemens S5/S7). Mi objetivo es resolver problemas de alta complejidad técnica 
+                y documentar cada hallazgo con precisión absoluta.
             </p>
         </section>
 
-        <!-- Experiencia -->
-        <section id="experiencia" class="section-header">
-            <h2 class="section-title">Experiencia</h2>
-            <div class="cards-grid">
-                <div class="card">
-                    <div class="card-title">Consultor en Automatización e Infraestructura</div>
-                    <div class="card-meta">tty503 · Remoto · 2026</div>
-                    <ul>
-                        <li>Despliegues con <span class="hl">Ansible y Terraform</span></li>
-                        <li>Orquestación con <span class="hl">Proxmox, QEMU y Docker</span></li>
-                        <li>Automatización de VMs iOS para investigación</li>
-                        <li>Proxies residenciales y tunelizado</li>
-                    </ul>
-                </div>
+        <!-- Sección Experiencia Listada y Agrupada -->
+        <section id="experience" class="section">
+            <div class="section-header reveal">
+                <h2 class="section-title mono"><span>02.</span>Experiencia_Técnica</h2>
+            </div>
+            
+            <div class="accordion-container">
+                
+                <!-- Categoría: Infraestructura y Seguridad -->
+                <details class="theme-group reveal" open>
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title">
+                            <span class="theme-icon">/</span> Infraestructura y Seguridad (1 Año, 7 Meses)
+                        </h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <h4 class="exp-title">Consultor en Automatización e Infraestructura</h4>
+                                <span class="exp-meta mono">tty503 | Ene 2026 - Abr 2026</span>
+                            </div>
+                            <div class="exp-details">
+                                <p class="exp-detail-row"><strong>Qué hice:</strong> Autonomicé despliegues con Ansible y Terraform sobre Linux, configurando entornos aislados con Proxmox, QEMU y Docker.</p>
+                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Infraestructura escalable y segura, junto con túneles de tráfico residenciales para facilitar el análisis de plataformas.</p>
+                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Orquestación avanzada de máquinas virtuales y validación de sistemas mediante automatización estricta en Python/Bash.</p>
+                            </div>
+                        </div>
 
-                <div class="card">
-                    <div class="card-title">Especialista en Ingeniería Inversa</div>
-                    <div class="card-meta">tty503 · Remoto · 2024</div>
-                    <ul>
-                        <li>Reversing de <span class="hl">iOS (IPA)</span> con Ghidra/IDA</li>
-                        <li>Extracción de lógica desde binarios ofuscados</li>
-                        <li>Parcheo <span class="hl">ARM64</span> anti-tamper</li>
-                        <li>Documentación de APIs con mitmproxy</li>
-                    </ul>
-                </div>
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <h4 class="exp-title">Especialista en Ingeniería Inversa y Seguridad</h4>
+                                <span class="exp-meta mono">tty503 | Abr 2024 - Dic 2024</span>
+                            </div>
+                            <div class="exp-details">
+                                <p class="exp-detail-row"><strong>Qué hice:</strong> Ejecuté ingeniería inversa sobre aplicaciones iOS mediante análisis estático (Ghidra, IDA) y analicé tráfico de red con mitmproxy.</p>
+                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Extracción de lógica en binarios ofuscados, parcheo ARM64 anti-tamper y herramientas forenses en Bash para el triage de malware.</p>
+                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Interacción a bajo nivel con binarios compilados y metodologías para desmantelar mecanismos de protección en ecosistemas cerrados.</p>
+                            </div>
+                        </div>
 
-                <div class="card">
-                    <div class="card-title">Investigador en Automatización Industrial & OT</div>
-                    <div class="card-meta">Prácticas personales · 2025-2026</div>
-                    <ul>
-                        <li><span class="hl">PLC Siemens S5-95U, S7-300, S7-1200</span></li>
-                        <li>Análisis de VM interna M7 a ARM</li>
-                        <li>Protocolos <span class="hl">Modbus TCP, Fieldbus, HART</span></li>
-                        <li>Investigación de amenazas: Havex, Triton, Lotus Wiper</li>
-                    </ul>
-                </div>
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <h4 class="exp-title">Administrador de Sistemas Linux</h4>
+                                <span class="exp-meta mono">tty503 | Ene 2022 - Jun 2022</span>
+                            </div>
+                            <div class="exp-details">
+                                <p class="exp-detail-row"><strong>Qué hice:</strong> Administré servidores Debian/Ubuntu (físicos y virtuales), configurando redes y cortafuegos.</p>
+                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Conectividad segura y automatización de mantenimientos/backups para garantizar la continuidad operativa de servicios internos.</p>
+                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Diagnóstico resolutivo de incidencias mediante auditoría profunda de logs del sistema.</p>
+                            </div>
+                        </div>
 
-                <div class="card">
-                    <div class="card-title">Desarrollador Backend</div>
-                    <div class="card-meta">tty503 · Remoto · 2024</div>
-                    <ul>
-                        <li>APIs REST con <span class="hl">FastAPI + Python</span></li>
-                        <li>PostgreSQL / MySQL con SQLAlchemy</li>
-                        <li>Automatización Linux con Bash</li>
-                        <li>Despliegue con Docker</li>
-                    </ul>
-                </div>
+                    </div>
+                </details>
 
-                <div class="card">
-                    <div class="card-title">Desarrollador .NET</div>
-                    <div class="card-meta">Kexe · Remoto (México) · 2023-2024</div>
-                    <ul>
-                        <li><span class="hl">C# .NET Framework/.NET Core</span></li>
-                        <li>Frontend con <span class="hl">DevExpress</span></li>
-                        <li>SCRUM y revisión de Merge Requests</li>
-                        <li>Refactorización de controladores</li>
-                    </ul>
-                </div>
+                <!-- Categoría: Desarrollo y Firmware -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title">
+                            <span class="theme-icon">/</span> Desarrollo de Software y Firmware (2 Años)
+                        </h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <h4 class="exp-title">Desarrollador Backend y Scripting</h4>
+                                <span class="exp-meta mono">tty503 | Mar 2024 - May 2024</span>
+                            </div>
+                            <div class="exp-details">
+                                <p class="exp-detail-row"><strong>Qué hice:</strong> Desarrollé APIs REST con FastAPI (Python) integradas con bases SQL (PostgreSQL, MySQL) a través de SQLAlchemy.</p>
+                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Backend robusto y documentado desplegado sobre contenedores Docker, con tareas automatizadas en Bash.</p>
+                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Arquitectura ágil de bases de datos y orquestación limpia de microservicios.</p>
+                            </div>
+                        </div>
 
-                <div class="card">
-                    <div class="card-title">Firmware & Electrónica</div>
-                    <div class="card-meta">CENDIT · Presencial · 2022-2023</div>
-                    <ul>
-                        <li><span class="hl">C para PIC18/PIC24</span></li>
-                        <li>Protocolos <span class="hl">I2C, UART, PWM</span></li>
-                        <li>Diagramas UML con PlantUML y LaTeX</li>
-                        <li>Soporte a hardware de laboratorio</li>
-                    </ul>
-                </div>
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <h4 class="exp-title">Desarrollador de .NET</h4>
+                                <span class="exp-meta mono">Kexe | Nov 2023 - Mar 2024</span>
+                            </div>
+                            <div class="exp-details">
+                                <p class="exp-detail-row"><strong>Qué hice:</strong> Mantuve y desarrollé un sistema empresarial modular en C# (.NET Framework/Core) colaborando bajo metodología SCRUM.</p>
+                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Implementación íntegra de un módulo de reportes de gastos con filtros dinámicos, integrado con DevExpress.</p>
+                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Refactorización crítica de lógica de negocio y controladores sin interrumpir operativas existentes.</p>
+                            </div>
+                        </div>
 
-                <div class="card">
-                    <div class="card-title">Administrador de Sistemas</div>
-                    <div class="card-meta">tty503 · Remoto · 2022</div>
-                    <ul>
-                        <li>Servidores Debian/Ubuntu con <span class="hl">QEMU</span></li>
-                        <li>Redes, firewalls y conectividad</li>
-                        <li>Automatización de backups con Bash</li>
-                        <li>Diagnóstico de incidencias</li>
-                    </ul>
-                </div>
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <h4 class="exp-title">Profesional de Apoyo (Hardware/Firmware)</h4>
+                                <span class="exp-meta mono">CENDIT | Oct 2022 - Nov 2023</span>
+                            </div>
+                            <div class="exp-details">
+                                <p class="exp-detail-row"><strong>Qué hice:</strong> Programé firmware en C para microcontroladores PIC (18 y 24) en entornos de proyectos médicos y educativos.</p>
+                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Implementación estable de protocolos I2C/UART y documentación algorítmica precisa en LaTeX y PlantUML.</p>
+                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Rigurosidad en el desarrollo orientado a hardware, electrónica básica y control de versiones institucional.</p>
+                            </div>
+                        </div>
+
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <h4 class="exp-title">Desarrollador Web y Scripting</h4>
+                                <span class="exp-meta mono">Independiente | Jul 2021 - Dic 2021</span>
+                            </div>
+                            <div class="exp-details">
+                                <p class="exp-detail-row"><strong>Qué hice:</strong> Desarrollé scripts en Python/PHP y colaboré en la construcción de proyectos web usando HTML y jQuery.</p>
+                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Automatización temprana de flujos de trabajo e inicialización de entornos LAMP/LEMP en servidores VPS.</p>
+                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> El ciclo base de despliegue web y los fundamentos de automatización de servidor.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </details>
+
+                <!-- Categoría: Redacción Técnica -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title">
+                            <span class="theme-icon">/</span> Divulgación y Redacción Técnica (2 Años, 5 Meses)
+                        </h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        
+                        <div class="exp-item">
+                            <div class="exp-header">
+                                <h4 class="exp-title">Blog Contributor</h4>
+                                <span class="exp-meta mono">ReldSec | Jun 2017 - Nov 2019</span>
+                            </div>
+                            <div class="exp-details">
+                                <p class="exp-detail-row"><strong>Qué hice:</strong> Escribí artículos técnicos centrados en ciberseguridad y programación, apoyando con scripts internos (Python/PHP).</p>
+                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Contenido formativo valioso para la comunidad y herramientas personalizadas para el equipo editorial.</p>
+                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Sistematización de la investigación técnica, dinámicas de trabajo colaborativo y control de versiones a nivel básico.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </details>
+
             </div>
         </section>
 
-        <!-- Artículos -->
-        <section id="articulos" class="section-header">
-            <h2 class="section-title">Artículos & Research</h2>
-
-            <div class="article-card">
-                <h3>▸ PLC Siemens S5/S7: Análisis de bajo nivel y seguridad en entornos OT</h3>
-                <p>Investigación práctica sobre la arquitectura interna de los PLC Siemens S5-95U y S7-300/1200: máquina virtual M7, traducción de instrucciones a ARM, y vectores de ataque en protocolos industriales. <a href="https://www.linkedin.com/posts/tty503_plc-cybersecurity-reverseengineering-activity-7374521525460443137-Cllg" target="_blank">[LinkedIn]</a></p>
+        <!-- Sección Investigaciones Agrupadas -->
+        <section id="research" class="section">
+            <div class="section-header reveal">
+                <h2 class="section-title mono"><span>03.</span>Investigaciones_Temáticas</h2>
             </div>
+            
+            <div class="accordion-container">
+                
+                <!-- Categoría 1: Análisis de Malware -->
+                <details class="theme-group reveal" open>
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title">
+                            <span class="theme-icon">/</span> Análisis de Malware y Threat Intel
+                        </h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-malwareanalysis-threatintel-ugcPost-7401771334181232640-FMcc" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Dic 2025</span>
+                            <h3 class="article-title">Campaña NetSupport RAT: "Caja de Belleza Lancôme"</h3>
+                            <p class="article-desc">Deconstrucción de una campaña de infección activa dirigida a usuarios en España utilizando señuelos de marcas de belleza reconocidas.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-proxmox-ugcPost-7392246317483315200-hz5X" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Nov 2025</span>
+                            <h3 class="article-title">Triage Rápido: Desmontando el Dropper Nexilo-CC-Checker</h3>
+                            <p class="article-desc">Aislamiento en Proxmox VE, scripting para volcado de memoria (dump.sh) y levantamiento a pseudo-C en Ghidra de un dropper evasivo.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-clipper-ugcPost-7392043572163661824-AFeZ" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Nov 2025</span>
+                            <h3 class="article-title">Nexilo-CC-Checker: Dropper multi-etapa</h3>
+                            <p class="article-desc">Análisis de malware distribuido vía Telegram, uso de API Hashing para evasión y despliegue modular de un Clipper e InfoStealer.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_threatintelligence-ciberseguridad-bec-ugcPost-7385113809625088000-l8bP" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Oct 2025</span>
+                            <h3 class="article-title">Ciclo Completo de Fraude Financiero: Lumma Stealer</h3>
+                            <p class="article-desc">Desmantelamiento de campaña BEC desde el robo de credenciales y acceso a VPS hasta la monetización mediante Crypto Scams en Telegram.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_magistv-ciberseguridad-malware-activity-7374268549386903552-PXXK" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Oct 2025</span>
+                            <h3 class="article-title">MagisTV: Evasión, persistencia y posible botnet</h3>
+                            <p class="article-desc">Auditoría a la app de streaming pirata. Arquitectura del APK, técnicas de evasión (DGA, HTTP DNS) y riesgos del modelo de negocio oculto.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
 
-            <div class="article-card">
-                <h3>▸ Reconstrucción de lógica ofuscada en binarios iOS (Meta) con Python</h3>
-                <p>Flujo de trabajo para volcar ASM, extraer metadatos del IPA y reconstruir el control de flujo frente al static dispatch intencional de Meta.</p>
-            </div>
+                <!-- Categoría 2: Ingeniería Inversa -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title">
+                            <span class="theme-icon">/</span> Ingeniería Inversa y Low-Level
+                        </h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="https://www.linkedin.com/posts/tty503_iossecurity-reverseengineering-lowlevel-ugcPost-7427797339592994816-cHU5" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Feb 2026</span>
+                            <h3 class="article-title">Reversing iOS y Virtualización Crítica</h3>
+                            <p class="article-desc">Destripando binarios para entender la "confianza" en iOS. Orquestación con QEMU, validación por GPU (Metal) y low-level scripting en Swift/Bash.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_cprogramming-linux-systemsprogramming-activity-7403118821433163777-TWhz" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Dic 2025</span>
+                            <h3 class="article-title">Ghost Commander v2: Disco fantasma en RAM de Linux</h3>
+                            <p class="article-desc">Herramienta en C que simula corrupción de memoria usando syscalls oscuras y visualización con mapas de calor hexadecimal en tiempo real.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_cybersecurity-malwareanalysis-assembly-activity-7400333681262870528-O57N" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Nov 2025</span>
+                            <h3 class="article-title">Mirai 0/65 en VirusTotal: Evasión de firmas estáticas</h3>
+                            <p class="article-desc">Prueba de concepto de ofuscación (Builder en C + Stub ASM x86) usando aritmética básica para reducir la detección de malware a cero.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_me-encanta-encontrar-la-manera-de-resolver-activity-7396271971270807556-Qe1M" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Nov 2025</span>
+                            <h3 class="article-title">Herramienta TUI en Bash para Análisis Forense</h3>
+                            <p class="article-desc">Desarrollo de utilidad en terminal para cálculo de entropía, extracción de metadata y hashing SHA-256 automatizado al vuelo.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
 
-            <div class="article-card">
-                <h3>▸ Análisis: Nexilo-CC-Checker — Dropper multi-etapa con API Hashing</h3>
-                <p>Binario distribuido en canales de Telegram. Clipper (BTC/ETC) + InfoStealer con RDP. <a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-clipper-ugcPost-7392043572163661824-AFeZ" target="_blank">[LinkedIn]</a></p>
-            </div>
+                <!-- Categoría 3: Seguridad OT -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title">
+                            <span class="theme-icon">/</span> Seguridad OT e Infraestructura Crítica
+                        </h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-threatintelligence-venezuela-ugcPost-7453262188116602880-G01e" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Abr 2026</span>
+                            <h3 class="article-title">Lotus Wiper y la fragilidad OT en Venezuela</h3>
+                            <p class="article-desc">Análisis de infraestructura crítica, exposición de PLC Schneider Modicon Quantum sobre Modbus TCP y vulnerabilidades por falta de segmentación IT/OT.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_plc-cybersecurity-reverseengineering-activity-7374521525460443137-Cllg" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Oct 2025</span>
+                            <h3 class="article-title">Ingeniería Inversa en PLC Siemens S5/S7</h3>
+                            <p class="article-desc">Análisis de bajo nivel de la arquitectura interna de autómatas, máquina virtual M7, protocolos industriales y vectores de seguridad ofensiva.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
 
-            <div class="article-card">
-                <h3>▸ Campaña NetSupport RAT disfrazada de "Caja de Belleza Lancôme"</h3>
-                <p>Operación dirigida a España. Análisis completo con IoCs. <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-malwareanalysis-threatintel-ugcPost-7401771334181232640-FMcc" target="_blank">[LinkedIn]</a></p>
-            </div>
+                <!-- Categoría 4: Blue Team -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title">
+                            <span class="theme-icon">/</span> Blue Team y Defensa Activa
+                        </h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="https://www.linkedin.com/posts/tty503_blueteam-cybersoc-soc-activity-7365751574985416704-pGHR" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Oct 2025</span>
+                            <h3 class="article-title">Arquitectura y despliegue de Laboratorio SOC Automatizado</h3>
+                            <p class="article-desc">Implementación defensiva con infraestructura como código (Terraform/Ansible). Despliegue de Wazuh, Grafana y segmentación con OPNsense en Proxmox.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_siem-honeypot-blueteam-activity-7373882236732981248-iNTy" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Oct 2025</span>
+                            <h3 class="article-title">Sensores Defensivos: Honeypots y Canarytokens</h3>
+                            <p class="article-desc">Técnicas poco convencionales para Blue Teams. Implementación de activos falsos y uso de WebRTC para revelar IPs reales detrás de VPNs.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="https://www.linkedin.com/posts/tty503_cybersecurity-infosec-emailsecurity-activity-7384269364356608000-Db7W" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Oct 2025</span>
+                            <h3 class="article-title">Explotación de SMTP Smuggling</h3>
+                            <p class="article-desc">Demostración práctica de cómo las configuraciones inconsistentes entre servidores de correo permiten eludir controles de seguridad perimetrales.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
 
-            <div class="article-card">
-                <h3>▸ Mirai 0/65 en VirusTotal: evasión de firmas con Builder en C + Stub en ASM</h3>
-                <p>PoC que bajó la detección de 16/64 a 0/65 usando solo aritmética y Assembly x86. <a href="https://www.linkedin.com/posts/tty503_cybersecurity-malwareanalysis-assembly-activity-7400333681262870528-O57N" target="_blank">[LinkedIn]</a></p>
-            </div>
-
-            <div class="article-card">
-                <h3>▸ Laboratorio SOC/Threat Intelligence con Wazuh, Grafana y honeypots</h3>
-                <p>Entorno Blue Team con Proxmox, OPNsense, Terraform y Ansible. <a href="https://www.linkedin.com/posts/tty503_blueteam-cybersoc-soc-activity-7365751574985416704-pGHR" target="_blank">[LinkedIn]</a></p>
-            </div>
-
-            <div class="article-card">
-                <h3>▸ Lotus Wiper: fragilidad OT en Venezuela</h3>
-                <p>PLC Schneider Modicon Quantum sobre Modbus TCP sin cifrado. Análisis de amenaza real. <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-threatintelligence-venezuela-ugcPost-7453262188116602880-G01e" target="_blank">[LinkedIn]</a></p>
             </div>
         </section>
+    </main>
 
-        <!-- Skills -->
-        <section id="skills" class="section-header">
-            <h2 class="section-title">Mis habilidades</h2>
-            <div class="skills-grid">
-                <div class="skill-category">
-                    <h3>🛡️ Seguridad & Reversing</h3>
-                    <ul>
-                        <li>Análisis iOS/ARM64/x86</li>
-                        <li>Bypass anti-tamper</li>
-                        <li>mitmproxy & tráfico</li>
-                        <li>Forense en Bash</li>
-                        <li>Análisis de malware</li>
-                    </ul>
-                </div>
-                <div class="skill-category">
-                    <h3>🏭 Automatización Industrial & OT</h3>
-                    <ul>
-                        <li>PLC Siemens S5, S7-300, S7-1200</li>
-                        <li>Modbus TCP, Fieldbus, HART</li>
-                        <li>Diagramas P&ID</li>
-                        <li>Normativas ISA</li>
-                        <li>Seguridad OT/ICS</li>
-                    </ul>
-                </div>
-                <div class="skill-category">
-                    <h3>⚙️ Infraestructura</h3>
-                    <ul>
-                        <li>Ansible, Terraform</li>
-                        <li>Proxmox, QEMU, Docker</li>
-                        <li>Tunelizado y proxies</li>
-                        <li>CI/CD</li>
-                    </ul>
-                </div>
-                <div class="skill-category">
-                    <h3>💻 Desarrollo</h3>
-                    <ul>
-                        <li>C# .NET / PHP</li>
-                        <li>Python (FastAPI)</li>
-                        <li>Bash scripting</li>
-                        <li>Firmware C para PIC</li>
-                    </ul>
-                </div>
+    <!-- Footer / Contacto -->
+    <footer class="footer">
+        <div class="footer-content reveal">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
             </div>
-        </section>
-    </div>
-
-    <footer id="contacto">
-        <p>© 2026 Christian Marquez — tty503</p>
-        <div class="footer-links">
-            <a href="#">tty503.com</a>
-            <a href="https://github.com/tty503" target="_blank">GitHub</a>
-            <a href="https://www.linkedin.com/in/tty503" target="_blank">LinkedIn</a>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez.</p>
         </div>
     </footer>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script>
+        // Actualizar año dinámicamente
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Scroll Reveal Nativo (Intersection Observer)
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const revealObserver = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Solo animar una vez
+                }
+            });
+        }, revealOptions);
+
+        revealElements.forEach(el => {
+            revealObserver.observe(el);
+        });
+
+        // Efecto de Navbar difuminado al hacer scroll
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
+                navbar.style.borderBottom = '1px solid var(--border-subtle)';
+            } else {
+                navbar.style.background = 'rgba(3, 3, 3, 0.7)';
+                navbar.style.borderBottom = '1px solid transparent';
+            }
+        });
+
+        // Manejo exclusivo de Acordeones (Opcional, cierra uno al abrir otro)
+        const detailsElements = document.querySelectorAll('details.theme-group');
+        detailsElements.forEach((targetDetail) => {
+            targetDetail.addEventListener('click', () => {
+                detailsElements.forEach((detail) => {
+                    if (detail !== targetDetail) {
+                        detail.removeAttribute('open');
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- ==================== STRUCTURED DATA (JSON-LD) ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Christian Márquez",
+      "alternateName": "tty503",
+      "url": "https://tty503.com",
+      "image": "https://tty503.com/p1.jpg",
+      "sameAs": [
+        "https://linkedin.com/in/tty503",
+        "https://github.com/tty503",
+        "https://x.com/tty_503"
+      ],
+      "jobTitle": "Especialista en Automatización, Infraestructura y Seguridad",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "tty503 Independent Consultant"
+      },
+      "knowsAbout": [
+        "Ciberseguridad", 
+        "Análisis de Malware", 
+        "Ingeniería Inversa", 
+        "Automatización Industrial", 
+        "PLC Siemens", 
+        "Linux", 
+        "Ansible", 
+        "Terraform", 
+        "Proxmox"
+      ],
+      "description": "Profesional enfocado en la automatización de infraestructura tecnológica, ingeniería inversa, seguridad ofensiva/defensiva y entornos OT."
+    }
+    </script>
 </body>
 </html>
