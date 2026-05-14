@@ -330,6 +330,7 @@
             list-style: none;
             user-select: none;
             transition: background 0.3s;
+            gap: 1.5rem;
         }
 
         .theme-summary:hover {
@@ -344,6 +345,9 @@
             font-size: 1.15rem;
             font-weight: 600;
             color: var(--text-primary);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
         }
 
         .theme-icon {
@@ -356,6 +360,7 @@
             font-weight: 300;
             transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
             line-height: 1;
+            flex-shrink: 0; /* Previene que el ícono se encoja en móviles */
         }
 
         .theme-group[open] .toggle-icon {
@@ -424,13 +429,16 @@
             font-size: 0.95rem;
             color: var(--text-secondary);
             line-height: 1.6;
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
         }
 
         .exp-detail-row strong {
             color: var(--text-primary);
             font-weight: 500;
-            display: inline-block;
             min-width: 110px;
+            flex-shrink: 0;
         }
 
         /* ==================== ITEMS DE ARTÍCULOS ==================== */
@@ -541,21 +549,19 @@
             transform: translateY(0);
         }
 
-        /* ==================== RESPONSIVE ==================== */
+        /* ==================== RESPONSIVE AVANZADO (SMARTPHONES) ==================== */
+        
+        /* Tablets y pantallas medianas */
         @media (max-width: 900px) {
             .hero-container {
                 grid-template-columns: 1fr;
                 text-align: center;
-                gap: 3rem;
+                gap: 2.5rem;
             }
             .hero-content {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                order: 2;
-            }
-            .hero-image-wrapper {
-                order: 1;
             }
             .hero-tags {
                 justify-content: center;
@@ -563,19 +569,88 @@
             .article-arrow {
                 display: none;
             }
-            .exp-header {
+            .exp-detail-row {
                 flex-direction: column;
                 gap: 0.2rem;
             }
+            .exp-detail-row strong {
+                display: block;
+                margin-bottom: 0.1rem;
+            }
         }
 
+        /* Smartphones (iPhone, Androids, etc) */
         @media (max-width: 600px) {
+            /* Navegación */
+            .nav-container { padding: 1rem 1.2rem; }
             .nav-links { display: none; }
-            .hero { padding-top: 6rem; }
-            .section { padding: 4rem 1.5rem; }
-            .theme-summary { padding: 1.2rem 1.5rem; }
-            .theme-content { padding: 0 1.5rem 1.5rem; }
-            .exp-detail-row strong { display: block; margin-bottom: 0.2rem; }
+            
+            /* Layout general y espacios */
+            .section { padding: 4rem 1.2rem; }
+            .section-header { margin-bottom: 2rem; }
+            
+            /* Títulos de sección adaptativos */
+            .section-title {
+                font-size: 1.5rem;
+                display: flex;
+                flex-direction: column; /* Apila el número sobre el texto si es muy largo */
+                gap: 0.3rem;
+                word-wrap: break-word;
+            }
+            .section-title span { margin-right: 0; font-size: 1.2rem; }
+            
+            /* Hero Section reorganizada */
+            .hero { padding: 6.5rem 1.2rem 3rem; }
+            .hero-container {
+                display: flex;
+                flex-direction: column; /* Texto arriba, foto abajo */
+                gap: 2.5rem;
+            }
+            .hero-content h1 { font-size: 2.6rem; }
+            .hero-description { font-size: 1rem; }
+            .hero-handle { font-size: 0.9rem; padding: 0.3rem 0.8rem; margin-bottom: 1.5rem; }
+            .hero-image-container {
+                max-width: 200px; /* Imagen mucho más controlada en móvil */
+                margin: 0 auto;
+            }
+            .tag { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
+            
+            /* Acordeones - Corrección de padding y texto aplastado */
+            .theme-summary {
+                padding: 1.2rem 1rem; /* Menos espacio interno lateral */
+                gap: 0.8rem;
+            }
+            .theme-title {
+                font-size: 1rem;
+                line-height: 1.4;
+            }
+            .toggle-icon { font-size: 1.4rem; }
+            .theme-content { padding: 0 1rem 1.2rem; }
+            
+            /* Items de Experiencia */
+            .exp-item { padding: 1.2rem 1rem; }
+            .exp-header {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+            .exp-title { font-size: 1.05rem; }
+            
+            /* Items de Artículos */
+            .article-link { padding: 1.2rem 1rem; }
+            .article-title { font-size: 1rem; }
+            
+            /* Footer */
+            .footer { padding: 3rem 1.2rem; }
+            .social-links { gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
+        }
+
+        /* Pantallas muy pequeñas (iPhone SE / Dispositivos Mini) */
+        @media (max-width: 380px) {
+            .hero-content h1 { font-size: 2.2rem; }
+            .section-title { font-size: 1.35rem; }
+            .theme-title { font-size: 0.95rem; }
+            .about-text { font-size: 1rem; }
+            .hero-image-container { max-width: 180px; }
         }
     </style>
 </head>
@@ -651,7 +726,7 @@
                 <details class="theme-group reveal" open>
                     <summary class="theme-summary mono">
                         <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Infraestructura y Seguridad 
+                            <span class="theme-icon">/</span> Infraestructura y Seguridad (1 Año, 7 Meses)
                         </h3>
                         <span class="toggle-icon">+</span>
                     </summary>
@@ -700,7 +775,7 @@
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
                         <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Desarrollo de Software y Firmware 
+                            <span class="theme-icon">/</span> Desarrollo de Software y Firmware (2 Años)
                         </h3>
                         <span class="toggle-icon">+</span>
                     </summary>
@@ -761,7 +836,7 @@
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
                         <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Divulgación y Redacción Técnica 
+                            <span class="theme-icon">/</span> Divulgación y Redacción Técnica (2 Años, 5 Meses)
                         </h3>
                         <span class="toggle-icon">+</span>
                     </summary>
@@ -937,7 +1012,7 @@
                 <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
                 <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
             </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez.</p>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Diseñado con enfoque minimalista y seguro.</p>
         </div>
     </footer>
 
