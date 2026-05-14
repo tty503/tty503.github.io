@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <title>Assembly para Ingeniería Inversa (RE) | tty503</title>
+    <meta name="description" content="Notas técnicas sobre lenguaje ensamblador aplicado a ingeniería inversa: stack frames, variables globales/locales, clases, memoria dinámica, pilas, colas, listas enlazadas y convenciones de llamada.">
+    <meta name="keywords" content="assembly, ingeniería inversa, reversing, x86, x64, NASM, FLAT, stack, heap, malloc, new, pilas, colas, listas enlazadas, cdecl, stdcall, SystemV, convenciones de llamada">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tty503.com/assembly.html">
+    <meta name="theme-color" content="#050505">
+    
+    <meta property="og:title" content="Assembly para Ingeniería Inversa (RE) | tty503">
+    <meta property="og:description" content="Notas técnicas sobre lenguaje ensamblador aplicado a ingeniería inversa: stack frames, variables, clases, memoria dinámica, estructuras de datos y convenciones de llamada.">
+    <meta property="og:url" content="https://tty503.com/assembly.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503 Portfolio">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:title" content="Assembly para Ingeniería Inversa (RE)">
+    <meta name="twitter:description" content="Notas técnicas sobre lenguaje ensamblador aplicado a ingeniería inversa.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+
+        .navbar {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle);
+            z-index: 1000; transition: var(--transition-smooth);
+        }
+
+        .nav-container {
+            max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1rem; font-weight: 600; color: var(--text-primary);
+            text-decoration: none; display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .nav-back {
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth);
+        }
+        .nav-back:hover { color: var(--accent); }
+
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+
+        .article-header {
+            margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem;
+        }
+
+        .article-meta {
+            display: flex; gap: 1.5rem; color: var(--text-muted);
+            font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+        }
+
+        .article-tag {
+            background: transparent; color: var(--accent-blue);
+            padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .article-title {
+            font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2;
+            letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary);
+        }
+
+        .article-subtitle {
+            font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px;
+        }
+
+        .section-title {
+            font-size: 1.5rem; font-weight: 600; color: var(--text-primary);
+            margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);
+        }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+
+        .subsection-title {
+            font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem;
+        }
+
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+            overflow-x: auto; font-size: 0.85rem; line-height: 1.6;
+            color: var(--text-secondary); position: relative;
+        }
+
+        .code-block .keyword { color: #c084fc; }
+        .code-block .func { color: var(--accent-blue); }
+        .code-block .string { color: var(--accent-green); }
+        .code-block .comment { color: var(--text-muted); }
+        .code-block .reg { color: #fbbf24; }
+        .code-block .inst { color: #f87171; }
+        .code-block .addr { color: #94a3b8; }
+        .code-block .val { color: #fb923c; }
+
+        .table-wrapper {
+            overflow-x: auto; margin: 2rem 0;
+            border: 1px solid var(--border-subtle); border-radius: 6px;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th {
+            background: var(--bg-card); color: var(--text-primary);
+            padding: 0.8rem 1rem; text-align: left; font-weight: 600;
+            border-bottom: 1px solid var(--border-hover); white-space: nowrap;
+        }
+        td {
+            padding: 0.7rem 1rem; color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle); vertical-align: top;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+        ul ul { margin: 0.5rem 0 0.5rem 1.5rem; }
+
+        .image-container {
+            margin: 2rem 0; border: 1px solid var(--border-subtle);
+            border-radius: 6px; overflow: hidden; background: var(--bg-card);
+        }
+        .image-container img {
+            width: 100%; height: auto; display: block;
+            filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease;
+        }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption {
+            padding: 0.8rem 1rem; font-size: 0.8rem;
+            color: var(--text-muted); border-top: 1px solid var(--border-subtle);
+        }
+
+        .callout {
+            background: var(--bg-card); border-left: 3px solid var(--accent-blue);
+            padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0;
+        }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout ul { margin: 0.5rem 0 0 1.2rem; color: var(--text-secondary); font-size: 0.95rem; }
+        .callout ul li { margin-bottom: 0.3rem; }
+
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); }
+        .callout-danger .callout-title { color: var(--accent-red); }
+
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+
+        .footer {
+            border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem;
+            text-align: center; background: var(--bg-surface);
+        }
+        .footer-content {
+            max-width: 900px; margin: 0 auto;
+            display: flex; flex-direction: column; align-items: center; gap: 1rem;
+        }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a {
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 0.85rem; transition: var(--transition-smooth);
+        }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.75rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_research</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Assembly</span>
+                <span class="article-tag">Ingeniería Inversa</span>
+                <span>~2 horas de lectura</span>
+            </div>
+            <h1 class="article-title">Assembly para Ingeniería Inversa (RE)</h1>
+            <p class="article-subtitle">
+                Repaso exhaustivo del lenguaje ensamblador aplicado a ingeniería inversa: desde variables y stack frames hasta clases, constructores, destructores, memoria dinámica, estructuras de datos (pilas, colas, listas enlazadas) y convenciones de llamada.
+            </p>
+        </header>
+
+        <!-- ==================== SECCIÓN 1: INTRODUCCIÓN ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Introducción y Herramientas</h2>
+        <p>
+            Haremos un repaso rápido del lenguaje ensamblador para interpretar correctamente los binarios que estudiaremos. En primera instancia empezaremos con los compiladores de <strong>GCC para C/C++</strong> debido a su naturaleza menos abstracta que el compilador de Microsoft, que por defecto encapsula todo dentro del CRT haciendo la lectura más confusa. Con las flags adecuadas podremos controlar el nivel de optimizaciones para simplificar la salida del ensamblador.
+        </p>
+        <p>
+            Como mecanismo de estudio paralelo, también haremos uso de <strong>FLAT y NASM</strong> para escribir código directamente en Assembly.
+        </p>
+
+        <!-- ==================== SECCIÓN 2: VARIABLES Y STACK ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Variables Globales, Locales y Stack Frame</h2>
+        <p>
+            Analizaremos dónde se almacenan las variables globales definidas y cómo se prepara la función principal para recibir parámetros. Las <strong>variables locales se almacenan en la pila</strong> y su acceso se realiza a través del puntero base (<span class="mono">rbp</span>), mientras que las <strong>variables globales se almacenan en la sección de datos</strong> y su dirección se obtiene mediante un desplazamiento relativo a un símbolo (<span class="mono">.data</span>).
+        </p>
+
+        <div class="code-block mono">
+            <span class="comment">; Stack frame típico</span>
+            <p></p>
+            <span class="inst">push</span> <span class="reg">rbp</span>  <span class="comment">; Guardar puntero base</span>
+            <p></p>
+            <span class="inst">mov</span>  <span class="reg">rbp</span>, <span class="reg">rsp</span>       <span class="comment">; Establecer nuevo marco de pila</span>
+            <p></p>
+            <span class="inst">sub</span>  <span class="reg">rsp</span>, <span class="val">0x30</span>      <span class="comment">; Reservar espacio para variables locales</span>
+            <span class="comment">; ... cuerpo de la función ...</span>
+            <p></p>
+            <span class="inst">add</span>  <span class="reg">rsp</span>, <span class="val">0x30</span>      <span class="comment">; Liberar espacio reservado</span>
+            <p></p>
+            <span class="inst">pop</span>  <span class="reg">rbp</span>           <span class="comment">; Restaurar puntero base</span>
+            <p></p>
+            <span class="inst">retn</span>                <span class="comment">; Retorno de la función</span>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title mono">Observaciones sobre __main</div>
+            <p>
+                <span class="mono">__main</span> es crucial para la inicialización de un programa en C++. Se asegura de que una determinada variable global en la sección <span class="mono">.bss</span> sea inicializada a 1 una sola vez al inicio del programa. Es probable que sea una técnica de sincronización implícita en entornos multihilo: si múltiples hilos intentan acceder simultáneamente, el primero establecerá el valor en 1 y los subsiguientes encontrarán que ya ha sido inicializado, evitando condiciones de carrera.
+            </p>
+        </div>
+
+        <!-- ==================== SECCIÓN 3: ARREGLOS, PUNTEROS, BUCLES ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Arreglos, Punteros, Bucles y Condicionales</h2>
+        <p>
+            Estudiaremos la salida en ensamblador de estructuras de control desde el ámbito local (stack). Analizaremos cómo se traducen los <span class="mono">while</span>, <span class="mono">do-while</span>, <span class="mono">for</span> (con incremento/decremento prefijo y postfijo) y las estructuras <span class="mono">if-else</span>.
+        </p>
+
+        <h3 class="subsection-title">Estructura do-while y variables sin definir</h3>
+        <div class="code-block mono">
+            <span class="comment">; do { a++; } while(a == 10);</span>
+            <p></p>
+            <span class="addr">loop_start:</span>
+            <p></p>
+            <span class="inst">movzx</span> <span class="reg">eax</span>, <span class="inst">byte</span> <span class="reg">[rbp-0x1]</span>
+            <p></p>
+            <span class="inst">add</span>   <span class="reg">eax</span>, <span class="val">0x1</span>
+            <p></p>
+            <span class="inst">mov</span>   <span class="inst">byte</span> <span class="reg">[rbp-0x1]</span>, <span class="reg">al</span>
+            <p></p>
+            <span class="inst">cmp</span>   <span class="inst">byte</span> <span class="reg">[rbp-0x1]</span>, <span class="val">0xa</span>
+            <p></p>
+            <span class="inst">jne</span>   <span class="addr">loop_start</span>
+            <span class="comment">; NOTA: las variables no definidas se crean al asignarlas en el stack</span>
+        </div>
+
+        <h3 class="subsection-title">for con incremento prefijo vs postfijo</h3>
+        <p>
+            No hay diferencia significativa entre <span class="mono">i++</span> y <span class="mono">++i</span> a nivel de instrucciones generadas cuando el resultado no se asigna en la misma expresión. El compilador optimiza ambos casos de manera equivalente.
+        </p>
+
+        <!-- ==================== SECCIÓN 4: FUNCIONES ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Funciones: Tipos de Retorno y Parámetros</h2>
+        <p>
+            Estudiaremos las variaciones de funciones y los cambios en el código ensamblador generado según el tipo de retorno: <span class="mono">void</span>, <span class="mono">char</span>, <span class="mono">bool</span>, <span class="mono">unsigned char</span>, <span class="mono">short</span>, <span class="mono">unsigned short</span>, <span class="mono">unsigned int</span>, <span class="mono">long long</span>.
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Observaciones clave</div>
+            <ul>
+                <li><strong>void:</strong> reserva 0x10 en la pila (sin argumentos).</li>
+                <li><strong>bool:</strong> no reserva espacio en pila; devuelve 0 o 1 en <span class="mono">eax</span>.</li>
+                <li><strong>short (2 bytes):</strong> usa el mnemónico <span class="mono">word</span>. Alineamiento de 2 en 2 en la pila.</li>
+                <li><strong>int (4 bytes):</strong> usa el mnemónico <span class="mono">dword</span>.</li>
+                <li><strong>long long (8 bytes):</strong> deja de usar registros de 32 bits por los de 64 bits completos. La asignación es menos directa: primero carga el literal en <span class="mono">rax</span> y luego lo deposita en la pila con <span class="mono">qword</span>.</li>
+            </ul>
+        </div>
+
+        <!-- ==================== SECCIÓN 5: VALORES CON SIGNO Y ALMACENAMIENTO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Valores con Signo y Tipos de Almacenamiento</h2>
+        <p>
+            Analizamos cómo se traducen los valores negativos a nivel de código. Por ejemplo, <span class="mono">-25</span> se representa como <span class="mono">0xe7</span> (231 en decimal, fuera del rango típico de 256 sin signo). Es necesario estudiar los rangos para ambos casos según el tipo de dato correspondiente.
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Tipo de variable</th><th>Sección</th><th>Comportamiento</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="mono">auto global</td><td class="mono">.data</td><td>Inicializada en tiempo de compilación</td></tr>
+                    <tr><td class="mono">static global</td><td class="mono">.data</td><td>Inicializada, visibilidad limitada al archivo</td></tr>
+                    <tr><td class="mono">const global</td><td class="mono">.rdata</td><td>Solo lectura</td></tr>
+                    <tr><td class="mono">static const global</td><td class="mono">.rdata</td><td>Solo lectura, visibilidad limitada</td></tr>
+                    <tr><td class="mono">auto local</td><td>Stack</td><td>Inicializada en ejecución</td></tr>
+                    <tr><td class="mono">static local</td><td class="mono">.data</td><td>Persiste entre llamadas</td></tr>
+                    <tr><td class="mono">const local</td><td>Stack</td><td>El compilador sustituye su valor literal</td></tr>
+                    <tr><td class="mono">static const local</td><td class="mono">.rdata</td><td>Persiste, solo lectura</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Constantes: ¿realmente protegidas?</div>
+            <p>Las constantes no se almacenan y en su lugar son sustituidas en tiempo de compilación por sus valores literales. Sin embargo, mediante punteros es posible alterar los valores de una constante en algunos casos. <strong>EXPERIMENTAR para verificar.</strong></p>
+        </div>
+
+        <!-- ==================== SECCIÓN 6: STRUCTS, ENUMS Y SECCIONES PE ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Structs, Enums y Secciones del Formato PE</h2>
+
+        <h3 class="subsection-title">Estructuras (struct)</h3>
+        <p>
+            Los structs se apilan desde el último elemento. Las variables sin inicializar se encuentran en <span class="mono">.bss</span> con valor 0x0, mientras que las estructuras globales inicializadas residen en <span class="mono">.data</span>.
+        </p>
+
+        <h3 class="subsection-title">Enumeraciones (enum)</h3>
+        <p>
+            Los <span class="mono">enum</span> <strong>no existen en tiempo de ejecución</strong>. Son simplemente una sustitución de valores literales. La única ventaja que ofrecen es legibilidad al código fuente.
+        </p>
+
+        <h3 class="subsection-title">Secciones del formato PE</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Sección</th><th>Contenido</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="mono">.text</td><td>Código ejecutable</td></tr>
+                    <tr><td class="mono">.data</td><td>Datos globales y estáticos inicializados</td></tr>
+                    <tr><td class="mono">.rdata</td><td>Datos inicializados de solo lectura (constantes)</td></tr>
+                    <tr><td class="mono">.bss</td><td>Datos globales y estáticos no inicializados</td></tr>
+                    <tr><td class="mono">.idata</td><td>Datos de importación (funciones y datos de DLLs)</td></tr>
+                    <tr><td class="mono">.edata</td><td>Datos exportados (funciones disponibles para otros programas)</td></tr>
+                    <tr><td class="mono">.rsrc</td><td>Recursos: iconos, menús, binarios incrustados</td></tr>
+                    <tr><td class="mono">.reloc</td><td>Información de reubicación</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== SECCIÓN 7: PUNTEROS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Punteros: Operaciones y Aritmética</h2>
+        <p>
+            En sistemas de 64 bits, los punteros tienen un tamaño de <strong>8 bytes (qword)</strong>. Los incrementos/decrementos se hacen alineados a 8 bytes para sistemas de 64 bits y de 4 bytes para sistemas de 32 bits. Operadores unitarios:
+        </p>
+        <ul>
+            <li><strong>Operador de dirección (&):</strong> permite acceder a la dirección de memoria de una variable.</li>
+            <li><strong>Operador de indirección (*):</strong> además de declarar el tipo puntero, permite acceder al valor alojado en la dirección de memoria asignada.</li>
+        </ul>
+
+        <div class="code-block mono">
+            <span class="comment">; int* ptr_arr_end = &arr[3];</span>
+            <p></p>
+            <span class="inst">lea</span> <span class="reg">rax</span>, <span class="reg">[rbp-0x1c]</span>    <span class="comment">; Dirección base del arreglo</span>
+            <p></p>
+            <span class="inst">add</span> <span class="reg">rax</span>, <span class="val">0x3</span>             <span class="comment">; Desplazamiento al 4to elemento</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">[rbp-0x18]</span>, <span class="reg">rax</span>    <span class="comment">; Guardar en ptr_arr_end</span>
+            <p></p>
+            <span class="comment">; result = *(--ptr_arr_end) + *(++ptr_arr);</span>
+            <p></p>
+            <span class="inst">sub</span> <span class="inst">qword</span> <span class="reg">[rbp-0x18]</span>, <span class="val">0x1</span>  <span class="comment">; Decrementar dirección</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rax</span>, <span class="inst">qword</span> <span class="reg">[rbp-0x18]</span>  <span class="comment">; Cargar dirección</span>
+            <p></p>
+            <span class="inst">movzx</span> <span class="reg">eax</span>, <span class="inst">byte</span> <span class="reg">[rax]</span>   <span class="comment">; Acceder al valor</span>
+
+        </div>
+
+        <!-- ==================== SECCIÓN 8: FUNCIONES INLINE, MACROS, TEMPLATES ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Funciones Inline, Macros y Templates</h2>
+
+        <h3 class="subsection-title">Funciones inline</h3>
+        <p>
+            La palabra clave <span class="mono">inline</span> solo recomienda al compilador incrustar el código. Para forzarlo, se usa el atributo <span class="mono">__attribute__((always_inline))</span> de GCC. Con esto se evita generar símbolos independientes para la función.
+        </p>
+
+        <h3 class="subsection-title">Templates</h3>
+        <p>
+            Las funciones template se "expanden" en donde son utilizadas, pero añaden la seguridad de comprobación de tipos de datos. Sin el atributo <span class="mono">always_inline</span>, el compilador genera <strong>dos funciones distintas</strong> para tratar con tipos de datos diferentes. Con el atributo, se realiza una sustitución directa de instrucciones sin generar símbolos independientes.
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Acceso a la pila: dos formas</div>
+            <ul>
+                <li><strong>rbp + desplazamiento:</strong> generalmente para acceder a argumentos de funciones o datos almacenados después del marco de pila actual.</li>
+                <li><strong>rbp - desplazamiento:</strong> usado para variables locales o datos almacenados antes del marco de pila actual.</li>
+            </ul>
+        </div>
+
+        <!-- ==================== SECCIÓN 9: CLASES ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Clases: Constructores, Métodos y Destructores</h2>
+
+        <h3 class="subsection-title">Instanciación y constructor</h3>
+        <p>
+            Al instanciar un objeto, se obtiene la dirección de memoria en el stack donde se alojará la instancia. Esta dirección se pasa como <strong>argumento implícito</strong> al constructor vía <span class="mono">rcx</span>.
+        </p>
+
+        <div class="code-block mono">
+            <span class="comment">; class_0 cl;</span>
+            <p></p>
+            <span class="inst">lea</span> <span class="reg">rax</span>, <span class="reg">[rbp-0x10]</span>     <span class="comment">; Dirección para la instancia</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rcx</span>, <span class="reg">rax</span>            <span class="comment">; Argumento implícito</span>
+            <p></p>
+            <span class="inst">call</span> <span class="func">class_0::class_0</span>   <span class="comment">; Llamada al constructor</span>
+        </div>
+
+        <h3 class="subsection-title">Acceso a atributos</h3>
+        <p>
+            Se calcula la dirección de memoria tomando como referencia la dirección donde está instanciado el objeto. Los atributos privados y públicos se diferencian solo por el desplazamiento desde la base del objeto: <span class="mono">[rax]</span> para var_1, <span class="mono">[rax+0x4]</span> para var_2, <span class="mono">[rax+0x8]</span> para var_3, <span class="mono">[rax+0xc]</span> para var_4.
+        </p>
+
+        <h3 class="subsection-title">Destructores y operator delete</h3>
+        <p>
+            El destructor se llama implícitamente al finalizar la función. <span class="mono">operator delete</span> recibe la dirección de memoria (<span class="mono">rcx</span>) y el tamaño del objeto alineado. La función importada <span class="mono">operator delete(void*, uint64_t)</span> se encuentra en la sección <span class="mono">.idata</span> y referencia a <span class="mono">libstdc++-6</span>.
+        </p>
+
+        <!-- ==================== SECCIÓN 10: ALINEAMIENTO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">10.</span> Alineamiento de Datos</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Tipo</th><th>Alineación típica</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="mono">char</td><td>1 byte</td></tr>
+                    <tr><td class="mono">short</td><td>2 bytes</td></tr>
+                    <tr><td class="mono">int</td><td>4 bytes</td></tr>
+                    <tr><td class="mono">float</td><td>4 bytes</td></tr>
+                    <tr><td class="mono">long long</td><td>8 bytes</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>
+            En estructuras o clases se suele buscar la <strong>máxima alineación</strong> de sus miembros para organizarlos a todos con el mismo tamaño. El <strong>padding (relleno)</strong> consiste en insertar bytes para asegurar que cada miembro comience en una dirección múltiplo de su alineación natural. Con el atributo <span class="mono">aligned(N)</span> se puede forzar una alineación específica. Con <span class="mono">#pragma pack</span> se puede controlar el tamaño de las estructuras asignando un nuevo alineamiento máximo.
+        </p>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Implicaciones para análisis de malware</div>
+            <p>Al reducir el tamaño de las estructuras con <span class="mono">#pragma pack</span>, los autores de malware pueden hacer más difícil el análisis estático y alterar la firma por secuencia de bytes detectada por los AVs.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 11: CLASES VS STRUCTS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">11.</span> Clases vs Structs: Diferencias en ASM</h2>
+        <p>
+            Las <strong>clases</strong> crean referencias externas fuera del stack: el constructor y los métodos reciben implícitamente la dirección de memoria de la instancia. Las <strong>estructuras</strong> generan una copia completa de la estructura en el stack por cada instancia, lo que puede ocasionar problemas de memoria con múltiples instancias. Los "métodos" en structs son <strong>callbacks</strong>: se asigna una dirección de función a un miembro puntero.
+        </p>
+
+        <!-- ==================== SECCIÓN 12: MEMORIA DINÁMICA ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">12.</span> Asignación Dinámica de Memoria</h2>
+
+        <h3 class="subsection-title">Stack vs Heap</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Característica</th><th>Stack</th><th>Heap</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Estructura</td><td>LIFO, lineal</td><td>Jerárquica</td></tr>
+                    <tr><td>Velocidad</td><td>Alta</td><td>Más lento</td></tr>
+                    <tr><td>Fragmentación</td><td>No</td><td>Sí</td></tr>
+                    <tr><td>Variables</td><td>Solo locales</td><td>Acceso global</td></tr>
+                    <tr><td>Límite</td><td>Depende del SO</td><td>Sin límite específico</td></tr>
+                    <tr><td>Redimensionable</td><td>No (fijo)</td><td>Sí (flexible)</td></tr>
+                    <tr><td>Asignación</td><td>Contigua, automática</td><td>Aleatoria, manual</td></tr>
+                    <tr><td>Desasignación</td><td>Automática</td><td>Manual (free/delete)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">Malloc, Realloc, Free</h3>
+        <div class="code-block mono">
+            <span class="comment">; ptr = (int*)malloc(sizeof(int));</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">ecx</span>, <span class="val">0x4</span>           <span class="comment">; sizeof(int)</span>
+            <p></p>
+            <span class="inst">call</span> <span class="func">malloc</span>             <span class="comment">; Retorna dirección en rax</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">[rbp-0x8]</span>, <span class="reg">rax</span>   <span class="comment">; Guardar en variable puntero</span>
+            <p></p>
+            <span class="comment">; ptr = (int*)realloc(ptr, sizeof(*ptr) + (8 * sizeof(int)));</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rax</span>, <span class="reg">[rbp-0x8]</span>   <span class="comment">; Bloque original</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">edx</span>, <span class="val">0x24</span>          <span class="comment">; 4 + (4 * 8) = 36 bytes</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rcx</span>, <span class="reg">rax</span>
+            <p></p>
+            <span class="inst">call</span> <span class="func">realloc</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">[rbp-0x8]</span>, <span class="reg">rax</span>   <span class="comment">; Nueva dirección</span>
+            <p></p>
+            <span class="comment">; free(ptr);</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rax</span>, <span class="reg">[rbp-0x8]</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rcx</span>, <span class="reg">rax</span>
+            <p></p>
+            <span class="inst">call</span> <span class="func">free</span>
+        </div>
+
+        <h3 class="subsection-title">New y Delete (C++)</h3>
+        <p>
+            <span class="mono">new</span> calcula el tamaño mediante el compilador y permite llamar al constructor apropiado para instanciar objetos. <span class="mono">delete</span> y <span class="mono">delete[]</span> evitan tediosos procesos de desasignación elemento por elemento. En caso de error, <span class="mono">malloc</span> retorna <span class="mono">NULL</span> y <span class="mono">new</span> lanza <span class="mono">bad_alloc</span>.
+        </p>
+
+        <!-- ==================== SECCIÓN 13: PILAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">13.</span> Estructuras de Datos: Pilas (Stack)</h2>
+        <p>
+            Se presentan tres implementaciones progresivas de una pila (LIFO):
+        </p>
+        <ol>
+            <li><strong>Implementación básica:</strong> arreglo de tamaño fijo con variable <span class="mono">top</span>. Funciones <span class="mono">push</span> y <span class="mono">pop</span> con comprobaciones de overflow/underflow. Al desapilar se sobreescribe con 0.</li>
+            <li><strong>Implementación con struct:</strong> estructura con <span class="mono">top</span> y <span class="mono">stack[]</span>. El acceso es <span class="mono">[rdx+rax*4+0x4]</span>, donde <span class="mono">rdx</span> apunta a la estructura y <span class="mono">rax</span> es el índice.</li>
+            <li><strong>Implementación con clase y memoria dinámica:</strong> el constructor asigna el tamaño predefinido vía <span class="mono">malloc</span>. Al alcanzar el máximo, se realiza <span class="mono">realloc</span> para incrementar la capacidad. Al vaciar la pila, se libera la memoria con <span class="mono">free</span>. El destructor libera el bloque automáticamente.</li>
+        </ol>
+
+        <div class="code-block mono">
+            <span class="comment">; push: stack[*top] = e;</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rax</span>, <span class="reg">[rbp+0x10]</span>    <span class="comment">; Cargar stack_struct</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">eax</span>, <span class="reg">[rax]</span>          <span class="comment">; Cargar top</span>
+            <p></p>
+            <span class="inst">lea</span> <span class="reg">edx</span>, <span class="reg">[rax+0x1]</span>     <span class="comment">; Incrementar top</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rax</span>, <span class="reg">[rbp+0x10]</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">[rax]</span>, <span class="reg">edx</span>         <span class="comment">; Almacenar nuevo top</span>
+            <p></p>
+            <span class="comment">; Calcular dirección: stack + top * 4</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">ecx</span>, <span class="reg">[rbp+0x18]</span>    <span class="comment">; Cargar elemento e</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">[rdx+rax*4+0x4]</span>, <span class="reg">ecx</span> <span class="comment">; Almacenar en stack[top]</span>
+        </div>
+
+        <!-- ==================== SECCIÓN 14: COLAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">14.</span> Estructuras de Datos: Colas (Queue)</h2>
+        <p>
+            Una cola es una lista <strong>FIFO</strong> (First In, First Out). Se implementa con un arreglo y dos punteros: <span class="mono">begin_cola</span> (frente) y <span class="mono">next_cola</span> (siguiente lugar disponible). Operaciones: <span class="mono">enqueue</span> (insertar al final), <span class="mono">dequeue</span> (extraer del frente), <span class="mono">isEmpty</span>, <span class="mono">isFull</span>, <span class="mono">peek</span>.
+        </p>
+        <p>
+            Se presentan dos implementaciones:
+        </p>
+        <ul>
+            <li><strong>Cola estática:</strong> tamaño fijo. Si está llena, los elementos adicionales se descartan.</li>
+            <li><strong>Cola dinámica:</strong> al llenarse, <span class="mono">realloc</span> incrementa el tamaño en 1. Al vaciarse completamente, <span class="mono">free</span> libera la memoria. Si se vuelve a encolar, se crea un nuevo bloque con <span class="mono">malloc</span>.</li>
+        </ul>
+
+        <div class="callout">
+            <div class="callout-title mono">La instrucción TEST</div>
+            <p><span class="mono">TEST</span> realiza una conjunción lógica (AND) entre dos operandos sin almacenar el resultado. Se usa para verificar si bits están establecidos, comparar valores (usando las banderas como ZF) y crear condiciones para saltos.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 15: LISTAS ENLAZADAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">15.</span> Listas Enlazadas</h2>
+        <p>
+            Las listas enlazadas permiten almacenar y manipular información de forma dinámica. Cada elemento es un <strong>nodo</strong> que contiene un valor y una referencia al siguiente nodo. Son útiles cuando se desconoce el tamaño total de los datos, ya que pueden crecer o reducirse según sea necesario.
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Característica</th><th>Listas Enlazadas</th><th>Pilas</th><th>Colas</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Estructura</td><td>Secuencia de nodos con dato y puntero</td><td>LIFO (un extremo)</td><td>FIFO (dos extremos)</td></tr>
+                    <tr><td>Operaciones</td><td>Insertar/Eliminar en cualquier posición</td><td>Push/Pop (cima)</td><td>Enqueue/Dequeue (frente/final)</td></tr>
+                    <tr><td>Acceso</td><td>Secuencial desde el principio</td><td>Solo al último (top)</td><td>Solo al primero (front)</td></tr>
+                    <tr><td>Usos</td><td>Estructuras dinámicas, árboles, grafos</td><td>Llamadas, undo/redo, expresiones</td><td>Tareas, colas de espera, SO</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code-block mono">
+            <span class="comment">// Implementación: Método de inserción al frente</span>
+            <p></p>
+            <span class="keyword">NODO_SIMPLE</span> <span class="func">nodo_tail</span>   = <span class="keyword">NODO_SIMPLE</span>(<span class="val">0x42</span>);
+            <p></p>
+            <span class="keyword">NODO_SIMPLE</span> <span class="func">nodo_middle</span> = <span class="keyword">NODO_SIMPLE</span>(<span class="val">0x51</span>, &<span class="func">nodo_tail</span>);
+            <p></p>
+            <span class="keyword">NODO_SIMPLE</span> <span class="func">nodo_header</span> = <span class="keyword">NODO_SIMPLE</span>(<span class="val">0x81</span>, &<span class="func">nodo_middle</span>);
+            <p></p>
+            <span class="comment">// Construir lista enlazada y asignar posiciones</span>
+            <p></p>
+            <span class="keyword">LISTA_ENLAZADA_SIMPLE</span> <span class="func">lista_enlazada</span> = <span class="keyword">LISTA_ENLAZADA_SIMPLE</span>(&<span class="func">nodo_header</span>);
+        </div>
+
+        <div class="callout">
+            <div class="callout-title mono">IDEA: Nodos con punteros a funciones</div>
+            <p>Estos nodos podrían estar compuestos por <strong>punteros a funciones</strong> y, mediante el enlace entre ellos, controlar el flujo de ejecución. Esto podría ser directamente la dirección de una función o, en su lugar, almacenar la instrucción que será ejecutada. Esta técnica tiene aplicaciones en ofuscación de flujo de control y polimorfismo en tiempo de ejecución.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 16: CONVENCIONES DE LLAMADA ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">16.</span> Convenciones de Llamada</h2>
+        <p>
+            Es importante conocer las convenciones de llamada para identificar la estructura de las funciones con las que estamos trabajando durante el reversing.
+        </p>
+
+        <h3 class="subsection-title">32-bit cdecl</h3>
+        <ul>
+            <li>Convención predeterminada en sistemas POSIX (ABI SystemV i386) y Windows 32-bit.</li>
+            <li><strong>Parámetros:</strong> en la pila, primer argumento en la dirección más baja (empujado en último lugar).</li>
+            <li><strong>Retorno escalar:</strong> en <span class="mono">EAX</span> o <span class="mono">EDX:EAX</span> (64 bits). Flotantes en <span class="mono">st(0)</span> (x87).</li>
+            <li><strong>Estructuras:</strong> por referencia, con puntero pasado como primer parámetro implícito (se devuelve en <span class="mono">EAX</span>).</li>
+            <li><strong>Registros guardados:</strong> <span class="mono">EBX, EDI, ESI, EBP, ESP</span>. <span class="mono">EAX, ECX, EDX</span> pueden modificarse libremente.</li>
+        </ul>
+
+        <h3 class="subsection-title">32-bit stdcall</h3>
+        <ul>
+            <li>Usado para llamadas API de Windows 32-bit.</li>
+            <li><strong>Parámetros:</strong> en la pila, el destinatario los extrae antes de devolver.</li>
+            <li><strong>Retorno:</strong> valores escalares en <span class="mono">EAX</span>.</li>
+        </ul>
+
+        <h3 class="subsection-title">32-bit cdecl: Tratamiento de tipos</h3>
+        <ul>
+            <li><strong>Enteros 8/16/32 bits:</strong> siempre en la pila como valores de 32 bits de ancho completo.</li>
+            <li><strong>Enteros 64 bits:</strong> dos pushes (32 bits superiores primero, luego inferiores). Retorno en <span class="mono">EDX:EAX</span>.</li>
+            <li><strong>Flotantes 32 bits:</strong> en la pila.</li>
+            <li><strong>Doubles 64 bits:</strong> dos pushes (32 bits superiores primero).</li>
+            <li><strong>Long doubles 80 bits:</strong> ocupan 12 bytes (tres pushes de 32 bits).</li>
+            <li><strong>Estructuras por valor:</strong> se copian completamente en la pila respetando el diseño de memoria original.</li>
+            <li><strong>Estructura trivial (un miembro ≤ 32 bits):</strong> se devuelve en <span class="mono">EAX</span> (GCC/Linux) o <span class="mono">EDX:EAX</span> si tiene dos miembros (MSVC/Win32).</li>
+        </ul>
+
+        <h3 class="subsection-title">64-bit SystemV</h3>
+        <ul>
+            <li>Predeterminada en sistemas POSIX de 64 bits.</li>
+            <li><strong>Parámetros:</strong> primeros 8 en <span class="mono">RDI, RSI, RDX, RCX, R8, R9, R10, R11</span>. El resto en pila.</li>
+            <li><strong>Retorno escalar:</strong> en <span class="mono">RAX</span>. Estructuras grandes: puntero implícito al inicio de la lista de parámetros.</li>
+            <li><strong>Registros guardados:</strong> <span class="mono">RBP, RBX, R12-R15</span>. Todos los demás pueden modificarse.</li>
+        </ul>
+
+        <h3 class="subsection-title">64-bit Windows</h3>
+        <ul>
+            <li><strong>Parámetros:</strong> primeros 4 en <span class="mono">RCX, RDX, R8, R9</span>. Flotantes en <span class="mono">XMM0-XMM3</span>. Resto en pila.</li>
+            <li>El llamador <strong>siempre reserva espacio para 4 parámetros QWORD</strong> en la pila, incluso si la función usa menos.</li>
+            <li>Parámetros > 64 bits se pasan por dirección.</li>
+            <li><strong>Retorno:</strong> escalar en <span class="mono">RAX</span>. Estructuras > 64 bits: puntero en <span class="mono">RAX</span>.</li>
+        </ul>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">RECORDATORIO: Aplicación práctica</div>
+            <p>Las convenciones de llamada son necesarias para implementar correctamente patrones de búsqueda en scripts de reversing (como el análisis de muestras de DvJu). Es importante tomar en cuenta las distinciones entre compiladores en base a su sistema objetivo y la arquitectura.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 17: HEURÍSTICAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">17.</span> Heurísticas para Identificar Funciones</h2>
+        <p>
+            Para obtener etiquetas durante el proceso de desensamblado cuando no hay información de debugging:
+        </p>
+        <ul>
+            <li><strong>Tabla de direcciones virtuales:</strong> no siempre presente, sobre todo si se borra la información de debugging.</li>
+            <li><strong>Análisis de flujo:</strong> identificar bloques simples y saltos para saber cuándo inicia una función.</li>
+            <li><strong>Patrones de llamada:</strong> buscar por convenciones de llamada identificando instrucciones de llamada y valores devueltos. Analizar la pila durante las llamadas para inferir parámetros y retorno.</li>
+            <li><strong>Heurística de prólogo/epílogo:</strong> reconocer ajustes de pila (<span class="mono">push rbp; mov rbp, rsp; sub rsp, N</span>), guardado de registros y retorno (<span class="mono">add rsp, N; pop rbp; ret</span>).</li>
+        </ul>
+
+        <!-- ==================== CONCLUSIÓN ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">18.</span> Próximos Temas</h2>
+        <p>
+            Al terminar con listas enlazadas y las otras estructuras de datos, tocaremos:
+        </p>
+        <ul>
+            <li><strong>Herencia, plantillas (templates) y polimorfismo</strong></li>
+            <li><strong>Sobrecarga de operadores y funciones</strong></li>
+            <li><strong>Bibliotecas y el enlazador (linker)</strong></li>
+        </ul>
+
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">19.</span> Referencias</h2>
+        <ul>
+            <li><a href="https://gcc.gnu.org/onlinedocs/gcc-4.7.2/gcc/Function-Attributes.html" target="_blank" rel="noopener noreferrer">GCC — Function Attributes</a></li>
+            <li><a href="https://stackoverflow.com/questions/22767523/what-inline-attribute-always-inline-means-in-the-function" target="_blank" rel="noopener noreferrer">StackOverflow — always_inline attribute</a></li>
+            <li><a href="https://gcc.gnu.org/onlinedocs/gcc-4.4.4/gcc/Structure_002dPacking-Pragmas.html" target="_blank" rel="noopener noreferrer">GCC — Structure-Packing Pragmas</a></li>
+            <li><a href="https://en.cppreference.com/w/cpp/memory/new/operator_delete" target="_blank" rel="noopener noreferrer">cppreference — operator delete</a></li>
+            <li><a href="https://learntutorials.net/es/c/topic/1275/puntos-de-secuencia" target="_blank" rel="noopener noreferrer">C Language — Puntos de secuencia</a></li>
+        </ul>
+    </article>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo técnico — Assembly para Ingeniería Inversa (RE).</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            navbar.style.background = window.scrollY > 50 ? 'rgba(3, 3, 3, 0.9)' : 'rgba(3, 3, 3, 0.75)';
+        });
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Assembly para Ingeniería Inversa (RE)",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "description": "Notas técnicas sobre lenguaje ensamblador aplicado a ingeniería inversa: stack frames, variables, clases, memoria dinámica, estructuras de datos y convenciones de llamada.",
+      "keywords": ["assembly", "ingeniería inversa", "reversing", "x86", "x64", "NASM", "stack", "heap", "malloc", "pilas", "colas", "listas enlazadas", "cdecl", "stdcall", "SystemV"]
+    }
+    </script>
+</body>
+</html>
