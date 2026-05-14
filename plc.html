@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <title>Ingeniería Inversa en PLC Siemens S5/S7 | tty503</title>
+    <meta name="description" content="Análisis de bajo nivel de la arquitectura interna de autómatas Siemens S5/S7, máquina virtual MC7, protocolos industriales, hallazgos en infraestructuras venezolanas y vectores de seguridad ofensiva.">
+    <meta name="keywords" content="PLC Siemens, S5, S7, STEP5, STEP7, AWL, MC7, ingeniería inversa, seguridad OT, automatización industrial, Modbus, OPC, Havex, Venalum, CorpoElec, Schneider Electric, Modicon Quantum, shellcode PLC, fuzzing ICS">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tty503.com/plc-siemens-s5-s7">
+    <meta name="theme-color" content="#050505">
+    
+    <meta property="og:title" content="Ingeniería Inversa en PLC Siemens S5/S7 — Investigación Completa | tty503">
+    <meta property="og:description" content="Deconstrucción técnica de la arquitectura de autómatas Siemens, hallazgos de seguridad en infraestructuras industriales venezolanas, y exploración de shellcode para entornos OT.">
+    <meta property="og:url" content="https://tty503.com/plc-siemens-s5-s7">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503 Portfolio">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:title" content="Ingeniería Inversa en PLC Siemens S5/S7 — Investigación Completa">
+    <meta name="twitter:description" content="Análisis profundo de la arquitectura de autómatas Siemens, hallazgos en infraestructuras venezolanas y seguridad ofensiva en entornos OT.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(3, 3, 3, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 1000;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-back {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-back:hover {
+            color: var(--accent);
+        }
+
+        .article-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 7rem 1.5rem 4rem;
+        }
+
+        .article-header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 2rem;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            background: transparent;
+            color: var(--accent-blue);
+            padding: 0.25rem 0.75rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .article-title {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 650px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 2.5rem 0 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .section-title:first-of-type {
+            margin-top: 0;
+            border-top: none;
+        }
+
+        .subsection-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 2rem 0 0.8rem;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .code-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .code-block code {
+            color: var(--accent-green);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 0.8rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-hover);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.7rem 1rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ul, ol {
+            color: var(--text-secondary);
+            margin: 1rem 0 1.5rem 1.5rem;
+            line-height: 1.8;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        ul ul {
+            margin: 0.5rem 0 0.5rem 1.5rem;
+        }
+
+        .image-container {
+            margin: 2rem 0;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: grayscale(30%) contrast(1.05);
+            transition: filter 0.4s ease;
+        }
+
+        .image-container img:hover {
+            filter: grayscale(0%) contrast(1.1);
+        }
+
+        .image-caption {
+            padding: 0.8rem 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .callout {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent-blue);
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .callout-title {
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .callout p {
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        .callout-warning {
+            border-left-color: var(--accent-amber);
+        }
+
+        .callout-warning .callout-title {
+            color: var(--accent-amber);
+        }
+
+        .callout-danger {
+            border-left-color: var(--accent-red);
+        }
+
+        .callout-danger .callout-title {
+            color: var(--accent-red);
+        }
+
+        .callout ul {
+            margin: 0.5rem 0 0 1.2rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .callout ul li {
+            margin-bottom: 0.3rem;
+        }
+
+        a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            word-break: break-word;
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        .footer {
+            border-top: 1px solid var(--border-subtle);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            background: var(--bg-surface);
+        }
+
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: var(--transition-smooth);
+        }
+
+        .social-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 600px) {
+            .article-container {
+                padding: 6rem 1rem 3rem;
+            }
+            .article-title {
+                font-size: 1.6rem;
+            }
+            .section-title {
+                font-size: 1.25rem;
+            }
+            .code-block {
+                padding: 1rem;
+                font-size: 0.8rem;
+            }
+            th, td {
+                padding: 0.5rem 0.6rem;
+                font-size: 0.75rem;
+            }
+            .social-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_research</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Seguridad OT</span>
+                <span class="article-tag">Ingeniería Inversa</span>
+                <span>Actualizado: Abril 2026</span>
+                <span>~40 min de lectura</span>
+            </div>
+            <h1 class="article-title">Ingeniería Inversa en PLC Siemens S5/S7: Arquitectura, STEP5, MC7 y Vectores de Seguridad en Entornos Reales</h1>
+            <p class="article-subtitle">
+                Análisis de bajo nivel de la arquitectura interna de autómatas Siemens, su máquina virtual de ejecución, protocolos industriales, hallazgos en infraestructuras venezolanas, y exploración de shellcode para entornos OT/ICS.
+            </p>
+        </header>
+
+        <!-- ==================== SECCIÓN 1: FUNDAMENTOS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Fundamentos del PLC</h2>
+        
+        <h3 class="subsection-title">¿Qué es un PLC?</h3>
+        <p>
+            Un Controlador Lógico Programable (PLC) es una <strong>computadora industrial</strong> que acepta entradas desde emisores de señales, las evalúa de acuerdo a un programa almacenado en memoria y genera salidas para el control de máquinas y procesos. A diferencia de una computadora de propósito general, está diseñado para operar en ambientes hostiles con alta fiabilidad y determinismo temporal. Esta especialización implica una arquitectura interna optimizada para operaciones de control en tiempo real, donde el ciclo de scan (lectura de entradas → ejecución del programa → escritura de salidas) debe completarse en tiempos predecibles.
+        </p>
+
+        <h3 class="subsection-title">Tipos de estructuras externas</h3>
+        <ul>
+            <li><strong>Estructura modular:</strong> dividido en módulos que realizan funciones específicas. La sujeción se hace sobre carril DIN, placa perforadora o RACK donde va alojado el bus externo de unión de los distintos módulos.</li>
+            <li><strong>Estructura compacta:</strong> presenta en un solo bloque todos sus elementos: CPU, memorias, entradas, salidas, etc. Ejemplos comunes son los LOGO! de Siemens o los ОВЕН de fabricación rusa, populares en países de la órbita postsoviética por su relación costo-beneficio.</li>
+        </ul>
+
+        <h3 class="subsection-title">Lenguaje STEP5</h3>
+        <p>
+            STEP5 es el entorno de programación clásico para la familia Siemens S5. Distingue dos tipos de programas:
+        </p>
+        <ul>
+            <li><strong>Programa del sistema:</strong> instrucciones complejas y arreglos necesarios para el funcionamiento interno del controlador, almacenadas en memoria EPROM. No son afectadas por alteraciones del voltaje principal.</li>
+            <li><strong>Programa del usuario:</strong> instrucciones para el procesamiento de las señales que ejercen influencia sobre el proceso controlador, almacenadas en memoria RAM.</li>
+        </ul>
+
+        <p><strong>Lenguajes contenidos en STEP5:</strong></p>
+        <ul>
+            <li><strong>Listado de instrucciones (AWL):</strong> lenguaje de bajo nivel que utiliza nemónicos para representar las instrucciones del PLC. Ofrece control preciso y es muy compacto en uso de memoria. Su sintaxis recuerda enormemente al Assembly de arquitecturas como x86: se trabaja con un operador, un operando y un registro acumulador (RLO) que almacena el resultado de la última evaluación lógica.</li>
+            <li><strong>Diagrama de funciones (FUP):</strong> lenguaje gráfico que utiliza bloques de funciones. Adecuado para control continuo y procesamiento de señales.</li>
+            <li><strong>Diagrama de contacto (KOP):</strong> lenguaje gráfico que simula circuitos de relés tradicionales. Adecuado para control discreto y secuencial.</li>
+        </ul>
+
+        <!-- ==================== SECCIÓN 2: BLOQUES DE PROGRAMA ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Bloques del Programa de Usuario</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bloque</th>
+                        <th>Nombre</th>
+                        <th>Función</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">OB</td>
+                        <td>Bloque de Organización</td>
+                        <td>Controla la secuencia de ejecución del programa. Define puntos de entrada e interrupciones. Esencial para la estructura del programa.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">PB</td>
+                        <td>Bloque de Programa</td>
+                        <td>Contiene el programa principal de control. Puede llamar a otros bloques de funciones y datos.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">FB</td>
+                        <td>Bloque de Funciones</td>
+                        <td>Contiene funciones reutilizables que se pueden llamar desde otros bloques. Permite modularizar el programa.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">SB</td>
+                        <td>Bloque Secuencial</td>
+                        <td>Utilizado para programar secuencias de pasos. Define transiciones entre pasos y acciones asociadas.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">DB</td>
+                        <td>Bloque de Datos</td>
+                        <td>Almacena datos variables utilizados en el programa. Facilita el intercambio de datos entre diferentes bloques.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">Operandos en STEP5</h3>
+        <ul>
+            <li><strong>Entradas (E)</strong> — Interfaces del proceso al autómata.</li>
+            <li><strong>Salidas (A)</strong> — Interfaces del autómata al proceso.</li>
+            <li><strong>Marcas (M)</strong> — Memorias para resultados binarios intermedios.</li>
+            <li><strong>Datos (D)</strong> — Memorias para resultados digitales intermedios.</li>
+            <li><strong>Temporizadores (T)</strong> — Memorias para la realización de temporizadores.</li>
+            <li><strong>Contadores (Z)</strong> — Memorias para la realización de contadores.</li>
+            <li><strong>Periferia (P)</strong> — Interfaces del proceso al autómata.</li>
+            <li><strong>Constantes (K)</strong> — Valores numéricos fijos.</li>
+        </ul>
+
+        <!-- ==================== SECCIÓN 3: AWL Y SU PARALELISMO CON ASSEMBLY ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> AWL: Un Assembly para Autómatas</h2>
+
+        <p>
+            La sintaxis de AWL guarda un paralelismo notable con el Assembly de arquitecturas como x86. Se compone de un <strong>operador</strong> (la instrucción), un <strong>indicador de operando</strong> (el tipo de dato sobre el que se opera) y un <strong>operando</strong> (la dirección o valor concreto). El resultado de cada operación lógica se almacena en el registro <strong>RLO</strong> (Result of Logic Operation), que cumple una función análoga al registro <strong>EAX en x86</strong>: actúa como acumulador donde se deposita el resultado de la última evaluación.
+        </p>
+
+        <div class="code-block mono">
+            <span style="color: var(--text-muted);">// Estructura de una instrucción AWL:</span><br>
+            <span style="color: var(--text-muted);">direccion_relativa : operacion indicador_operando parametro</span><br><br>
+            <span style="color: var(--text-muted);">// Ejemplo con marcas de memoria y entradas:</span><br>
+            U  M 0.5     <span style="color: var(--text-muted);">// AND entre RLO y el bit 5 del byte 0 de marcas</span><br>
+            U  M 254.0   <span style="color: var(--text-muted);">// AND con el bit 0 del byte 254 de marcas</span><br>
+            O             <span style="color: var(--text-muted);">// OR sin operando: une los dos extremos</span><br>
+            U  E 2.1     <span style="color: var(--text-muted);">// AND con la entrada 2.1</span><br>
+            U  E 2.2     <span style="color: var(--text-muted);">// AND con la entrada 2.2</span><br>
+            =  A 3.2     <span style="color: var(--text-muted);">// Asigna el RLO a la salida 3.2</span>
+        </div>
+
+        <p>
+            En el ejemplo anterior, el operando <span class="mono">M</span> hace referencia a las "marcas de memoria", un espacio en la memoria interna del PLC. La sintaxis <span class="mono">M [byte].[bit]</span> es notable: el número a la izquierda del punto representa el byte de la dirección y el número a la derecha representa el bit dentro de ese byte (0-7). En el PLC utilizado para las pruebas prácticas, se dispone de un máximo de 255 bytes de marcas (2048 bits).
+        </p>
+
+        <p>
+            A diferencia de las marcas, cuyas direcciones son lógicas y definidas por el fabricante, el direccionamiento de entradas y salidas depende de la <strong>ranura física en el RACK</strong> donde se encuentre el módulo de E/S. En el S5 esta asignación es fija: ranura 0 = byte 0, ranura 1 = byte 1, etc. En versiones más modernas como el S7, esta correspondencia puede configurarse por software.
+        </p>
+
+        <p>
+            La instrucción de asignación <span class="mono">=</span> cumple una función similar al <span class="mono">RET</span> en x86: copia el último resultado almacenado en el RLO y lo transfiere al operando designado, ya sea una salida física o una posición de memoria.
+        </p>
+
+        <h3 class="subsection-title">Instrucciones de fin de bloque</h3>
+        <ul>
+            <li class="mono"><strong>BE</strong> — Última instrucción obligatoria en todos los OB, PB, SB y FB.</li>
+            <li class="mono"><strong>BEB</strong> — Fin de bloque si al momento de su ejecución RLO = 1.</li>
+            <li class="mono"><strong>BEA</strong> — Fin de bloque con independencia del RLO.</li>
+        </ul>
+
+        <div class="callout">
+            <div class="callout-title mono">NOTA: RLO (VKE)</div>
+            <p>El RLO (Resultado Lógico de Operación), denominado VKE en la documentación alemana, es el equivalente funcional a <strong>RAX/EAX en x86_64</strong>. Almacena el resultado de cada operación lógica y es sobrescrito por cada nueva instrucción que produce un resultado booleano. Esta característica de acumulador es fundamental para entender el flujo de ejecución del programa.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 4: COMPUERTAS LÓGICAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Compuertas Lógicas y Operaciones</h2>
+
+        <h3 class="subsection-title">AND (AWL = U)</h3>
+        <ul>
+            <li>Refleja contactos en serie.</li>
+            <li>Multiplicación bit a bit entre RLO y el operando especificado.</li>
+            <li>Negación: <span class="mono">UN</span>.</li>
+            <li>Operandos posibles: <span class="mono">E, A, M, DBX, DIX, L, T, Z</span>.</li>
+            <li>Registros afectados: <strong>RLO, STA</strong>.</li>
+        </ul>
+
+        <h3 class="subsection-title">OR (AWL = O)</h3>
+        <ul>
+            <li>Refleja contactos en paralelo.</li>
+            <li>Suma bit a bit entre RLO y el operando especificado.</li>
+            <li>Negación: <span class="mono">ON</span>.</li>
+            <li>Operandos posibles: <span class="mono">E, A, M, DBX, DIX, L, T, Z</span>.</li>
+            <li>Registros afectados: <strong>RLO, STA</strong>.</li>
+        </ul>
+
+        <h3 class="subsection-title">XOR (AWL = X)</h3>
+        <ul>
+            <li>Equivalente a una evaluación de "es distinto de". Su negación equivale a "es igual a".</li>
+            <li>Negación: <span class="mono">XN</span>.</li>
+            <li>Registros afectados: <strong>RLO, STA</strong>.</li>
+        </ul>
+
+        <p><strong>Agrupación con paréntesis:</strong> las operaciones encerradas entre paréntesis se evalúan antes que la operación que las precede.</p>
+
+        <div class="code-block mono">
+            U(<br>
+            &nbsp;&nbsp;O E 2.1<br>
+            &nbsp;&nbsp;O E 2.2<br>
+            )<br>
+            U E 2.5<br>
+            <span style="color: var(--text-muted);">// Primero evalúa OR entre E2.1 y E2.2, luego AND con E2.5</span>
+        </div>
+
+        <p><strong>OR sin operandos:</strong> permite evaluar extremos de forma independiente para luego encontrarse en una evaluación OR. Es una construcción sintáctica particularmente útil para simplificar expresiones complejas.</p>
+
+        <div class="code-block mono">
+            U E 2.1<br>
+            U E 2.2<br>
+            O <span style="color: var(--text-muted);">// Sin operando: une los dos extremos evaluados</span><br>
+            U E 2.3<br>
+            U E 2.4
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Diferencia S5 vs S7</div>
+            <p>El S5 <strong>no posee instrucciones para la detección de flancos de subida/bajada</strong>. El S7 sí incorpora esta capacidad de forma nativa mediante las instrucciones <span class="mono">FP</span> (flanco positivo) y <span class="mono">FN</span> (flanco negativo). En S5, la detección de flancos debe implementarse manualmente mediante lógica de muestreo con marcas de memoria, lo que introduce complejidad adicional.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 5: REGISTROS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Arquitectura de Registros</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bit</th>
+                        <th>Registro</th>
+                        <th>Función</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">0</td>
+                        <td class="mono">ER</td>
+                        <td>Indica si la instrucción es la primera de una cadena lógica (inhibida). En este estado, la consulta se almacena directamente en RLO.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">1</td>
+                        <td class="mono">RLO</td>
+                        <td>Registro donde se realizan las operaciones a nivel de bit. Almacena el resultado lógico (acumulador).</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">2</td>
+                        <td class="mono">STA</td>
+                        <td>Gestión de errores.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">3</td>
+                        <td class="mono">OR</td>
+                        <td>Requerido para el proceso AND delante de OR. Indica si la operación AND ha dado valor 1.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">4</td>
+                        <td class="mono">OV</td>
+                        <td>Se activa si durante una operación aritmética o de comparación de coma flotante se produce un error de desbordamiento, operación no admisible o relación incorrecta.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">5</td>
+                        <td class="mono">OS</td>
+                        <td>Se activa a la par de OV. Indica que previamente se ha producido un error. Solo cambia a 0 con la instrucción SPS o al alcanzar el fin de módulo.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">6-7</td>
+                        <td class="mono">A0, A1</td>
+                        <td>Códigos de condición: resultados de operaciones aritméticas, comparaciones, operaciones digitales, bits desplazados.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">8</td>
+                        <td class="mono">RB</td>
+                        <td>Resultado binario. Permite interpretar el resultado de una operación de palabras como resultado binario e integrarlo en la cadena lógica.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== SECCIÓN 6: DIRECCIONAMIENTO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Direccionamiento de Entradas/Salidas</h2>
+
+        <p>
+            Las direcciones de entrada/salida se estructuran de la siguiente manera: el número de la izquierda representa el <strong>byte</strong> y el número de la derecha representa los <strong>bits</strong> pertenecientes a este byte (máximo 7, ocupando 8 posiciones desde el 0 al 7).
+        </p>
+
+        <p>
+            En la configuración usada en el curso, el 2do byte designa los 8 switches de entrada (<span class="mono">E 2.0, E 2.1, ..., E 2.7</span>) y los 8 LED's de salida están en el byte 3 (<span class="mono">A 3.0, A 3.1, ..., A 3.7</span>).
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Regla de direccionamiento en S5</div>
+            <p>El byte de un módulo de entrada/salida depende de su ubicación en el RACK. La dirección es orientada a bytes: <strong>Ranura 0 = byte 0, Ranura 1 = byte 1, Ranura 2 = byte 2</strong>, y así sucesivamente. En versiones más recientes como el S7, esta asignación puede configurarse mediante el software de programación.</p>
+        </div>
+
+        <h3 class="subsection-title">Marcas de Memoria (M)</h3>
+        <p>
+            Las direcciones de marcadores no dependen de la dirección física en el RACK sino de la configuración interna del PLC. Podemos pensar en ellas como un <strong>arreglo de 255 bytes</strong> que actúan como "flags" o variables para almacenar el estado de alguna operación. Hablamos de un espacio de <strong>2048 bits disponibles</strong> en un área de la memoria interna para almacenar datos binarios intermedios.
+        </p>
+
+        <p>
+            Un caso de uso interesante es la creación de <strong>Flip-flop S/R lógicos a nivel de software</strong>, sin necesidad de componentes físicos independientes. Esto permite recordar si un dispositivo está encendido o apagado, o memorizar el estado del paso anterior en una secuencia.
+        </p>
+
+        <!-- ==================== SECCIÓN 7: EJEMPLO FLIP-FLOP ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Ejemplo: Mando Condicional (Flip-Flop S/R por Software)</h2>
+
+        <p>
+            Implementación de un pulsador que enciende/apaga un LED utilizando marcas de memoria para detectar flancos:
+        </p>
+
+        <div class="code-block mono">
+            <span style="color: var(--text-muted);">// 1er Estado: ¿pulsador presionado y LED apagado?</span><br>
+            UN E 2.1<br>
+            UN A 3.3<br>
+            S  M 0.0<br><br>
+            <span style="color: var(--text-muted);">// 2do Estado: flanco de subida detectado</span><br>
+            U  E 2.1<br>
+            U  M 0.0<br>
+            S  M 0.1<br>
+            R  M 0.0<br><br>
+            <span style="color: var(--text-muted);">// 3er Estado: pulsador liberado</span><br>
+            UN E 2.1<br>
+            U  M 0.1<br>
+            S  M 0.2<br>
+            R  M 0.1<br><br>
+            <span style="color: var(--text-muted);">// ... continúa el ciclo de muestreo ...</span><br><br>
+            <span style="color: var(--text-muted);">// Evaluación final: encender o apagar LED</span><br>
+            O  M 0.1<br>
+            O  M 0.2<br>
+            = A 3.3
+        </div>
+
+        <p>
+            La lógica del programa depende del segmento de muestreo que se hace en el 2do y 3er estado, que es cuando el pulsador emite un alto. Si el LED ya está encendido, el 1er estado almacenará 0 en M0.0, provocando una reacción en cadena de ceros hasta apagar el LED.
+        </p>
+
+        <div class="image-container">
+            <img src="img/image_2025-03-18_17-30-41.png" alt="Diagrama de tiempos del flip-flop S/R" loading="lazy">
+            <div class="image-caption mono">Diagrama de tiempos: secuencia de muestreo para detección de flancos en S5</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/image_2025-03-18_17-52-51.png" alt="Gráfica de estados del pulsador" loading="lazy">
+            <div class="image-caption mono">Gráfica de estados: comportamiento del pulsador y LED durante el ciclo</div>
+        </div>
+
+        <!-- ==================== SECCIÓN 8: TEMPORIZADORES ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Temporizadores en Siemens S5</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Nemónico</th>
+                        <th>Comportamiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">S_EVERZ</td>
+                        <td class="mono">SE</td>
+                        <td>Retardo a la conexión. La salida se activa solo después de transcurrido el tiempo TV, siempre que la entrada S permanezca activa. Si S se desactiva antes, el temporizador se reinicia.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">S_SEVERZ</td>
+                        <td class="mono">SS</td>
+                        <td>Retardo a la conexión con memoria. Una vez activada la salida, permanece activa incluso si la entrada S se desactiva. Requiere entrada de reset (R) para reiniciar.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">S_IMPULS</td>
+                        <td class="mono">SI</td>
+                        <td>Genera un pulso de salida de duración definida (TV) cuando la entrada S se activa. La duración del pulso es independiente de la duración de la señal de entrada.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">S_VIMP</td>
+                        <td class="mono">SV</td>
+                        <td>Pulso prolongado. Solo genera el pulso si la señal de entrada se mantiene activa durante un tiempo mínimo.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">S_PULS</td>
+                        <td class="mono">SP</td>
+                        <td>Genera un pulso de duración definida (TV). La duración es independiente de cuánto tiempo se mantenga activa la entrada.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">S_AVERZ</td>
+                        <td class="mono">SA</td>
+                        <td>Retardo a la desconexión. La salida se activa inmediatamente con S y comienza a contar TV cuando S se desactiva. La salida se desactiva después de transcurrido TV.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p><strong>Constante de tiempo (KT):</strong></p>
+        <div class="code-block mono">
+            L  KT  0001.2<br>
+            <span style="color: var(--text-muted);">// 1 (izquierda) = valor de tiempo</span><br>
+            <span style="color: var(--text-muted);">// 2 (derecha) = base de tiempo: 0=0.01s, 1=0.1s, 2=1s, 3=10s</span><br>
+            <span style="color: var(--text-muted);">// Resultado: 1 segundo</span>
+        </div>
+
+        <p>
+            Los temporizadores disponibles dependen del modelo: <strong>CPU-90: máximo 32, CPU-95: máximo 128</strong>.
+        </p>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Dificultades con S5 vs S7</div>
+            <p>Gran parte de la documentación disponible sobre temporizadores corresponde al S7, que incorpora registros e instrucciones que no existen en los S5 utilizados en prácticas. Esto provoca errores de sintaxis al intentar ejecutar código de S7 en un S5 real. La solución práctica fue recurrir a un emulador de S5 para realizar pruebas, ya que el simulador PC Simu descartaba la instrucción de transferencia que toma el contenido de AKKU1 y lo envía a memoria.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 9: CONTADORES ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Contadores y Operaciones de Cómputo</h2>
+
+        <p>Permiten contar y/o descontar impulsos entre 0 y 999. Parámetros:</p>
+        <ul>
+            <li class="mono"><strong>Z0 ... Zmax</strong> — Número de contador (CPU-90: 128).</li>
+            <li class="mono"><strong>ZV</strong> — Incrementar (no supera 999).</li>
+            <li class="mono"><strong>ZR</strong> — Decrementar (no decrementa por debajo de 0).</li>
+            <li class="mono"><strong>S</strong> — Carga el valor inicial en el contador.</li>
+            <li class="mono"><strong>KZ xxx</strong> — Valor inicial.</li>
+            <li class="mono"><strong>R</strong> — Resetea el valor del contador.</li>
+        </ul>
+
+        <!-- ==================== SECCIÓN 10: COMPARACIONES Y SALTOS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">10.</span> Operaciones de Comparación y Saltos</h2>
+
+        <h3 class="subsection-title">Comparaciones</h3>
+        <p>Un comparador relaciona dos datos del mismo formato (BYTE o WORD). Tipos disponibles:</p>
+        <ul>
+            <li class="mono">!= F — Desigualdad</li>
+            <li class="mono">> F — Mayor que</li>
+            <li class="mono">< F — Menor que</li>
+            <li class="mono">>= F — Mayor o igual que</li>
+            <li class="mono"><= F — Menor o igual que</li>
+        </ul>
+
+        <div class="callout">
+            <div class="callout-title mono">Notación S5 vs S7</div>
+            <p>En S5, <strong>F</strong> hace referencia a números enteros (Integer 16 bits). En S7 esto cambia por <strong>I</strong> (mnemónicos en inglés). También existen: <strong>D</strong> (Double Integer 32 bits) y <strong>G</strong> (Floating Point 32 bits IEEE-FP).</p>
+        </div>
+
+        <h3 class="subsection-title">Instrucciones de Salto (Jump)</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Instrucción</th>
+                        <th>Condición</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="mono">SPA</td><td>Salto Incondicional</td></tr>
+                    <tr><td class="mono">SPB</td><td>Salta si RLO = 1 (True)</td></tr>
+                    <tr><td class="mono">SPN</td><td>Salta si RLO = 0 (False)</td></tr>
+                    <tr><td class="mono">SPZ</td><td>Salta si AKKU1 = 0</td></tr>
+                    <tr><td class="mono">SPP</td><td>Salta si AKKU1 > 0</td></tr>
+                    <tr><td class="mono">SPM</td><td>Salta si AKKU1 < 0</td></tr>
+                    <tr><td class="mono">SPO</td><td>Salta si OV = 1 (desbordamiento)</td></tr>
+                    <tr><td class="mono">SPS</td><td>Salta si OS = 1 (error persistente)</td></tr>
+                    <tr><td class="mono">SPR</td><td>Salta si BR = 1 (operación aritmética sin errores)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Limitación detectada</div>
+            <p>En las pruebas realizadas, <strong>SPA y SPB son las únicas instrucciones de salto que funcionan consistentemente</strong> en el hardware disponible. Las demás requieren validación adicional.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 11: TRANSICIÓN S5 → S7 ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">11.</span> Transición de STEP5 a STEP7</h2>
+
+        <p>
+            Es importante aclarar que <strong>S5-95 es comparable con S7-200</strong> (ambos de gama baja). La transición real es del S5-95 usado en el curso al <strong>S7-300</strong> usado en la mayoría de simulaciones y proyectos modernos.
+        </p>
+
+        <h3 class="subsection-title">Diferencias de hardware</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Característica</th>
+                        <th>S5-95</th>
+                        <th>S7-300</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>RAM</td>
+                        <td>16 KB (STEP5) + 64 KB (ejecución)</td>
+                        <td>Mayor capacidad, dependiente del modelo</td>
+                    </tr>
+                    <tr>
+                        <td>Puerto de programación</td>
+                        <td>AS511</td>
+                        <td>Interfaces MPI</td>
+                    </tr>
+                    <tr>
+                        <td>Memoria de trabajo</td>
+                        <td>RAM</td>
+                        <td>RAM</td>
+                    </tr>
+                    <tr>
+                        <td>Memoria de carga</td>
+                        <td>RAM o EPROM</td>
+                        <td>RAM, Flash o tarjeta de memoria</td>
+                    </tr>
+                    <tr>
+                        <td>Datos locales</td>
+                        <td>No existen</td>
+                        <td>Sí (datos temporales dentro de un bloque)</td>
+                    </tr>
+                    <tr>
+                        <td>Datos remanentes</td>
+                        <td>Menor capacidad</td>
+                        <td>Mayor capacidad de conservación ante pérdida de energía</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ==================== SECCIÓN 12: FORMATOS Y DIRECCIONAMIENTO AVANZADO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">12.</span> Tipos de Datos, Constantes y Direccionamiento en STEP7</h2>
+
+        <h3 class="subsection-title">Formatos de constantes: equivalencia S5 → S7</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Formato S5</th>
+                        <th>Ejemplo S5</th>
+                        <th>Formato S7</th>
+                        <th>Ejemplo S7</th>
+                        <th>Tipo de dato</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="mono">KB</td><td class="mono">L KB 10</td><td class="mono">B#16#</td><td class="mono">L B#16# A</td><td>BYTE (8 bits)</td></tr>
+                    <tr><td class="mono">KF</td><td class="mono">L KF 10</td><td class="mono">—</td><td class="mono">L 10</td><td>INT (16 bits)</td></tr>
+                    <tr><td class="mono">KH</td><td class="mono">L KH FFF</td><td class="mono">W#16#</td><td class="mono">L W#16# FFFF</td><td>WORD (16 bits)</td></tr>
+                    <tr><td class="mono">KM</td><td class="mono">L KM 1111111111111111</td><td class="mono">2#</td><td class="mono">L 11111111_11111111</td><td>WORD (16 bits)</td></tr>
+                    <tr><td class="mono">KY</td><td class="mono">L KY 10,12</td><td class="mono">B#</td><td class="mono">L B#(10,12)</td><td>2xBYTE (8+8 bits)</td></tr>
+                    <tr><td class="mono">KT</td><td class="mono">L KT 10.0</td><td class="mono">S5TIME#</td><td class="mono">L S5TIME# 100ms</td><td>TIME (S5TIME)</td></tr>
+                    <tr><td class="mono">KZ</td><td class="mono">L KZ 30</td><td class="mono">C#</td><td class="mono">L C#30</td><td>COUNTER (BCD)</td></tr>
+                    <tr><td class="mono">DH</td><td class="mono">L DH FFFF FFFF</td><td class="mono">DW#16#</td><td class="mono">L DW#16#FFFF_FFFF</td><td>DWORD (32 bits)</td></tr>
+                    <tr><td class="mono">KC</td><td class="mono">L KC WW</td><td class="mono">' xx '</td><td class="mono">L ' WW '</td><td>CHAR (8 bits por carácter)</td></tr>
+                    <tr><td class="mono">KG</td><td class="mono">L KG +234 +09</td><td class="mono">REAL</td><td class="mono">L +2.34 E+08</td><td>REAL (32 bits, coma flotante)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">Direccionamiento completo de operandos de datos</h3>
+        <p>
+            Novedad en STEP7: indicación conjunta del bloque de datos y del operando. Esto no era posible en S5. No se permite mezclar direccionamiento absoluto y simbólico en una misma instrucción.
+        </p>
+
+        <div class="code-block mono">
+            L DB100.DBW6<br>
+            L DB_MOTOR.REVOLUCIONES<br>
+            <span style="color: var(--text-muted);">// DB_MOTOR = símbolo del DB 100 en la tabla de símbolos</span><br>
+            <span style="color: var(--text-muted);">// REVOLUCIONES = operando declarado dentro del bloque de datos</span>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Riesgos del direccionamiento incompleto</div>
+            <p>Situaciones en las que se sobrescribe el registro DB:</p>
+            <ul>
+                <li>Acceso a datos con direccionamiento completo.</li>
+                <li>Llamada a un FB (sobrescribe el registro DB del bloque invocante).</li>
+                <li>Llamada a un FC que transfiere un parámetro de tipo compuesto (STRING, ARRAY, STRUCT, UDT).</li>
+                <li>Asignación a una FC de un parámetro depositado en un DB.</li>
+                <li>Direccionamiento de un parámetro de entrada/salida de tipo compuesto en un FB o FC.</li>
+            </ul>
+        </div>
+
+        <!-- ==================== SECCIÓN 13: DIRECCIONAMIENTO INDIRECTO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">13.</span> Direccionamiento Indirecto</h2>
+
+        <h3 class="subsection-title">Formato de los punteros</h3>
+        <p>En S5 el puntero para la operación indizada de elaboración ocupa una palabra. En S7 los punteros pueden tener dos formatos: <strong>palabra y palabra doble</strong>.</p>
+
+        <div class="image-container">
+            <img src="img/image_2025-04-03_11-44-03.png" alt="Formato de puntero en S5" loading="lazy">
+            <div class="image-caption mono">Formato del puntero en STEP5: ocupa una palabra (16 bits)</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/image_2025-04-03_11-45-55.png" alt="Formato de puntero en S7 - palabra" loading="lazy">
+            <div class="image-caption mono">Formato del puntero en STEP7: palabra (16 bits)</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/image_2025-04-03_14-00-15.png" alt="Formato de puntero en S7 - palabra doble" loading="lazy">
+            <div class="image-caption mono">Formato del puntero en STEP7: palabra doble (32 bits)</div>
+        </div>
+
+        <h3 class="subsection-title">Direccionamiento indirecto por memoria</h3>
+        <p>
+            Corresponde al direccionamiento indirecto de S5. El operando indica la dirección del valor que deberá procesar la operación. El puntero se puede encontrar en: <strong>Marcas (M), Bloque de datos (DB), Bloque de datos de instancia (DI), Datos locales (L)</strong>. Una ventaja fundamental de este mecanismo es que permite modificar el operando de la instrucción dinámicamente durante la ejecución del programa.
+        </p>
+
+        <div class="code-block mono">
+            <span style="color: var(--text-muted);">// Ejemplo: puntero en formato de palabra doble en S7</span><br>
+            L P#8.7<br>
+            T MD 2<br>
+            U  E [MD 2]<br>
+            = A [MD 2]<br>
+            <span style="color: var(--text-muted);">// Lee la entrada E8.7 y escribe su estado en la salida A8.7</span>
+        </div>
+
+        <!-- ==================== SECCIÓN 14: INTERFACES Y PROTOCOLOS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">14.</span> Interfaces de Bus y Protocolos Industriales</h2>
+
+        <h3 class="subsection-title">Buses de campo</h3>
+        <p>Sistemas de comunicación ideados para conectar sensores, actuadores y otros dispositivos E/S a un PLC:</p>
+        <ul>
+            <li><strong>Profibus:</strong> estándar industrial para datos discretos y analógicos.</li>
+            <li><strong>Profinet:</strong> basado en Ethernet, ideal para aplicaciones en tiempo real.</li>
+            <li><strong>DeviceNet:</strong> utilizado en automatización de fábricas.</li>
+            <li><strong>CANopen:</strong> popular en aplicaciones de control de movimiento.</li>
+            <li><strong>AS-Interface:</strong> diseñado para conectar sensores y actuadores binarios.</li>
+        </ul>
+
+        <h3 class="subsection-title">Protocolos de comunicación</h3>
+        <ul>
+            <li><strong>Modbus RTU / ASCII / TCP/IP:</strong> protocolo serial ampliamente utilizado para comunicación entre PLCs, sensores y actuadores. Es importante señalar que Modbus carece de autenticación por diseño, lo que lo convierte en un vector de ataque significativo en entornos no segmentados.</li>
+            <li><strong>DNP3 (Distributed Network Protocol 3):</strong> comunicación entre equipos en sistemas de automatización de redes eléctricas y agua. Común en subestaciones eléctricas.</li>
+            <li><strong>ICCP (Inter-Control Center Communications Protocol):</strong> diseñado para comunicación entre centros de control en sistemas de energía eléctrica. Permite intercambio de datos en tiempo real.</li>
+            <li><strong>OPC (Open Platform Communication):</strong> estándar de interoperabilidad para el intercambio de datos entre dispositivos industriales de diferentes fabricantes. Utiliza DCOM para conectarse a servidores OPC dentro de una red ICS.</li>
+            <li><strong>WORLDFIP:</strong> bus de campo industrial para comunicación entre dispositivos en sistemas de automatización.</li>
+        </ul>
+
+        <h3 class="subsection-title">Sistemas SCADA, DCS y HMI</h3>
+        <ul>
+            <li><strong>ALSPA P320:</strong> Sistema de Control Distribuido presente en plantas de generación de energía e instalaciones industriales de gran escala.</li>
+            <li><strong>ABB 800xA:</strong> Sistema de Control Distribuido con alta capacidad de procesamiento. Se programa mediante Control Builder M.</li>
+            <li><strong>Wonderware SCADA:</strong> plataforma de supervisión y control con librerías de comunicación para PLCs S7, programables sobre C# o Java.</li>
+            <li><strong>PascalSCADA:</strong> alternativa open-source para sistemas SCADA que permite comunicación con PLCs Siemens vía Ethernet, Modbus TCP/RTU, y extensibilidad mediante clases personalizadas en Lazarus/Free Pascal.</li>
+            <li><strong>HMI Magelis (ahora Harmony):</strong> interfaces hombre-máquina con pantallas táctiles, configurables con EcoStruxure™ Operator Terminal Expert.</li>
+        </ul>
+
+        <!-- ==================== SECCIÓN 15: HALLAZGOS EN INFRAESTRUCTURAS VENEZOLANAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">15.</span> Hallazgos en Infraestructuras Venezolanas</h2>
+
+        <div class="callout callout-danger">
+            <div class="callout-title mono">⚠️ Divulgación responsable</div>
+            <p>Toda la información presentada en esta sección proviene de <strong>fuentes públicas</strong>: trabajos de grado universitarios, documentos académicos, reportes de organismos oficiales y artículos de divulgación. El objetivo es estrictamente académico y de concienciación sobre la importancia de la seguridad en infraestructuras críticas.</p>
+        </div>
+
+        <h3 class="subsection-title">CorpoElec y el ecosistema Schneider Electric</h3>
+        <p>
+            Investigaciones basadas en documentos públicos indican que <strong>CorpoElec</strong> utiliza PLCs de la serie <strong>Schneider Electric Modicon Quantum</strong> en sus sistemas de control. Estos dispositivos, programados mediante Unity Pro, son ampliamente utilizados en el sector eléctrico venezolano. 
+        </p>
+        <p>
+            Un hallazgo particularmente relevante es la existencia de una vulnerabilidad en el Modicon Quantum que <strong>permite paralizar la CPU sin autenticación previa si se tiene acceso al puerto Modbus TCP</strong>. El aviso ICS-ALERT-12-020-03B de CISA documenta esta falla, y existen fundadas dudas sobre si fue efectivamente parcheada a tiempo en las infraestructuras afectadas. Adicionalmente, se han reportado configuraciones que exponían acceso remoto a estos sistemas, aunque la veracidad de estos reportes no ha sido confirmada de forma independiente.
+        </p>
+        <p>
+            Schneider Electric también ha enfrentado vulnerabilidades significativas en su Serial Modbus Driver (ModbusDrv.exe), un componente que se activa al conectar una PC al PLC vía puerto serial. El desbordamiento de búfer basado en pila identificado por Risk-Based Security afectó a 11 productos, incluyendo Unity Pro, TwidoSuite, PowerSuite, SoMove, SoMachine y OPC Factory Server. Esta vulnerabilidad era explotable remotamente.
+        </p>
+
+        <h3 class="subsection-title">Venalum: 15 años de historia tecnológica documentada</h3>
+        <p>
+            Las plantas de procesamiento de aluminio de <strong>Venalum</strong> representan un caso de estudio singular sobre cómo la documentación académica puede revelar la evolución tecnológica de una infraestructura crítica. Un trabajo de grado de 2016 documenta el uso de <strong>PLC S7-400</strong> junto con <strong>Wonderware SCADA</strong> en los sistemas de control de la planta. Lo más significativo es que en 2019 se iniciaron oficialmente las migraciones de STEP5 a STEP7, lo que confirma que <strong>hasta fechas muy recientes se seguían utilizando PLCs S5 en la infraestructura de producción</strong>.
+        </p>
+        <p>
+            Un trabajo de grado anterior, fechado en 2006, documenta el sistema de control de los hornos de retención implementado con un <strong>PLC S7-300</strong>, utilizando <strong>OPC Simatic Net</strong> como servidor de comunicaciones y <strong>MATLAB 7</strong> como cliente. La conexión OPC con MATLAB es particularmente interesante porque sugiere un procesamiento de datos industriales con herramientas de computación científica.
+        </p>
+        <p>
+            En 2021, otro trabajo de grado sobre el mismo horno de retención confirma que el <strong>S7-300 seguía en operación 15 años después</strong>, manteniendo probablemente la misma lógica de comunicación con MATLAB. Aunque el trabajo menciona una aplicación Android —que requeriría algún módulo inalámbrico—, esta se menciona una sola vez, lo que sugiere que nunca se implementó y fue incluida para dar formato académico al documento. La conclusión es clara: el sistema ha recibido mantenimiento sin cambios arquitectónicos significativos en más de una década y media.
+        </p>
+
+        <h3 class="subsection-title">Implicaciones de seguridad de la documentación pública</h3>
+        <p>
+            Existe un debate legítimo sobre si los trabajos de grado y tesis universitarias que documentan infraestructuras críticas deberían ser de acceso público. Literalmente, con solo recopilar trabajos de grado, un atacante podría formarse una idea detallada de todas las tecnologías presentes en una empresa. Sin embargo, el problema de fondo no es la disponibilidad de esta información —una nación con recursos de inteligencia podría obtenerla por otros medios—, sino la <strong>falta de personal calificado en seguridad informática</strong> dentro de estas organizaciones.
+        </p>
+        <p>
+            La realidad es que en muchos casos no existe un modelo de amenazas formalmente definido, y la inversión en seguridad suele producirse <strong>después del incidente, no antes</strong>. Esta aproximación reactiva es particularmente peligrosa en entornos OT/ICS, donde una interrupción puede tener consecuencias físicas y económicas catastróficas.
+        </p>
+
+        <!-- ==================== SECCIÓN 16: MALWARE EN ENTORNOS ICS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">16.</span> Malware y Tácticas de Compromiso en ICS</h2>
+
+        <h3 class="subsection-title">Havex RAT y el vector OPC</h3>
+        <p>
+            <strong>Havex</strong> es un Remote Access Tool documentado en Malpedia que introdujo una táctica particularmente insidiosa: una vez instalado en un sistema, analizaba la red en busca de dispositivos SCADA o ICS. Para ello, aprovechaba el estándar <strong>OPC (Open Platform Communication)</strong>, un protocolo de comunicación universal utilizado por componentes ICS de diversos fabricantes que facilita la conectividad abierta y la interoperabilidad.
+        </p>
+        <p>
+            Havex utilizaba el <strong>Modelo de Objetos de Componentes Distribuidos (DCOM)</strong> para conectarse a servidores OPC dentro de la red ICS y recopilar información detallada: CLSID, nombre del servidor, ID del programa, versión de OPC, información del proveedor, estado de ejecución, número de grupos y ancho de banda del servidor. La entrada inicial era un simple email, tras lo cual el malware realizaba un sondeo en busca de la presencia del protocolo OPC y comenzaba a enumerar los dispositivos de la infraestructura.
+        </p>
+
+        <h3 class="subsection-title">Panorama de amenazas ICS</h3>
+        <p>
+            El ecosistema de amenazas para sistemas de control industrial incluye casos emblemáticos como <strong>Stuxnet</strong> (dirigido a centrifugadoras iraníes), <strong>Triton</strong> (ataque a sistemas de seguridad instrumentada), <strong>Pipedream</strong> (toolkit modular para PLCs) y <strong>Havex</strong> (reconocimiento vía OPC). Estos casos demuestran que los atacantes han desarrollado capacidades sofisticadas para comprender, enumerar y comprometer entornos OT.
+        </p>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Vector de entrada común</div>
+            <p>En la mayoría de los casos documentados, el vector de entrada inicial es un simple email. A partir de ahí, el malware realiza un reconocimiento lateral buscando protocolos ICS como OPC, Modbus o Profinet. Esta simplicidad aparente es engañosa: la sofisticación está en el conocimiento del dominio OT que demuestra el malware una vez dentro de la red.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 17: INGENIERÍA INVERSA DE MC7 ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">17.</span> Ingeniería Inversa del Bytecode MC7</h2>
+
+        <h3 class="subsection-title">La arquitectura subyacente: ¿VM o microprogramación?</h3>
+        <p>
+            Una de las cuestiones más fascinantes que emergen del estudio de los PLCs Siemens es la naturaleza de su arquitectura de ejecución. Los opcodes de las instrucciones AWL no se ejecutan directamente sobre el procesador físico (ARM o MIPS, según el modelo), sino que corren sobre una <strong>capa intermedia</strong> que algunos investigadores denominan "VM" o "pseudo-CPU".
+        </p>
+        <p>
+            Sin embargo, existe un debate sobre si esta capa constituye realmente una máquina virtual en el sentido tradicional o si se trata más bien de una <strong>arquitectura microprogramada</strong>. El concepto de microprogramación, definido por Matloff y Franklin, describe un escenario donde una máquina A (el CPU real) ejecuta un programa intérprete almacenado en ROM que le permite comportarse como una máquina B (la que entiende el set de instrucciones AWL). La máquina A está especialmente adaptada para esta tarea y es muy rápida, y al programa intérprete se le denomina firmware o microprograma.
+        </p>
+        <p>
+            Bajo esta óptica, <strong>MC5</strong> (en S5) y <strong>MC7</strong> (en S7) serían los microprogramas que permiten que un procesador ARM/MIPS se comporte como un CPU especializado en automatización industrial. Esta interpretación es consistente con la observación de que el objetivo final para lograr un impacto significativo en seguridad es <strong>trascender el limitado conjunto de instrucciones AWL y alcanzar el procesador real</strong>.
+        </p>
+
+        <h3 class="subsection-title">Herramientas de reversing: JEB Decompiler</h3>
+        <p>
+            <strong>JEB Pro</strong>, de PNF Software, ofrece soporte específico para <strong>PLC Siemens S7</strong> con capacidad para decompilar bytecode MC7 a STL (AWL). Los screenshots de la herramienta revelan información crucial sobre la codificación de instrucciones:
+        </p>
+        <ul>
+            <li>La instrucción de carga <span class="mono">L</span> es representada por el opcode <span class="mono">0xFB</span>.</li>
+            <li>La instrucción de transferencia <span class="mono">T</span> es representada por el opcode <span class="mono">0x7E</span>.</li>
+            <li>La mayoría de las instrucciones, incluyendo sus operandos, tienen una <strong>longitud máxima de 4 bytes</strong>, lo que sugiere un formato de instrucción de longitud fija o semi-fija.</li>
+        </ul>
+
+        <div class="callout">
+            <div class="callout-title mono">Enlaces de referencia para reversing MC7</div>
+            <ul>
+                <li><a href="https://www.pnfsoftware.com/jeb/simatic-s7-stl-opcodes" target="_blank" rel="noopener noreferrer">JEB — Simatic S7 STL Opcodes</a></li>
+                <li><a href="https://www.pnfsoftware.com/jeb/plc" target="_blank" rel="noopener noreferrer">JEB — PLC Decompiler</a></li>
+                <li><a href="https://habr.com/en/articles/696208/" target="_blank" rel="noopener noreferrer">Ingeniería inversa en PLC Siemens S7-300 (Habr)</a></li>
+                <li><a href="https://habr.com/en/companies/oleg-bunin/articles/764068/" target="_blank" rel="noopener noreferrer">Mitsubishi PLC: desmontar el protocolo de red y encontrar vulnerabilidades (Habr)</a></li>
+                <li><a href="https://github.com/RUB-SysSec/SiemensS7-Bootloader" target="_blank" rel="noopener noreferrer">Siemens S7 Bootloader — Ejecución no invasiva de código (RUB-SysSec)</a></li>
+                <li><a href="https://av.tib.eu/media/53174" target="_blank" rel="noopener noreferrer">Estructura en memoria de MC7 (TIB AV-Portal)</a></li>
+            </ul>
+        </div>
+
+        <!-- ==================== SECCIÓN 18: EXPLORACIÓN DE SHELLCODE Y EXPLOTACIÓN ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">18.</span> Exploración de Shellcode y Binary Exploitation en PLCs</h2>
+
+        <h3 class="subsection-title">Del reversing a la explotación</h3>
+        <p>
+            El estudio de la codificación de instrucciones MC7 tiene aplicaciones prácticas inmediatas en seguridad ofensiva/defensiva. Entre los objetivos de investigación se encuentran:
+        </p>
+        <ul>
+            <li>Comprender cómo el compilador prepara el firmware para el MC7 y cómo se codifican las instrucciones.</li>
+            <li>Estudiar la estructura del binario internamente, análogo a lo que sería el formato PE en Windows.</li>
+            <li>Desarrollar shellcode para PLC Siemens S7, entendiendo qué tanto cambia la codificación entre versiones y marcas.</li>
+            <li>Realizar prácticas de binary exploitation sobre el entorno MC7.</li>
+        </ul>
+
+        <h3 class="subsection-title">Puntos de entrada para fuzzing</h3>
+        <p>
+            Los vectores potenciales para realizar fuzzing en un entorno PLC incluyen:
+        </p>
+        <ul>
+            <li><strong>Sensores:</strong> los datos provenientes de sensores conectados a los módulos de entrada representan un flujo de datos que podría ser manipulado.</li>
+            <li><strong>Protocolos de comunicación:</strong> Modbus TCP/RTU, Profinet, OPC y otros protocolos constituyen interfaces expuestas a la red que procesan datos potencialmente maleables.</li>
+            <li><strong>Software de programación:</strong> las herramientas como TIA Portal, WinSPS S7 o PG2000 son vectores adicionales si un atacante logra comprometer la estación de ingeniería.</li>
+        </ul>
+
+        <h3 class="subsection-title">Limitaciones de los simuladores</h3>
+        <p>
+            Un obstáculo significativo es que los simuladores disponibles (PC Simu, WinSPS S7, PG2000) se centran en <strong>simular la VM de MC7</strong> sin modelar cómo se traducen los bytecodes a instrucciones ARM/MIPS en el hardware real. Esto significa que la validación de shellcode a nivel de procesador solo puede realizarse con equipo físico. La filosofía de los fabricantes de mantener cerradas las especificaciones de sus CPUs agrava esta dificultad.
+        </p>
+
+        <div class="callout callout-danger">
+            <div class="callout-title mono">Falta de herramientas de debugging profundo</div>
+            <p>No existe una herramienta que funcione como un debugger paso a paso para PLCs, mostrando en tiempo real el estado de los registros (AKKU1, AKKU2, RLO, VKE) y la instrucción en ejecución. Las versiones más recientes de los entornos de programación han abandonado el AWL en favor de lenguajes de alto nivel, sin ofrecer una visualización del equivalente en código de bajo nivel. Esta opacidad deliberada dificulta enormemente la investigación de seguridad.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 19: MONITOREO DE SEGURIDAD EN ICS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">19.</span> Monitoreo de Seguridad y SIEM en Entornos OT</h2>
+
+        <h3 class="subsection-title">El desafío del monitoreo en ICS</h3>
+        <p>
+            Una pregunta recurrente en el ámbito de la seguridad OT es cómo implementar agentes para monitorear la seguridad de equipos en un ICS. A diferencia de los entornos IT tradicionales, donde los agentes de monitoreo pueden instalarse directamente en los endpoints, los PLCs y otros dispositivos industriales presentan limitaciones significativas:
+        </p>
+        <ul>
+            <li><strong>Ausencia de agentes nativos:</strong> los PLCs no incorporan agentes de monitoreo que registren cambios en el sistema o detecten instrucciones maliciosas cargadas en RAM.</li>
+            <li><strong>Monitoreo basado en red:</strong> la mayoría de las soluciones se centran en la inspección de paquetes de red, analizando el tráfico Modbus, Profinet u OPC en busca de anomalías.</li>
+            <li><strong>Implementación de SIEM OT:</strong> guías como la de Zakhar Bernhardt sobre implementación de SIEM en OT según NIST proporcionan marcos de referencia, pero la instrumentación directa de los dispositivos de campo sigue siendo una asignatura pendiente.</li>
+        </ul>
+
+        <p>
+            Aunque la probabilidad de que una instrucción maliciosa se cargue en la RAM del PLC sin una vulnerabilidad explotable es baja —y dicha vulnerabilidad probablemente sería explotada desde la red—, la falta de visibilidad a nivel de dispositivo representa un punto ciego significativo en la postura de seguridad de cualquier infraestructura industrial.
+        </p>
+
+        <!-- ==================== SECCIÓN 20: PERSPECTIVAS FUTURAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">20.</span> Perspectivas Futuras y Líneas de Investigación</h2>
+
+        <h3 class="subsection-title">Desarrollo de herramientas propias</h3>
+        <p>
+            La escasez de herramientas para reversing de PLCs hace necesario el desarrollo de una suite propia, inspirada en las librerías y artículos disponibles. Los objetivos incluyen:
+        </p>
+        <ul>
+            <li>Un <strong>desensamblador de MC7</strong> funcional, con soporte para exportar versiones compiladas desde entornos como WinSPS S7 o TIA Portal.</li>
+            <li>Comprensión profunda de la <strong>estructura de los formatos compilados de MC7</strong>, mapeando la relación entre bytecodes y su representación en memoria.</li>
+            <li>Estudio de la <strong>pasarela entre bytecodes MC7 e instrucciones reales del procesador</strong> (ARM/MIPS), incluyendo el proceso de equivalencia y traducción.</li>
+        </ul>
+
+        <h3 class="subsection-title">Montaje de un laboratorio ICS</h3>
+        <p>
+            Para validar experimentalmente las hipótesis de seguridad, es necesario montar un laboratorio que simule una infraestructura ICS real. Esto implica:
+        </p>
+        <ul>
+            <li>Adquirir <strong>equipo físico</strong> (PLCs, módulos de E/S, switches industriales) para validar las investigaciones más allá de los simuladores.</li>
+            <li>Configurar una <strong>red OT segmentada</strong> con los protocolos más utilizados (Modbus TCP, Profinet, OPC).</li>
+            <li>Estudiar los <strong>protocolos de red</strong> a nivel de formato de paquetes, reglas de negociación y vectores de ataque.</li>
+        </ul>
+
+        <p>
+            La meta final es una recopilación exhaustiva de conocimientos sobre reversing, escritura de shellcode y prácticas de explotación con objetivos S7-300, que pueda servir tanto para fines defensivos como para concienciar sobre los riesgos reales en infraestructuras industriales.
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Nota sobre la capacidad de comunicación del S5-95</div>
+            <p>Queda pendiente determinar si los S5-95 tienen capacidades de comunicación suficientes para realizar prácticas significativas de análisis de protocolos. Sería una limitación considerable estudiar estos sistemas de forma aislada sin poder experimentar con el proceso de comunicación, el formato de los paquetes y las reglas de negociación. El costo de los PLCs modernos sigue siendo una barrera de entrada significativa para la investigación independiente.</p>
+        </div>
+
+        <!-- ==================== CONCLUSIÓN ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">21.</span> Conclusiones y Superficie de Ataque</h2>
+
+        <p>
+            El análisis exhaustivo de la arquitectura Siemens S5/S7 y su contexto en infraestructuras reales revela múltiples vectores de seguridad que merecen atención urgente en entornos OT:
+        </p>
+        <ul>
+            <li><strong>Desbordamiento de pila de módulos (STUEB):</strong> el límite de 16 niveles de anidamiento puede ser explotado si un atacante logra inyectar llamadas recursivas no controladas.</li>
+            <li><strong>Falta de detección de flancos en S5:</strong> obliga a implementar lógica de muestreo manual con marcas de memoria, lo que introduce complejidad y posible error humano.</li>
+            <li><strong>Protocolos sin autenticación:</strong> Modbus, Profibus y otros protocolos industriales carecen de mecanismos de autenticación, permitiendo inyección de comandos desde cualquier nodo con acceso a la red OT.</li>
+            <li><strong>Vulnerabilidades documentadas en Modicon Quantum:</strong> la posibilidad de paralizar CPUs sin autenticación vía Modbus TCP, junto con el desbordamiento de búfer en el Serial Modbus Driver de Schneider Electric, representan riesgos concretos para infraestructuras que no hayan aplicado los parches correspondientes.</li>
+            <li><strong>Direccionamiento indirecto:</strong> la capacidad de modificar operandos dinámicamente durante la ejecución introduce riesgos si un atacante logra manipular los punteros.</li>
+            <li><strong>Transición S5 → S7:</strong> sistemas legacy S5-95 siguen operando en infraestructuras críticas sin las mejoras de seguridad del S7-300/400, creando una brecha generacional explotable. La documentación pública de trabajos de grado confirma que estas migraciones han sido recientes o están aún en proceso.</li>
+            <li><strong>Exposición de información por documentación académica:</strong> los trabajos de grado y tesis universitarias constituyen una fuente de inteligencia de acceso público que detalla las tecnologías, arquitecturas y configuraciones de infraestructuras críticas.</li>
+            <li><strong>Malware con conocimiento del dominio OT:</strong> casos como Havex demuestran que los atacantes han desarrollado capacidades para enumerar y comprometer dispositivos ICS utilizando protocolos estándar como OPC.</li>
+        </ul>
+
+        <p>
+            La ingeniería inversa aplicada a estos sistemas no solo permite comprender su funcionamiento interno, sino también anticipar vectores de ataque y diseñar defensas adecuadas para entornos OT/ICS. En un contexto donde la inversión en seguridad suele ser reactiva y posterior al incidente, la investigación proactiva se convierte en una herramienta esencial para la protección de infraestructuras críticas.
+        </p>
+
+        <!-- Referencias -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">22.</span> Referencias</h2>
+        <ul>
+            <li><a href="https://www.cisa.gov/news-events/ics-alerts/ics-alert-12-020-03b" target="_blank" rel="noopener noreferrer">CISA — ICS Alert: Schneider Electric Modicon Quantum PLC Vulnerabilities</a></li>
+            <li><a href="https://malpedia.caad.fkie.fraunhofer.de/details/win.havex_rat" target="_blank" rel="noopener noreferrer">Malpedia — Havex RAT</a></li>
+            <li><a href="https://www.pnfsoftware.com/jeb/simatic-s7-stl-opcodes" target="_blank" rel="noopener noreferrer">PNF Software — JEB: Simatic S7 STL Opcodes</a></li>
+            <li><a href="https://www.pnfsoftware.com/jeb/plc" target="_blank" rel="noopener noreferrer">PNF Software — JEB: PLC Decompiler</a></li>
+            <li><a href="https://habr.com/en/articles/696208/" target="_blank" rel="noopener noreferrer">Habr — Ingeniería inversa en PLC Siemens S7-300</a></li>
+            <li><a href="https://habr.com/en/companies/oleg-bunin/articles/764068/" target="_blank" rel="noopener noreferrer">Habr — Mitsubishi PLC: desmontar el protocolo de red</a></li>
+            <li><a href="https://github.com/RUB-SysSec/SiemensS7-Bootloader" target="_blank" rel="noopener noreferrer">RUB-SysSec — Siemens S7 Bootloader (ejecución no invasiva de código)</a></li>
+            <li><a href="https://passlab.github.io/CSE564/resources/MicrocodeIntro_Matloff_Franklin04.pdf" target="_blank" rel="noopener noreferrer">Matloff & Franklin — Introducción a la Microprogramación</a></li>
+            <li><a href="http://www1.frm.utn.edu.ar/arquitectura/unidad6.pdf" target="_blank" rel="noopener noreferrer">UTN — Arquitectura de Computadoras: Unidad 6 — Microprogramación</a></li>
+            <li><a href="https://av.tib.eu/media/53174" target="_blank" rel="noopener noreferrer">TIB AV-Portal — Estructura en memoria de MC7</a></li>
+            <li><a href="https://www.indi-an.com/en/plccom/for-s7/fors7-overview/" target="_blank" rel="noopener noreferrer">Indi.An — Librería de comunicación para Siemens S7</a></li>
+            <li><a href="https://www.pascalscada.com/screenshots/" target="_blank" rel="noopener noreferrer">PascalSCADA — SCADA open-source con soporte para PLCs Siemens</a></li>
+            <li><a href="https://youtu.be/r-dmxU1gEl0" target="_blank" rel="noopener noreferrer">Explicación extensa sobre VM MC7 y ARM/MIPS (YouTube)</a></li>
+            <li>Siemens — Manual de transición STEP5 a STEP7</li>
+        </ul>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo técnico — Ingeniería Inversa en PLC Siemens S5/S7. Información recopilada exclusivamente de fuentes públicas con fines académicos y de investigación en seguridad.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
+            } else {
+                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
+            }
+        });
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Ingeniería Inversa en PLC Siemens S5/S7: Arquitectura, STEP5, MC7 y Vectores de Seguridad en Entornos Reales",
+      "author": {
+        "@type": "Person",
+        "name": "Christian Márquez",
+        "url": "https://tty503.com"
+      },
+      "datePublished": "2025-10-15",
+      "dateModified": "2026-04-15",
+      "description": "Análisis de bajo nivel de la arquitectura interna de autómatas Siemens, su máquina virtual de ejecución MC7, protocolos industriales, hallazgos en infraestructuras venezolanas, y exploración de shellcode para entornos OT/ICS.",
+      "keywords": ["PLC Siemens", "S5", "S7", "STEP5", "STEP7", "AWL", "MC7", "ingeniería inversa", "seguridad OT", "automatización industrial", "Modbus", "OPC", "Havex", "Venalum", "CorpoElec", "Modicon Quantum", "shellcode PLC"]
+    }
+    </script>
+</body>
+</html>
