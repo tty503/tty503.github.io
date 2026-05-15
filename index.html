@@ -720,6 +720,132 @@
             .about-text { font-size: 1rem; }
             .hero-image-container { max-width: 180px; }
         }
+
+        /* ==================== CONTENEDOR DEL ICONO CON DEGRADADO ==================== */
+        .nav-icon-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            
+            /* Degradado claro semi-transparente que contrasta con el fondo oscuro */
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.12) 0%,
+                rgba(200, 200, 200, 0.08) 30%,
+                rgba(255, 255, 255, 0.15) 60%,
+                rgba(180, 180, 180, 0.06) 100%
+            );
+            
+            /* Borde sutil para definición */
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            
+            /* Sombra interna para profundidad */
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 1px 3px rgba(0, 0, 0, 0.4);
+            
+            /* Transición suave para hover */
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            
+            /* Efecto de ruido (noise) localizado que hereda la estética del sitio */
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+
+        /* Capa de noise sobre el icono */
+        .nav-icon-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.08;
+            z-index: 2;
+            pointer-events: none;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+            border-radius: inherit;
+        }
+
+        /* Borde con brillo sutil en hover */
+        .nav-icon-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 5px;
+            z-index: 0;
+            pointer-events: none;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.06) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .nav-icon-wrapper:hover::after {
+            opacity: 1;
+        }
+
+        /* Imagen del icono */
+        .nav-icon-wrapper img {
+            width: 18px;
+            height: 18px;
+            position: relative;
+            z-index: 1;
+            /* Invertir colores si el icono es oscuro — ajusta según tu hat.png */
+            filter: brightness(1.2) contrast(1.1);
+            transition: filter 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* Hover: realza el icono */
+        .nav-icon-wrapper:hover {
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.18) 0%,
+                rgba(220, 220, 220, 0.12) 30%,
+                rgba(255, 255, 255, 0.22) 60%,
+                rgba(200, 200, 200, 0.10) 100%
+            );
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-icon-wrapper:hover img {
+            filter: brightness(1.4) contrast(1.15);
+        }
+        /* Ajuste del icono en pantallas pequeñas */
+        @media (max-width: 600px) {
+            .nav-icon-wrapper {
+                width: 26px;
+                height: 26px;
+                border-radius: 3px;
+            }
+            
+            .nav-icon-wrapper img {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .nav-icon-wrapper {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .nav-icon-wrapper img {
+                width: 14px;
+                height: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -730,7 +856,9 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="#" class="nav-brand mono">
-            <img src="hat.png" alt="tty503 logo" width="24" height="24" style="vertical-align: middle; border-radius: 2px;">
+                <span class="nav-icon-wrapper">
+                    <img src="hat.png" alt="tty503 logo" width="18" height="18">
+                </span>
                 tty503 <span>_portfolio</span>
             </a>
             <div class="nav-links">
