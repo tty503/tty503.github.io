@@ -1,39 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd
+        http://www.google.com/schemas/sitemap-image/1.1
+        http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd">
         
-    <!-- URL Principal del Portafolio (Contiene el 100% del código y texto) -->
+    <!-- ==================== URL PRINCIPAL: Portafolio Christian Márquez (tty503) ==================== -->
     <url>
         <loc>https://tty503.com/</loc>
-        <lastmod>2026-05-14</lastmod>
-        <changefreq>daily</changefreq>
+        <lastmod>2026-05-15</lastmod>
+        <changefreq>weekly</changefreq>
         <priority>1.0</priority>
+        
+        <!-- Imagen principal indexada para Google Images -->
+        <image:image>
+            <image:loc>https://tty503.com/p1.jpg</image:loc>
+            <image:title>Christian Márquez — Especialista en Ciberseguridad, Automatización y PLC</image:title>
+            <image:caption>Christian Márquez (tty503): Portafolio profesional de infraestructura, seguridad ofensiva/defensiva, análisis de malware, ingeniería inversa, PLC Siemens S5/S7, DevSecOps y automatización con Ansible y Terraform.</image:caption>
+        </image:image>
+        
+        <!-- Imagen del favicon/icono -->
+        <image:image>
+            <image:loc>https://tty503.com/hat.png</image:loc>
+            <image:title>tty503 — Christian Márquez Logo</image:title>
+            <image:caption>Icono identificativo del portafolio técnico de Christian Márquez (tty503).</image:caption>
+        </image:image>
     </url>
 
-    <!-- Sección: Sobre mí -->
+    <!-- ==================== PÁGINA: Assembly para Ingeniería Inversa ==================== -->
     <url>
-        <loc>https://tty503.com/#about</loc>
-        <lastmod>2026-05-14</lastmod>
-        <changefreq>daily</changefreq>
+        <loc>https://tty503.com/assembly.html</loc>
+        <lastmod>2026-05-15</lastmod>
+        <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
 
-    <!-- Sección: Experiencia Técnica -->
+    <!-- ==================== PÁGINA: PLC Siemens S5/S7 — Seguridad OT ==================== -->
     <url>
-        <loc>https://tty503.com/#experience</loc>
-        <lastmod>2026-05-14</lastmod>
-        <changefreq>daily</changefreq>
+        <loc>https://tty503.com/plc.html</loc>
+        <lastmod>2026-05-15</lastmod>
+        <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
 
-    <!-- Sección: Investigaciones y Hallazgos -->
+    <!-- ==================== ANCLAS (HASH URLS) CON ALTO VALOR SEMÁNTICO ==================== -->
+    <!-- Google NO indexa fragmentos (#) como URLs separadas, pero los incluimos con prioridad
+         reducida para reforzar la estructura semántica del sitio mediante sitemap. -->
+    
+    <!-- Sección: Sobre Christian Márquez (tty503) -->
+    <url>
+        <loc>https://tty503.com/#about</loc>
+        <lastmod>2026-05-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- Sección: Experiencia Técnica — Infraestructura, Seguridad y PLC -->
+    <url>
+        <loc>https://tty503.com/#experience</loc>
+        <lastmod>2026-05-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Sección: Investigaciones — Malware, Reversing, OT y Blue Team -->
     <url>
         <loc>https://tty503.com/#research</loc>
-        <lastmod>2026-05-14</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>0.9</priority>
+        <lastmod>2026-05-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
     </url>
 
 </urlset>
