@@ -438,7 +438,7 @@
                 <span class="article-tag">Seguridad OT</span>
                 <span class="article-tag">Ingeniería Inversa</span>
                 <span>Actualizado: Abril 2026</span>
-                <span>~40 min de lectura</span>
+                <span>~60 min de lectura</span>
             </div>
             <h1 class="article-title">Ingeniería Inversa en PLC Siemens S5/S7: Arquitectura, STEP5, MC7 y Vectores de Seguridad en Entornos Reales</h1>
             <p class="article-subtitle">
@@ -459,6 +459,20 @@
             <li><strong>Estructura modular:</strong> dividido en módulos que realizan funciones específicas. La sujeción se hace sobre carril DIN, placa perforadora o RACK donde va alojado el bus externo de unión de los distintos módulos.</li>
             <li><strong>Estructura compacta:</strong> presenta en un solo bloque todos sus elementos: CPU, memorias, entradas, salidas, etc. Ejemplos comunes son los LOGO! de Siemens o los ОВЕН de fabricación rusa, populares en países de la órbita postsoviética por su relación costo-beneficio.</li>
         </ul>
+
+        <h3 class="subsection-title">Del laboratorio al campo: una instantánea del hardware real</h3>
+        <p>
+            Antes de sumergirnos en instrucciones AWL y bytecodes, conviene recordar que todo sistema de control tiene una capa física. La imagen a continuación muestra el interior de un tablero de control industrial típico, donde conviven el PLC con los componentes de potencia y protección que le dan interfaz con el mundo real.
+        </p>
+
+        <div class="image-container">
+            <img src="img/plc-0.jpg" alt="Interior de tablero eléctrico industrial con interruptor termomagnético, relés y contactor" loading="lazy">
+            <div class="image-caption mono">plc-0.jpg — Tablero de control: riel DIN con interruptor Merlin Gerin Multi 9, relés de interfaz Finder 55.33 sobre zócalos azules, contactor Siemens 3TF42 y bloques de terminales. La capa física sobre la que corre el código AWL.</div>
+        </div>
+
+        <p>
+            Sobre el riel DIN se aprecian un interruptor termomagnético Merlin Gerin (curva C, 16A), una fila de relés de interfaz enchufables Finder capaces de conmutar cargas de hasta 250V, un contactor industrial Siemens serie 3TF42, y las borneras de conexión. Estos elementos actúan como puente entre las salidas electrónicas del PLC y los actuadores de potencia: bombas, válvulas, motores. Sin esta etapa de acondicionamiento, el autómata no podría gobernar el proceso físico.
+        </p>
 
         <h3 class="subsection-title">Lenguaje STEP5</h3>
         <p>
@@ -551,6 +565,20 @@
 
         <p>
             En el ejemplo anterior, el operando <span class="mono">M</span> hace referencia a las "marcas de memoria", un espacio en la memoria interna del PLC. La sintaxis <span class="mono">M [byte].[bit]</span> es notable: el número a la izquierda del punto representa el byte de la dirección y el número a la derecha representa el bit dentro de ese byte (0-7). En el PLC utilizado para las pruebas prácticas, se dispone de un máximo de 255 bytes de marcas (2048 bits).
+        </p>
+
+        <h3 class="subsection-title">El entorno de programación STEP5 en acción</h3>
+        <p>
+            Para entender cómo se materializan estas instrucciones en un proyecto real, la siguiente captura muestra el software de programación de la familia Simatic S5. Es el tipo de entorno —ejecutado aquí sobre una herramienta compatible con Windows como PG-2000— que aún hoy se utiliza para mantener sistemas heredados en plantas industriales.
+        </p>
+
+        <div class="image-container">
+            <img src="img/plc-4.jpg" alt="Software de programación STEP5 para PLC Siemens S5 mostrando bloques OB1, PB25, FB1, FB2 en AWL" loading="lazy">
+            <div class="image-caption mono">plc-4.jpg — Entorno de programación STEP5 con los bloques OB1, PB25, FB1 y FB2 abiertos. Se aprecian instrucciones en alemán (U E 2.0 para Und Eingang) y operaciones aritméticas directas sobre bytes de memoria (INC, DEC sobre MB0). Programación legacy, puramente textual y orientada a registros.</div>
+        </div>
+
+        <p>
+            En la imagen se distinguen los bloques de organización y función (<span class="mono">OB1, PB25, FB1, FB2</span>) con código escrito íntegramente en AWL. Las instrucciones aparecen en alemán —herencia de la documentación original de Siemens— y se observan operaciones de incremento (<span class="mono">INC</span>) y decremento (<span class="mono">DEC</span>) directamente sobre bytes de memoria (<span class="mono">MB0</span>). Esta forma de programar, donde el desarrollador manipula direcciones de memoria con absoluta transparencia, es la que convierte al AWL en un lenguaje tan poderoso como peligroso: un simple puntero mal calculado puede corromper regiones enteras del programa.
         </p>
 
         <p>
@@ -1077,6 +1105,20 @@
             En 2021, otro trabajo de grado sobre el mismo horno de retención confirma que el <strong>S7-300 seguía en operación 15 años después</strong>, manteniendo probablemente la misma lógica de comunicación con MATLAB. Aunque el trabajo menciona una aplicación Android —que requeriría algún módulo inalámbrico—, esta se menciona una sola vez, lo que sugiere que nunca se implementó y fue incluida para dar formato académico al documento. La conclusión es clara: el sistema ha recibido mantenimiento sin cambios arquitectónicos significativos en más de una década y media.
         </p>
 
+        <h3 class="subsection-title">El plano que lo cuenta todo: cuando un P&ID es mapa y confesión</h3>
+        <p>
+            Los trabajos de grado no solo enumeran equipos; incluyen diagramas de ingeniería que detallan la topología del proceso. La imagen a continuación es un P&ID (Diagrama de Tuberías e Instrumentación) real, fechado entre 1996 y 1997, correspondiente a una estación de proceso con tanque, serpentín de calentamiento y múltiples instrumentos.
+        </p>
+
+        <div class="image-container">
+            <img src="img/plc-1.jpg" alt="Diagrama P&ID de una estación de proceso con tanque, serpentín e instrumentación ISA" loading="lazy">
+            <div class="image-caption mono">plc-1.jpg — P&ID de "ESTACION 3": tanque con serpentín de calentamiento, líneas de aire y agua, válvulas solenoides (03SV01, 03SV02A), transmisores de nivel y temperatura (LIT02, TE03). Cajetín de revisiones fechado entre 1996 y 1997. Este es el tipo de documento que aparece en las tesis universitarias y que revela la anatomía completa del proceso físico.</div>
+        </div>
+
+        <p>
+            En el diagrama se leen con claridad las líneas de flujo —"AIRE DESDE ESTACION 2", "H2O DESDE ESTACION E"—, la instrumentación con simbología ISA (válvulas solenoides, transmisores de nivel LIT02, sensores de temperatura TE03, indicadores de presión) y el cajetín de revisiones con fechas de mediados de los noventa. Este plano es el mapa de vuelo para un atacante: le dice qué variables se miden, qué actuadores se controlan y cómo está interconectado el sistema. Y sin embargo, en la misma tesis que incluye este diagrama, no hay un solo párrafo sobre cómo registrar quién modificó esas variables.
+        </p>
+
         <h3 class="subsection-title">Implicaciones de seguridad de la documentación pública</h3>
         <p>
             Existe un debate legítimo sobre si los trabajos de grado y tesis universitarias que documentan infraestructuras críticas deberían ser de acceso público. Literalmente, con solo recopilar trabajos de grado, un atacante podría formarse una idea detallada de todas las tecnologías presentes en una empresa. Sin embargo, el problema de fondo no es la disponibilidad de esta información —una nación con recursos de inteligencia podría obtenerla por otros medios—, sino la <strong>falta de personal calificado en seguridad informática</strong> dentro de estas organizaciones.
@@ -1130,6 +1172,20 @@
             <li>La mayoría de las instrucciones, incluyendo sus operandos, tienen una <strong>longitud máxima de 4 bytes</strong>, lo que sugiere un formato de instrucción de longitud fija o semi-fija.</li>
         </ul>
 
+        <h3 class="subsection-title">Del código AWL al hexdump: el laboratorio de reversing</h3>
+        <p>
+            Para entender cómo se traduce el AWL a nivel de bytes, monté un entorno de análisis sobre una máquina virtual Windows 7 corriendo en QEMU/KVM. La siguiente captura muestra la correlación entre el volcado hexadecimal del firmware y las instrucciones que ejecuta el PLC.
+        </p>
+
+        <div class="image-container">
+            <img src="img/plc-2.jpg" alt="Entorno de ingeniería inversa con hexdump, rizin y WinSPS-S7 mostrando código AWL" loading="lazy">
+            <div class="image-caption mono">plc-2.jpg — Laboratorio de reversing MC7. Superior izquierda: volcado hexadecimal del archivo .wld (cat test.wld | hexdump -C). Superior derecha: herramienta rizin analizando direcciones de entrada (I 124.0) y salida (Q 124.0). Ventana inferior: WinSPS-S7 V6 con el bloque FC23 en AWL, mostrando la lógica U E 124.0 → = A 124.0. El objetivo es correlacionar el binario puro con las instrucciones de control.</div>
+        </div>
+
+        <p>
+            En la ventana superior izquierda se ejecuta <span class="mono">cat test.wld | hexdump -C</span>, mostrando el volcado hexadecimal del archivo de firmware. A la derecha, la herramienta de desensamblado <span class="mono">rizin</span> analiza el código estructurado y localiza direcciones simbólicas como <span class="mono">I 124.0</span> (entrada) y <span class="mono">Q 124.0</span> (salida). En la ventana inferior, el software <strong>WinSPS-S7 V6</strong> exhibe el bloque de función <span class="mono">FC23</span> programado en AWL: la lógica mínima <span class="mono">U E 124.0</span> seguida de <span class="mono">= A 124.0</span>. Esta práctica de correlacionar binario con nemónicos es exactamente el tipo de arqueología digital que se necesita para desarrollar shellcode funcional sobre entornos MC7.
+        </p>
+
         <div class="callout">
             <div class="callout-title mono">Enlaces de referencia para reversing MC7</div>
             <ul>
@@ -1176,25 +1232,172 @@
             <p>No existe una herramienta que funcione como un debugger paso a paso para PLCs, mostrando en tiempo real el estado de los registros (AKKU1, AKKU2, RLO, VKE) y la instrucción en ejecución. Las versiones más recientes de los entornos de programación han abandonado el AWL en favor de lenguajes de alto nivel, sin ofrecer una visualización del equivalente en código de bajo nivel. Esta opacidad deliberada dificulta enormemente la investigación de seguridad.</p>
         </div>
 
-        <!-- ==================== SECCIÓN 19: MONITOREO DE SEGURIDAD EN ICS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">19.</span> Monitoreo de Seguridad y SIEM en Entornos OT</h2>
+        <!-- ==================== SECCIÓN 19: LA CAJA NEGRA QUE NUNCA SE INSTALÓ ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">19.</span> La Caja Negra que Nunca se Instaló: Por Qué las Plantas No Pueden Contar su Propia Historia</h2>
 
-        <h3 class="subsection-title">El desafío del monitoreo en ICS</h3>
+        <h3 class="subsection-title">El hallazgo en las tesis universitarias</h3>
         <p>
-            Una pregunta recurrente en el ámbito de la seguridad OT es cómo implementar agentes para monitorear la seguridad de equipos en un ICS. A diferencia de los entornos IT tradicionales, donde los agentes de monitoreo pueden instalarse directamente en los endpoints, los PLCs y otros dispositivos industriales presentan limitaciones significativas:
+            La investigación en tty503.com/plc.html comenzó por curiosidad técnica: entender la máquina virtual que ejecuta bytecode MC7, cómo se codifican las instrucciones AWL y qué vectores de ataque pueden explotarse desde la red. Pero al cruzar ese trabajo con tesis de grado que detallan sistemas de control en infraestructuras reales, surgió un hallazgo más urgente que cualquier exploit de Modbus.
+        </p>
+        <p>
+            Revisé múltiples trabajos académicos accesibles en repositorios universitarios venezolanos como el de la Universidad Central de Venezuela (saber.ucv.ve). Todos describen con lujo de detalles arquitecturas de control: marcas y modelos de PLC, planos de red, configuración de tópicos OPC, protocolos de comunicación, listados de tags, estrategias de redundancia. Información suficiente para que un atacante dedicado se forme una idea muy precisa del sistema.
+        </p>
+        <p>
+            Pero en ninguno de esos documentos —ni uno solo— aparece un sistema de registro centralizado de eventos. No hay descripción de cómo se capturan los comandos del operador. No hay un párrafo sobre retención de logs. No existe la figura de un SIEM industrial ni nada que se le parezca.
+        </p>
+        <p>
+            En cambio, aparece esto: el registro de fallas se hace a mano, en planillas Excel que cada ingeniero guarda en su computadora personal. Cito textual de uno de los trabajos: <strong>"cada Ingeniero de planta guarda en su computadora las data-paro que ha realizado durante todo el año"</strong>.
+        </p>
+
+        <h3 class="subsection-title">El eslabón perdido: cuando la HMI muestra interrogantes</h3>
+        <p>
+            Para ilustrar la fragilidad de la monitorización sin registro, nada mejor que la imagen de una interfaz SCADA antigua. La siguiente captura corresponde al software Intellution FIX View ejecutándose en un monitor CRT.
+        </p>
+
+        <div class="image-container">
+            <img src="img/plc-3.jpg" alt="Monitor CRT mostrando software SCADA Intellution FIX View con pérdida de comunicación" loading="lazy">
+            <div class="image-caption mono">plc-3.jpg — Pantalla HMI/SCADA ejecutando Intellution FIX View (modo demo) en un monitor CRT. Representa la "ESTACION 4" con tanque vertical y serpentín. Los campos muestran "???? °C", "??? Bar" y un indicador "COMM", señal de que el software ha perdido la comunicación con el PLC o los instrumentos de campo. Esta es la cara visible de un sistema que no deja rastro de lo que ocurrió.</div>
+        </div>
+
+        <p>
+            La pantalla representa una estación de proceso con un tanque vertical y un serpentín de calentamiento. Los campos de temperatura, presión y nivel muestran "???? °C", "??? Bar" y "???? %" respectivamente, acompañados de un indicador "COMM" que denota pérdida de comunicación con los instrumentos de campo o con el propio PLC. Esta es la paradoja visual: el operador puede ver que algo falla, pero el sistema no está registrando esa falla de forma estructurada. Si el operador no está mirando en ese momento, el evento simplemente desaparece.
+        </p>
+
+        <h3 class="subsection-title">Lo que las tesis documentan (y lo que omiten)</h3>
+        <p>
+            Para ilustrar la magnitud de esta omisión, presento ejemplos concretos extraídos del repositorio de la Universidad Central de Venezuela (saber.ucv.ve). Estos trabajos de grado documentan sistemas SCADA reales o propuestos para infraestructuras venezolanas, y en todos ellos se puede verificar el mismo patrón: exhaustivo detalle técnico sobre la arquitectura de control, silencio absoluto sobre la arquitectura de registro y auditoría.
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Trabajo de Grado</th>
+                        <th>Tecnologías Documentadas</th>
+                        <th>¿Menciona Sistema de Registro de Eventos?</th>
+                        <th>Enlace</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Automatización de la planta de gases especiales AGA Gas (2004)</td>
+                        <td>PLC Siemens, SCADA, DFP, DTI, DLF</td>
+                        <td class="mono" style="color: var(--accent-red);">No</td>
+                        <td><a href="https://saber.ucv.ve/handle/10872/15373" target="_blank" rel="noopener noreferrer">saber.ucv.ve/handle/10872/15373</a></td>
+                    </tr>
+                    <tr>
+                        <td>Estudio técnico para actualización de SCADA en planta de Total, Jusepin (2006)</td>
+                        <td>Wonderware Intouch 7.0, PLCs Modicon, HIMA, Modbus TCP, base de datos histórica SQL</td>
+                        <td class="mono" style="color: var(--accent-red);">No</td>
+                        <td><a href="http://saber.ucv.ve/xmlui/handle/10872/2450" target="_blank" rel="noopener noreferrer">saber.ucv.ve/handle/10872/2450</a></td>
+                    </tr>
+                    <tr>
+                        <td>Diseño de SCADA para estaciones de radares meteorológicos INAMEH (2012)</td>
+                        <td>Siemens WinCC Advanced V11, Modbus RTU, PLC, HMI con historiador de eventos</td>
+                        <td class="mono" style="color: var(--accent-amber);">Parcial (historiador SCADA, no logs de seguridad)</td>
+                        <td><a href="http://saber.ucv.ve/xmlui/handle/10872/4281" target="_blank" rel="noopener noreferrer">saber.ucv.ve/handle/10872/4281</a></td>
+                    </tr>
+                    <tr>
+                        <td>Diseño de automatización para estación de bombeo de agua Ciudad Universitaria (2008)</td>
+                        <td>PLC Siemens, SCADA, diagramas P&ID</td>
+                        <td class="mono" style="color: var(--accent-red);">No</td>
+                        <td><a href="http://saber.ucv.ve/xmlui/handle/10872/7010" target="_blank" rel="noopener noreferrer">saber.ucv.ve/handle/10872/7010</a></td>
+                    </tr>
+                    <tr>
+                        <td>Ampliación y actualización del SCADA del laboratorio de redes de distribución EIE-UCV (2011)</td>
+                        <td>Wonderware ArchestrA, PLC, RTUs, SCADA iFix</td>
+                        <td class="mono" style="color: var(--accent-red);">No</td>
+                        <td><a href="https://saber.ucv.ve/jspui/handle/10872/15373" target="_blank" rel="noopener noreferrer">saber.ucv.ve/handle/10872/...</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout callout-danger">
+            <div class="callout-title mono">La consecuencia forense: imposibilidad de distinguir error de ataque</div>
+            <p>Cuando ocurre un incidente —una parada imprevista, una sobrepresión, una explosión— lo primero que se necesita es una línea de tiempo. ¿Qué variable se descontroló primero? ¿Hubo un comando de parada desde el SCADA? ¿Se recibió una orden por Modbus desde un nodo externo? ¿Fallo lógico del programa o acción manual? <strong>Sin logs, la diferencia entre error técnico y acción maliciosa es imposible de establecer.</strong></p>
+            <p>En el mundo IT esto sería impensable. Un servidor web registra cada petición. Un firewall anota cada conexión. En entornos industriales, el PLC que controla un compresor de alta presión no registra quién le dio la orden de parar, ni cuándo, ni desde qué IP. Simplemente la ejecuta.</p>
+        </div>
+
+        <p>
+            Este hallazgo fue documentado originalmente en dos publicaciones de LinkedIn que desarrollo a continuación, expandidas con referencias académicas y casos de estudio globales.
+        </p>
+
+        <!-- ==================== SECCIÓN 20: POR QUÉ LOS PLC NO GENERAN LOGS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">20.</span> Por Qué los PLCs No Generan Logs: Una Propiedad del Diseño</h2>
+
+        <h3 class="subsection-title">El determinismo como prioridad absoluta</h3>
+        <p>
+            El problema no es solo que falten registros. El problema es que el PLC nunca fue pensado para generarlos. Su diseño responde a una exigencia distinta: ejecutar un ciclo de scan determinista, leer entradas, procesar el programa y escribir salidas en tiempos predecibles. Cada milisegundo de retraso puede ser inaceptable. En ese contexto, la memoria se reservó para la lógica de control, no para la auditoría. Lo que se ganó en fiabilidad se perdió en trazabilidad.
+        </p>
+        <p>
+            Esta limitación no es un defecto del fabricante, sino una <strong>consecuencia directa del diseño de los sistemas de control industrial</strong>. Como señala la tesis doctoral de Feras Shahbi en la Universidad de Bristol (2026), "los PLCs están diseñados para un tiempo de actividad, seguridad y fiabilidad óptimos, siendo la defensa cibernética y la preparación forense, en el mejor de los casos, ideas tardías". Las características que hacen que los PLCs sean fiables y deterministas —arquitecturas propietarias, firmware cerrado, protocolos diversos y restricciones operativas estrictas— son precisamente las que impiden la aplicación directa de prácticas forenses estándar.
+        </p>
+
+        <h3 class="subsection-title">Barreras técnicas concretas</h3>
+        <p>
+            La investigación en tty503.com/plc.html mostró las barreras concretas. La RAM disponible en equipos como el S5-95 —16 KB para programa STEP5 y 64 KB para ejecución— se volatiliza ante un corte de energía. Los controladores carecen de un sistema operativo sobre el cual instalar agentes de monitoreo; la máquina virtual de MC7 es un entorno cerrado, sin hooks para instrumentación externa. A esto se suma la fragmentación de formatos propietarios entre fabricantes y la ausencia de sincronización horaria confiable mediante NTP nativo. Cualquier intento de normalizar lo poco que se registra se convierte en un ejercicio de arqueología industrial.
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Lo que dice la investigación académica</div>
+            <p>El artículo "A Forensic Logging System for Siemens Programmable Logic Controllers" (Yau, Chow & Yiu, 2018) es contundente: <strong>"las investigaciones forenses de controladores lógicos programables son una tarea desafiante debido a la falta de sistemas de registro efectivos"</strong>. Los autores señalan que, si bien existen herramientas para generar registros de auditoría con fines de diagnóstico, la información registrada es inadecuada para investigaciones forenses. Para abordar esta limitación, proponen un sistema que extrae datos del tráfico del protocolo de comunicaciones S7 de Siemens y los guarda en un archivo de auditoría estructurado.</p>
+        </div>
+
+        <h3 class="subsection-title">El caso de los data logs que nunca se activan</h3>
+        <p>
+            Existen capacidades de diagnóstico que casi nunca se activan: los buffers de eventos de los S7-300/400, los data logs de las gamas más recientes, o los propios registros del SCADA. Pero en los proyectos documentados por las tesis revisadas, la recolección de logs no aparece como requisito. No está en el alcance ni en las pruebas FAT (Factory Acceptance Test). La seguridad se considera un costo, no una característica, y la auditoría forense simplemente no figura en el pliego de condiciones.
+        </p>
+        <p>
+            Esta ausencia es particularmente grave si consideramos que los protocolos industriales como Modbus TCP carecen de autenticación por diseño. Como señala un análisis técnico, "Modbus TCP no tiene autenticación. Si alguien puede enviar un paquete a la IP del PLC en el puerto 502, el PLC obedecerá". Sin logs que registren quién envió cada comando, cualquier manipulación es indistinguible de una operación legítima.
+        </p>
+
+        <!-- ==================== SECCIÓN 21: CASOS GLOBALES DONDE LA FALTA DE LOGS FUE CRÍTICA ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">21.</span> Casos Globales: Cuando la Falta de Evidencia Impide la Atribución</h2>
+
+        <h3 class="subsection-title">Ucrania 2015: el primer apagón cibernético confirmado</h3>
+        <p>
+            El 23 de diciembre de 2015, la red eléctrica en dos óblast del oeste de Ucrania fue hackeada, resultando en cortes de energía para aproximadamente 230,000 consumidores. Los atacantes utilizaron el malware BlackEnergy 3 para comprometer los sistemas de tres compañías de distribución de energía y abrir interruptores en más de 50 subestaciones. El análisis forense posterior, documentado en el artículo "Ukrainian Power Grids Cyberattack - A Forensic Analysis Based on ISA/IEC 62443", reveló que la investigación fue posible gracias a la existencia de algunos registros en los sistemas SCADA, pero la ausencia de logs a nivel de PLC y RTU dificultó la reconstrucción completa de la secuencia de eventos. La atribución al grupo Sandworm se basó más en inteligencia externa que en evidencia forense recopilada de los propios controladores.
+        </p>
+
+        <h3 class="subsection-title">Oldsmar 2021: cuando el operador vio el ataque en tiempo real</h3>
+        <p>
+            El 5 de febrero de 2021, un atacante accedió remotamente al sistema de la planta de tratamiento de agua de Oldsmar, Florida, y modificó los niveles de hidróxido de sodio de 100 partes por millón a 11,100 partes por millón —un nivel potencialmente letal. El ataque solo fue detectado porque un operador observó en tiempo real cómo el cursor se movía en la pantalla sin su intervención. Si el operador hubiera estado ausente, el sistema habría ejecutado la orden sin cuestionarla. La investigación posterior reveló que la planta carecía de un sistema de registro de eventos que permitiera determinar exactamente qué comandos se enviaron, desde qué dirección IP y con qué credenciales. La atribución del incidente sigue sin resolverse, y la lección es clara: <strong>sin logs, la diferencia entre un error de configuración y un ciberataque es imposible de establecer</strong>.
+        </p>
+
+        <h3 class="subsection-title">TRITON 2017: el ataque que apuntó a los sistemas de seguridad</h3>
+        <p>
+            En 2017, el malware TRITON (también conocido como TRISIS) atacó los controladores de seguridad Triconex de Schneider Electric en una planta petroquímica en Oriente Medio. Lo que hace único a TRITON es que no apuntaba al sistema de control de producción, sino al <strong>Sistema Instrumentado de Seguridad (SIS)</strong>, diseñado para detener la planta en condiciones inseguras. Al reprogramar la lógica del SIS, los atacantes podían haber causado una catástrofe física. La investigación forense posterior, documentada por FireEye y Dragos, enfrentó un desafío monumental precisamente por la limitada capacidad de registro de los controladores de seguridad. Determinar si una modificación fue resultado de una acción maliciosa o de un error de ingeniería requirió semanas de análisis, y la atribución final dependió en gran medida de inteligencia externa y correlación de eventos en la red corporativa, no de los logs del propio sistema atacado.
+        </p>
+
+        <!-- ==================== SECCIÓN 22: MONITOREO BASADO EN RED Y SIEM INDUSTRIAL ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">22.</span> Qué Se Puede Hacer: Monitoreo Basado en Red y Forensic Readiness</h2>
+
+        <h3 class="subsection-title">La alternativa viable: monitoreo pasivo de red</h3>
+        <p>
+            Para cerrar esta brecha, la alternativa más viable hoy es el monitoreo basado en red: capturar tráfico con switches con mirroring y herramientas como Zeek permite registrar cada paquete Modbus u OPC sin tocar el PLC. Este enfoque tiene la ventaja de no interferir con el ciclo de scan determinista del controlador: la captura de tráfico ocurre fuera del PLC, en la capa de red, sin consumir recursos del dispositivo de control. Es, en esencia, una capa de auditoría externa que no estaba prevista en el diseño original pero que puede añadirse sin modificar la infraestructura existente.
+        </p>
+        <p>
+            Los SIEM industriales como Nozomi o Dragos analizan ese tráfico y crean una capa de visibilidad que antes no existía. Pueden detectar comandos anómalos, cambios en la lógica de control y patrones de comunicación sospechosos, generando alertas que un operador humano puede investigar. No reemplazan los logs nativos que el PLC debería generar, pero ofrecen un paliativo inmediato para infraestructuras que hoy operan completamente a ciegas desde el punto de vista forense.
+        </p>
+
+        <h3 class="subsection-title">Forensic readiness: diseñar para la evidencia desde el día uno</h3>
+        <p>
+            La verdadera solución, sin embargo, pasa por incorporar la capacidad de registro desde la fase de diseño —lo que se conoce como <strong>forensic readiness</strong>— definiendo qué eventos importan, cómo capturarlos y cómo protegerlos contra manipulación. Esto implica:
         </p>
         <ul>
-            <li><strong>Ausencia de agentes nativos:</strong> los PLCs no incorporan agentes de monitoreo que registren cambios en el sistema o detecten instrucciones maliciosas cargadas en RAM.</li>
-            <li><strong>Monitoreo basado en red:</strong> la mayoría de las soluciones se centran en la inspección de paquetes de red, analizando el tráfico Modbus, Profinet u OPC en busca de anomalías.</li>
-            <li><strong>Implementación de SIEM OT:</strong> guías como la de Zakhar Bernhardt sobre implementación de SIEM en OT según NIST proporcionan marcos de referencia, pero la instrumentación directa de los dispositivos de campo sigue siendo una asignatura pendiente.</li>
+            <li><strong>Definir una política de registros mínimos:</strong> comandos del operador, cambios en la lógica del PLC, conexiones de red al puerto 502 (Modbus) o 102 (S7), y eventos de arranque/parada del controlador.</li>
+            <li><strong>Implementar sincronización horaria confiable:</strong> sin NTP, los registros de distintos dispositivos no pueden correlacionarse temporalmente.</li>
+            <li><strong>Proteger los logs contra manipulación:</strong> si el registro de eventos reside en el mismo PLC que puede ser reprogramado, un atacante puede borrar sus huellas.</li>
+            <li><strong>Incluir la verificación de logging en las pruebas FAT y SAT:</strong> si no se prueba en fábrica, no existirá en producción.</li>
         </ul>
 
         <p>
-            Aunque la probabilidad de que una instrucción maliciosa se cargue en la RAM del PLC sin una vulnerabilidad explotable es baja —y dicha vulnerabilidad probablemente sería explotada desde la red—, la falta de visibilidad a nivel de dispositivo representa un punto ciego significativo en la postura de seguridad de cualquier infraestructura industrial.
+            Mientras sigamos diseñando plantas que no pueden contar su propia historia, la diferencia entre error técnico y sabotaje seguirá dependiendo de la suerte, no de la evidencia. Y en infraestructuras críticas, apostar a la suerte no es una estrategia de seguridad aceptable.
         </p>
 
-        <!-- ==================== SECCIÓN 20: PERSPECTIVAS FUTURAS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">20.</span> Perspectivas Futuras y Líneas de Investigación</h2>
+        <!-- ==================== SECCIÓN 23: PERSPECTIVAS FUTURAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">23.</span> Perspectivas Futuras y Líneas de Investigación</h2>
 
         <h3 class="subsection-title">Desarrollo de herramientas propias</h3>
         <p>
@@ -1226,7 +1429,7 @@
         </div>
 
         <!-- ==================== CONCLUSIÓN ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">21.</span> Conclusiones y Superficie de Ataque</h2>
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">24.</span> Conclusiones y Superficie de Ataque</h2>
 
         <p>
             El análisis exhaustivo de la arquitectura Siemens S5/S7 y su contexto en infraestructuras reales revela múltiples vectores de seguridad que merecen atención urgente en entornos OT:
@@ -1240,6 +1443,7 @@
             <li><strong>Transición S5 → S7:</strong> sistemas legacy S5-95 siguen operando en infraestructuras críticas sin las mejoras de seguridad del S7-300/400, creando una brecha generacional explotable. La documentación pública de trabajos de grado confirma que estas migraciones han sido recientes o están aún en proceso.</li>
             <li><strong>Exposición de información por documentación académica:</strong> los trabajos de grado y tesis universitarias constituyen una fuente de inteligencia de acceso público que detalla las tecnologías, arquitecturas y configuraciones de infraestructuras críticas.</li>
             <li><strong>Malware con conocimiento del dominio OT:</strong> casos como Havex demuestran que los atacantes han desarrollado capacidades para enumerar y comprometer dispositivos ICS utilizando protocolos estándar como OPC.</li>
+            <li><strong>Ausencia de registros forenses (logging):</strong> la omisión sistemática de sistemas de registro de eventos en los proyectos documentados convierte cualquier incidente en una caja negra. Sin logs, la diferencia entre error técnico y acción maliciosa es imposible de establecer, como demostraron los casos de Oldsmar y TRITON.</li>
         </ul>
 
         <p>
@@ -1247,7 +1451,7 @@
         </p>
 
         <!-- Referencias -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">22.</span> Referencias</h2>
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">25.</span> Referencias</h2>
         <ul>
             <li><a href="https://www.cisa.gov/news-events/ics-alerts/ics-alert-12-020-03b" target="_blank" rel="noopener noreferrer">CISA — ICS Alert: Schneider Electric Modicon Quantum PLC Vulnerabilities</a></li>
             <li><a href="https://malpedia.caad.fkie.fraunhofer.de/details/win.havex_rat" target="_blank" rel="noopener noreferrer">Malpedia — Havex RAT</a></li>
@@ -1263,6 +1467,8 @@
             <li><a href="https://www.pascalscada.com/screenshots/" target="_blank" rel="noopener noreferrer">PascalSCADA — SCADA open-source con soporte para PLCs Siemens</a></li>
             <li><a href="https://youtu.be/r-dmxU1gEl0" target="_blank" rel="noopener noreferrer">Explicación extensa sobre VM MC7 y ARM/MIPS (YouTube)</a></li>
             <li>Siemens — Manual de transición STEP5 a STEP7</li>
+            <li>Yau, Chow & Yiu (2018). "A Forensic Logging System for Siemens Programmable Logic Controllers". IEEE Transactions on Industrial Informatics.</li>
+            <li>Shahbi, F. (2026). "Forensic Readiness in Industrial Control Systems". Tesis doctoral, University of Bristol.</li>
         </ul>
     </article>
 
