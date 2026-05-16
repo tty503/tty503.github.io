@@ -46,6 +46,14 @@
         <priority>0.9</priority>
     </url>
 
+    <!-- ==================== PÁGINA: Analystty ==================== -->
+    <url>
+        <loc>https://tty503.com/analystty.html</loc>
+        <lastmod>2026-05-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
     <!-- ==================== ANCLAS (HASH URLS) CON ALTO VALOR SEMÁNTICO ==================== -->
     <!-- Google NO indexa fragmentos (#) como URLs separadas, pero los incluimos con prioridad
          reducida para reforzar la estructura semántica del sitio mediante sitemap. -->
