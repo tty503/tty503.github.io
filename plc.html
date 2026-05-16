@@ -1237,7 +1237,7 @@
 
         <h3 class="subsection-title">El hallazgo en las tesis universitarias</h3>
         <p>
-            La investigación en tty503.com/plc.html comenzó por curiosidad técnica: entender la máquina virtual que ejecuta bytecode MC7, cómo se codifican las instrucciones AWL y qué vectores de ataque pueden explotarse desde la red. Pero al cruzar ese trabajo con tesis de grado que detallan sistemas de control en infraestructuras reales, surgió un hallazgo más urgente que cualquier exploit de Modbus.
+            La investigación en de este post comenzó por curiosidad técnica: entender la máquina virtual que ejecuta bytecode MC7, cómo se codifican las instrucciones AWL y qué vectores de ataque pueden explotarse desde la red. Pero al cruzar ese trabajo con tesis de grado que detallan sistemas de control en infraestructuras reales, surgió un hallazgo más urgente que cualquier exploit de Modbus.
         </p>
         <p>
             Revisé múltiples trabajos académicos accesibles en repositorios universitarios venezolanos como el de la Universidad Central de Venezuela (saber.ucv.ve). Todos describen con lujo de detalles arquitecturas de control: marcas y modelos de PLC, planos de red, configuración de tópicos OPC, protocolos de comunicación, listados de tags, estrategias de redundancia. Información suficiente para que un atacante dedicado se forme una idea muy precisa del sistema.
@@ -1336,7 +1336,7 @@
 
         <h3 class="subsection-title">Barreras técnicas concretas</h3>
         <p>
-            La investigación en tty503.com/plc.html mostró las barreras concretas. La RAM disponible en equipos como el S5-95 —16 KB para programa STEP5 y 64 KB para ejecución— se volatiliza ante un corte de energía. Los controladores carecen de un sistema operativo sobre el cual instalar agentes de monitoreo; la máquina virtual de MC7 es un entorno cerrado, sin hooks para instrumentación externa. A esto se suma la fragmentación de formatos propietarios entre fabricantes y la ausencia de sincronización horaria confiable mediante NTP nativo. Cualquier intento de normalizar lo poco que se registra se convierte en un ejercicio de arqueología industrial.
+            La RAM disponible en equipos como el S5-95 —16 KB para programa STEP5 y 64 KB para ejecución— se volatiliza ante un corte de energía. Los controladores carecen de un sistema operativo sobre el cual instalar agentes de monitoreo; la máquina virtual de MC7 es un entorno cerrado, sin hooks para instrumentación externa. A esto se suma la fragmentación de formatos propietarios entre fabricantes y la ausencia de sincronización horaria confiable mediante NTP nativo. Cualquier intento de normalizar lo poco que se registra se convierte en un ejercicio de arqueología industrial.
         </p>
 
         <div class="callout">
