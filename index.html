@@ -1066,7 +1066,9 @@
             
             <div class="accordion-container">
                 
-                <!-- Categoría 1: Análisis de Malware -->
+                <!-- ============================================================ -->
+                <!-- Categoría 1: Análisis de Malware y Threat Intel             -->
+                <!-- ============================================================ -->
                 <details class="theme-group reveal" open>
                     <summary class="theme-summary mono">
                         <h3 class="theme-title">
@@ -1105,10 +1107,25 @@
                             <p class="article-desc">Auditoría a la app de streaming pirata. Arquitectura del APK, técnicas de evasión (DGA, HTTP DNS) y riesgos del modelo de negocio oculto.</p>
                             <span class="article-arrow">→</span>
                         </a>
+
+                        <!-- ===== Separador: Artículos del Website ===== -->
+                        <div class="source-divider">
+                            <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
+                        </div>
+
+                        <!-- analystty — Triage de Malware -->
+                        <a href="analystty.html" class="article-link local-article">
+                            <span class="article-date mono">~12 min de lectura</span>
+                            <h3 class="article-title">analystty — Automatización de Triage de Malware <span class="local-badge">NOTAS</span></h3>
+                            <p class="article-desc">Herramienta interna en Python para automatizar el análisis estático de archivos PE, detección de APIs maliciosas, mapeo de TTPs e integración con x64dbg. Stack: Capstone, pefile, malapi.json.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
                     </div>
                 </details>
 
-                <!-- Categoría 2: Ingeniería Inversa -->
+                <!-- ============================================================ -->
+                <!-- Categoría 2: Ingeniería Inversa y Low-Level                 -->
+                <!-- ============================================================ -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
                         <h3 class="theme-title">
@@ -1129,12 +1146,6 @@
                             <p class="article-desc">Herramienta en C que simula corrupción de memoria usando syscalls oscuras y visualización con mapas de calor hexadecimal en tiempo real.</p>
                             <span class="article-arrow">→</span>
                         </a>
-                        <a href="https://www.linkedin.com/posts/tty503_cybersecurity-malwareanalysis-assembly-activity-7400333681262870528-O57N" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Nov 2025</span>
-                            <h3 class="article-title">Mirai 0/65 en VirusTotal: Evasión de firmas estáticas</h3>
-                            <p class="article-desc">Prueba de concepto de ofuscación (Builder en C + Stub ASM x86) usando aritmética básica para reducir la detección de malware a cero.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
                         <a href="https://www.linkedin.com/posts/tty503_me-encanta-encontrar-la-manera-de-resolver-activity-7396271971270807556-Qe1M" target="_blank" rel="noopener noreferrer" class="article-link">
                             <span class="article-date mono">Nov 2025</span>
                             <h3 class="article-title">Herramienta TUI en Bash para Análisis Forense</h3>
@@ -1147,31 +1158,60 @@
                             <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
                         </div>
 
-                        <!-- ===== Artículos propios del sitio ===== -->
+                        <!-- Assembly para RE -->
                         <a href="assembly.html" class="article-link local-article">
                             <span class="article-date mono">~2 horas de lectura</span>
                             <h3 class="article-title">Assembly para Ingeniería Inversa (RE) <span class="local-badge">NOTAS</span></h3>
                             <p class="article-desc">Referencia de consulta rápida: stack frames, variables globales/locales, clases vs structs, malloc/new, pilas, colas, listas enlazadas, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64) y heurísticas para identificación de funciones.</p>
                             <span class="article-arrow">→</span>
                         </a>
+                    </div>
+                </details>
 
-                        <a href="analystty.html" class="article-link local-article">
-                            <span class="article-date mono">~12 min de lectura</span>
-                            <h3 class="article-title">analystty — Automatización de Triage de Malware <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Herramienta interna en Python para automatizar el análisis estático de archivos PE, detección de APIs maliciosas, mapeo de TTPs e integración con x64dbg. Stack: Capstone, pefile, malapi.json.</p>
+                <!-- ============================================================ -->
+                <!-- Categoría 3: Malware Dev y Técnicas Ofensivas               -->
+                <!-- ============================================================ -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title">
+                            <span class="theme-icon">/</span> Malware Dev y Técnicas Ofensivas
+                        </h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="https://www.linkedin.com/posts/tty503_cybersecurity-malwareanalysis-assembly-activity-7400333681262870528-O57N" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Nov 2025</span>
+                            <h3 class="article-title">Mirai 0/65 en VirusTotal: Evasión de firmas estáticas</h3>
+                            <p class="article-desc">Prueba de concepto de ofuscación (Builder en C + Stub ASM x86) usando aritmética básica para reducir la detección de malware a cero.</p>
                             <span class="article-arrow">→</span>
                         </a>
 
+                        <!-- ===== Separador: Artículos del Website ===== -->
+                        <div class="source-divider">
+                            <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
+                        </div>
+
+                        <!-- De la Shellcode Artesanal al C2 Builder -->
                         <a href="myPracticalShellcodeC2.html" class="article-link local-article">
-                            <span class="article-date mono">~55 min de lectura</span>
+                            <span class="article-date mono">~120 min de lectura</span>
                             <h3 class="article-title">De la Shellcode Artesanal al C2 Builder <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Evolución técnica de un dropper de shellcode en C/Assembly (WinExec/ExitProcess) a un framework de malware con panel C2, stub criptográfico en NASM y ofuscación en C#. Incluye bitácora de desarrollo y galería de la UI.</p>
+                            <p class="article-desc">Evolución técnica de un dropper de shellcode en C/Assembly (WinExec/ExitProcess) a un framework de malware con panel C2 en C#. Incluye compendio extenso de técnicas: inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, XOR encryption, API hashing, y persistencia (Registry, Screensaver, COM hijack, Windows Services, Winlogon, Port Monitors).</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+
+                        <!-- Infraestructura Ofuscada -->
+                        <a href="infraestructura-tunel-ofuscado.html" class="article-link local-article">
+                            <span class="article-date mono">~30 min de lectura</span>
+                            <h3 class="article-title">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial <span class="local-badge">NOTAS</span></h3>
+                            <p class="article-desc">Diseño de túnel privado con udp2raw (faketcp + XOR), enmascaramiento de salida con redsocks + SOCKS5 residencial, DNS blindado con dnscrypt-proxy (DoH) y automatización completa del despliegue en bash.</p>
                             <span class="article-arrow">→</span>
                         </a>
                     </div>
                 </details>
 
-                <!-- Categoría 3: Seguridad OT -->
+                <!-- ============================================================ -->
+                <!-- Categoría 4: Seguridad OT e Infraestructura Crítica         -->
+                <!-- ============================================================ -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
                         <h3 class="theme-title">
@@ -1180,23 +1220,18 @@
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
-                        
-                        <!-- ===== Artículos de LinkedIn ===== -->
-                        <!-- NUEVO ARTÍCULO AGREGADO -->
                         <a href="https://www.linkedin.com/posts/tty503_el-problema-no-era-el-exploit-era-que-nadie-share-7461423263005577217-Wf7I" target="_blank" rel="noopener noreferrer" class="article-link">
                             <span class="article-date mono">May 2026</span>
                             <h3 class="article-title">El problema no era el exploit. Era que nadie podría probarlo.</h3>
                             <p class="article-desc">Investigación sobre la arquitectura de PLCs Siemens y la ausencia total de registros de eventos en sistemas industriales reales. Análisis de casos como Ucrania, Oldsmar y TRITON, y propuesta de forensic readiness con SIEM industrial.</p>
                             <span class="article-arrow">→</span>
                         </a>
-
                         <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-threatintelligence-venezuela-ugcPost-7453262188116602880-G01e" target="_blank" rel="noopener noreferrer" class="article-link">
                             <span class="article-date mono">Abr 2026</span>
                             <h3 class="article-title">Lotus Wiper y la fragilidad OT en Venezuela</h3>
                             <p class="article-desc">Análisis de infraestructura crítica, exposición de PLC Schneider Modicon Quantum sobre Modbus TCP y vulnerabilidades por falta de segmentación IT/OT.</p>
                             <span class="article-arrow">→</span>
                         </a>
-
                         <a href="https://www.linkedin.com/posts/tty503_plc-cybersecurity-reverseengineering-activity-7374521525460443137-Cllg" target="_blank" rel="noopener noreferrer" class="article-link">
                             <span class="article-date mono">Oct 2025</span>
                             <h3 class="article-title">Ingeniería Inversa en PLC Siemens S5/S7</h3>
@@ -1209,18 +1244,19 @@
                             <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
                         </div>
 
-                        <!-- ===== Artículos propios del sitio ===== -->
+                        <!-- PLC Siemens S5/S7 -->
                         <a href="plc.html" class="article-link local-article">
                             <span class="article-date mono">~40 min de lectura</span>
                             <h3 class="article-title">PLC Siemens S5/S7: Arquitectura, MC7, Seguridad OT y Hallazgos en Infraestructuras Venezolanas <span class="local-badge">NOTAS</span></h3>
                             <p class="article-desc">Investigación extendida exportada desde notas personales: fundamentos de STEP5/AWL, transición a STEP7, máquina virtual MC7, ingeniería inversa de bytecodes, hallazgos en Venalum y CorpoElec, y exploración de shellcode para PLCs.</p>
                             <span class="article-arrow">→</span>
                         </a>
-
                     </div>
                 </details>
 
-                <!-- Categoría 4: Blue Team -->
+                <!-- ============================================================ -->
+                <!-- Categoría 5: Blue Team y Defensa Activa                     -->
+                <!-- ============================================================ -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
                         <h3 class="theme-title">
@@ -1252,6 +1288,8 @@
 
             </div>
         </section>
+
+
     </main>
 
     <!-- Footer / Contacto -->
