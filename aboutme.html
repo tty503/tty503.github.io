@@ -116,79 +116,6 @@
             font-size: 1rem;
         }
 
-        /* Sección del origen del username */
-        .username-origin {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            padding: 2rem;
-            margin-bottom: 3.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .username-origin::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(180deg, var(--accent-green) 0%, rgba(74, 222, 128, 0.2) 100%);
-            border-radius: 4px 0 0 4px;
-        }
-
-        .username-header {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .username-header .terminal-icon {
-            font-size: 1.5rem;
-            opacity: 0.8;
-        }
-
-        .username-header h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .username-body p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.8;
-        }
-
-        .username-body .handle-breakdown {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 1rem 0;
-            flex-wrap: wrap;
-        }
-
-        .handle-part {
-            background: var(--bg-base);
-            border: 1px solid var(--border-subtle);
-            border-radius: 4px;
-            padding: 0.4rem 0.8rem;
-            font-size: 0.9rem;
-            color: var(--accent-green);
-        }
-
-        .handle-plus {
-            color: var(--text-muted);
-            font-size: 1.2rem;
-        }
-
-        .handle-equals {
-            color: var(--text-muted);
-            margin: 0 0.3rem;
-        }
-
         /* Fases narrativas */
         .phase {
             margin-bottom: 3.5rem;
@@ -315,9 +242,6 @@
             .story-header h1 {
                 font-size: 1.6rem;
             }
-            .username-origin {
-                padding: 1.5rem 1.2rem;
-            }
             .phase {
                 padding-left: 1rem;
                 margin-bottom: 2.5rem;
@@ -335,13 +259,6 @@
             .highlight-quote {
                 padding: 1.2rem 1.5rem;
                 margin: 1.5rem 0;
-            }
-            .handle-breakdown {
-                gap: 0.3rem;
-            }
-            .handle-part {
-                font-size: 0.8rem;
-                padding: 0.3rem 0.6rem;
             }
         }
     </style>
@@ -363,27 +280,6 @@
             <h1>Mi Ruta Completa</h1>
             <p class="story-subtitle mono">De la curiosidad infantil a la especialización en ciberseguridad</p>
         </header>
-
-        <!-- Origen del username: tty503 -->
-        <section class="username-origin">
-            <div class="username-header">
-                <span class="terminal-icon">🖥️</span>
-                <h3 class="mono">El origen de "tty503"</h3>
-            </div>
-            <div class="username-body">
-                <p>Mi username es una fusión entre la <strong>informática de bajo nivel</strong> y la <strong>literatura distópica</strong>. Por un lado, <strong>tty</strong> es el prefijo clásico que Linux utiliza para identificar los dispositivos de terminal (<em>teletypewriter</em>). Por otro lado, <strong>503</strong> viene de una novela distópica que leí hace tiempo, donde los seres humanos no poseen nombres, solo números, y un prefijo alfabético que indica su rango dentro de la sociedad.</p>
-                
-                <div class="handle-breakdown">
-                    <span class="handle-part mono">tty</span>
-                    <span class="handle-plus">+</span>
-                    <span class="handle-part mono">503</span>
-                    <span class="handle-equals">=</span>
-                    <span class="handle-part mono" style="color: var(--text-primary);">tty503</span>
-                </div>
-
-                <p>La combinación me pareció perfecta para un alias técnico: la <strong>terminal</strong> como símbolo de mi conexión con los sistemas a bajo nivel, y el <strong>número</strong> como guiño a ese universo literario donde la identidad se reduce a una designación funcional. En cierta forma, encapsula la dualidad que siempre me ha acompañado: lo técnico y lo humano, lo práctico y lo especulativo.</p>
-            </div>
-        </section>
 
         <!-- Fase 1 -->
         <section class="phase">
@@ -435,7 +331,7 @@
                 <span class="phase-years mono">2019 – Presente</span>
             </div>
             <div class="phase-content">
-                <p>La entrada a la universidad en 2019 y el posterior aislamiento de la pandemia en 2020 actuaron como un catalizador forzoso. Lejos de casa, pagando arriendo y sin una red de confianza cercana, mi ciclo de sueño —ya dañado de antes— se invirtió por completo. <strong>Pasaba las madrugadas explorando Arch Linux, obsesionado con las optimizaciones y el minimalismo</strong>. Incluso intenté montar un Linux From Scratch (LFS) varias veces sin éxito. Esas noches, lejos de ser improductivas, refinaron mi comprensión del sistema operativo a nivel fundamental.</p>
+                <p>La entrada a la universidad en 2019 y el posterior aislamiento de la pandemia en 2020 actuaron como un catalizador forzoso. Lejos de casa, y sin una red de confianza cercana, mi ciclo de sueño —ya dañado de antes— se invirtió por completo. <strong>Pasaba las madrugadas explorando Arch Linux, obsesionado con las optimizaciones y el minimalismo</strong>. Incluso intenté montar un Linux From Scratch (LFS) varias veces sin éxito. Esas noches, lejos de ser improductivas, refinaron mi comprensión del sistema operativo a nivel fundamental.</p>
 
                 <p>Fue en ese contexto —2020, en pleno encierro— cuando descubrí <strong>VX-Underground</strong>. El hallazgo reavivó algo que llevaba años latente. Después de mucho tiempo en el "limbo" técnico, recordé por qué había empezado todo esto. <strong>Quería dedicarme al análisis de malware y la investigación en seguridad. Era mi meta final.</strong></p>
 
