@@ -326,6 +326,35 @@
             font-weight: 500;
         }
 
+        .about-more-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: 1px solid var(--border-subtle);
+            padding: 0.7rem 1.5rem;
+            border-radius: 4px;
+            transition: var(--transition-smooth);
+        }
+
+        .about-more-link:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .about-more-link .arrow-icon {
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .about-more-link:hover .arrow-icon {
+            transform: translateX(4px);
+        }
+
         /* ==================== ACORDEONES (LISTAS DESPLEGABLES) ==================== */
         .theme-group {
             margin-bottom: 1rem;
@@ -902,14 +931,17 @@
                 <h2 class="section-title mono"><span></span>Sobre_mí</h2>
             </div>
             <p class="about-text reveal">
-                Combino una <strong>mentalidad de automatización</strong> con una rigurosa <strong>disciplina de ingeniería inversa</strong>. 
-                Mi enfoque no se limita al análisis de amenazas; diseño y construyo infraestructura escalable y resiliente. 
-                Poseo amplia experiencia en administración de sistemas Linux, virtualización avanzada (Proxmox, QEMU), 
-                scripting (Bash/Python) y orquestación con Ansible y Terraform.<br><br>
-                Investigo de manera activa el comportamiento de malware, técnicas de evasión de firmas y la seguridad en 
-                entornos industriales OT/PLC (Siemens S5/S7). Mi objetivo es resolver problemas de alta complejidad técnica 
-                y documentar cada hallazgo con precisión absoluta.
+                Opero en la intersección entre la <strong>automatización de infraestructura</strong>, la <strong>ingeniería inversa</strong> y la <strong>seguridad ofensiva</strong>. 
+                Mi enfoque se basa en una disciplina rigurosa: no solo analizo amenazas, sino que diseño y construyo la infraestructura escalable y resiliente necesaria para operar en entornos hostiles.<br><br>
+                Mi ruta es completamente <strong>autodidacta</strong>, forjada desde 2012 a base de curiosidad técnica y práctica constante. 
+                Esta trayectoria, desde la programación de microcontroladores y el desarrollo de firmware hasta el diseño de túneles de red ofuscados y el análisis de malware a bajo nivel, 
+                me proporciona una perspectiva integral poco común para resolver problemas de alta complejidad.<br><br>
+                Actualmente, mi investigación se centra en la <strong>seguridad de entornos industriales OT/PLC</strong> y el desarrollo de <strong>herramientas propias</strong> para automatizar el análisis de amenazas. 
+                Mi objetivo es la maestría técnica a través de la práctica deliberada y la documentación precisa de cada hallazgo.
             </p>
+            <a href="aboutme.html" class="about-more-link mono reveal">
+                Ver mi ruta completa <span class="arrow-icon">→</span>
+            </a>
         </section>
 
         <!-- Sección Experiencia Listada y Agrupada -->
