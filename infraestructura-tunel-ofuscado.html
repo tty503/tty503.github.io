@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Infraestructura Ofuscada con WireGuard sobre TCP Falso | tty503</title>
+    <meta name="description" content="Diseño e implementación de una infraestructura de red privada virtual con túnel ofuscado mediante udp2raw, enmascaramiento de salida con proxies residenciales y DNS sobre HTTPS.">
+    <meta name="keywords" content="WireGuard, udp2raw, túnel ofuscado, proxy residencial, DNS over HTTPS, dnscrypt-proxy, redsocks, iptables, infraestructura, tty503">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tty503.com/infraestructura-tunel-ofuscado.html">
+    <meta name="theme-color" content="#050505">
+
+    <meta property="og:title" content="Infraestructura Ofuscada con WireGuard sobre TCP Falso | tty503">
+    <meta property="og:description" content="Diseño e implementación de una infraestructura de red privada virtual con túnel ofuscado mediante udp2raw, enmascaramiento de salida con proxies residenciales y DNS sobre HTTPS.">
+    <meta property="og:url" content="https://tty503.com/infraestructura-tunel-ofuscado.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503 Portfolio">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:title" content="Infraestructura Ofuscada con WireGuard sobre TCP Falso">
+    <meta name="twitter:description" content="Diseño e implementación de una infraestructura de red privada virtual con túnel ofuscado, proxies residenciales y DNS sobre HTTPS.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+        .navbar {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle);
+            z-index: 1000; transition: var(--transition-smooth);
+        }
+        .nav-container {
+            max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+            overflow-x: auto; font-size: 0.9rem; line-height: 1.6;
+            position: relative; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);
+        }
+        .code-block .line { display: block; }
+        .code-block .comment { color: #6a9955; }
+        .code-block .directive { color: #569cd6; }
+        .code-block .keyword { color: #c586c0; }
+        .code-block .string { color: #ce9178; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .opcode { color: #4ec9b0; }
+        .code-block .register { color: #9cdcfe; }
+        .code-block .label { color: #dcdcaa; }
+        .code-block .func { color: #dcdcaa; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; } tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; } ul ul { margin: 0.5rem 0 0.5rem 1.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.8rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_research</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Infraestructura</span>
+                <span class="article-tag">Redes</span>
+                <span class="article-tag">Ofuscación</span>
+                <span>Mayo 2026</span>
+                <span>~30 min de lectura</span>
+            </div>
+            <h1 class="article-title">Infraestructura Ofuscada: Túnel WireGuard sobre TCP Falso con Proxy Residencial y DNS Blindado</h1>
+            <p class="article-subtitle">
+                Diseño, implementación y automatización de una infraestructura de red privada virtual con túnel ofuscado mediante udp2raw, enmascaramiento de salida con proxies residenciales, y resolución DNS cifrada sobre HTTPS.
+            </p>
+        </header>
+
+        <!-- ==================== DIAGRAMA ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Diagrama de Arquitectura</h2>
+
+        <div class="image-container">
+            <img src="img/infraestructura-tunel-ofuscado.png" alt="Diagrama PlantUML de la arquitectura de túnel ofuscado con WireGuard, udp2raw, proxy residencial y DNS over HTTPS" loading="lazy">
+            <div class="image-caption mono">infraestructura-tunel-ofuscado.png — Diagrama generado con PlantUML. Se aprecian los dos VPS, el túnel WireGuard encapsulado en TCP falso mediante udp2raw, las reglas de redirección con iptables (DNAT), el proxy residencial de salida gestionado por redsocks, y el resolver DNS sobre HTTPS (dnscrypt-proxy + dnsmasq).</div>
+        </div>
+
+        <!-- ==================== SECCIÓN 1: ARQUITECTURA GENERAL ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Arquitectura General</h2>
+
+        <p>
+            El diseño se basa en un modelo de <strong>dos nodos</strong> con roles claramente diferenciados, comunicados exclusivamente a través de un túnel privado ofuscado. Esta separación permite que el nodo que ejecuta los servicios reales no exponga su dirección IP a Internet, reduciendo drásticamente la superficie de ataque.
+        </p>
+
+        <h3 class="subsection-title">Nodo A — Puerta de enlace pública</h3>
+        <p>
+            Este nodo actúa como <strong>único punto de entrada</strong> para todo el tráfico legítimo. Recibe las conexiones entrantes en puertos no estándar, las redirige a través del túnel privado hacia el nodo B, y expone únicamente los puertos necesarios para la operación. Su IP es la única visible para el mundo exterior.
+        </p>
+
+        <h3 class="subsection-title">Nodo B — Servicios reales</h3>
+        <p>
+            Este nodo ejecuta los servicios internos y <strong>no expone ningún puerto a Internet</strong> salvo el acceso administrativo. Todo el tráfico legítimo le llega desde el nodo A a través del túnel. Adicionalmente, enmascara su tráfico de salida mediante proxies residenciales, con resolución DNS blindada a través de DNS over HTTPS (DoH).
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Principio de diseño</div>
+            <p>La separación de roles entre "puerta de enlace" y "servidor de aplicaciones" es un patrón clásico de defensa en profundidad. Si el nodo A es comprometido, el atacante no obtiene acceso inmediato a los servicios internos ni a los datos que residen en el nodo B. Si el nodo B es comprometido, su IP real no queda expuesta en logs públicos.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 2: TÚNEL PRIVADO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Túnel Privado: WireGuard sobre TCP Falso</h2>
+
+        <h3 class="subsection-title">El problema del UDP en entornos restrictivos</h3>
+        <p>
+            WireGuard utiliza UDP como protocolo de transporte. Esto presenta dos problemas en entornos operativos: firewalls restrictivos que bloquean UDP no solicitado, y sistemas de inspección profunda de paquetes (DPI) que pueden identificar y bloquear el handshake de WireGuard por su firma.
+        </p>
+
+        <h3 class="subsection-title">udp2raw: encapsulación TCP con ofuscación</h3>
+        <p>
+            <strong>udp2raw</strong> resuelve ambos problemas simultáneamente. Esta herramienta toma el tráfico UDP nativo de WireGuard, lo encapsula dentro de una conexión TCP, y aplica una capa de ofuscación mediante una clave compartida. El resultado es un flujo TCP que, para un observador externo, no revela su naturaleza de túnel VPN.
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment"># Nodo A: servidor udp2raw (escucha en TCP y entrega a WireGuard UDP)</span></span>
+            <span class="line">udp2raw -s \</span>
+            <span class="line">&nbsp;&nbsp;--listen 0.0.0.0:443 \</span>
+            <span class="line">&nbsp;&nbsp;--target 127.0.0.1:51820 \</span>
+            <span class="line">&nbsp;&nbsp;--key "clave-compartida" \</span>
+            <span class="line">&nbsp;&nbsp;--cipher-mode xor \</span>
+            <span class="line">&nbsp;&nbsp;--auth-mode simple \</span>
+            <span class="line">&nbsp;&nbsp;--raw-mode faketcp</span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="comment"># Nodo B: cliente udp2raw (conecta al Nodo A TCP y expone UDP local)</span></span>
+            <span class="line">udp2raw -c \</span>
+            <span class="line">&nbsp;&nbsp;--listen 127.0.0.1:51820 \</span>
+            <span class="line">&nbsp;&nbsp;--target &lt;IP_NODO_A&gt;:443 \</span>
+            <span class="line">&nbsp;&nbsp;--key "clave-compartida" \</span>
+            <span class="line">&nbsp;&nbsp;--cipher-mode xor \</span>
+            <span class="line">&nbsp;&nbsp;--auth-mode simple \</span>
+            <span class="line">&nbsp;&nbsp;--raw-mode faketcp</span>
+        </div>
+
+        <p>
+            Con udp2raw en ejecución, WireGuard en el nodo B se configura para conectarse a <span class="mono">127.0.0.1:51820</span> (el extremo local del túnel udp2raw), pero en realidad todo el tráfico viaja como TCP falso hacia el puerto 443 del nodo A, un puerto que rara vez está bloqueado.
+        </p>
+
+        <h3 class="subsection-title">Configuración de WireGuard: enrutamiento selectivo</h3>
+        <p>
+            Un detalle crucial en la configuración del nodo B es la directiva <span class="mono">AllowedIPs</span>. No se enruta todo el tráfico por el túnel (<span class="mono">0.0.0.0/0</span>), sino únicamente la IP del nodo A dentro de la red privada:
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment"># WireGuard en Nodo B: solo enruta la IP privada del Nodo A</span></span>
+            <span class="line"><span class="label">[Peer]</span></span>
+            <span class="line">PublicKey = &lt;CLAVE_PUBLICA_NODO_A&gt;</span>
+            <span class="line">Endpoint = 127.0.0.1:51820</span>
+            <span class="line">AllowedIPs = 10.100.0.1/32</span>
+            <span class="line">PersistentKeepalive = 25</span>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">¿Por qué no enrutar todo por el túnel?</div>
+            <p>Si el nodo B enrutara todo su tráfico de salida a través del nodo A, dos cosas indeseables ocurrirían: (1) el tráfico de salida revelaría la IP real del nodo A, y (2) se perdería la capacidad de usar un proxy residencial independiente para el tráfico de salida. El enrutamiento selectivo mantiene ambos canales separados: entrada por el túnel, salida por el proxy.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 3: ENTRADA DE TRÁFICO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Entrada de Tráfico: Redirección con iptables</h2>
+
+        <p>
+            Para que los clientes externos accedan a los servicios del nodo B sin conocer su IP, se configuran reglas de <span class="mono">iptables</span> en el nodo A que realizan DNAT (Destination NAT) de los puertos de entrada hacia las IPs y puertos correspondientes del túnel:
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment"># Nodo A: redirección de puertos hacia el túnel</span></span>
+            <span class="line">iptables -t nat -A PREROUTING -p tcp --dport 80 \</span>
+            <span class="line">&nbsp;&nbsp;-j DNAT --to-destination 10.100.0.2:80</span>
+            <span class="line">iptables -t nat -A PREROUTING -p tcp --dport 443 \</span>
+            <span class="line">&nbsp;&nbsp;-j DNAT --to-destination 10.100.0.2:443</span>
+            <span class="line">iptables -t nat -A PREROUTING -p tcp --dport 5522 \</span>
+            <span class="line">&nbsp;&nbsp;-j DNAT --to-destination 10.100.0.2:22</span>
+        </div>
+
+        <p>
+            El flujo de una conexión entrante es: <strong>Internet → Nodo A:80 → [DNAT] → 10.100.0.2:80 (Nodo B)</strong>. El nodo B ve la petición como proveniente de la IP privada del nodo A (debido al MASQUERADE en la cadena POSTROUTING), pero para el cliente externo la IP visible es la del nodo A.
+        </p>
+
+        <!-- ==================== SECCIÓN 4: SALIDA DE TRÁFICO ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Salida de Tráfico: Proxy Residencial y DNS Blindado</h2>
+
+        <p>
+            El nodo B debe ocultar su IP real cuando inicia conexiones hacia Internet. Para ello se emplea una combinación de tres componentes:
+        </p>
+
+        <h3 class="subsection-title">dnscrypt-proxy: DNS sobre HTTPS</h3>
+        <p>
+            Se configura como resolver DNS utilizando Cloudflare sobre HTTPS. Escucha en <span class="mono">127.0.0.1:5353</span> y fuerza todas las consultas a TCP. Esto elimina por completo las fugas DNS por UDP y garantiza que las resoluciones de nombres viajen cifradas. Además, como el tráfico TCP de dnscrypt-proxy es capturado por redsocks, las consultas DNS también salen a través del proxy residencial.
+        </p>
+
+        <h3 class="subsection-title">dnsmasq: forwarder local</h3>
+        <p>
+            Actúa como un simple forwarder hacia dnscrypt-proxy, escuchando en <span class="mono">127.0.0.1:53</span>. El archivo <span class="mono">/etc/resolv.conf</span> apunta a <span class="mono">127.0.0.1</span>, por lo que todas las aplicaciones del sistema utilizan este resolver local sin necesidad de configuración adicional.
+        </p>
+
+        <h3 class="subsection-title">redsocks: transproxy SOCKS5</h3>
+        <p>
+            Levanta un daemon que escucha en <span class="mono">127.0.0.1:12345</span> y convierte cualquier tráfico TCP redirigido a ese puerto en conexiones SOCKS5 hacia el proxy residencial. La configuración se obtiene dinámicamente de una API externa:
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment"># redsocks.conf (valores obtenidos de API)</span></span>
+            <span class="line"><span class="label">redsocks</span> {</span>
+            <span class="line">&nbsp;&nbsp;local_ip = 127.0.0.1;</span>
+            <span class="line">&nbsp;&nbsp;local_port = 12345;</span>
+            <span class="line">&nbsp;&nbsp;ip = &lt;IP_PROXY_RESIDENCIAL&gt;;</span>
+            <span class="line">&nbsp;&nbsp;port = &lt;PUERTO_SOCKS5&gt;;</span>
+            <span class="line">&nbsp;&nbsp;type = socks5;</span>
+            <span class="line">&nbsp;&nbsp;login = "&lt;USUARIO&gt;";</span>
+            <span class="line">&nbsp;&nbsp;password = "&lt;PASSWORD&gt;";</span>
+            <span class="line">}</span>
+        </div>
+
+        <h3 class="subsection-title">iptables: redirección selectiva</h3>
+        <p>
+            Se crea una cadena <span class="mono">REDSOCKS_TCP</span> en la tabla <span class="mono">nat</span> que redirige todo el tráfico TCP saliente —excepto el dirigido al propio proxy, el tráfico hacia redes privadas, y el puerto SSH— hacia el puerto local de redsocks. Esto garantiza que las conexiones administrativas (SSH) no pasen por el proxy, evitando bloqueos accidentales.
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment"># Reglas clave de redirección en Nodo B</span></span>
+            <span class="line">iptables -t nat -N REDSOCKS_TCP</span>
+            <span class="line">iptables -t nat -A REDSOCKS_TCP -d &lt;IP_PROXY&gt; -j RETURN</span>
+            <span class="line">iptables -t nat -A REDSOCKS_TCP -p tcp --dport 22 -j RETURN</span>
+            <span class="line">iptables -t nat -A REDSOCKS_TCP -p tcp -j REDIRECT --to-ports 12345</span>
+            <span class="line">iptables -t nat -A OUTPUT -p tcp -j REDSOCKS_TCP</span>
+        </div>
+
+        <p>
+            <strong>Flujo de una conexión saliente:</strong> Nodo B (aplicación) → [iptables REDSOCKS_TCP] → redsocks → proxy SOCKS5 residencial → Internet. La IP que ve el destino es la del proxy residencial, no la del nodo B ni la del nodo A.
+        </p>
+
+        <!-- ==================== SECCIÓN 5: FIREWALL ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Control de Acceso y Firewall Mínimo</h2>
+
+        <p>
+            Ambos nodos implementan UFW con política por defecto restrictiva:
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nodo</th>
+                        <th>Puertos permitidos (entrada)</th>
+                        <th>Propósito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">Nodo A</td>
+                        <td class="mono">22/tcp, 80/tcp, 443/tcp, 5522/tcp</td>
+                        <td>SSH administrativo, HTTP/S redirigidos, SSH alternativo para túnel</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">Nodo B</td>
+                        <td class="mono">22/tcp</td>
+                        <td>Únicamente SSH administrativo directo</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>
+            El nodo B no necesita exponer el puerto <span class="mono">51820/udp</span> porque el túnel se establece a través de udp2raw, que sale desde el nodo B hacia el nodo A (conexión saliente, no entrante). Esta configuración minimiza la superficie de ataque sin comprometer la disponibilidad de gestión.
+        </p>
+
+        <!-- ==================== SECCIÓN 6: AUTOMATIZACIÓN ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Automatización del Despliegue</h2>
+
+        <p>
+            Toda la configuración —desde la instalación de dependencias hasta la verificación final de los túneles— está automatizada en un script de bash que se ejecuta en aproximadamente 90 segundos. El flujo del script es:
+        </p>
+
+        <ol>
+            <li><strong>Instalación de dependencias:</strong> WireGuard, iptables, UFW, udp2raw (compilado desde fuente), redsocks, dnsmasq, dnscrypt-proxy, jq, curl.</li>
+            <li><strong>Configuración de WireGuard + udp2raw en Nodo A:</strong> generación de claves, servicio systemd para udp2raw en modo servidor, habilitación de reenvío de paquetes.</li>
+            <li><strong>Configuración de WireGuard + udp2raw en Nodo B:</strong> claves, servicio udp2raw en modo cliente, configuración de WireGuard con enrutamiento selectivo.</li>
+            <li><strong>Vinculación de peers:</strong> intercambio de claves públicas y adición del peer en el servidor WireGuard.</li>
+            <li><strong>Configuración de DoH + proxy de salida:</strong> dnscrypt-proxy con Cloudflare sobre TCP, dnsmasq como forwarder, obtención dinámica de proxy residencial vía API, redsocks con iptables.</li>
+            <li><strong>Verificación:</strong> pruebas de conectividad bidireccional, prueba de servidor web a través del túnel, y verificación de que la IP de salida es la del proxy residencial.</li>
+        </ol>
+
+        <!-- ==================== SECCIÓN 7: MEJORAS FUTURAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Mejoras Futuras y Líneas de Trabajo</h2>
+
+        <ul>
+            <li><strong>Failover con IPs adicionales:</strong> contratar IPs extra en el mismo proveedor del nodo A para implementar un esquema básico de alta disponibilidad. Con dos IPs se puede configurar un balanceador inverso (nginx/HAProxy) que distribuya las conexiones entrantes.</li>
+            <li><strong>Monitorización y alertas:</strong> desplegar Zabbix o similar para detectar caídas del túnel o fallos del proxy, con notificaciones por Telegram, Slack o correo electrónico.</li>
+            <li><strong>Enrutamiento por proceso:</strong> usar una tabla de enrutamiento separada y reglas de política (<span class="mono">ip rule</span>) para que únicamente el tráfico generado por procesos específicos sea redirigido a través del proxy. Esto evita que herramientas administrativas como <span class="mono">apt</span> o <span class="mono">curl</span> de diagnóstico revelen accidentalmente información.</li>
+            <li><strong>Infraestructura como código:</strong> convertir toda la configuración en un playbook de Ansible o en un script de cloud-init. Esto permite recrear la infraestructura completa desde cero en minutos si un nodo es comprometido o se necesita escalar geográficamente.</li>
+        </ul>
+
+        <!-- ==================== CONCLUSIÓN ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Conclusión</h2>
+
+        <p>
+            El diseño presentado resuelve simultáneamente varios problemas técnicos: exposición de IPs, bloqueo de túneles VPN por DPI, fugas DNS, y trazabilidad del tráfico de salida. La separación de roles entre un nodo de entrada y un nodo de servicios, combinada con un túnel ofuscado y un proxy residencial independiente, proporciona una base sólida para operaciones que requieren anonimato y resiliencia.
+        </p>
+        <p>
+            La automatización completa del despliegue reduce el error humano y permite levantar una réplica exacta de la infraestructura en minutos. Las mejoras propuestas —failover, monitorización, enrutamiento por proceso— son pasos naturales hacia una infraestructura más robusta y profesional.
+        </p>
+
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo técnico — Prácticas de Infraestructura y Redes. Información con fines académicos y de investigación.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
+            } else {
+                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
+            }
+        });
+    </script>
+</body>
+</html>
