@@ -50,7 +50,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Navegación mínima */
         .top-bar {
             padding: 1.5rem 2rem;
             border-bottom: 1px solid var(--border-subtle);
@@ -90,7 +89,6 @@
             font-size: 0.8rem;
         }
 
-        /* Contenido principal */
         .story-container {
             max-width: 800px;
             margin: 0 auto;
@@ -116,7 +114,43 @@
             font-size: 1rem;
         }
 
-        /* Fases narrativas */
+        .narrative-image {
+            margin: 2rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            transition: var(--transition-smooth);
+        }
+
+        .narrative-image:hover {
+            border-color: var(--border-hover);
+        }
+
+        .narrative-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: grayscale(30%) contrast(1.05);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .narrative-image:hover img {
+            filter: grayscale(0%) contrast(1.1);
+        }
+
+        .narrative-image .image-caption {
+            padding: 0.8rem 1.2rem;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .narrative-image .image-caption strong {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
         .phase {
             margin-bottom: 3.5rem;
             padding-left: 1.5rem;
@@ -179,7 +213,6 @@
             font-style: italic;
         }
 
-        /* Cita destacada */
         .highlight-quote {
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
@@ -204,14 +237,23 @@
             line-height: 1;
         }
 
-        /* Separador visual */
+        .image-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .image-pair .narrative-image {
+            margin: 0;
+        }
+
         .story-divider {
             border: none;
             border-top: 1px solid var(--border-subtle);
             margin: 3rem 0;
         }
 
-        /* Footer */
         .story-footer {
             text-align: center;
             padding: 2rem;
@@ -231,7 +273,6 @@
             color: var(--text-primary);
         }
 
-        /* Responsive */
         @media (max-width: 600px) {
             .top-bar {
                 padding: 1rem 1.2rem;
@@ -260,12 +301,19 @@
                 padding: 1.2rem 1.5rem;
                 margin: 1.5rem 0;
             }
+            .image-pair {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .narrative-image .image-caption {
+                font-size: 0.7rem;
+                padding: 0.6rem 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Barra superior de navegación -->
     <div class="top-bar">
         <div class="top-bar-inner">
             <a href="index.html" class="back-link mono">← Volver al portafolio</a>
@@ -273,7 +321,6 @@
         </div>
     </div>
 
-    <!-- Contenido narrativo -->
     <article class="story-container">
         
         <header class="story-header">
@@ -281,7 +328,13 @@
             <p class="story-subtitle mono">De la curiosidad infantil a la especialización en ciberseguridad</p>
         </header>
 
-        <!-- Fase 1 -->
+        <!-- Apertura: El viaje comienza -->
+        <figure class="narrative-image">
+            <img src="img/aboutme-0.jpg" alt="Barco navegando bajo la luna — El inicio del viaje técnico" loading="lazy">
+            <figcaption class="image-caption"><strong>El viaje comienza.</strong> Así como los navegantes se orientaban por las estrellas, mis primeras preguntas sobre cómo funcionaban los sistemas fueron la luz que guió todo lo que vino después.</figcaption>
+        </figure>
+
+        <!-- ==================== FASE 1 ==================== -->
         <section class="phase">
             <div class="phase-header">
                 <span class="phase-number mono">FASE 1</span>
@@ -290,18 +343,38 @@
             </div>
             <div class="phase-content">
                 <p>Todo comenzó en 2012 con una pregunta: <strong>"¿cómo funciona esto realmente?"</strong>. Siendo apenas un estudiante de primaria, los lenguajes de scripting como Batch y VBScript fueron mi primer contacto con las instrucciones de E/S, las estructuras de control de flujo y el concepto de variables. No escribí nada relevante en aquel momento, pero esos primeros pasos establecieron una base sólida que luego resultaría fundamental.</p>
+
+                <figure class="narrative-image">
+                    <img src="img/aboutme-1.jpg" alt="Texto pixelado retro reflexionando sobre decisiones y pensamientos" loading="lazy">
+                    <figcaption class="image-caption"><strong>La mente corre libremente.</strong> Esas preguntas existenciales sobre las decisiones, los pensamientos y el control sobre lo que hacemos me acompañaban mientras descubría el mundo de la programación.</figcaption>
+                </figure>
                 
                 <p>La película <em>Hackers</em> (1995), que vi por casualidad en Space Channel, y la fascinación por casos históricos como Melissa e ILoveYou, me dieron un objetivo claro: <strong>entender cómo era posible infectar sistemas</strong>. Quería comprender la mecánica detrás de lo que veía en pantalla.</p>
 
+                <figure class="narrative-image">
+                    <img src="img/aboutme-2.jpg" alt="Collage glitch con vela y código getHiddenObservers" loading="lazy">
+                    <figcaption class="image-caption"><strong>this->getHiddenObservers();</strong> — La búsqueda de lo que no se ve a simple vista. Desde niño, siempre quise entender los mecanismos ocultos detrás de cada sistema.</figcaption>
+                </figure>
+
                 <p>Mi padre fue el facilitador inconsciente de este viaje. Él introdujo la primera computadora en casa alrededor de 2006 —tengo recuerdos vagos, era muy pequeño— y me enseñó los conceptos básicos sobre sistemas operativos y configuración de programas. <strong>Esos primeros años me enseñaron que la mejor forma de aprender es haciendo</strong>, incluso si eso significaba romper cosas en el proceso. Y vaya que rompí varias computadoras del hogar.</p>
+
+                <figure class="narrative-image">
+                    <img src="img/aboutme-3.jpg" alt="Editor hexadecimal distorsionado con fragmentos de código y figura con paraguas" loading="lazy">
+                    <figcaption class="image-caption"><strong>Los bytes crudos.</strong> Mi primer contacto visual con un editor hexadecimal. Aunque entonces no entendía nada, esa ventana a las entrañas del binario me resultaba hipnótica.</figcaption>
+                </figure>
 
                 <div class="highlight-quote">
                     ¿Cómo sabe la computadora a dónde mover el puntero del mouse? ¿Qué provoca que al pulsar la tecla 'A' se muestre en pantalla? Esas preguntas me mantenían despierto de noche.
                 </div>
+
+                <figure class="narrative-image">
+                    <img src="img/aboutme-4.jpg" alt="Lost Wormhole - Wrong House: póster distópico de casa en llamas" loading="lazy">
+                    <figcaption class="image-caption"><strong>LOST WORMHOLE — WRONG HOUSE.</strong> A veces, la curiosidad te lleva a lugares equivocados. Pero incluso esos desvíos —romper la computadora de casa, trastear sin saber— fueron lecciones necesarias.</figcaption>
+                </figure>
             </div>
         </section>
 
-        <!-- Fase 2 -->
+        <!-- ==================== FASE 2 ==================== -->
         <section class="phase">
             <div class="phase-header">
                 <span class="phase-number mono">FASE 2</span>
@@ -311,19 +384,51 @@
             <div class="phase-content">
                 <p>El descubrimiento de los compiladores y de <strong>C/C++</strong> en 2014 marcó un punto de inflexión. Entender la diferencia entre un intérprete y un compilador me abrió las puertas a un nuevo nivel de comprensión técnica. Poco después, la adopción de <strong>GNU/Linux</strong> expandió mi panorama por completo.</p>
 
+                <figure class="narrative-image">
+                    <img src="img/aboutme-5.jpg" alt="Escritorio Windows retro con herramientas de reversing: Hopper, NASM, LordPE, CFF Explorer" loading="lazy">
+                    <figcaption class="image-caption"><strong>El arsenal temprano.</strong> Hopper Disassembler, NASM, LordPE, CFF Explorer, PEView. Las primeras herramientas de ingeniería inversa que empecé a coleccionar en mi escritorio, junto a las flags de mis primeros retos de reversing.</figcaption>
+                </figure>
+
                 <p>Este período fue de una exploración deliberadamente amplia. Pasé por el desarrollo web, de videojuegos, móvil y de sistemas embebidos. Probé decenas de distribuciones Linux y caí —como muchos— en el "fandom radical" de algunas tecnologías. <strong>Lejos de ser tiempo perdido, esta fase de sobresaturación me obligó a desarrollar una capacidad crítica para evaluar herramientas de manera objetiva</strong>, reconocer patrones entre distintas áreas y, crucialmente, entender qué ramas no eran para mí.</p>
+
+                <div class="image-pair">
+                    <figure class="narrative-image">
+                        <img src="img/aboutme-6.jpg" alt="VS Code con estructura MITRE ATT&CK, reglas Yara y código de descifrado en C" loading="lazy">
+                        <figcaption class="image-caption"><strong>Estructura y método.</strong> Organización de muestras por técnicas MITRE ATT&CK, reglas Yara para BazarBackdoor, y rutinas de descifrado. La exploración caótica empezaba a tomar forma.</figcaption>
+                    </figure>
+                    <figure class="narrative-image">
+                        <img src="img/aboutme-7.jpg" alt="Script gladiador.py usando Capstone para desensamblar malware; carpeta Dvju_2020-2022" loading="lazy">
+                        <figcaption class="image-caption"><strong>gladiador.py</strong> — Script en Python con Capstone desensamblando opcodes de arquitectura x86. La carpeta <code>Dvju_2020-2022</code> contiene muestras reales de ransomware analizadas.</figcaption>
+                    </figure>
+                </div>
 
                 <p>Alrededor de 2014-2015 escribí mi primer malware en C. La historia es simple: un familiar insistente desde una cuenta falsa de Facebook. Le seguí la corriente varios días y luego preparé un programa que creaba múltiples hilos, esperaba un rato y mostraba mensajes en pantalla hasta sobrecargar la memoria. Sin mecanismos de persistencia ni evasión de AVs —no eran necesarios—. Comprimido en un RAR autoextraíble con un señuelo de "desnudos.jpg", cumplió su propósito. <strong>Fue divertido, pero sobre todo fue una lección práctica temprana sobre cómo el software puede afectar sistemas reales</strong>.</p>
 
                 <p>Por esa misma época desarrollé un keylogger que recopilaba pulsaciones en archivos diarios y las enviaba a un servidor No-IP que tenía configurado. <strong>Nunca le di un uso malicioso</strong>; solo lo probé en las computadoras de casa de mi abuelo. Era pura curiosidad técnica: entender cómo funcionaba el hooking de teclado y la exfiltración de datos.</p>
 
+                <figure class="narrative-image">
+                    <img src="img/aboutme-8.jpg" alt="BBS Seknet con hilos sobre syscalls Linux, PEB, evasión de firewall chino" loading="lazy">
+                    <figcaption class="image-caption"><strong>BBJ (Seknet).</strong> El BBS donde discutíamos sobre syscalls en Linux, el PEB de Windows, cómo evadir el Gran Firewall chino, y sistemas de archivos distribuidos. La comunidad técnica fue esencial en esta etapa.</figcaption>
+                </figure>
+
                 <p>En 2017 conocí a un grupo de personas con intereses similares. Juntos creamos <strong>ReldSec</strong>, un blog de ciberseguridad donde publicábamos artículos técnicos. Al menos dos del equipo continuaron formándose profesionalmente en pentesting. Para mí, fue el primer ensayo real de colaboración, divulgación técnica y trabajo en equipo.</p>
+
+                <figure class="narrative-image">
+                    <img src="img/aboutme-9.jpg" alt="Ghidra CodeBrowser desensamblando strings1.exe con flags y MessageBox" loading="lazy">
+                    <figcaption class="image-caption"><strong>Ghidra CodeBrowser.</strong> Desensamblando <code>strings1.exe</code>. Las flags visibles en el código y el MessageBox "We've been compromised!" — esos momentos de hallazgo que hacen adictivo el reversing.</figcaption>
+                </figure>
+
+                <p>Años después, la nostalgia por aquellos espacios de intercambio real —mucho más íntimos y exigentes que las redes sociales masivas— me llevó a retomar la idea del BBS junto a <strong>@DtxdF</strong> y <strong>@syntaxerr0rs</strong>. La pregunta que lo disparó todo fue simple: <em>"¿y si nos lanzamos un BBS?"</em>. Pero no queríamos un canal genérico más. La visión era ambiciosa y deliberadamente selectiva: un espacio al estilo de los viejos <strong>WarezScene groups</strong>, donde solo el material de alto valor —investigaciones propias, código documentado, tutoriales avanzados— tuviera cabida. Nada de relleno. Nada de ruido.</p>
+
+                <p>Diseñamos la arquitectura sobre <strong>tres pilares fundamentales</strong>: descentralización con mirrors para garantizar disponibilidad, una pasarela mediante bot de Telegram para acceso rápido, y <strong>firmas PGP para validar la identidad</strong> de cada miembro. La autenticidad no era negociable. Incluso exploramos alternativas para reducir la dependencia de infraestructura tradicional, evaluando redes P2P como I2P y Torrent como capa de transporte. La meta era un espacio donde cada quien pudiera publicar con su firma en ASCII, manteniendo el control total sobre su identidad digital, y donde el contenido trivial simplemente no tuviera lugar. Finalmente, el BBS tomó forma sobre <strong>TOR</strong>, reforzando el compromiso con la privacidad y la resistencia a la censura.</p>
+
+                <p>Este proyecto marcó un punto de inflexión en cómo entendía la comunidad técnica. Ya no se trataba solo de aprender y compartir, sino de <strong>construir las estructuras para que otros también pudieran hacerlo</strong>, con los mismos estándares de privacidad, autenticidad y calidad que yo exigía en mi propio trabajo. Fue, en esencia, un laboratorio de infraestructura resiliente aplicada a la colaboración entre pares.</p>
             </div>
         </section>
 
         <hr class="story-divider">
 
-        <!-- Fase 3 -->
+        <!-- ==================== FASE 3 ==================== -->
         <section class="phase">
             <div class="phase-header">
                 <span class="phase-number mono">FASE 3</span>
@@ -331,7 +436,12 @@
                 <span class="phase-years mono">2019 – Presente</span>
             </div>
             <div class="phase-content">
-                <p>La entrada a la universidad en 2019 y el posterior aislamiento de la pandemia en 2020 actuaron como un catalizador forzoso. Lejos de casa, y sin una red de confianza cercana, mi ciclo de sueño —ya dañado de antes— se invirtió por completo. <strong>Pasaba las madrugadas explorando Arch Linux, obsesionado con las optimizaciones y el minimalismo</strong>. Incluso intenté montar un Linux From Scratch (LFS) varias veces sin éxito. Esas noches, lejos de ser improductivas, refinaron mi comprensión del sistema operativo a nivel fundamental.</p>
+                <p>La entrada a la universidad en 2019 y el posterior aislamiento de la pandemia en 2020 actuaron como un catalizador forzoso. Lejos de casa, pagando arriendo y sin una red de confianza cercana, mi ciclo de sueño —ya dañado de antes— se invirtió por completo. <strong>Pasaba las madrugadas explorando Arch Linux, obsesionado con las optimizaciones y el minimalismo</strong>. Incluso intenté montar un Linux From Scratch (LFS) varias veces sin éxito. Esas noches, lejos de ser improductivas, refinaron mi comprensión del sistema operativo a nivel fundamental.</p>
+
+                <figure class="narrative-image">
+                    <img src="img/aboutme-10.jpg" alt="VirtualBox con OpenBSD, Ansible cookbooks en GitHub, ping exitoso" loading="lazy">
+                    <figcaption class="image-caption"><strong>OpenBSD + Ansible + VirtualBox.</strong> Playbooks para configurar una ThinkPad con OpenBSD. Máquina virtual respondiendo ping exitosamente. Las noches de pandemia tenían esta estética.</figcaption>
+                </figure>
 
                 <p>Fue en ese contexto —2020, en pleno encierro— cuando descubrí <strong>VX-Underground</strong>. El hallazgo reavivó algo que llevaba años latente. Después de mucho tiempo en el "limbo" técnico, recordé por qué había empezado todo esto. <strong>Quería dedicarme al análisis de malware y la investigación en seguridad. Era mi meta final.</strong></p>
 
@@ -339,15 +449,40 @@
 
                 <p>En 2022, <strong>los microcontroladores PIC</strong> se cruzaron en mi camino. Quería profundizar en la programación a bajo nivel y entender cómo el software interactúa directamente con el hardware. Esta decisión —que podría parecer otro desvío— resultó providencial: poco después conseguí mi <strong>primer empleo como desarrollador de firmware en CENDIT</strong>, donde programé microcontroladores PIC 18 y 24 para proyectos médicos y educativos. Implementé protocolos I2C y UART, y documenté algoritmos en LaTeX y PlantUML. Una experiencia invaluable que me enseñó rigurosidad en entornos donde un error de firmware puede tener consecuencias reales.</p>
 
+                <figure class="narrative-image">
+                    <img src="img/aboutme-15.jpg" alt="Laboratorio de electrónica con osciloscopio, multímetro, fuentes y cables" loading="lazy">
+                    <figcaption class="image-caption"><strong>El laboratorio en CENDIT.</strong> Osciloscopio digital, multímetro, fuentes de poder, cables por todas partes. Así era mi banco de trabajo durante la etapa de firmware: medir, soldar, depurar. Donde el software se encuentra con el hardware y un error de código puede freír un componente real.</figcaption>
+                </figure>
+
                 <div class="highlight-quote">
                     Cada "desvío" en mi trayectoria resultó ser una pieza necesaria del rompecabezas. Los microcontroladores me enseñaron la disciplina del hardware; el backend, la arquitectura de sistemas; Linux, la mentalidad de automatización. No hay conocimiento perdido.
                 </div>
 
                 <p>Luego vino lo que llamo <strong>"el período de la ambición"</strong>. Dejé el empleo como desarrollador de firmware para tomar una oportunidad como desarrollador Backend. ¿La razón? Necesitaba capital para comprar mejor equipo y seguir practicando. En menos de dos meses pude adquirir una computadora adecuada para mis laboratorios de análisis. Pero el costo fue alto: me había desviado de mi objetivo principal. Luego, arriesgué mi estabilidad laboral por un proyecto paralelo con un amigo que no llegó a concretarse. Mi rendimiento bajó, mi contrato no fue renovado y volví al desempleo.</p>
 
+                <figure class="narrative-image">
+                    <img src="img/aboutme-11.jpg" alt="Máquina virtual C2-Setup1 con agente de comando y control en Windows" loading="lazy">
+                    <figcaption class="image-caption"><strong>C2-Setup1.</strong> El proyecto paralelo que relato en esta fase. Máquina virtual con agente C2 funcional — <code>shell whoami</code> retornando <code>marquez-pc\marquez</code>. La ambición materializada en código.</figcaption>
+                </figure>
+
+                <figure class="narrative-image">
+                    <img src="img/aboutme-12.jpg" alt="Meme sobre 3GB de RAM y máquina virtual Debian-INetSim en modo Low Memory" loading="lazy">
+                    <figcaption class="image-caption"><strong>3GB de RAM.</strong> "Es difícil tener tres máquinas virtuales trabajando simultáneamente con solo 3GB de RAM, pero se hace el esfuerzo." — 30 de agosto de 2022. La realidad material del aprendizaje autodidacta.</figcaption>
+                </figure>
+
                 <p><strong>Ese tropiezo me enseñó más que muchos éxitos.</strong> Aprendí a distinguir entre ambición calculada y dispersión. Aprendí que no basta con tener las habilidades; hay que mantener el enfoque. Y sobre todo, aprendí a levantarme.</p>
 
+                <figure class="narrative-image">
+                    <img src="img/aboutme-13.jpg" alt="Paisaje urbano con estatuas de mármol y montaña al fondo" loading="lazy">
+                    <figcaption class="image-caption"><strong>El entorno.</strong> La ciudad, la montaña, los espacios que me rodearon durante la etapa universitaria. El contexto físico también moldea la mente técnica.</figcaption>
+                </figure>
+
                 <p>Desde entonces, mantuve las prácticas de análisis de malware. Empecé una serie de notas sobre <strong>Assembly aplicado a ingeniería inversa</strong>, experimentando con la generación de código de los compiladores. Desarrollé pruebas de concepto de builders y variantes de malware con fines investigativos. Inicié una línea de investigación sobre exploits y comencé a documentarlo todo de forma sistemática. También empecé a estudiar <strong>ruso</strong> de forma autodidacta —irónicamente, se me hizo más fácil que el inglés— y tomé un curso universitario de seis meses que me dejó en un nivel A1-A2.</p>
+
+                <figure class="narrative-image">
+                    <img src="img/aboutme-14.jpg" alt="Perfil Kr0pl0its en foro de seguridad, registrado en 2016" loading="lazy">
+                    <figcaption class="image-caption"><strong>Kr0pl0its.</strong> Mi perfil en un viejo foro, registrado el 5 de agosto de 2016. "Concéntrate en el momento. Siente, no pienses, usa tu instinto." — Qui-Gon Jinn. Las identidades digitales que construimos en el camino.</figcaption>
+                </figure>
 
                 <p>Hoy, cada proyecto —desde herramientas de triage automatizado como <strong>analystty</strong> hasta investigaciones de infraestructura crítica como el análisis de <strong>PLC Siemens S5/S7</strong>— es un paso firme hacia la maestría técnica. Ya no salto de rama en rama: construyo sobre una base sólida y diversa que pocos recorridos profesionales pueden ofrecer.</p>
             </div>
@@ -355,7 +490,7 @@
 
         <hr class="story-divider">
 
-        <!-- Estado actual -->
+        <!-- ==================== AHORA ==================== -->
         <section class="phase" style="border-left-color: rgba(74, 222, 128, 0.3);">
             <div class="phase-header">
                 <span class="phase-number mono" style="color: var(--text-primary);">AHORA</span>
@@ -374,7 +509,6 @@
 
     </article>
 
-    <!-- Footer -->
     <footer class="story-footer">
         <p><a href="index.html">← Volver al portafolio principal</a></p>
         <p style="margin-top: 0.5rem;">© <span id="current-year"></span> Christian Márquez</p>
