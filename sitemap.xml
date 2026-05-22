@@ -7,22 +7,24 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd
         http://www.google.com/schemas/sitemap-image/1.1
         http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd">
-        
-    <!-- ==================== URL PRINCIPAL: Portafolio Christian Márquez (tty503) ==================== -->
+
+    <!-- ===================================================================== -->
+    <!-- PÁGINA PRINCIPAL: Portafolio Christian Márquez (tty503)              -->
+    <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/</loc>
-        <lastmod>2026-05-15</lastmod>
+        <lastmod>2026-05-22</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
-        
+
         <!-- Imagen principal indexada para Google Images -->
         <image:image>
             <image:loc>https://tty503.com/p1.jpg</image:loc>
             <image:title>Christian Márquez — Especialista en Ciberseguridad, Automatización y PLC</image:title>
             <image:caption>Christian Márquez (tty503): Portafolio profesional de infraestructura, seguridad ofensiva/defensiva, análisis de malware, ingeniería inversa, PLC Siemens S5/S7, DevSecOps y automatización con Ansible y Terraform.</image:caption>
         </image:image>
-        
-        <!-- Imagen del favicon/icono -->
+
+        <!-- Favicon / Logo identificativo -->
         <image:image>
             <image:loc>https://tty503.com/hat.png</image:loc>
             <image:title>tty503 — Christian Márquez Logo</image:title>
@@ -30,54 +32,93 @@
         </image:image>
     </url>
 
-    <!-- ==================== PÁGINA: Assembly para Ingeniería Inversa ==================== -->
+    <!-- ===================================================================== -->
+    <!-- PÁGINA: Sobre mí — Ruta Completa (Narrativa Personal)                -->
+    <!-- ===================================================================== -->
     <url>
-        <loc>https://tty503.com/assembly.html</loc>
-        <lastmod>2026-05-15</lastmod>
+        <loc>https://tty503.com/aboutme.html</loc>
+        <lastmod>2026-05-22</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
 
-    <!-- ==================== PÁGINA: PLC Siemens S5/S7 — Seguridad OT ==================== -->
-    <url>
-        <loc>https://tty503.com/plc.html</loc>
-        <lastmod>2026-05-15</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.9</priority>
-    </url>
-
-    <!-- ==================== PÁGINA: Analystty ==================== -->
+    <!-- ===================================================================== -->
+    <!-- PÁGINA: Analista de Malware — Herramienta analystty                  -->
+    <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/analystty.html</loc>
-        <lastmod>2026-05-15</lastmod>
+        <lastmod>2026-05-22</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
 
-    <!-- ==================== ANCLAS (HASH URLS) CON ALTO VALOR SEMÁNTICO ==================== -->
-    <!-- Google NO indexa fragmentos (#) como URLs separadas, pero los incluimos con prioridad
-         reducida para reforzar la estructura semántica del sitio mediante sitemap. -->
-    
-    <!-- Sección: Sobre Christian Márquez (tty503) -->
+    <!-- ===================================================================== -->
+    <!-- PÁGINA: Assembly para Ingeniería Inversa (RE)                        -->
+    <!-- ===================================================================== -->
+    <url>
+        <loc>https://tty503.com/assembly.html</loc>
+        <lastmod>2026-05-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- ===================================================================== -->
+    <!-- PÁGINA: Infraestructura Ofuscada — WireGuard, Proxy, DNS Blindado   -->
+    <!-- ===================================================================== -->
+    <url>
+        <loc>https://tty503.com/infraestructura-tunel-ofuscado.html</loc>
+        <lastmod>2026-05-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- ===================================================================== -->
+    <!-- PÁGINA: De la Shellcode Artesanal al C2 Builder                      -->
+    <!-- ===================================================================== -->
+    <url>
+        <loc>https://tty503.com/myPracticalShellcodeC2.html</loc>
+        <lastmod>2026-05-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- ===================================================================== -->
+    <!-- PÁGINA: PLC Siemens S5/S7 — Seguridad OT e Infraestructuras Críticas -->
+    <!-- ===================================================================== -->
+    <url>
+        <loc>https://tty503.com/plc.html</loc>
+        <lastmod>2026-05-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- ===================================================================== -->
+    <!-- ANCLAS (HASH URLS) CON VALOR SEMÁNTICO                              -->
+    <!-- Google NO indexa fragmentos (#) como URLs independientes, pero se    -->
+    <!-- incluyen con prioridad reducida para reforzar la estructura semántica -->
+    <!-- del sitio y facilitar el rastreo de secciones clave.                 -->
+    <!-- ===================================================================== -->
+
+    <!-- Sección: Sobre mí (Resumen Profesional) -->
     <url>
         <loc>https://tty503.com/#about</loc>
-        <lastmod>2026-05-15</lastmod>
+        <lastmod>2026-05-22</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
 
-    <!-- Sección: Experiencia Técnica — Infraestructura, Seguridad y PLC -->
+    <!-- Sección: Experiencia Técnica — Infraestructura, Seguridad, PLC -->
     <url>
         <loc>https://tty503.com/#experience</loc>
-        <lastmod>2026-05-15</lastmod>
+        <lastmod>2026-05-22</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
 
-    <!-- Sección: Investigaciones — Malware, Reversing, OT y Blue Team -->
+    <!-- Sección: Investigaciones Temáticas — Malware, Reversing, OT, Blue Team -->
     <url>
         <loc>https://tty503.com/#research</loc>
-        <lastmod>2026-05-15</lastmod>
+        <lastmod>2026-05-22</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
