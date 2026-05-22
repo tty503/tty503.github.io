@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mi Ruta Completa — Christian Márquez (tty503)</title>
+    <meta name="description" content="La trayectoria autodidacta de Christian Márquez (tty503): desde los fundamentos de programación hasta la especialización en ciberseguridad, análisis de malware y entornos OT/PLC.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tty503.com/aboutme.html">
+    <meta name="theme-color" content="#050505">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Navegación mínima */
+        .top-bar {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-subtle);
+            background: var(--bg-surface);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            background: rgba(10, 10, 10, 0.85);
+        }
+
+        .top-bar-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+
+        .page-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Contenido principal */
+        .story-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 2rem 6rem;
+        }
+
+        .story-header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 2rem;
+        }
+
+        .story-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .story-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Fases narrativas */
+        .phase {
+            margin-bottom: 3.5rem;
+            padding-left: 1.5rem;
+            border-left: 2px solid var(--border-subtle);
+            transition: border-color 0.4s;
+        }
+
+        .phase:hover {
+            border-left-color: var(--border-hover);
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .phase-number {
+            font-size: 0.85rem;
+            color: var(--accent-green);
+            font-weight: 600;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .phase-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .phase-years {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .phase-content p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.9;
+        }
+
+        .phase-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .phase-content strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .phase-content em {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Cita destacada */
+        .highlight-quote {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            color: var(--text-primary);
+            font-style: italic;
+            font-size: 1rem;
+            line-height: 1.7;
+            position: relative;
+        }
+
+        .highlight-quote::before {
+            content: '"';
+            position: absolute;
+            top: -0.5rem;
+            left: 1rem;
+            font-size: 3rem;
+            color: var(--border-hover);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        /* Separador visual */
+        .story-divider {
+            border: none;
+            border-top: 1px solid var(--border-subtle);
+            margin: 3rem 0;
+        }
+
+        /* Footer */
+        .story-footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .story-footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .story-footer a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .top-bar {
+                padding: 1rem 1.2rem;
+            }
+            .story-container {
+                padding: 2.5rem 1.2rem 4rem;
+            }
+            .story-header h1 {
+                font-size: 1.6rem;
+            }
+            .phase {
+                padding-left: 1rem;
+                margin-bottom: 2.5rem;
+            }
+            .phase-title {
+                font-size: 1.2rem;
+            }
+            .phase-header {
+                flex-direction: column;
+                gap: 0.2rem;
+            }
+            .phase-years {
+                margin-left: 0;
+            }
+            .highlight-quote {
+                padding: 1.2rem 1.5rem;
+                margin: 1.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra superior de navegación -->
+    <div class="top-bar">
+        <div class="top-bar-inner">
+            <a href="index.html" class="back-link mono">← Volver al portafolio</a>
+            <span class="page-label mono">tty503_aboutme</span>
+        </div>
+    </div>
+
+    <!-- Contenido narrativo -->
+    <article class="story-container">
+        
+        <header class="story-header">
+            <h1>Mi Ruta Completa</h1>
+            <p class="story-subtitle mono">De la curiosidad infantil a la especialización en ciberseguridad</p>
+        </header>
+
+        <!-- Fase 1 -->
+        <section class="phase">
+            <div class="phase-header">
+                <span class="phase-number mono">FASE 1</span>
+                <h2 class="phase-title">La Chispa y los Fundamentos</h2>
+                <span class="phase-years mono">2012 – 2014</span>
+            </div>
+            <div class="phase-content">
+                <p>Todo comenzó en 2012 con una pregunta: <strong>"¿cómo funciona esto realmente?"</strong>. Siendo apenas un estudiante de primaria, los lenguajes de scripting como Batch y VBScript fueron mi primer contacto con las instrucciones de E/S, las estructuras de control de flujo y el concepto de variables. No escribí nada relevante en aquel momento, pero esos primeros pasos establecieron una base sólida que luego resultaría fundamental.</p>
+                
+                <p>La película <em>Hackers</em> (1995), que vi por casualidad en Space Channel, y la fascinación por casos históricos como Melissa e ILoveYou, me dieron un objetivo claro: <strong>entender cómo era posible infectar sistemas</strong>. Quería comprender la mecánica detrás de lo que veía en pantalla.</p>
+
+                <p>Mi padre fue el facilitador inconsciente de este viaje. Él introdujo la primera computadora en casa alrededor de 2006 —tengo recuerdos vagos, era muy pequeño— y me enseñó los conceptos básicos sobre sistemas operativos y configuración de programas. <strong>Esos primeros años me enseñaron que la mejor forma de aprender es haciendo</strong>, incluso si eso significaba romper cosas en el proceso. Y vaya que rompí varias computadoras del hogar.</p>
+
+                <div class="highlight-quote">
+                    ¿Cómo sabe la computadora a dónde mover el puntero del mouse? ¿Qué provoca que al pulsar la tecla 'A' se muestre en pantalla? Esas preguntas me mantenían despierto de noche.
+                </div>
+            </div>
+        </section>
+
+        <!-- Fase 2 -->
+        <section class="phase">
+            <div class="phase-header">
+                <span class="phase-number mono">FASE 2</span>
+                <h2 class="phase-title">Exploración y Ampliación del Espectro</h2>
+                <span class="phase-years mono">2014 – 2018</span>
+            </div>
+            <div class="phase-content">
+                <p>El descubrimiento de los compiladores y de <strong>C/C++</strong> en 2014 marcó un punto de inflexión. Entender la diferencia entre un intérprete y un compilador me abrió las puertas a un nuevo nivel de comprensión técnica. Poco después, la adopción de <strong>GNU/Linux</strong> expandió mi panorama por completo.</p>
+
+                <p>Este período fue de una exploración deliberadamente amplia. Pasé por el desarrollo web, de videojuegos, móvil y de sistemas embebidos. Probé decenas de distribuciones Linux y caí —como muchos— en el "fandom radical" de algunas tecnologías. <strong>Lejos de ser tiempo perdido, esta fase de sobresaturación me obligó a desarrollar una capacidad crítica para evaluar herramientas de manera objetiva</strong>, reconocer patrones entre distintas áreas y, crucialmente, entender qué ramas no eran para mí.</p>
+
+                <p>Alrededor de 2014-2015 escribí mi primer malware en C. La historia es simple: un familiar insistente desde una cuenta falsa de Facebook. Le seguí la corriente varios días y luego preparé un programa que creaba múltiples hilos, esperaba un rato y mostraba mensajes en pantalla hasta sobrecargar la memoria. Sin mecanismos de persistencia ni evasión de AVs —no eran necesarios—. Comprimido en un RAR autoextraíble con un señuelo de "desnudos.jpg", cumplió su propósito. <strong>Fue divertido, pero sobre todo fue una lección práctica temprana sobre cómo el software puede afectar sistemas reales</strong>.</p>
+
+                <p>Por esa misma época desarrollé un keylogger que recopilaba pulsaciones en archivos diarios y las enviaba a un servidor No-IP que tenía configurado. <strong>Nunca le di un uso malicioso</strong>; solo lo probé en las computadoras de casa de mi abuelo. Era pura curiosidad técnica: entender cómo funcionaba el hooking de teclado y la exfiltración de datos.</p>
+
+                <p>En 2017 conocí a un grupo de personas con intereses similares. Juntos creamos <strong>ReldSec</strong>, un blog de ciberseguridad donde publicábamos artículos técnicos. Al menos dos del equipo continuaron formándose profesionalmente en pentesting. Para mí, fue el primer ensayo real de colaboración, divulgación técnica y trabajo en equipo.</p>
+            </div>
+        </section>
+
+        <hr class="story-divider">
+
+        <!-- Fase 3 -->
+        <section class="phase">
+            <div class="phase-header">
+                <span class="phase-number mono">FASE 3</span>
+                <h2 class="phase-title">El Crisol: Especialización y Propósito</h2>
+                <span class="phase-years mono">2019 – Presente</span>
+            </div>
+            <div class="phase-content">
+                <p>La entrada a la universidad en 2019 y el posterior aislamiento de la pandemia en 2020 actuaron como un catalizador forzoso. Lejos de casa, y sin una red de confianza cercana, mi ciclo de sueño —ya dañado de antes— se invirtió por completo. <strong>Pasaba las madrugadas explorando Arch Linux, obsesionado con las optimizaciones y el minimalismo</strong>. Incluso intenté montar un Linux From Scratch (LFS) varias veces sin éxito. Esas noches, lejos de ser improductivas, refinaron mi comprensión del sistema operativo a nivel fundamental.</p>
+
+                <p>Fue en ese contexto —2020, en pleno encierro— cuando descubrí <strong>VX-Underground</strong>. El hallazgo reavivó algo que llevaba años latente. Después de mucho tiempo en el "limbo" técnico, recordé por qué había empezado todo esto. <strong>Quería dedicarme al análisis de malware y la investigación en seguridad. Era mi meta final.</strong></p>
+
+                <p>Decidí enfocarme. Necesitaba dominar la ingeniería inversa, y para ello necesitaba aprender <strong>Assembly</strong>. Pivoté entre Intel 8086, MIPS, x86 y x86_64, comparando NASM, FASM y MASM. Fue un proceso arduo de lectura y comprensión de las diferencias entre arquitecturas RISC y CISC, entre la sintaxis AT&T e Intel, y entre los modos de direccionamiento. Me hice un curso de x86 con MASM y descubrí que, más allá de los tamaños de registro y algunas instrucciones nuevas, la esencia era la misma que ya conocía por Emu8086.</p>
+
+                <p>En 2022, <strong>los microcontroladores PIC</strong> se cruzaron en mi camino. Quería profundizar en la programación a bajo nivel y entender cómo el software interactúa directamente con el hardware. Esta decisión —que podría parecer otro desvío— resultó providencial: poco después conseguí mi <strong>primer empleo como desarrollador de firmware en CENDIT</strong>, donde programé microcontroladores PIC 18 y 24 para proyectos médicos y educativos. Implementé protocolos I2C y UART, y documenté algoritmos en LaTeX y PlantUML. Una experiencia invaluable que me enseñó rigurosidad en entornos donde un error de firmware puede tener consecuencias reales.</p>
+
+                <div class="highlight-quote">
+                    Cada "desvío" en mi trayectoria resultó ser una pieza necesaria del rompecabezas. Los microcontroladores me enseñaron la disciplina del hardware; el backend, la arquitectura de sistemas; Linux, la mentalidad de automatización. No hay conocimiento perdido.
+                </div>
+
+                <p>Luego vino lo que llamo <strong>"el período de la ambición"</strong>. Dejé el empleo como desarrollador de firmware para tomar una oportunidad como desarrollador Backend. ¿La razón? Necesitaba capital para comprar mejor equipo y seguir practicando. En menos de dos meses pude adquirir una computadora adecuada para mis laboratorios de análisis. Pero el costo fue alto: me había desviado de mi objetivo principal. Luego, arriesgué mi estabilidad laboral por un proyecto paralelo con un amigo que no llegó a concretarse. Mi rendimiento bajó, mi contrato no fue renovado y volví al desempleo.</p>
+
+                <p><strong>Ese tropiezo me enseñó más que muchos éxitos.</strong> Aprendí a distinguir entre ambición calculada y dispersión. Aprendí que no basta con tener las habilidades; hay que mantener el enfoque. Y sobre todo, aprendí a levantarme.</p>
+
+                <p>Desde entonces, mantuve las prácticas de análisis de malware. Empecé una serie de notas sobre <strong>Assembly aplicado a ingeniería inversa</strong>, experimentando con la generación de código de los compiladores. Desarrollé pruebas de concepto de builders y variantes de malware con fines investigativos. Inicié una línea de investigación sobre exploits y comencé a documentarlo todo de forma sistemática. También empecé a estudiar <strong>ruso</strong> de forma autodidacta —irónicamente, se me hizo más fácil que el inglés— y tomé un curso universitario de seis meses que me dejó en un nivel A1-A2.</p>
+
+                <p>Hoy, cada proyecto —desde herramientas de triage automatizado como <strong>analystty</strong> hasta investigaciones de infraestructura crítica como el análisis de <strong>PLC Siemens S5/S7</strong>— es un paso firme hacia la maestría técnica. Ya no salto de rama en rama: construyo sobre una base sólida y diversa que pocos recorridos profesionales pueden ofrecer.</p>
+            </div>
+        </section>
+
+        <hr class="story-divider">
+
+        <!-- Estado actual -->
+        <section class="phase" style="border-left-color: rgba(74, 222, 128, 0.3);">
+            <div class="phase-header">
+                <span class="phase-number mono" style="color: var(--text-primary);">AHORA</span>
+                <h2 class="phase-title">En qué estoy trabajando</h2>
+            </div>
+            <div class="phase-content">
+                <p>Actualmente mi investigación se centra en tres líneas principales:</p>
+                <p>
+                    <strong>→ Seguridad OT/PLC:</strong> Análisis de bajo nivel de autómatas Siemens S5/S7, protocolos industriales, y evaluación de vulnerabilidades en infraestructuras críticas venezolanas con fines estrictamente académicos y de concienciación.<br>
+                    <strong>→ Herramientas propias de análisis:</strong> Desarrollo de <strong>analystty</strong>, mi navaja suiza para triage automatizado de malware PE, y otras utilidades forenses en Bash/Python.<br>
+                    <strong>→ Infraestructura resiliente:</strong> Diseño de túneles ofuscados, redes segmentadas y entornos de análisis aislados con Proxmox, Ansible y Terraform.
+                </p>
+                <p><strong>Estoy tratando activamente de ser mejor —técnica y personalmente—, de retomar el camino con más claridad que nunca, y de alcanzar el objetivo que me tracé hace más de una década.</strong></p>
+            </div>
+        </section>
+
+    </article>
+
+    <!-- Footer -->
+    <footer class="story-footer">
+        <p><a href="index.html">← Volver al portafolio principal</a></p>
+        <p style="margin-top: 0.5rem;">© <span id="current-year"></span> Christian Márquez</p>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>
