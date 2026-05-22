@@ -3,33 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="hat.png">
-    <link rel="apple-touch-icon" href="hat.png">    
+    <link rel="apple-touch-icon" href="hat.png">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    
+
     <title>De la Shellcode Artesanal al C2 Builder: Un Viaje por el Malware Dev | tty503</title>
-    <meta name="description" content="Análisis de la creación de un dropper de shellcode en C/Assembly para WinExec/ExitProcess y su evolución a un constructor de malware con panel C2, ofuscación y persistencia en C#.">
-    <meta name="keywords" content="shellcode, WinExec, ExitProcess, kernel32, dropper, C2, Malware Dev, C#, .NET, TCP, reverse engineering, little-endian, assembly, Mingw-w64, BugBuilder, tty503">
+    <meta name="description" content="Análisis completo de técnicas de desarrollo de malware: shellcode artesanal, inyección de código, evasión de AV, persistencia, y evolución a un builder con panel C2 en C#.">
+    <meta name="keywords" content="shellcode, WinExec, ExitProcess, kernel32, dropper, C2, Malware Dev, C#, .NET, TCP, reverse engineering, little-endian, assembly, Mingw-w64, BugBuilder, tty503, inyeccion de codigo, DLL injection, APC injection, thread hijacking, API hooking, XOR encryption, persistencia, Windows registry">
     <meta name="author" content="Christian Márquez">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://tty503.com/shellcode-dropper-c2-builder">
+    <link rel="canonical" href="https://tty503.com/myPracticalShellcodeC2.html">
     <meta name="theme-color" content="#050505">
-    
+
     <meta property="og:title" content="De la Shellcode Artesanal al C2 Builder | tty503">
     <meta property="og:description" content="Deconstrucción técnica de un dropper de shellcode en C puro y su metamorfosis en un framework de malware con interfaz gráfica, servidor TCP y persistencia.">
-    <meta property="og:url" content="https://tty503.com/shellcode-dropper-c2-builder">
+    <meta property="og:url" content="https://tty503.com/myPracticalShellcodeC2.html">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="tty503 Portfolio">
-    
+
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@tty_503">
     <meta name="twitter:title" content="De la Shellcode Artesanal al C2 Builder">
     <meta name="twitter:description" content="Análisis profundo del desarrollo de shellcode para Windows y su evolución hacia un builder de malware con capacidades de comando y control.">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             --bg-base: #030303;
@@ -47,17 +47,8 @@
             --accent-red: #ef4444;
             --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             background-color: var(--bg-base);
             color: var(--text-primary);
@@ -66,163 +57,43 @@
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
         }
-
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
+        .mono { font-family: 'JetBrains Mono', monospace; }
         .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.05;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
             background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
         }
-
         .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(3, 3, 3, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-subtle);
-            z-index: 1000;
-            transition: var(--transition-smooth);
+            position: fixed; top: 0; width: 100%;
+            background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle);
+            z-index: 1000; transition: var(--transition-smooth);
         }
-
         .nav-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .nav-brand {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .nav-back {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: var(--transition-smooth);
-        }
-
-        .nav-back:hover {
-            color: var(--accent);
-        }
-
-        .article-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 7rem 1.5rem 4rem;
-        }
-
-        .article-header {
-            margin-bottom: 3rem;
-            border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 2rem;
-        }
-
-        .article-meta {
-            display: flex;
-            gap: 1.5rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .article-tag {
-            background: transparent;
-            color: var(--accent-blue);
-            padding: 0.25rem 0.75rem;
-            border-radius: 3px;
-            font-size: 0.75rem;
-            border: 1px solid rgba(96, 165, 250, 0.3);
-        }
-
-        .article-title {
-            font-size: clamp(2rem, 4vw, 2.8rem);
-            font-weight: 700;
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .article-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            max-width: 650px;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 2.5rem 0 1.2rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .section-title:first-of-type {
-            margin-top: 0;
-            border-top: none;
-        }
-
-        .subsection-title {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 2rem 0 0.8rem;
-        }
-
-        p {
-            color: var(--text-secondary);
-            margin-bottom: 1.2rem;
-            font-size: 1rem;
-            line-height: 1.8;
-        }
-
-        strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
         .code-block {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            padding: 1.2rem 1.5rem;
-            margin: 1.5rem 0;
-            overflow-x: auto;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            position: relative;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-secondary);
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+            overflow-x: auto; font-size: 0.9rem; line-height: 1.6;
+            position: relative; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);
         }
-
-        .code-block .line {
-            display: block;
-        }
-
+        .code-block .line { display: block; }
         .code-block .comment { color: #6a9955; }
         .code-block .directive { color: #569cd6; }
         .code-block .keyword { color: #c586c0; }
@@ -231,185 +102,38 @@
         .code-block .opcode { color: #4ec9b0; }
         .code-block .register { color: #9cdcfe; }
         .code-block .label { color: #dcdcaa; }
-
-        .table-wrapper {
-            overflow-x: auto;
-            margin: 2rem 0;
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        th {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            padding: 0.8rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 1px solid var(--border-hover);
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 0.7rem 1rem;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border-subtle);
-            vertical-align: top;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        ul, ol {
-            color: var(--text-secondary);
-            margin: 1rem 0 1.5rem 1.5rem;
-            line-height: 1.8;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
-        }
-
-        ul ul {
-            margin: 0.5rem 0 0.5rem 1.5rem;
-        }
-
-        .image-container {
-            margin: 2rem 0;
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            overflow: hidden;
-            background: var(--bg-card);
-        }
-
-        .image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: grayscale(30%) contrast(1.05);
-            transition: filter 0.4s ease;
-        }
-
-        .image-container img:hover {
-            filter: grayscale(0%) contrast(1.1);
-        }
-
-        .image-caption {
-            padding: 0.8rem 1rem;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .callout {
-            background: var(--bg-card);
-            border-left: 3px solid var(--accent-blue);
-            padding: 1.2rem 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 6px 6px 0;
-        }
-
-        .callout-title {
-            font-weight: 600;
-            color: var(--accent-blue);
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .callout p {
-            margin-bottom: 0;
-            font-size: 0.95rem;
-        }
-
-        .callout-warning {
-            border-left-color: var(--accent-amber);
-        }
-
-        .callout-warning .callout-title {
-            color: var(--accent-amber);
-        }
-
-        a {
-            color: var(--accent-blue);
-            text-decoration: none;
-            transition: var(--transition-smooth);
-            word-break: break-word;
-        }
-
-        a:hover {
-            color: var(--accent);
-        }
-
-        .footer {
-            border-top: 1px solid var(--border-subtle);
-            padding: 3rem 1.5rem;
-            text-align: center;
-            background: var(--bg-surface);
-        }
-
-        .footer-content {
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .social-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: var(--transition-smooth);
-        }
-
-        .social-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .copyright {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
+        .code-block .func { color: #dcdcaa; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; } tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; } ul ul { margin: 0.5rem 0 0.5rem 1.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
         @media (max-width: 600px) {
-            .article-container {
-                padding: 6rem 1rem 3rem;
-            }
-            .article-title {
-                font-size: 1.6rem;
-            }
-            .section-title {
-                font-size: 1.25rem;
-            }
-            .code-block {
-                padding: 1rem;
-                font-size: 0.8rem;
-            }
-            th, td {
-                padding: 0.5rem 0.6rem;
-                font-size: 0.75rem;
-            }
-            .social-links {
-                gap: 1rem;
-            }
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.8rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
         }
     </style>
 </head>
@@ -430,11 +154,11 @@
                 <span class="article-tag">Shellcode</span>
                 <span class="article-tag">C#/.NET</span>
                 <span>Actualizado: Mayo 2026</span>
-                <span>~55 min de lectura</span>
+                <span>~120 min de lectura</span>
             </div>
             <h1 class="article-title">De la Shellcode Artesanal al C2 Builder: Anatomía de un Dropper y su Metamorfosis en Framework</h1>
             <p class="article-subtitle">
-                Análisis de la creación de un dropper de shellcode en C puro y Assembly (WinExec/ExitProcess), el desarrollo de un stub criptográfico en NASM, y la evolución hacia un constructor de malware con panel C2, ofuscación y persistencia en C#.
+                Análisis de la creación de un dropper de shellcode en C puro y Assembly (WinExec/ExitProcess), el desarrollo de un stub criptográfico en NASM, la evolución hacia un constructor de malware con panel C2 en C#, y un compendio extenso de técnicas de inyección, evasión y persistencia en Windows.
             </p>
         </header>
 
@@ -456,9 +180,9 @@
             <span class="line"><span class="comment">// Código de referencia para la shellcode final</span></span>
             <span class="line"><span class="directive">#include</span> <span class="string">&lt;windows.h&gt;</span></span>
             <span class="line">&nbsp;</span>
-            <span class="line"><span class="keyword">int</span> <span class="label">main</span>(<span class="keyword">void</span>) {</span>
-            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">WinExec</span>(<span class="string">"calc.exe"</span>, <span class="number">0</span>);</span>
-            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="label">ExitProcess</span>(<span class="number">0</span>);</span>
+            <span class="line"><span class="keyword">int</span> <span class="func">main</span>(<span class="keyword">void</span>) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="func">WinExec</span>(<span class="string">"calc.exe"</span>, <span class="number">0</span>);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="func">ExitProcess</span>(<span class="number">0</span>);</span>
             <span class="line">}</span>
         </div>
 
@@ -624,8 +348,8 @@
             <span class="line">}</span>
             <span class="line">&nbsp;</span>
             <span class="line"><span class="comment">// Envío al servidor</span></span>
-            <span class="line"><span class="keyword">string</span> json = <span class="label">JsonConvert</span>.<span class="label">SerializeObject</span>(modelInfo);</span>
-            <span class="line">stream.<span class="label">Write</span>(<span class="label">Encoding</span>.UTF8.<span class="label">GetBytes</span>(json), <span class="number">0</span>, json.Length);</span>
+            <span class="line"><span class="keyword">string</span> json = <span class="label">JsonConvert</span>.<span class="func">SerializeObject</span>(modelInfo);</span>
+            <span class="line">stream.<span class="func">Write</span>(<span class="label">Encoding</span>.UTF8.<span class="func">GetBytes</span>(json), <span class="number">0</span>, json.Length);</span>
         </div>
 
         <h3 class="subsection-title">El Panel de Control (C2)</h3>
@@ -774,6 +498,412 @@
             El primer proyecto nos enseñó el valor de la precisión manual: saber exactamente qué bytes ocupa una instrucción y cómo la pila afecta al flujo. El segundo proyecto añadió la capa de protección de la carga útil, entendiendo que la shellcode en reposo es la parte más vulnerable del ciclo de vida de un payload. Finalmente, BugBuilder operacionalizó ese conocimiento, convirtiendo un arte técnico en una herramienta modular lista para entornos hostiles, donde la capacidad de regenerar binarios con firmas diferentes es la diferencia entre el éxito y la detección.
         </p>
 
+        <!-- ==================== NUEVAS SECCIONES: COMPENDIO DE TÉCNICAS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Classic Code Injection into the Process</h2>
+
+        <p>
+            Consiste en introducir código malicioso en un proceso legítimo en ejecución, lo que permite al atacante secuestrar el proceso y utilizarlo para sus propios fines. En términos generales, la técnica consiste en:
+        </p>
+        <ul>
+            <li><strong>Identificar el proceso de destino:</strong> Puede ser cualquier programa común (notepad.exe) o algún proceso más crítico en el sistema.</li>
+            <li><strong>Inyectar el código:</strong> El código malicioso es inyectado en el espacio de memoria del proceso de destino. Para lograr esto existen diversos métodos: escribir directamente en la memoria del proceso o cargar una DLL maliciosa.</li>
+            <li><strong>Ejecución del código inyectado:</strong> Podemos crear un nuevo hilo dentro del proceso que comience a ejecutar el código, o manipular la memoria del proceso para sobreescribir las instrucciones con un salto al código inyectado.</li>
+        </ul>
+
+        <p><strong>Mecanismos defensivos y sus evasiones:</strong></p>
+        <ul>
+            <li><strong>DEP (Data Execution Prevention):</strong> Evita que se ejecute código desde ubicaciones de memoria no confiables.</li>
+            <li><strong>ASLR (Address Space Layout Randomization):</strong> Aleatoriza el diseño de la memoria de un proceso, dificultando predecir dónde se cargará el código.</li>
+            <li><strong>CFG (Control Flow Guard):</strong> Rastrea el flujo de datos a través de un programa para detectar intentos de inyección.</li>
+        </ul>
+
+        <p>Para explicar esta técnica, analizamos el concepto general: "encontrar un espacio de la memoria de un proceso (en este caso, el mismo proceso) y escribir sobre él".</p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">// Classic code injection - Proceso propio</span></span>
+            <span class="line"><span class="keyword">unsigned char</span> my_payload[] = <span class="string">""</span>;</span>
+            <span class="line"><span class="keyword">unsigned int</span> my_payload_len = <span class="func">sizeof</span>(my_payload);</span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="keyword">int</span> <span class="func">main</span>(<span class="keyword">void</span>) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">void</span>* my_payload_mem;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">BOOL</span> rv;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">HANDLE</span> th;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">DWORD</span> oldprotect = <span class="number">0</span>;</span>
+            <span class="line">&nbsp;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;my_payload_mem = <span class="func">VirtualAlloc</span>(<span class="number">0</span>, my_payload_len,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="func">RtlMoveMemory</span>(my_payload_mem, my_payload, my_payload_len);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;rv = <span class="func">VirtualProtect</span>(my_payload_mem, my_payload_len,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PAGE_EXECUTE_READ, &oldprotect);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>(rv != <span class="number">0</span>) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;th = <span class="func">CreateThread</span>(<span class="number">0</span>, <span class="number">0</span>,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">LPTHREAD_START_ROUTINE</span>)my_payload_mem, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="func">WaitForSingleObject</span>(th, -<span class="number">1</span>);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="number">0</span>;</span>
+            <span class="line">}</span>
+        </div>
+
+        <p>Ahora pivotamos a un proceso distinto (ej. calc.exe) usando <span class="mono">OpenProcess</span>, <span class="mono">VirtualAllocEx</span>, <span class="mono">WriteProcessMemory</span> y <span class="mono">CreateRemoteThread</span>. La memoria se asigna directamente en el espacio de direcciones del proceso objetivo con permisos de ejecución.</p>
+
+        <!-- ==================== SECCIÓN 10: DLL INJECTION ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">10.</span> Classic DLL Injection into the Process</h2>
+
+        <p>
+            Consiste en cargar una DLL maliciosa en un proceso legítimo. El flujo es: localizar la DLL, crear un hilo en el proceso destino, asignar memoria para almacenar la ruta de la DLL, cargar la DLL mediante <span class="mono">LoadLibraryA</span>, y ejecutar su punto de entrada (<span class="mono">DllMain</span>).
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">// dllmain.cpp - DLL maliciosa de ejemplo</span></span>
+            <span class="line"><span class="directive">#include</span> <span class="string">"pch.h"</span></span>
+            <span class="line"><span class="keyword">BOOL</span> <span class="keyword">APIENTRY</span> <span class="func">DllMain</span>(<span class="keyword">HMODULE</span> hModule,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">DWORD</span> nReason, <span class="keyword">LPVOID</span> lpReserved) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">switch</span> (nReason) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">case</span> DLL_PROCESS_ATTACH:</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="func">MessageBox</span>(<span class="keyword">NULL</span>,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">LPCWSTR</span>)<span class="string">L"Meow from DLL!"</span>,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">LPCWSTR</span>)<span class="string">L"=^..^="</span>, MB_OK);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span>;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> TRUE;</span>
+            <span class="line">}</span>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">NOTA: DLL Hijacking en Windows 10</div>
+            <p>En teoría, para realizar DLL hijacking solo debemos aprovechar la jerarquía de búsqueda de las DLL. Sin embargo, las pruebas en Windows 10 moderno no funcionan debido a protecciones como Known DLLs y mitigaciones de búsqueda de DLL.</p>
+        </div>
+
+        <!-- ==================== SECCIÓN 11: FIND PROCESS BY NAME ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">11.</span> Find Process ID by Name and Inject to It</h2>
+
+        <p>Lógica necesaria para encontrar procesos por nombre e inyectarlos usando <span class="mono">CreateToolhelp32Snapshot</span> y <span class="mono">Process32First/Next</span>.</p>
+
+        <div class="code-block">
+            <span class="line"><span class="keyword">int</span> <span class="func">findMyProc</span>(<span class="keyword">const char</span>* procname) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">HANDLE</span> hSnapshot;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">PROCESSENTRY32</span> pe;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">int</span> pid = <span class="number">0</span>;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">BOOL</span> hResult;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;hSnapshot = <span class="func">CreateToolhelp32Snapshot</span>(TH32CS_SNAPPROCESS, <span class="number">0</span>);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (INVALID_HANDLE_VALUE == hSnapshot) <span class="keyword">return</span> <span class="number">0</span>;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;pe.dwSize = <span class="func">sizeof</span>(<span class="keyword">PROCESSENTRY32</span>);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;hResult = <span class="func">Process32First</span>(hSnapshot, &pe);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span>(hResult) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (<span class="func">strcmp</span>(procname,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">const char</span>*)pe.szExeFile) == <span class="number">0</span>) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pid = pe.th32ProcessID;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span>;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hResult = <span class="func">Process32Next</span>(hSnapshot, &pe);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="func">CloseHandle</span>(hSnapshot);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> pid;</span>
+            <span class="line">}</span>
+        </div>
+
+        <!-- ==================== SECCIÓN 12: WINDOWS SHELLCODING 1 ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">12.</span> Windows Shellcoding 1</h2>
+
+        <p>Patrón fundamental de ejecución de shellcode mediante punteros a función. Este es exactamente el mecanismo que usamos en el dropper original:</p>
+
+        <div class="code-block">
+            <span class="line"><span class="keyword">char</span> code[] = <span class="string">"my shellcode here"</span>;</span>
+            <span class="line"><span class="keyword">int</span> <span class="func">main</span>(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">int</span> (*func)();</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;func = (<span class="keyword">int</span>(*)()) code;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">int</span>)(*func)();</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="number">1</span>;</span>
+            <span class="line">}</span>
+        </div>
+
+        <p>Se incluye un script auxiliar en Python para revertir strings y convertirlos a hexadecimal en formato little-endian, necesario para construir la shellcode.</p>
+
+        <div class="code-block">
+            <span class="line"><span class="keyword">import</span> sys</span>
+            <span class="line">input = sys.argv[<span class="number">1</span>]</span>
+            <span class="line">chunks = [input[i:i+<span class="number">4</span>] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="func">range</span>(<span class="number">0</span>, <span class="func">len</span>(input), <span class="number">4</span>)]</span>
+            <span class="line"><span class="keyword">for</span> chunk <span class="keyword">in</span> chunks[::-<span class="number">1</span>]:</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="func">print</span>(chunk[::-<span class="number">1</span>].encode(<span class="string">"utf-8"</span>).hex())</span>
+        </div>
+
+        <!-- ==================== SECCIÓN 13: WINDOWS SHELLCODING 2 ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">13.</span> Windows Shellcoding 2 — PEB y TEB</h2>
+
+        <p>
+            Cada vez que ejecutamos cualquier archivo .exe, lo primero que se crea en el sistema operativo son las estructuras <strong>PEB</strong> (Process Environment Block) y <strong>TEB</strong> (Thread Environment Block). El PEB contiene información necesaria para el funcionamiento del proceso, mientras que cada hilo tiene su propio TEB.
+        </p>
+        <p>Cuando escribimos en ASM, podemos recorrer la estructura PEB → LDR y encontrar la dirección de kernel32.dll para cargarla en nuestro shellcode sin usar <span class="mono">GetModuleHandle</span>:</p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">; Encontrar kernel32.dll via PEB</span></span>
+            <span class="line"><span class="opcode">mov</span> <span class="register">eax</span>, [<span class="register">fs</span>:<span class="register">ecx</span> + <span class="number">0x30</span>]  <span class="comment">; Desplazamiento a PEB</span></span>
+            <span class="line"><span class="opcode">mov</span> <span class="register">eax</span>, [<span class="register">eax</span> + <span class="number">0xc</span>]   <span class="comment">; Desplazamiento a LDR</span></span>
+            <span class="line"><span class="opcode">mov</span> <span class="register">eax</span>, [<span class="register">eax</span> + <span class="number">0x14</span>]  <span class="comment">; InMemoryOrderModuleList</span></span>
+            <span class="line"><span class="opcode">mov</span> <span class="register">eax</span>, [<span class="register">eax</span>]         <span class="comment">; 1er módulo (nuestro .exe)</span></span>
+            <span class="line"><span class="opcode">mov</span> <span class="register">eax</span>, [<span class="register">eax</span>]         <span class="comment">; 2do módulo (ntdll.dll)</span></span>
+            <span class="line"><span class="opcode">mov</span> <span class="register">eax</span>, [<span class="register">eax</span> + <span class="number">0x10</span>]  <span class="comment">; 3er módulo (kernel32.dll)</span></span>
+        </div>
+
+        <!-- ==================== SECCIÓN 14: PE FILE STRUCTURE ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">14.</span> Windows Shellcoding 3 — PE File Structure</h2>
+
+        <p>Un archivo PE es el formato nativo de Win32, análogo a los COFF de Unix. Su estructura incluye:</p>
+        <ul>
+            <li><strong>DOS Header:</strong> Almacena información necesaria para cargar el archivo PE.</li>
+            <li><strong>DOS Stub:</strong> Área mayormente llena de ceros después de los primeros 64 bytes.</li>
+            <li><strong>PE Header (NT Header):</strong> Contiene la firma "PE\0\0" (bytes <span class="mono">50 45 00 00</span>).</li>
+            <li><strong>File Header (COFF Header):</strong> Características básicas del archivo.</li>
+            <li><strong>Optional Header:</strong> Contiene <span class="mono">AddressOfEntryPoint</span>, <span class="mono">ImageBase</span>, <span class="mono">SectionAlignment</span>, <span class="mono">SizeOfImage</span> y los directorios de datos (tabla de exportación, importación, recursos, excepciones, certificados, reubicación, TLS, IAT, CLR runtime header, etc.).</li>
+            <li><strong>Section Table:</strong> Arreglo de estructuras <span class="mono">IMAGE_SECTION_HEADER</span> que define secciones como <span class="mono">.text</span>.</li>
+        </ul>
+
+        <!-- ==================== SECCIÓN 15: APC INJECTION ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">15.</span> APC Injection Technique (Early Bird)</h2>
+
+        <p>
+            La técnica <strong>Early Bird</strong> aprovecha <span class="mono">QueueUserAPC</span> para poner en cola un APC (Asynchronous Procedure Call) en un hilo específico. La descripción de alto nivel es:
+        </p>
+        <ol>
+            <li>Crear un proceso legítimo con el flag <span class="mono">CREATE_SUSPENDED</span>.</li>
+            <li>Asignar memoria para la carga útil en el espacio del nuevo proceso.</li>
+            <li>Declarar la rutina APC que apunta al código shellcode.</li>
+            <li>Reanudar el hilo principal para que ejecute el APC antes de comenzar su ejecución normal.</li>
+        </ol>
+
+        <h3 class="subsection-title">APC Injection via NtTestAlert</h3>
+        <p>
+            <span class="mono">NtTestAlert</span> es una syscall no documentada que comprueba si hay APC pendientes en el hilo actual y los ejecuta. Antes de que cualquier hilo comience a ejecutarse, su dirección de inicio Win32 llama a <span class="mono">NtTestAlert</span> para ejecutar cualquier APC pendiente. Podemos aprovechar esto para desencadenar la ejecución de nuestra carga útil sin necesidad de un hilo remoto en otro proceso.
+        </p>
+
+        <h3 class="subsection-title">APC Injection via Alertable Threads</h3>
+        <p>
+            Esta variante encuentra todos los subprocesos del proceso destino y pone en cola un APC a todos ellos, maximizando la probabilidad de ejecución.
+        </p>
+
+        <!-- ==================== SECCIÓN 16: THREAD HIJACKING ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">16.</span> Code Injection via Thread Hijacking</h2>
+
+        <p>
+            El secuestro de un proceso se logra suspendiendo un proceso existente y luego desasignando o vaciando su memoria, que luego se puede reemplazar con código malicioso. Los pasos clave son:
+        </p>
+        <ol>
+            <li>Crear un identificador para un proceso víctima existente.</li>
+            <li>Suspender el proceso con <span class="mono">SuspendThread</span>.</li>
+            <li>Obtener el contexto del hilo con <span class="mono">GetThreadContext</span> (incluye el registro de instrucciones RIP).</li>
+            <li>Modificar <span class="mono">ct.Rip = (DWORD_PTR)rb</span> para que apunte a nuestra shellcode.</li>
+            <li>Establecer el contexto modificado con <span class="mono">SetThreadContext</span>.</li>
+            <li>Reanudar el hilo con <span class="mono">ResumeThread</span>.</li>
+        </ol>
+
+        <!-- ==================== SECCIÓN 17: SETWINDOWSHOOKEX ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">17.</span> Classic DLL Injection via SetWindowsHookEx</h2>
+
+        <p>
+            <span class="mono">SetWindowsHookEx</span> permite instalar hooks de sistema global. Al configurar un hook de teclado global (<span class="mono">WH_KEYBOARD</span>) y especificar una función callback que reside en nuestra DLL maliciosa, obligamos al sistema a cargar la DLL en el espacio de direcciones de los procesos que reciben mensajes de teclado. Los sistemas modernos bloquean esta técnica usando <strong>CFG</strong> (Control Flow Guard) y <strong>CIG</strong> (Code Integrity Guard).
+        </p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">// DLL exportada</span></span>
+            <span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> <span class="keyword">__declspec</span>(<span class="keyword">dllexport</span>) <span class="keyword">int</span> <span class="func">Meow</span>() {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="func">MessageBox</span>(<span class="keyword">NULL</span>,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">LPCWSTR</span>)<span class="string">L"Meow meow"</span>,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">LPCWSTR</span>)<span class="string">L"=^..^="</span>, MB_OK);</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="number">0</span>;</span>
+            <span class="line">}</span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="comment">// Configuración del hook global</span></span>
+            <span class="line"><span class="keyword">HHOOK</span> hook = <span class="func">SetWindowsHookEx</span>(WH_KEYBOARD,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keyword">HOOKPROC</span>)meowFunc, meowDll, <span class="number">0</span>);</span>
+        </div>
+
+        <!-- ==================== SECCIÓN 18: WINDOWS FIBERS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">18.</span> Code Injection via Windows Fibers</h2>
+
+        <p>
+            Windows Fibers es una API que permite crear hilos de ejecución ligeros. Son más eficientes que los hilos del sistema pero menos seguros al no estar protegidos con las características de los hilos del sistema. La técnica consiste en:
+        </p>
+        <ol>
+            <li>Convertir el hilo actual en un Fiber con <span class="mono">ConvertThreadToFiber(NULL)</span>.</li>
+            <li>Asignar memoria para el código malicioso con <span class="mono">VirtualAlloc</span>.</li>
+            <li>Crear una nueva Fiber con <span class="mono">CreateFiber</span> apuntando al código.</li>
+            <li>Cambiar el contexto de ejecución con <span class="mono">SwitchToFiber</span>.</li>
+        </ol>
+
+        <!-- ==================== SECCIÓN 19: API HOOKING ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">19.</span> Windows API Hooking</h2>
+
+        <p>
+            El API hooking es una técnica mediante la cual interceptamos y modificamos el comportamiento de las llamadas a la API. Consiste en reemplazar los primeros 5 bytes de la función original con una instrucción <span class="mono">JMP</span> relativo (<span class="mono">\xE9</span>) que redirige a nuestra función personalizada. Debemos almacenar los bytes originales para poder restaurar la función cuando sea necesario.
+        </p>
+        <p>Un segundo método utiliza <span class="mono">push</span> + <span class="mono">ret</span> (<span class="mono">\x68</span> + dirección + <span class="mono">\xC3</span>) para redirigir la ejecución a nuestra función, en lugar del salto relativo.</p>
+
+        <!-- ==================== SECCIÓN 20: NTCREATETHREADEX ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">20.</span> DLL Injection via Undocumented NtCreateThreadEx</h2>
+
+        <p>
+            Esta técnica utiliza la función no documentada <span class="mono">NtCreateThreadEx</span> de ntdll.dll, que permite indicar el tamaño de la pila y otras flags de creación dándole más flexibilidad que <span class="mono">CreateRemoteThread</span>. Al no estar documentada y no exportarse de la biblioteca de importación de kernel32.dll, es más sigilosa que las técnicas tradicionales.
+        </p>
+
+        <!-- ==================== SECCIÓN 21: MEMORY SECTIONS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">21.</span> Code Injection via Memory Sections (NtCreateSection)</h2>
+
+        <p>
+            Una sección es un bloque de memoria que se comparte entre procesos, creado mediante la API <span class="mono">NtCreateSection</span>. La técnica implica:
+        </p>
+        <ol>
+            <li>Crear una sección de memoria compartida con <span class="mono">NtCreateSection</span>.</li>
+            <li>Mapear la sección en el proceso local con <span class="mono">NtMapViewOfSection</span>.</li>
+            <li>Mapear la misma sección en el proceso objetivo (solo lectura).</li>
+            <li>Copiar el payload en la sección local (se refleja en la remota).</li>
+            <li>Crear un hilo remoto con <span class="mono">RtlCreateUserThread</span>.</li>
+            <li>Desmapear con <span class="mono">ZwUnmapViewOfSection</span>.</li>
+        </ol>
+
+        <!-- ==================== SECCIÓN 22: ZWQUEUEAPCTHREAD ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">22.</span> Code Injection via ZwQueueApcThread</h2>
+
+        <p>
+            Similar a la técnica APC estándar pero usando <span class="mono">ZwQueueApcThread</span> en lugar de <span class="mono">QueueUserAPC</span>. Combina la creación de secciones de memoria compartida con <span class="mono">ZwCreateSection</span> y el encolado de APC usando la función nativa de ntdll.dll. Se utiliza <span class="mono">ZwSetInformationThread</span> con <span class="mono">THREADINFOCLASS 1</span> para forzar que el hilo se vuelva alertable.
+        </p>
+
+        <!-- ==================== SECCIÓN 23: KERNELCALLBACKTABLE ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">23.</span> Process Injection via KernelCallbackTable</h2>
+
+        <p>
+            <span class="mono">KernelCallbackTable</span> es una tabla de punteros a funciones que se utiliza para registrar controladores de eventos del kernel. Al inyectar código en esta tabla, un atacante puede reemplazar un controlador de eventos existente por uno propio. Cuando se produce el evento, se llamará al controlador malicioso, permitiendo ejecutar código arbitrario en el contexto del proceso objetivo.
+        </p>
+
+        <!-- ==================== SECCIÓN 24: RWX MEMORY HUNTING ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">24.</span> Process Injection via RWX Memory Hunting</h2>
+
+        <p>
+            Esta técnica busca regiones de memoria con permisos <strong>RWX (Read-Write-Execute)</strong> en el espacio de memoria del proceso objetivo usando <span class="mono">VirtualQueryEx</span>. Una vez encontrada una región RWX, escribe directamente la shellcode allí y crea un hilo remoto. Esto evita la necesidad de llamar a <span class="mono">VirtualAllocEx</span>, reduciendo la huella de llamadas sospechosas.
+        </p>
+
+        <!-- ==================== SECCIÓN 25: FINDWINDOW ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">25.</span> Process Injection via FindWindow</h2>
+
+        <p>
+            Utiliza <span class="mono">FindWindow</span> para localizar el identificador de ventana (HWND) del proceso objetivo. Luego de obtener el HWND, se usa <span class="mono">GetWindowThreadProcessId</span> para obtener el PID y proceder con la inyección estándar.
+        </p>
+
+        <h3 class="subsection-title">VM Evasion via FindWindow</h3>
+        <p>
+            Variante de evasión de máquinas virtuales que busca ventanas específicas de VirtualBox (<span class="mono">VBoxTrayToolWndClass</span>, <span class="mono">VBoxTrayToolWnd</span>) para detectar si se está ejecutando en un entorno virtualizado y condicionar la ejecución del payload.
+        </p>
+
+        <!-- ==================== SECCIÓN 26: DOWNLOAD AND INJECT ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">26.</span> Download and Inject Logic</h2>
+
+        <p>
+            Técnica para descargar carga útil o DLL maliciosa desde una URL usando HTTP (WinInet). El beneficio es que se puede usar detrás de redes que filtran todo tráfico excepto HTTP, e incluso puede funcionar a través de un proxy preconfigurado.
+        </p>
+        <p>El flujo es: abrir sesión HTTP con <span class="mono">InternetOpen</span>, descargar el archivo con <span class="mono">InternetOpenUrl</span> e <span class="mono">InternetReadFile</span>, guardarlo localmente con <span class="mono">CreateFile/WriteFile</span>, y luego inyectarlo usando la técnica clásica de DLL injection.</p>
+
+        <!-- ==================== SECCIÓN 27: ENUMDESKTOPSA / ENUMCHILDWINDOWS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">27.</span> Run Shellcode via EnumDesktopsA / EnumChildWindows</h2>
+
+        <p>
+            Estas técnicas aprovechan funciones de enumeración de la API de Windows que aceptan un callback como parámetro. Al pasar la dirección de nuestra shellcode como función de callback, el sistema la ejecutará en el contexto del proceso actual:
+        </p>
+        <ul>
+            <li><strong>EnumDesktopsA:</strong> Enumera escritorios. El callback se pasa como <span class="mono">DESKTOPENUMPROC</span>.</li>
+            <li><strong>EnumChildWindows:</strong> Enumera ventanas secundarias. El callback se pasa como <span class="mono">WNDENUMPROC</span>.</li>
+        </ul>
+
+        <!-- ==================== SECCIÓN 28: XOR ENCRYPTION ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">28.</span> AV Engines Evasion: XOR Encryption</h2>
+
+        <p>
+            La técnica de evasión usando XOR para cifrar/descifrar aplica una operación XOR byte a byte entre la shellcode y una clave secreta. El proceso es:
+        </p>
+        <ol>
+            <li><strong>Cifrado:</strong> Se toma la shellcode (arreglo de opcodes), se selecciona una clave aleatoria, y se aplica XOR bit a bit a cada byte.</li>
+            <li><strong>Descifrado en tiempo de ejecución:</strong> Se aplica la misma clave XOR al arreglo cifrado antes de copiarlo a memoria ejecutable.</li>
+        </ol>
+
+        <div class="code-block">
+            <span class="line"><span class="keyword">void</span> <span class="func">XOR</span>(<span class="keyword">char</span>* data, <span class="keyword">size_t</span> data_len,</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">char</span>* key, <span class="keyword">size_t</span> key_len) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">int</span> j = <span class="number">0</span>;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i < data_len; i++) {</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (j == key_len - <span class="number">1</span>) j = <span class="number">0</span>;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data[i] = data[i] ^ key[j];</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j++;</span>
+            <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span>
+            <span class="line">}</span>
+        </div>
+
+        <p>Se incluye un script en Python para automatizar el proceso: cifrar la shellcode, reemplazar el placeholder en la plantilla C++, y compilar con MinGW.</p>
+
+        <!-- ==================== SECCIÓN 29: HIDING FUNCTION CALLS ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">29.</span> Hiding Function Calls with XOR Encryption</h2>
+
+        <p>
+            Esta técnica aplica XOR al nombre de funciones API como <span class="mono">VirtualAlloc</span> para que no aparezcan como strings legibles en el binario. En tiempo de ejecución, se descifra el nombre, se obtiene la dirección con <span class="mono">GetProcAddress</span>, y se asigna a un puntero de función para su uso.
+        </p>
+
+        <!-- ==================== SECCIÓN 30: API HASHING ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">30.</span> API Hashing for AV Evasion</h2>
+
+        <p>
+            El hashing de funciones API implica convertir el nombre de la función en un valor hash único y usar ese hash en lugar del nombre real. El procedimiento es:
+        </p>
+        <ol>
+            <li>Cargar la DLL con <span class="mono">LoadLibrary</span>.</li>
+            <li>Recorrer la tabla de exportación de la DLL.</li>
+            <li>Calcular el hash de cada nombre de función exportada.</li>
+            <li>Comparar con el hash pre-calculado de la función deseada.</li>
+            <li>Si coincide, obtener la dirección de la función y usarla.</li>
+        </ol>
+        <p>Esto evita que strings como "VirtualAlloc" o "CreateThread" aparezcan en el binario, eludiendo firmas estáticas.</p>
+
+        <!-- ==================== SECCIÓN 31: PERSISTENCE ==================== -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">31.</span> Persistence Techniques</h2>
+
+        <h3 class="subsection-title">Registry Run Keys</h3>
+        <p>Modificar las claves de ejecución del registro para que el código malicioso se ejecute automáticamente al iniciar el sistema o al iniciar sesión el usuario:</p>
+        <ul>
+            <li><span class="mono">HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</span></li>
+        </ul>
+
+        <h3 class="subsection-title">Screensaver Hijack</h3>
+        <p>Reemplazar el salvapantallas legítimo por uno malicioso modificando las claves de registro:</p>
+        <ul>
+            <li><span class="mono">HKEY_CURRENT_USER\Control Panel\Desktop\ScreenSaveActive</span></li>
+            <li><span class="mono">ScreenSaveTimeout</span></li>
+            <li><span class="mono">SCRNSAVE.EXE</span></li>
+        </ul>
+
+        <h3 class="subsection-title">COM DLL Hijack</h3>
+        <p>Sustituir una DLL legítima de un objeto COM por una maliciosa. La clave de registro para un objeto COM específico se encuentra en:</p>
+        <ul>
+            <li><span class="mono">Software\Classes\CLSID\{...}\InprocServer32</span></li>
+        </ul>
+
+        <h3 class="subsection-title">Windows Services</h3>
+        <p>Los servicios de Windows se ejecutan en segundo plano sin interfaz gráfica. La persistencia se logra creando un nuevo servicio con inicio automático o modificando un servicio existente para que apunte a un binario malicioso.</p>
+
+        <h3 class="subsection-title">AppInit_DLLs</h3>
+        <p>La clave <span class="mono">AppInit_DLLs</span> permite especificar una lista de DLLs que se cargarán automáticamente en el espacio de direcciones de casi todas las aplicaciones cuando se inician. Requiere altos privilegios.</p>
+
+        <h3 class="subsection-title">Netsh Helper DLL</h3>
+        <p>Netsh puede cargar DLLs auxiliares. Al registrar una DLL maliciosa como helper de Netsh, esta se cargará cada vez que se ejecute la herramienta. La DLL debe exportar la función <span class="mono">InitHelperDll</span>.</p>
+
+        <h3 class="subsection-title">Winlogon</h3>
+        <p>Modificar las claves de Winlogon para ejecutar código malicioso al iniciar sesión:</p>
+        <ul>
+            <li><span class="mono">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell</span></li>
+            <li><span class="mono">...\Winlogon\Userinit</span></li>
+        </ul>
+
+        <h3 class="subsection-title">Port Monitors</h3>
+        <p>Los monitores de puerto del servicio de cola de impresión (spoolsv.exe) pueden ser reemplazados por una DLL maliciosa que se cargará en el contexto de este servicio del sistema. La clave de registro es:</p>
+        <ul>
+            <li><span class="mono">\System\CurrentControlSet\Control\Print\Monitors\[nombre]</span></li>
+        </ul>
+
     </article>
 
     <!-- Footer -->
@@ -791,7 +921,6 @@
 
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
-
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
@@ -807,15 +936,11 @@
       "@context": "https://schema.org",
       "@type": "Article",
       "headline": "De la Shellcode Artesanal al C2 Builder: Anatomía de un Dropper y su Metamorfosis en Framework",
-      "author": {
-        "@type": "Person",
-        "name": "Christian Márquez",
-        "url": "https://tty503.com"
-      },
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
       "datePublished": "2026-05-22",
       "dateModified": "2026-05-22",
-      "description": "Análisis de la creación de un dropper de shellcode en C/Assembly para WinExec/ExitProcess y su evolución a un constructor de malware con panel C2, ofuscación y persistencia en C#.",
-      "keywords": ["shellcode", "WinExec", "ExitProcess", "kernel32", "dropper", "C2", "Malware Dev", "C#", ".NET", "TCP", "reverse engineering", "little-endian", "assembly", "Mingw-w64", "BugBuilder", "tty503"]
+      "description": "Análisis completo de técnicas de desarrollo de malware: shellcode artesanal, inyección de código, evasión de AV, persistencia, y evolución a un builder con panel C2 en C#.",
+      "keywords": ["shellcode", "WinExec", "ExitProcess", "kernel32", "dropper", "C2", "Malware Dev", "C#", ".NET", "TCP", "reverse engineering", "little-endian", "assembly", "Mingw-w64", "BugBuilder", "tty503", "inyeccion de codigo", "DLL injection", "APC injection", "thread hijacking", "API hooking", "XOR encryption", "persistencia", "Windows registry"]
     }
     </script>
 </body>
