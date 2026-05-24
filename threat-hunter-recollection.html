@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">    
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <title>Threat Hunter Recollection: Una Crónica de Caza Conectando Fraudes, Malware y Redes de Estafa | tty503</title>
+    <meta name="description" content="Una crónica personal de threat hunting que conecta cinco investigaciones reales, detallando las habilidades adquiridas en ingeniería inversa, OSINT y análisis de malware, y demostrando cómo un perfil de Threat Hunter se forja en el laboratorio.">
+    <meta name="keywords" content="threat hunting, malware analysis, reversing, BEC, Lumma Stealer, crypto scam, dropper, NetSupport RAT, task scam, pyramid scheme, OSINT, ingenieria inversa, triage, analystty, habilidades, Threat Hunter">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tty503.com/threat-hunter-recollection">
+    <meta name="theme-color" content="#050505">
+    
+    <meta property="og:title" content="Threat Hunter Recollection: Forjando un Perfil de Caza en el Laboratorio | tty503">
+    <meta property="og:description" content="De la ingeniería inversa al OSINT: cinco investigaciones que demuestran cómo se construye un Threat Hunter. Una crónica de habilidades, impacto y lecciones aprendidas.">
+    <meta property="og:url" content="https://tty503.com/threat-hunter-recollection">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503 Portfolio">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+        .navbar {
+            position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth);
+        }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .skill-tag {
+            display: inline-block;
+            background: rgba(96, 165, 250, 0.1);
+            color: var(--accent-blue);
+            padding: 0.15rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            margin-right: 0.4rem;
+            margin-bottom: 0.4rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+            padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; font-size: 0.9rem;
+            line-height: 1.6; color: var(--text-secondary); position: relative;
+        }
+        .code-block code { color: var(--accent-green); font-family: 'JetBrains Mono', monospace; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); }
+        .callout-danger .callout-title { color: var(--accent-red); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.8rem; }
+            .social-links { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_chronicle</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Threat Hunting</span>
+                <span class="article-tag">Malware Analysis</span>
+                <span class="article-tag">OSINT</span>
+                <span class="article-tag">Ingeniería Inversa</span>
+                <span>Actualizado: Mayo 2026</span>
+                <span>~45 min de lectura</span>
+            </div>
+            <h1 class="article-title">Threat Hunter Recollection: Forjando un Perfil de Caza en el Laboratorio</h1>
+            <p class="article-subtitle">
+                Un Threat Hunter no se titula: se construye. Esta crónica recorre cinco investigaciones reales —del desmantelamiento de un fraude BEC a la ingeniería inversa de un RAT— para demostrar, con evidencias y comparativas con la industria, cómo se adquieren las habilidades que definen a un cazador de amenazas.
+            </p>
+        </header>
+
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Esto No es un Informe: Es Mi Ruta de Aprendizaje</h2>
+        <p>
+            La memoria del cazador es frágil. Cada investigación genera un volumen de inteligencia que, si no se documenta, se evapora. Pero más allá de los IoCs y las TTPs, cada caso deja una <strong>skill</strong> grabada en el instinto. Esta recollection no es solo un compendio de hallazgos: es el mapa de cómo se construye un Threat Hunter desde el laboratorio.
+        </p>
+        <p>
+            A lo largo de cinco investigaciones independientes —publicadas originalmente en LinkedIn como <em>Exponiendo una Campaña Multi-Vector de Fraude Financiero</em>, <em>Análisis de Nexilo-CC-Checker</em>, <em>Detrás de Cámaras: Mi Triage</em>, <em>Deconstruyendo NetSupport RAT</em> y <em>Mapeando una Red de Estafa Piramidal</em>— fui adquiriendo las capacidades que hoy definen mi perfil: <strong>OSINT, ingeniería inversa, análisis de malware, automatización de triage, y threat intelligence aplicada</strong>. Cada sección de este artículo detalla no solo el caso, sino la skill que me dejó y cómo se compara con investigaciones de terceros que validan y amplifican el impacto.
+        </p>
+
+        <!-- INVESTIGACIÓN 1: LA RED DE ESTAFA PIRAMIDAL (OSINT) -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Mapeando una Red de Estafa Piramidal Global</h2>
+        <p>
+            Mi primera gran lección en <strong>OSINT aplicado a threat hunting</strong> llegó con un mensaje sospechoso de un número sudafricano ofreciendo "clasificar hoteles en Google Maps" por una paga. Lo que comenzó como una curiosidad terminó revelando una red de estafa piramidal interconectada globalmente.
+        </p>
+        <p>
+            <span class="skill-tag">Skill Adquirida: OSINT & Infrastructure Mapping</span>
+            <span class="skill-tag">Pivoting sobre IoCs</span>
+            <span class="skill-tag">Correlación de infraestructura</span>
+        </p>
+
+        <h3 class="subsection-title">Task Scams: El Contexto Global</h3>
+        <p>
+            Las estafas de tareas —<strong>task scams</strong>— son una epidemia documentada. La FTC reportó pérdidas de aproximadamente <strong>220 millones de dólares</strong> en EE.UU. solo en el primer semestre de 2024 por esta modalidad. El patrón es siempre el mismo: pequeños pagos iniciales para ganar confianza, seguidos de una exigencia de "inversión" que nunca se recupera. Lo que hace única a esta variante es su capacidad para mimetizarse con oportunidades legítimas de trabajo remoto.
+        </p>
+
+        <h3 class="subsection-title">El Vector de Ingeniería Social</h3>
+        <p>
+            El primer contacto llegó desde el número <span class="mono">+27610596209</span> de Sudáfrica, un país con un mercado de SIM swapping documentado como problemático por medios como MyBroadband. Los estafadores afirmaban haber obtenido el número de la víctima de <strong>Rekrute</strong>, una plataforma de empleo francesa legítima que había sufrido filtraciones de datos.
+        </p>
+        <p>
+            Tras tareas iniciales con pagos pequeños, la víctima era guiada hacia una plataforma de "exchange" donde debía depositar su propio dinero. En ese momento, el dinero desaparecía.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-5.jpeg" alt="Vector de ataque inicial: cuenta de Telegram ofreciendo trabajo fraudulento" loading="lazy">
+            <div class="image-caption mono">El vector de ingreso inicial: una cuenta de Telegram con número venezolano ofreciendo oportunidades de inversión. La ingeniería social es el punto de entrada común a fraudes y estafas.</div>
+        </div>
+
+        <h3 class="subsection-title">La Revelación: Infraestructura Reciclada</h3>
+        <p>
+            Al inspeccionar el código fuente de la plataforma fraudulenta, encontré un nivel de pereza operacional revelador. La plataforma era una plantilla HTML mal configurada que los estafadores reutilizaban para diferentes marcas de fraude. Las referencias a los mismos canales de Telegram, servicios de imágenes genéricas como <span class="mono">picsum.photos</span>, y hojas de estilo Bootstrap alojadas en <span class="mono">lib.sinaapp.com</span> evidenciaban que todas las operaciones provenían del mismo grupo.
+        </p>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Comparativa con la Industria: Task Scams y SIM Swapping</div>
+            <p>Investigadores de DomainTools y ThousandGuards han documentado cómo el clipboard poisoning y las páginas CAPTCHA falsas son utilizados en campañas de task scams para entregar malware como NetSupport RAT. Mi hallazgo sobre la reutilización de plantillas y la conexión con números sudafricanos añade una capa adicional: la infraestructura no solo se recicla para diferentes víctimas, sino para diferentes <em>tipos</em> de fraude (phishing laboral, crypto scam, apuestas fraudulentas). Esta transversalidad es un indicador de grupos criminales diversificados que operan múltiples líneas de negocio ilícito sobre la misma columna vertebral técnica.</p>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-25.jpeg" alt="Gráfico de VirusTotal mostrando la red de estafa piramidal interconectada" loading="lazy">
+            <div class="image-caption mono">El gráfico de VirusTotal que mapea toda la red: desde dominios de apuestas fraudulentas (1win.xyz, klinehappy.com) hasta paneles de administración expuestos (vcimp.h21t.top) y números de teléfono sudafricanos.</div>
+        </div>
+
+        <p>
+            El mapeo con VirusTotal Graph reveló una infraestructura sorprendentemente extensa pero mal asegurada: una serie consecutiva de dominios clonados (<span class="mono">www.vcimpapp1.com</span> hasta <span class="mono">www.vcimpapp32.com</span>) apuntando a IPs en Hong Kong con un error de base de datos MySQL expuesto.
+        </p>
+
+        <h3 class="subsection-title">La Vulnerabilidad Reveladora: OpenSSH 7.4</h3>
+        <p>
+            Varios servidores de la red compartían la misma versión de OpenSSH: la <strong>7.4</strong>, lanzada en diciembre de 2016 y con múltiples CVEs conocidos. La coincidencia de versiones entre servidores que supuestamente pertenecían a operaciones distintas confirmaba que todos eran administrados por el mismo grupo.
+        </p>
+        <p>
+            La lección fue clara: <strong>los ciberdelincuentes dejan migas de pan</strong>. Una simple consulta de Shodan, un vistazo al código fuente o la correlación de canales de Telegram pueden exponer toda la red. Esta habilidad de pivotar sobre infraestructura se convertiría en la columna vertebral de todas mis investigaciones posteriores.
+        </p>
+
+        <div class="callout callout-danger">
+            <div class="callout-title mono">Conexión con ShinyHunters</div>
+            <p>El gráfico de VirusTotal establecía un vínculo con el grupo <strong>ShinyHunters</strong>, conocido por filtraciones masivas de datos documentadas por Cybernews y ZDNet. La base de datos de Rekrute utilizada para contactar a las víctimas podría haber sido comprometida por este actor, lo que demuestra cómo una filtración de datos puede convertirse en el insumo para campañas de fraude masivo meses o años después. Este tipo de correlación entre actores de amenazas y fraudes posteriores es exactamente el trabajo de un Threat Hunter: conectar puntos que otros ven aislados.</p>
+        </div>
+
+        <!-- INVESTIGACIÓN 2: LA CAMPAÑA DE FRAUDE FINANCIERO (THREAT INTEL & BLOCKCHAIN) -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Exponiendo una Campaña Multi-Vector de Fraude Financiero</h2>
+        <p>
+            Apenas unas semanas después del caso de la red de estafa, un hilo suelto en Telegram me llevó a una operación mucho más sofisticada. Esta investigación me obligó a desarrollar habilidades de <strong>análisis de infraestructura comprometida</strong> y <strong>rastreo financiero en blockchain</strong>.
+        </p>
+        <p>
+            <span class="skill-tag">Skill Adquirida: Threat Intelligence</span>
+            <span class="skill-tag">Análisis de Infraestructura Comprometida</span>
+            <span class="skill-tag">Blockchain Forensics</span>
+        </p>
+
+        <h3 class="subsection-title">El Combustible: Lumma Stealer</h3>
+        <p>
+            El punto de partida fue un compromiso masivo de credenciales corporativas utilizando el infostealer <strong>Lumma Stealer</strong>, una pieza de malware que opera bajo un modelo de Malware-as-a-Service (MaaS). Lo que hace particularmente peligroso a Lumma es su capacidad para robar tokens 2FA y cookies de sesión, ampliando el radio de daño más allá del simple robo de contraseñas.
+        </p>
+        <p>
+            La operación Lumma había sido desmantelada parcialmente en mayo de 2025 con la incautación de 2.300 dominios. Sin embargo, como demostró esta campaña, el ecosistema MaaS es notablemente resiliente: para julio de 2025 ya mostraba signos de reactivación. Gen Threat Labs documentó posteriormente la aparición de <strong>Remus</strong>, la variante de 64 bits de Lumma que emergió en febrero de 2026 con técnicas como EtherHiding para resolver C2s.
+        </p>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Lección de Threat Intelligence</div>
+            <p>Los takedowns de infraestructura son necesarios pero insuficientes. Lumma sobrevivió a la incautación de 2.300 dominios porque su modelo de negocio —desarrolladores que alquilan el malware a una red global de afiliados— no depende de una infraestructura fija. Esta comprensión de la <strong>resiliencia del ecosistema MaaS</strong> es fundamental para cualquier Threat Hunter: no basta con bloquear IoCs; hay que entender el modelo de negocio del adversario.</p>
+        </div>
+
+        <h3 class="subsection-title">BEC e Infraestructura Robada en África</h3>
+        <p>
+            Con las credenciales robadas, los atacantes ejecutaron un <strong>Business Email Compromise (BEC)</strong> tomando control de servidores de terceros. El escondite: una VPS en Kenia con actividad en <strong>Truehost Cloud</strong> y <strong>Cloudpap</strong>.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-1.jpeg" alt="Análisis de banner de servidor de correo en Proxmox" loading="lazy">
+            <div class="image-caption mono">Análisis del banner del servidor: respuesta ESMTP Proxmox en el puerto 26, revelando que la infraestructura de los estafadores corre sobre Proxmox Mail Gateway en una VPS africana.</div>
+        </div>
+
+        <p>
+            La elección de infraestructura en países con marcos regulatorios menos estrictos no es casual. Es un patrón documentado en múltiples investigaciones de la industria: los actores de amenazas buscan jurisdicciones donde el derribo rápido de servidores sea menos probable.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-0.jpeg" alt="Conversación de scam de inversión en Telegram" loading="lazy">
+            <div class="image-caption mono">La cuenta "CMDX CAPITAL INVESTMENT COMPANY" ofreciendo planes de inversión fraudulentos. La ingeniería social es el puente entre el robo de infraestructura y la monetización.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-4.jpeg" alt="Interfaz del sitio fraudulento cmdxcapital.com y su IP en Kenia" loading="lazy">
+            <div class="image-caption mono">El sitio fraudulento cmdxcapital.com expuesto junto con su IP geolocalizada en Kenia. La geolocalización de infraestructura es un arte en sí mismo dentro del threat hunting.</div>
+        </div>
+
+        <h3 class="subsection-title">Siguiendo el Dinero en la Blockchain</h3>
+        <p>
+            La fase de monetización utilizaba billeteras de criptomonedas para recibir los fondos. La dirección de Bitcoin <span class="mono">bc1qxs8aunxd7kkdq8wz063r4tum2429s5llul33am</span> mostraba movimientos entre el 8 y 9 de septiembre de 2025. Esta habilidad de <strong>blockchain forensics</strong> —rastrear transacciones en redes públicas para identificar patrones de fraude— es cada vez más demandada en threat hunting, especialmente en casos de ransomware y fraudes financieros.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-2.jpeg" alt="Rastreo de wallets de criptomonedas usadas en el fraude" loading="lazy">
+            <div class="image-caption mono">El rastreo financiero: wallets en USDT, Litecoin, Ethereum y Bitcoin utilizadas para la monetización. La transparencia de la blockchain es un arma de doble filo para los atacantes.</div>
+        </div>
+
+        <div class="callout callout-danger">
+            <div class="callout-title mono">Ciclo de Ataque Documentado</div>
+            <p><strong>Lumma Stealer (Credenciales) -> BEC (Infraestructura Robada) -> Crypto Scam (Monetización)</strong>. Este patrón demuestra que un scam de baja complejidad es solo la punta del iceberg de una operación de robo de activos corporativos mucho más sofisticada. Compartí los IoCs completos en mi <a href="https://www.linkedin.com/posts/tty503_threatintelligence-ciberseguridad-bec-ugcPost-7385113809625088000-l8bP/" target="_blank" rel="noopener noreferrer">post original de LinkedIn</a>.</p>
+        </div>
+
+        <!-- INVESTIGACIÓN 3: EL DROPPER NEXILO-CC-CHECKER (REVERSING) -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Diseccionando Nexilo-CC-Checker: Ingeniería Inversa de un Dropper Multi-etapa</h2>
+        <p>
+            El tercer caso marcó mi entrada de lleno en la <strong>ingeniería inversa de malware</strong>. Un binario de 14.4 MB distribuido en canales de Telegram como herramienta de carding resultó ser un dropper multi-etapa que desplegaba una armada de seis payloads.
+        </p>
+        <p>
+            <span class="skill-tag">Skill Adquirida: Ingeniería Inversa (Ghidra/x64dbg)</span>
+            <span class="skill-tag">Análisis Estático de PE</span>
+            <span class="skill-tag">Detección de TTPs</span>
+        </p>
+
+        <h3 class="subsection-title">Técnicas de Evasión: API Hashing</h3>
+        <p>
+            El binario utilizaba <strong>API Hashing</strong> para ocultar llamadas a funciones sensibles como <span class="mono">IsDebuggerPresent</span>. En lugar de incluirlas en la tabla de importaciones, las resolvía en tiempo de ejecución mediante hashes —la constante <span class="mono">0x2b992ddfa232</span> cargada en RAX— sin dejar cadenas visibles para el análisis estático. Esta técnica, documentada en profundidad por investigadores como Hasherezade, es una de las primeras barreras que un analista de malware debe aprender a sortear.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-7.jpeg" alt="Técnica de API Hashing para evadir detección estática" loading="lazy">
+            <div class="image-caption mono">La técnica de API Hashing: el hash 0x2b992ddfa232 resuelto dinámicamente contra las exportaciones de DLLs del sistema. Comparar este hallazgo con los análisis de Hasherezade sobre malware que utiliza esta misma técnica valida la prevalencia del método.</div>
+        </div>
+
+        <p>
+            La función <span class="mono">FUN_140001010</span> constituía el punto de no retorno del dropper.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-6.jpeg" alt="Flujo de ejecución del dropper mostrando el punto de no retorno" loading="lazy">
+            <div class="image-caption mono">El punto de no retorno: FUN_140001010 ejecuta el dropper completo. La capacidad de identificar estas funciones críticas en Ghidra es una habilidad central del análisis de malware.</div>
+        </div>
+
+        <h3 class="subsection-title">La Armada de Payloads y la Persistencia</h3>
+        <p>
+            El dropper liberaba seis payloads en <span class="mono">AppData\Roaming</span> con atributos de <strong>OCULTO + SISTEMA</strong> y nombres que imitaban procesos legítimos. La persistencia se lograba mediante la clave <span class="mono">Run</span> del Registro.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-8.jpeg" alt="Instalación en AppData con atributos de ocultación" loading="lazy">
+            <div class="image-caption mono">La instalación furtiva: SHGetFolderPathW, SetFileAttributesW con flag 6 (OCULTO + SISTEMA) y nombres de archivo miméticos.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-9.jpeg" alt="Payloads extraídos incluyendo el binario de Nuitka de 12.8 MB" loading="lazy">
+            <div class="image-caption mono">Los payloads desplegados: un binario de Nuitka de ~12.8 MB (script de Python empaquetado) y componentes auxiliares que conforman la suite completa.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-13.jpeg" alt="Persistencia mediante clave Run del Registro de Windows" loading="lazy">
+            <div class="image-caption mono">La técnica de persistencia en la clave Run del Registro con RegSetValueExA. Esta TTP aparece en el MITRE ATT&CK como T1547.001 y es una de las más utilizadas por malware de todas las familias.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-10.jpeg" alt="Diagrama de secuencia completo de TTPs del dropper" loading="lazy">
+            <div class="image-caption mono">El mapa completo de TTPs modelado como diagrama de secuencia: Evasión, Dropping, Instalación, Camuflaje y Ejecución. Este tipo de documentación visual es exactamente lo que un equipo de threat hunting necesita para comunicar hallazgos a stakeholders no técnicos.</div>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Comparativa con Maltiverse</div>
+            <p>El análisis de inteligencia en Maltiverse confirmó posteriormente la clasificación como malicioso, vinculándolo a familias como <strong>Xworm, Svcstealer y Stealc</strong>, con actividad de red de <strong>RedLine Stealer y MetaStealer</strong>. Esta correlación entre mi análisis manual y las detecciones automatizadas de plataformas de threat intelligence valida la precisión del reversing y demuestra la importancia de combinar ambas aproximaciones.</p>
+        </div>
+
+        <!-- INVESTIGACIÓN 4: METODOLOGÍA DE TRIAGE (AUTOMATIZACIÓN) -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Detrás de Cámaras: Automatizando el Triage con Herramientas Propias</h2>
+        <p>
+            El análisis de Nexilo-CC-Checker no fue un proceso pasivo. El binario usaba API Hashing, así que tuve que forzarlo a revelar sus secretos. Esta fase fue donde adquirí la habilidad de <strong>automatizar el triage con herramientas propias</strong>.
+        </p>
+        <p>
+            <span class="skill-tag">Skill Adquirida: Automatización de Triage</span>
+            <span class="skill-tag">Scripting en Bash para Volcado de Memoria</span>
+            <span class="skill-tag">Desarrollo de analystty (Python)</span>
+        </p>
+
+        <h3 class="subsection-title">El Búnker: Proxmox VE</h3>
+        <p>
+            Todo análisis de malware con evasión comienza con una decisión de infraestructura. Mi elección es <strong>Proxmox VE</strong>: snapshots, rollbacks instantáneos y aislamiento total.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-14.jpeg" alt="Panel de administración de Proxmox VE en el laboratorio" loading="lazy">
+            <div class="image-caption mono">El panel de Proxmox VE 9.0.3, nodo 'vms' en IP 192.168.122.104. La capacidad de construir y gestionar entornos de análisis aislados es una skill fundamental que muchas organizaciones buscan en un Threat Hunter.</div>
+        </div>
+
+        <h3 class="subsection-title">Forzando la Mano: dump.sh</h3>
+        <p>
+            Escribí un script de Bash —<span class="mono">dump.sh</span>— que orquestaba la ejecución del binario bajo depurador usando <strong>Radare2</strong> para el dumping automático de memoria. El script se apoyaba en un archivo <span class="mono">functions_to_dump.txt</span> que mapeaba direcciones de memoria virtual de cada módulo.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-11.jpeg" alt="Ejecución del script dump.sh automatizando volcados con Radare2" loading="lazy">
+            <div class="image-caption mono">El script dump.sh en acción: automatizando dumps globales y extracción individual de funciones con Radare2. La automatización no es un lujo: es un multiplicador de fuerza.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-12.jpeg" alt="Resultado de volcados masivos y archivo functions_to_dump.txt" loading="lazy">
+            <div class="image-caption mono">Izquierda: confirmación de volcados completados. Derecha: el archivo functions_to_dump.txt con direcciones de memoria mapeadas quirúrgicamente.</div>
+        </div>
+
+        <h3 class="subsection-title">analystty: La Navaja Suiza Personal</h3>
+        <p>
+            Con los dumps en mano, usé <strong>Ghidra</strong> para decompilar a pseudo-C. Pero el multiplicador de fuerza fue <strong>analystty</strong>, mi librería de Python que creé originalmente para estudiar ransomware Dvju y que adapté para acelerar la identificación de patrones maliciosos. La filosofía es simple: automatizar lo repetitivo para dedicar el tiempo humano a lo que requiere criterio.
+        </p>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">El Valor de las Herramientas Propias</div>
+            <p>En un ecosistema donde herramientas como IDA Python o Ghidra scripting dominan, construir una herramienta propia como analystty demuestra una capacidad que va más allá del uso de software: es la habilidad de <strong>resolver problemas de análisis con código</strong>. Esta skill —documentada en profundidad en <a href="https://tty503.com/analystty-dev">analystty: Automatizando el Triage de Malware</a>— es precisamente lo que diferencia a un analista de malware de un Threat Hunter que puede construir su propio arsenal.</p>
+        </div>
+
+        <!-- INVESTIGACIÓN 5: NETSUPPORT RAT (FULL KILL CHAIN) -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Deconstruyendo NetSupport RAT: La Kill Chain Completa</h2>
+        <p>
+            La quinta investigación fue la más completa en términos de <strong>análisis de kill chain</strong>: desde el correo de phishing hasta la conexión C2, pasando por cada eslabón de la cadena de infección.
+        </p>
+        <p>
+            <span class="skill-tag">Skill Adquirida: Análisis de Kill Chain Completa</span>
+            <span class="skill-tag">Análisis de Cabeceras de Correo</span>
+            <span class="skill-tag">Identificación de LOLBins y DLL Sideloading</span>
+        </p>
+
+        <h3 class="subsection-title">Contexto Global de NetSupport RAT</h3>
+        <p>
+            NetSupport Manager fue la séptima amenaza más prevalente en 2024. Cybereason documentó campañas que usaban sitios maliciosos de WordPress con CAPTCHAs falsos para entregarlo. ThousandGuards identificó clipboard poisoning combinado con PowerShell ofuscado. Mi investigación se sitúa en este contexto global, pero añade un vector de entrada específico: la suplantación de una marca española (Druni) con infraestructura nigeriana.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-15.jpeg" alt="Correo de phishing suplantando a Druni detectado en Gmail" loading="lazy">
+            <div class="image-caption mono">El correo fraudulento en la carpeta de Spam de Gmail. La capacidad de identificar phishing desde el propio buzón del analista es el primer filtro del threat hunting.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-16.jpeg" alt="Cabeceras de autenticación del correo: SPF, DKIM y DMARC" loading="lazy">
+            <div class="image-caption mono">El análisis de cabeceras: SPF PASS, DKIM PASS, DMARC FAIL. Entender la autenticación de correo es una skill fundamental que permite identificar suplantación incluso cuando los filtros automáticos fallan.</div>
+        </div>
+
+        <h3 class="subsection-title">Evasión y Redirección</h3>
+        <p>
+            El enlace del correo llevaba a un script <span class="mono">hreflon.htm</span> alojado en <strong>Google Cloud Storage</strong>, abusando de servicios de confianza para evadir SmartScreen. Esta táctica de abuso de infraestructura cloud legítima es un patrón creciente documentado por múltiples investigadores.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-18.jpeg" alt="Script hreflon.htm de redirección alojado en Google Cloud Storage" loading="lazy">
+            <div class="image-caption mono">El script hreflon.htm actuando como TDS: extrae parámetros de la URL y redirige al dominio intermedio gremorygame.net.</div>
+        </div>
+
+        <p>
+            El dominio intermedio <strong>gremorygame[.]net</strong> mostraba una fachada de "Coming Soon" mientras en el backend corría la lógica maliciosa. Esta técnica de ocultar infraestructura tras páginas señuelo es un patrón recurrente en campañas sofisticadas.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-21.jpeg" alt="Página señuelo 'Coming Soon' de gremorygame.net" loading="lazy">
+            <div class="image-caption mono">La fachada de gremorygame.net: una cortina de humo perfecta para las rutas maliciosas en el backend.</div>
+        </div>
+
+        <h3 class="subsection-title">PowerShell Ofuscado y DLL Sideloading</h3>
+        <p>
+            El script <span class="mono">file.ps1</span> utilizaba ofuscación simple pero efectiva, dividiendo cadenas como <span class="mono">'iw'+'r'</span> para reconstruir <span class="mono">Invoke-WebRequest</span>. El payload final utilizaba <strong>DLL Sideloading</strong> sobre el ejecutable legítimo <span class="mono">client32.exe</span> de NetSupport Manager.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-19.jpeg" alt="Script file.ps1 con ofuscación de cadenas y ejecución fileless" loading="lazy">
+            <div class="image-caption mono">El script de PowerShell file.ps1: ofuscación simple y ejecución fileless. La capacidad de leer y desofuscar scripts maliciosos es una skill diaria en threat hunting.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-20.jpeg" alt="Suite completa de NetSupport Manager con DLLs troyanizadas" loading="lazy">
+            <div class="image-caption mono">La suite de NetSupport Manager: client32.exe legítimo junto a las DLLs troyanizadas. Identificar LOLBins y DLL Sideloading es una habilidad avanzada de análisis de malware.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-22.jpeg" alt="Archivo authroot.stl utilizado como camuflaje" loading="lazy">
+            <div class="image-caption mono">El archivo authroot.stl: una lista de certificados de Microsoft utilizada como camuflaje. La capacidad de identificar archivos legítimos usados como señuelo es parte del análisis de TTPs.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-23.jpeg" alt="Ejecución del script forense sc.py sobre el directorio hsmo" loading="lazy">
+            <div class="image-caption mono">El script forense sc.py procesando 16 archivos y generando reportes individuales para las DLLs troyanizadas.</div>
+        </div>
+
+        <h3 class="subsection-title">La Kill Chain Visualizada</h3>
+        <p>
+            El diagrama final unifica todos los hallazgos en una representación visual de la cadena de infección completa. Esta capacidad de <strong>comunicar hallazgos técnicos de forma visual</strong> es lo que permite a un Threat Hunter transmitir inteligencia accionable a equipos de respuesta, directivos y stakeholders no técnicos.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat-hunter-recollection-24.jpeg" alt="Diagrama completo de la cadena de infección: Druni a NetSupport RAT" loading="lazy">
+            <div class="image-caption mono">El mapa completo de la campaña: desde el correo de phishing y Google Cloud Storage, pasando por el TDS y el PowerShell ofuscado, hasta el DLL Sideloading de NetSupport RAT y la conexión al C2 en Rumanía (5.252.178.23).</div>
+        </div>
+
+        <div class="callout callout-danger">
+            <div class="callout-title mono">IOCs Clave de la Campaña</div>
+            <ul>
+                <li>Dominio TDS: gremorygame[.]net</li>
+                <li>Dominio de descarga: techtalkcounty[.]com</li>
+                <li>C2 IP: 5.252.178.23 (Rumanía)</li>
+            </ul>
+        </div>
+
+        <!-- CONCLUSIÓN: EL PERFIL DEL THREAT HUNTER -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> El Hilo que lo Conecta Todo: El Perfil del Threat Hunter</h2>
+        <p>
+            Cinco investigaciones, cinco vectores distintos, pero un mismo hilo conductor: <strong>la metodología</strong>. Si algo demuestra esta crónica es que un Threat Hunter no se define por una certificación o un título, sino por la acumulación de habilidades forjadas en el laboratorio y validadas contra el adversario real.
+        </p>
+        <p>
+            Cada caso fue un peldaño en una escalera de capacidades que hoy definen mi perfil:
+        </p>
+        <ul>
+            <li><strong>OSINT & Infrastructure Mapping:</strong> Mapear la red de estafa piramidal me enseñó a pivotar sobre dominios, IPs, versiones de software y canales de Telegram para exponer infraestructura criminal completa.</li>
+            <li><strong>Threat Intelligence & Blockchain Forensics:</strong> La campaña de fraude BEC me obligó a entender el ecosistema MaaS, rastrear transacciones en blockchain y correlacionar actores de amenazas con fraudes financieros.</li>
+            <li><strong>Ingeniería Inversa & Análisis de Malware:</strong> Diseccionar Nexilo-CC-Checker me dio las habilidades de reversing estático y dinámico, desde Ghidra hasta el volcado de memoria con Radare2.</li>
+            <li><strong>Automatización & Desarrollo de Herramientas:</strong> Construir dump.sh y analystty demostró que puedo crear mi propio arsenal, no solo usar el de otros.</li>
+            <li><strong>Análisis de Kill Chain Completa:</strong> Deconstruir la campaña de NetSupport RAT desde el phishing hasta el C2 me dio la capacidad de contar la historia completa del ataque, desde la ingeniería social hasta la persistencia.</li>
+        </ul>
+
+        <h3 class="subsection-title">Por Qué Este Perfil es Relevante</h3>
+        <p>
+            El threat hunting no es solo encontrar malware. Es conectar puntos que otros ven aislados. Es entender que un número de teléfono sudafricano, una VPS en Kenia, un dropper en un canal de Telegram y un correo de Druni pueden ser piezas del mismo rompecabezas. Es saber que los IoCs caducan pero las TTPs persisten. Es tener la capacidad de construir herramientas cuando las existentes no alcanzan.
+        </p>
+        <p>
+            En un ecosistema de amenazas donde los actores evolucionan más rápido que los mecanismos de defensa —Lumma sobreviviendo a takedowns masivos, NetSupport RAT mutando a clipboard poisoning, task scams diversificándose a fraudes con criptomonedas—, las organizaciones necesitan <strong>Threat Hunters que no solo sepan usar herramientas, sino que entiendan al adversario</strong>.
+        </p>
+        <p>
+            Esta recollection es mi evidencia. No es un currículum: es el diario de un cazador que sigue aprendiendo, sigue construyendo y sigue documentando. Porque la threat intelligence sin difusión es solo un archivo en un disco duro, pero la threat intelligence documentada, contextualizada y compartida es <strong>blindaje para toda la comunidad</strong>.
+        </p>
+        <p>
+            El laboratorio sigue funcionando. Los canales de Telegram siguen siendo monitoreados. Las muestras siguen llegando. <strong>La crónica continuará.</strong>
+        </p>
+
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Referencias y Enlaces</h2>
+        <ul>
+            <li><a href="https://www.linkedin.com/posts/tty503_ciberseguridad-seguridadinformaertica-phishing-share-7370947180028645376-CULY/" target="_blank" rel="noopener noreferrer">Post original: La Red de Estafadores que Mapeé con VirusTotal</a></li>
+            <li><a href="https://www.linkedin.com/posts/tty503_threatintelligence-ciberseguridad-bec-ugcPost-7385113809625088000-l8bP/" target="_blank" rel="noopener noreferrer">Post original: Exponiendo una Campaña Multi-Vector de Fraude Financiero</a></li>
+            <li><a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-clipper-ugcPost-7392043572163661824-AFeZ/" target="_blank" rel="noopener noreferrer">Post original: Análisis de Nexilo-CC-Checker (mod-main)</a></li>
+            <li><a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-proxmox-ugcPost-7392246317483315200-hz5X/" target="_blank" rel="noopener noreferrer">Post original: Detrás de Cámaras: Mi Triage de un Dropper Malicioso</a></li>
+            <li><a href="https://www.linkedin.com/posts/tty503_ciberseguridad-malwareanalysis-threatintel-ugcPost-7401771334181232640-FMcc/" target="_blank" rel="noopener noreferrer">Post original: Deconstruyendo una Campaña Activa de NetSupport RAT</a></li>
+            <li><a href="https://www.bleepingcomputer.com/news/security/lummastealer-infections-surge-after-castleloader-malware-campaigns/" target="_blank" rel="noopener noreferrer">LummaStealer infections surge after CastleLoader campaigns - BleepingComputer</a></li>
+            <li><a href="https://www.cybereason.com/blog/net-support-rat-wordpress-clickfix" target="_blank" rel="noopener noreferrer">Deploying NetSupport RAT via WordPress & ClickFix - Cybereason</a></li>
+            <li><a href="https://www.gendigital.com/blog/insights/research/remus-64bit-variant-of-lumma-stealer" target="_blank" rel="noopener noreferrer">Remus: The 64-bit Variant of Lumma Stealer - Gen Threat Labs</a></li>
+            <li><a href="https://www.thousandguards.com/post/the-clipboard-falls-in-the-net-support-scam" target="_blank" rel="noopener noreferrer">The Clipboard Falls in the (Net)Support Scam - ThousandGuards</a></li>
+            <li><a href="https://maltiverse.com/intelligence/sample/d392b1d2ce4e86acc47487351c9f1bc779e421e70a44849d14b8cff69ece538f" target="_blank" rel="noopener noreferrer">Maltiverse Sample Analysis: Nexilo-CC-Checker-Updated.exe</a></li>
+            <li><a href="https://tty503.com/analystty-dev">analystty: Automatizando el Triage de Malware con Python, Capstone y x64dbg</a></li>
+        </ul>
+    </article>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Threat Hunter Recollection — Evidencia de un perfil forjado en el laboratorio.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
+            } else {
+                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
+            }
+        });
+    </script>
+</body>
+</html>
