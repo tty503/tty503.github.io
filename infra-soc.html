@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">    
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <title>Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización | tty503</title>
+    <meta name="description" content="Documentación completa de la arquitectura de un laboratorio Blue Team/SOC con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y monitoreo en tiempo real con Wazuh, Zabbix, Prometheus y Grafana.">
+    <meta name="keywords" content="laboratorio SOC, honeypot, T-Pot, Proxmox, OPNsense, Tailscale, Podman, Terraform, Ansible, Wazuh, Zabbix, Prometheus, Grafana, Blue Team, Threat Intelligence, DevSecOps, infraestructura como código">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tty503.com/infra-soc">
+    <meta name="theme-color" content="#050505">
+    
+    <meta property="og:title" content="Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización | tty503">
+    <meta property="og:description" content="Documentación completa de un laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, y stack de monitoreo con alertas en tiempo real vía Telegram.">
+    <meta property="og:url" content="https://tty503.com/infra-soc">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503 Portfolio">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+        .navbar {
+            position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth);
+        }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .skill-tag {
+            display: inline-block;
+            background: rgba(96, 165, 250, 0.1);
+            color: var(--accent-blue);
+            padding: 0.15rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            margin-right: 0.4rem;
+            margin-bottom: 0.4rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+            padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; font-size: 0.9rem;
+            line-height: 1.6; color: var(--text-secondary); position: relative;
+        }
+        .code-block code { color: var(--accent-green); font-family: 'JetBrains Mono', monospace; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+        ul ul { margin: 0.5rem 0 0.5rem 1.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); }
+        .callout-danger .callout-title { color: var(--accent-red); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.8rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_infra</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Blue Team</span>
+                <span class="article-tag">SOC</span>
+                <span class="article-tag">Honeypot</span>
+                <span class="article-tag">DevSecOps</span>
+                <span class="article-tag">IaC</span>
+                <span>Actualizado: 2025</span>
+                <span>~35 min de lectura</span>
+            </div>
+            <h1 class="article-title">Laboratorio SOC/Honeypot: Arquitectura de Aislamiento, Automatización y Monitoreo en Tiempo Real</h1>
+            <p class="article-subtitle">
+                Documentación completa del diseño, despliegue y operación de un laboratorio personal de Blue Team y Threat Intelligence. Desde la virtualización con Proxmox y el enrutamiento con OPNsense hasta la automatización con Terraform y Ansible, pasando por el stack de monitoreo con Wazuh, Zabbix, Prometheus y Grafana, con alertas en tiempo real vía Telegram.
+            </p>
+        </header>
+
+        <!-- INTRODUCCIÓN -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Propósito y Filosofía del Laboratorio</h2>
+        <p>
+            Este laboratorio nace de una necesidad concreta: disponer de un entorno controlado donde simular un <strong>Blue Team / SOC</strong> funcional, con capacidades de ingestión de logs, detección de intrusiones, honeypots activos y respuesta a incidentes. No es un entorno teórico: está desplegado, funcionando y generando alertas reales que llegan a mi Telegram.
+        </p>
+        <p>
+            La filosofía de diseño se resume en tres principios:
+        </p>
+        <ol>
+            <li><strong>Aislamiento estricto:</strong> Ningún servicio de administración queda expuesto a internet. Todo el acceso se realiza a través de una malla VPN privada con Tailscale.</li>
+            <li><strong>Infraestructura como Código (IaC):</strong> Cada componente del laboratorio está definido en Terraform y configurado con Ansible, garantizando reproducibilidad y documentación viva.</li>
+            <li><strong>Defensa en profundidad:</strong> Múltiples anillos de logs, contenedores sin privilegios, firewalls con DPI y segmentación de red para contener cualquier compromiso.</li>
+        </ol>
+        <p>
+            <span class="skill-tag">Skill: Arquitectura de Seguridad</span>
+            <span class="skill-tag">IaC (Terraform/Ansible)</span>
+            <span class="skill-tag">Virtualización (Proxmox)</span>
+            <span class="skill-tag">Monitoreo (Wazuh/Zabbix/Prometheus/Grafana)</span>
+        </p>
+
+        <!-- SECCIÓN 1: INFRAESTRUCTURA BASE -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Infraestructura Base: Home, SOC/NOC y Honeypot</h2>
+
+        <h3 class="subsection-title">VM Local "Home" — Centro de Control</h3>
+        <p>
+            Todo comienza en una máquina virtual local corriendo <strong>Debian 13 XFCE</strong>, bautizada como "Home". Desde aquí se administra la totalidad del laboratorio, pero con una restricción fundamental: <strong>ningún puerto de administración está expuesto a internet</strong>. La conexión hacia las VPS se realiza exclusivamente a través de la red privada de Tailscale.
+        </p>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Recurso</th><th>Especificación</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="mono">CPU</td><td>4 Núcleos</td></tr>
+                    <tr><td class="mono">RAM</td><td>4 GB</td></tr>
+                    <tr><td class="mono">Disco</td><td>60 GB</td></tr>
+                    <tr><td class="mono">Sistema Operativo</td><td>Debian 13 XFCE</td></tr>
+                    <tr><td class="mono">IP Tailscale</td><td class="mono">10.100.50.2</td></tr>
+                    <tr><td class="mono">Rol</td><td>Centro de control, despliegue IaC y revisión de logs</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">VPS "SOC/NOC" — Cerebro de Monitoreo</h3>
+        <p>
+            La primera VPS, bautizada "SOC/NOC", es el cerebro del laboratorio. Aquí se centraliza todo el stack de monitoreo: Wazuh Manager para SIEM/IDS, Zabbix Server para monitoreo de disponibilidad, Prometheus para métricas y Grafana como dashboard unificado. Las alertas se disparan a través de la API de Telegram Bot.
+        </p>
+
+        <h3 class="subsection-title">VPS "Honeypot Core" — Señuelos Activos</h3>
+        <p>
+            La segunda VPS, "Honeypot Core", ejecuta el framework T-Pot con sensores multiplataforma (Cowrie, Dionaea, Honeytrap) y expone servicios señuelo a internet. El tráfico malicioso capturado se envía de forma <strong>unidireccional</strong> hacia el SOC/NOC para su análisis.
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>VPS</th><th>IP Pública</th><th>IP Tailscale</th><th>CPU</th><th>RAM</th><th>Disco</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">SOC/NOC</td>
+                        <td class="mono">198.51.100.50</td>
+                        <td class="mono">10.100.50.10</td>
+                        <td>3 Núcleos</td>
+                        <td>8 GB</td>
+                        <td>150 GB SSD</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">Honeypot Core</td>
+                        <td class="mono">198.51.100.60</td>
+                        <td class="mono">10.100.50.20</td>
+                        <td>3 Núcleos</td>
+                        <td>8 GB</td>
+                        <td>150 GB SSD</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Regla de Oro: Acceso Unidireccional</div>
+            <p>El tráfico entre las VPS está restringido a un <strong>solo sentido</strong>: desde Honeypot hacia SOC/NOC para el envío de logs. En sentido inverso no hay comunicación posible. Esto garantiza que, si el Honeypot es comprometido, el atacante no pueda pivotar hacia el SOC/NOC ni acceder a los logs históricos.</p>
+        </div>
+
+        <!-- SECCIÓN 2: RED Y CONECTIVIDAD -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Conectividad: Tailscale como Tejido Conector</h2>
+        <p>
+            <strong>Tailscale</strong> es el componente que une todas las piezas del laboratorio en una malla privada. La red está definida sobre el segmento <span class="mono">10.100.50.0/24</span> y cada nodo recibe una IP fija dentro de este espacio.
+        </p>
+
+        <h3 class="subsection-title">Tailscale Sidecar Proxy con Podman Rootless</h3>
+        <p>
+            Un detalle crítico de la arquitectura es cómo se ejecuta Tailscale dentro de las VPS. En lugar de instalarlo directamente sobre el sistema operativo, corre dentro de un <strong>contenedor Podman en modo rootless</strong>, actuando como un <strong>sidecar proxy</strong>. Esto tiene varias ventajas:
+        </p>
+        <ul>
+            <li><strong>Abstracción de red:</strong> El contenedor oculta las direcciones IP reales de los servidores, incluso para los administradores. Nadie que se conecte a través de Tailscale ve la IP física de la VPS.</li>
+            <li><strong>Aislamiento de privilegios:</strong> Podman corre desde un usuario sin privilegios, sin acceso directo a la tarjeta de red real del host.</li>
+            <li><strong>Redirección interna:</strong> El contenedor sidecar trabaja desde la red privada del servidor y redirige el tráfico hacia los servicios correspondientes sin exponer las interfaces físicas.</li>
+        </ul>
+        <p>
+            Los administradores con menos privilegios se conectan a la instancia de Tailscale dentro de Podman, y esta los redirecciona a los servicios que necesitan usar. Solo ven un espacio aislado dentro de una red privada, sin acceso directo al sistema operativo subyacente.
+        </p>
+
+        <!-- SECCIÓN 3: DIAGRAMA DE ARQUITECTURA -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Diagrama de Arquitectura Lógica</h2>
+        <p>
+            El siguiente diagrama —el plano maestro del laboratorio— muestra el flujo completo de datos, el direccionamiento IP y la interconexión de todos los componentes. Es el resultado de varias iteraciones de diseño y refleja el estado actual del despliegue.
+        </p>
+
+        <div class="image-container">
+            <img src="img/infra-soc.png" alt="Diagrama de arquitectura lógica del laboratorio SOC/Honeypot" loading="lazy">
+            <div class="image-caption mono">infra-soc.png — Diagrama de arquitectura lógica detallado: Proxmox VE con OPNsense, T-Pot y Proxy Server; VPS SOC/NOC con Wazuh, Zabbix, Prometheus y Grafana; VPS Honeypot Core con Podman rootless y Tailscale Sidecar; VM Home como centro de control con IaC; y flujo de alertas vía Telegram Bot API.</div>
+        </div>
+
+        <h3 class="subsection-title">Desglose del Diagrama</h3>
+        <p><strong>1. Entorno de Simulación e Ingesta Forense (Proxmox VE):</strong></p>
+        <ul>
+            <li><strong>Hipervisor Protegido:</strong> Proxmox VE bajo la IP de malla Tailscale <span class="mono">10.100.50.30</span>.</li>
+            <li><strong>VM OPNsense (Firewall):</strong> IP interna <span class="mono">192.168.10.1</span>. Recibe tráfico de internet por la IP WAN dedicada <span class="mono">203.0.113.88</span>, realiza inspección profunda de paquetes (DPI), NAT y aplica Port Forward aislado hacia los señuelos.</li>
+            <li><strong>VM T-Pot Suite:</strong> IP interna <span class="mono">192.168.10.100</span>. Corre sensores multiplataforma (Cowrie, Dionaea, Honeytrap) y agentes de Wazuh y Zabbix. Los logs crudos se envían al Proxy Server.</li>
+            <li><strong>VM Proxy Server:</strong> IP interna <span class="mono">192.168.10.5</span>. Actúa como colector y balanceador unidireccional de tráfico para extraer los datos fuera del entorno de simulación hacia el SOC/NOC.</li>
+        </ul>
+
+        <p><strong>2. Capa de Orquestación y Malla VPN (Tailscale <span class="mono">10.100.50.0/24</span>):</strong></p>
+        <ul>
+            <li><strong>VPS SOC/NOC:</strong> Recibe logs de forma asíncrona y unidireccional. Alberga Prometheus (métricas), Wazuh Manager (SIEM/IDS), Zabbix Server (disponibilidad) y Grafana (dashboard unificado). Las alertas se disparan hacia Telegram Bot API.</li>
+            <li><strong>VPS Honeypot Core:</strong> Mantiene aislamiento mediante contenedores Podman rootless y utiliza Tailscale Sidecar Proxy para abstraer la red física.</li>
+        </ul>
+
+        <p><strong>3. Entorno de Control Central (Local):</strong></p>
+        <ul>
+            <li><strong>VM Home:</strong> Centro de operaciones local. Administra la infraestructura usando IaC vía Terraform, Ansible y PyInfra. Conexión SSH exclusiva mediante la malla privada. Servidor de logs local para auditoría periódica.</li>
+        </ul>
+
+        <!-- SECCIÓN 4: STACK DE MONITOREO -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Stack de Monitoreo y Alertas en Tiempo Real</h2>
+        <p>
+            El corazón del laboratorio es el stack de monitoreo desplegado en la VPS SOC/NOC. La combinación de Wazuh, Zabbix, Prometheus y Grafana proporciona una visibilidad completa del entorno, desde la detección de intrusiones hasta las métricas de rendimiento.
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Herramienta</th><th>Rol</th><th>Datos que Procesa</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="mono">Wazuh Manager</td><td>SIEM / IDS</td><td>Eventos de seguridad, integridad de archivos, detección de anomalías</td></tr>
+                    <tr><td class="mono">Zabbix Server</td><td>Monitoreo de Disponibilidad</td><td>Estado de servicios, consumo de recursos, uptime</td></tr>
+                    <tr><td class="mono">Prometheus</td><td>Métricas de Rendimiento</td><td>CPU, memoria, disco, tráfico de red, contenedores</td></tr>
+                    <tr><td class="mono">Grafana</td><td>Dashboard Unificado</td><td>Visualización de datos de Wazuh, Zabbix y Prometheus</td></tr>
+                    <tr><td class="mono">Telegram Bot API</td><td>Alertas en Tiempo Real</td><td>Notificaciones de incidentes disparadas desde Grafana</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">Validación en Vivo: Alerta de Apache Caído</h3>
+        <p>
+            La siguiente captura muestra el laboratorio en operación real, durante un incidente donde el servicio Apache cayó y fue recuperado automáticamente en 1 minuto:
+        </p>
+
+        <div class="image-container">
+            <img src="img/infra-soc-2.jpeg" alt="Monitoreo en tiempo real: alerta de Zabbix por Apache caído y recuperación" loading="lazy">
+            <div class="image-caption mono">infra-soc-2.jpeg — Validación en vivo del laboratorio. Panel de Zabbix mostrando métricas de memoria y escritura en disco. Terminal con systemctl status apache2 confirmando el servicio activo. Chat de Telegram recibiendo la alerta: "Apache: Service is down" y su resolución en 1 minuto. Gráfico de tráfico en interfaz tailscale0 entre 10-35 Kbps.</div>
+        </div>
+
+        <p>
+            La imagen muestra tres paneles simultáneos:
+        </p>
+        <ul>
+            <li><strong>Zabbix (izquierda):</strong> Métricas de memoria disponible (6.27 GB), escritura en disco (27.75 w/s) y gráfico de rendimiento de red/disco.</li>
+            <li><strong>Terminal (centro):</strong> Comando <span class="mono">systemctl status apache2</span> mostrando el servicio activo tras recuperación.</li>
+            <li><strong>Telegram (derecha):</strong> Alerta con asunto <span class="mono">{ALERT.SUBJECT}</span>, problema "Apache: Service is down" iniciado a las 02:54:09, resuelto en 1 minuto.</li>
+        </ul>
+
+        <!-- SECCIÓN 5: ANILLOS DE LOGS -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Anillos de Logs: Defensa en Profundidad</h2>
+        <p>
+            La estrategia de logging está diseñada en <strong>anillos concéntricos</strong>, desde el nivel más externo (contenedores individuales) hasta el más interno (VPS completa). Esto garantiza que, incluso si un anillo falla o es comprometido, los demás siguen registrando.
+        </p>
+
+        <h3 class="subsection-title">Honeypot Core — 4 Anillos</h3>
+        <ol>
+            <li><strong>Contenedores de servicios (Podman):</strong> Logs de cada sensor del T-Pot y del contenedor Tailscale sidecar.</li>
+            <li><strong>Instancias de Proxmox:</strong> Logs de las VMs que corren dentro del hipervisor.</li>
+            <li><strong>Contenedor de Tailscale:</strong> Logs del proxy sidecar y del tráfico de red.</li>
+            <li><strong>VPS completa:</strong> Logs del sistema operativo, accesos SSH y eventos de seguridad.</li>
+        </ol>
+
+        <h3 class="subsection-title">SOC/NOC — 2 Anillos</h3>
+        <ol>
+            <li><strong>Contenedores de Tailscale y SOC/NOC:</strong> Logs del proxy y de los servicios de monitoreo.</li>
+            <li><strong>VPS completa:</strong> Logs del sistema operativo y eventos de seguridad.</li>
+        </ol>
+
+        <h3 class="subsection-title">Home — 1 Anillo (Auto-Hospedado)</h3>
+        <ol>
+            <li><strong>VM completa:</strong> Servidor de logs local para revisión periódica, sin dependencia de servicios externos.</li>
+        </ol>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Lección de Oldsmar y Ucrania</div>
+            <p>El incidente de Oldsmar (2021) y el apagón de Ucrania (2015) demostraron que <strong>sin logs, la diferencia entre error técnico y ataque malicioso es imposible de establecer</strong>. Los anillos de logs de este laboratorio están diseñados precisamente para que esa distinción siempre sea posible. Si un servicio falla, sé exactamente qué anillo registrará el evento y puedo trazarlo hasta su origen.</p>
+        </div>
+
+        <!-- SECCIÓN 6: AUTOMATIZACIÓN -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Automatización del Despliegue: IaC con Terraform, Ansible y PyInfra</h2>
+        <p>
+            Uno de los pilares del laboratorio es la <strong>Infraestructura como Código (IaC)</strong>. Cada componente está definido en archivos de configuración versionables, lo que permite recrear el entorno completo desde cero en cuestión de minutos.
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Herramienta</th><th>Propósito</th><th>Cuándo se Usa</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">Terraform</td>
+                        <td>Provisión de infraestructura</td>
+                        <td>Crear servidores, redes y reglas de firewall. Usa el provider de Contabo para gestionar las VPS.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">Ansible</td>
+                        <td>Configuración y despliegue</td>
+                        <td>Instalar y configurar software, ajustar permisos y configurar AppArmor una vez que el servidor está listo.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">PyInfra</td>
+                        <td>Alternativa a Ansible</td>
+                        <td>Debugging en tiempo real durante la configuración. Compatible con scripts Python nativos.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">Mitogen Library</td>
+                        <td>Ejecución remota eficiente</td>
+                        <td>Scripts de monitoreo que se ejecutan en el host remoto sin conexión SSH persistente.</td>
+                    </tr>
+                    <tr>
+                        <td class="mono">Hashicorp Vault</td>
+                        <td>Gestión de secretos</td>
+                        <td>Protección de tokens, contraseñas y datos confidenciales para aplicaciones autorizadas.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subsection-title">API de Contabo para Gestión en Tiempo Real</h3>
+        <p>
+            Un detalle importante es el uso de la <strong>API de Contabo</strong> para gestionar la VPS Honeypot desde el SOC/NOC. Esto permite:
+        </p>
+        <ul>
+            <li>Tomar <strong>snapshots</strong> del estado actual antes de cualquier cambio.</li>
+            <li><strong>Reinstalar</strong> la VPS desde cero si se detecta un compromiso.</li>
+            <li><strong>Apagar</strong> el servidor en caso de emergencia, todo desde scripts automatizados.</li>
+        </ul>
+
+        <h3 class="subsection-title">IPs Adicionales para Segmentación de Servicios</h3>
+        <p>
+            Los servicios que se exponen a internet —como los señuelos del Honeypot— tienen su <strong>propia IP adicional</strong> asignada, distinta de la IP de administración de la VPS. Esto permite segmentar el tráfico y separar completamente la superficie de ataque de la infraestructura de gestión.
+        </p>
+
+        <!-- SECCIÓN 7: BORRADOR DE ALTO NIVEL -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Borrador de Alto Nivel: La Versión Preliminar</h2>
+        <p>
+            El siguiente diagrama es la versión preliminar —el "borrador" estructural— que sirvió como punto de partida para el diseño final. Muestra la relación directa entre los componentes sin el detalle de direccionamiento IP.
+        </p>
+
+        <div class="image-container">
+            <img src="img/infra-soc-3.jpeg" alt="Diagrama de arquitectura de bloques del laboratorio" loading="lazy">
+            <div class="image-caption mono">infra-soc-3.jpeg — Diagrama de arquitectura de bloques (borrador de alto nivel). Muestra la relación directa entre Home y las VPS a través de Tailscale como tejido conector. Proxmox encapsula las tres VMs (Proxy, T-Pot, OPNsense) en el segmento 192.168.x.x. Los nombres de servidores SOC y Honeypot están censurados con marcas rojas por seguridad.</div>
+        </div>
+
+        <p>
+            Este borrador fue fundamental para planificar los segmentos de Tailscale y la encapsulación de las máquinas virtuales dentro de Proxmox antes de pasar al diseño detallado del diagrama lógico principal.
+        </p>
+
+        <!-- SECCIÓN 8: LECCIONES Y PRÓXIMOS PASOS -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Lecciones Aprendidas y Próximos Pasos</h2>
+
+        <h3 class="subsection-title">Lo que este laboratorio me ha enseñado</h3>
+        <ol>
+            <li><strong>Tailscale simplifica lo complejo:</strong> Montar una malla VPN con acceso segmentado y sidecar proxies habría sido un proyecto en sí mismo sin esta herramienta. La facilidad de configuración no sacrifica la seguridad si se implementa con contenedores rootless.</li>
+            <li><strong>Podman rootless no es un lujo:</strong> Ejecutar Tailscale desde un contenedor sin privilegios añade una capa de aislamiento que puede marcar la diferencia en caso de compromiso del proxy.</li>
+            <li><strong>IaC es documentación viva:</strong> Los archivos de Terraform y Ansible son la mejor documentación posible: siempre están actualizados porque son lo que se ejecuta.</li>
+            <li><strong>Los anillos de logs no son opcionales:</strong> En entornos reales, depender de un solo punto de logging es una receta para el desastre forense. La redundancia en la captura de eventos es inversión, no gasto.</li>
+            <li><strong>Alertas en tiempo real cierran el bucle:</strong> Tener Grafana con dashboards bonitos no sirve de nada si nadie mira la pantalla. Las alertas por Telegram garantizan que los incidentes se detecten aunque no esté frente al monitor.</li>
+        </ol>
+
+        <h3 class="subsection-title">Próximos pasos</h3>
+        <ul>
+            <li>Implementar <strong>Hashicorp Vault</strong> para centralizar la gestión de secretos y tokens.</li>
+            <li>Migrar los playbooks de Ansible a <strong>Mitogen</strong> para acelerar la ejecución remota.</li>
+            <li>Añadir <strong>Canarytokens</strong> como señuelos adicionales en la red interna.</li>
+            <li>Documentar el proceso de <strong>respuesta a incidentes</strong> simulado desde la detección en Grafana hasta la contención.</li>
+            <li>Explorar la integración de <strong>MISP</strong> para threat intelligence compartido.</li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <div class="callout-title mono">Nota de Seguridad</div>
+            <p>Las direcciones IP públicas mostradas en este artículo (<span class="mono">198.51.100.x</span>, <span class="mono">203.0.113.88</span>) son direcciones de documentación según RFC 5737 y no corresponden a la infraestructura real. Los nombres de servidor reales están censurados en los diagramas.</p>
+        </div>
+
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Referencias y Enlaces</h2>
+        <ul>
+            <li><a href="https://www.linkedin.com/posts/tty503_blueteam-cybersoc-soc-activity-7365751574985416704-pGHR" target="_blank" rel="noopener noreferrer">Post original: Arquitectura y despliegue de Laboratorio SOC Automatizado (LinkedIn)</a></li>
+            <li><a href="https://www.linkedin.com/posts/tty503_siem-honeypot-blueteam-activity-7373882236732981248-iNTy" target="_blank" rel="noopener noreferrer">Post original: Sensores Defensivos: Honeypots y Canarytokens (LinkedIn)</a></li>
+            <li><a href="https://www.proxmox.com" target="_blank" rel="noopener noreferrer">Proxmox VE — Virtualization Platform</a></li>
+            <li><a href="https://opnsense.org" target="_blank" rel="noopener noreferrer">OPNsense — Open Source Firewall</a></li>
+            <li><a href="https://tailscale.com" target="_blank" rel="noopener noreferrer">Tailscale — Zero Trust VPN Mesh</a></li>
+            <li><a href="https://podman.io" target="_blank" rel="noopener noreferrer">Podman — Rootless Container Management</a></li>
+            <li><a href="https://www.terraform.io" target="_blank" rel="noopener noreferrer">Terraform — Infrastructure as Code</a></li>
+            <li><a href="https://www.ansible.com" target="_blank" rel="noopener noreferrer">Ansible — Automation Platform</a></li>
+        </ul>
+    </article>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Laboratorio SOC/Honeypot — Documentación de arquitectura Blue Team.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
+            } else {
+                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
+            }
+        });
+    </script>
+</body>
+</html>
