@@ -93,12 +93,10 @@
             overflow-x: hidden;
         }
 
-        /* Utilidades Tipográficas */
         .mono {
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Efecto de Ruido (Film Grain) Global */
         .noise-overlay {
             position: fixed;
             top: 0;
@@ -118,7 +116,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* ==================== NAVEGACIÓN ==================== */
         .navbar {
             position: fixed;
             top: 0;
@@ -173,7 +170,6 @@
             color: var(--accent);
         }
 
-        /* ==================== HERO SECTION ==================== */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -288,7 +284,6 @@
             transform: scale(1.02);
         }
 
-        /* ==================== SECCIONES COMUNES ==================== */
         .section {
             padding: 6rem 2rem;
             max-width: 1200px;
@@ -355,7 +350,6 @@
             transform: translateX(4px);
         }
 
-        /* ==================== ACORDEONES (LISTAS DESPLEGABLES) ==================== */
         .theme-group {
             margin-bottom: 1rem;
             border: 1px solid var(--border-subtle);
@@ -427,7 +421,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ==================== SEPARADOR DE FUENTES DE ARTÍCULOS ==================== */
         .source-divider {
             display: flex;
             align-items: center;
@@ -457,7 +450,6 @@
             font-size: 0.9rem;
         }
 
-        /* Badge para artículos propios */
         .local-badge {
             display: inline-block;
             background: transparent;
@@ -471,7 +463,6 @@
             letter-spacing: 0.3px;
         }
 
-        /* ==================== ITEMS DE EXPERIENCIA ==================== */
         .exp-item {
             background: var(--bg-base);
             border: 1px solid var(--border-subtle);
@@ -534,7 +525,6 @@
             flex-shrink: 0;
         }
 
-        /* ==================== ITEMS DE ARTÍCULOS ==================== */
         .article-link {
             display: block;
             background: var(--bg-base);
@@ -556,7 +546,6 @@
             border-color: var(--border-hover);
         }
 
-        /* Hover state para artículos locales */
         .article-link.local-article:hover {
             border-color: rgba(74, 222, 128, 0.3);
         }
@@ -600,7 +589,6 @@
             transform: translate(5px, -50%);
         }
 
-        /* ==================== FOOTER ==================== */
         .footer {
             border-top: 1px solid var(--border-subtle);
             padding: 4rem 2rem;
@@ -639,7 +627,6 @@
             font-size: 0.85rem;
         }
 
-        /* ==================== ANIMACIONES SCROLL ==================== */
         .reveal {
             opacity: 0;
             transform: translateY(20px);
@@ -651,9 +638,6 @@
             transform: translateY(0);
         }
 
-        /* ==================== RESPONSIVE AVANZADO (SMARTPHONES) ==================== */
-        
-        /* Tablets y pantallas medianas */
         @media (max-width: 900px) {
             .hero-container {
                 grid-template-columns: 1fr;
@@ -681,14 +665,11 @@
             }
         }
 
-        /* Smartphones (iPhone, Androids, etc) */
         @media (max-width: 600px) {
             .nav-container { padding: 1rem 1.2rem; }
             .nav-links { display: none; }
-            
             .section { padding: 4rem 1.2rem; }
             .section-header { margin-bottom: 2rem; }
-            
             .section-title {
                 font-size: 1.5rem;
                 display: flex;
@@ -697,7 +678,6 @@
                 word-wrap: break-word;
             }
             .section-title span { margin-right: 0; font-size: 1.2rem; }
-            
             .hero { padding: 6.5rem 1.2rem 3rem; }
             .hero-container {
                 display: flex;
@@ -707,41 +687,23 @@
             .hero-content h1 { font-size: 2.6rem; }
             .hero-description { font-size: 1rem; }
             .hero-handle { font-size: 0.9rem; padding: 0.3rem 0.8rem; margin-bottom: 1.5rem; }
-            .hero-image-container {
-                max-width: 200px;
-                margin: 0 auto;
-            }
+            .hero-image-container { max-width: 200px; margin: 0 auto; }
             .tag { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
-            
-            .theme-summary {
-                padding: 1.2rem 1rem;
-                gap: 0.8rem;
-            }
-            .theme-title {
-                font-size: 1rem;
-                line-height: 1.4;
-            }
+            .theme-summary { padding: 1.2rem 1rem; gap: 0.8rem; }
+            .theme-title { font-size: 1rem; line-height: 1.4; }
             .toggle-icon { font-size: 1.4rem; }
             .theme-content { padding: 0 1rem 1.2rem; }
-            
             .exp-item { padding: 1.2rem 1rem; }
-            .exp-header {
-                flex-direction: column;
-                gap: 0.3rem;
-            }
+            .exp-header { flex-direction: column; gap: 0.3rem; }
             .exp-title { font-size: 1.05rem; }
-            
             .article-link { padding: 1.2rem 1rem; }
             .article-title { font-size: 1rem; }
-            
             .footer { padding: 3rem 1.2rem; }
             .social-links { gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
-
             .source-divider { font-size: 0.7rem; gap: 0.5rem; }
             .source-divider span { gap: 0.2rem; }
         }
 
-        /* Pantallas muy pequeñas (iPhone SE / Dispositivos Mini) */
         @media (max-width: 380px) {
             .hero-content h1 { font-size: 2.2rem; }
             .section-title { font-size: 1.35rem; }
@@ -750,7 +712,6 @@
             .hero-image-container { max-width: 180px; }
         }
 
-        /* ==================== CONTENEDOR DEL ICONO CON DEGRADADO ==================== */
         .nav-icon-wrapper {
             display: inline-flex;
             align-items: center;
@@ -761,7 +722,6 @@
             position: relative;
             overflow: hidden;
             flex-shrink: 0;
-            
             background: linear-gradient(
                 135deg,
                 rgba(255, 255, 255, 0.12) 0%,
@@ -769,15 +729,11 @@
                 rgba(255, 255, 255, 0.15) 60%,
                 rgba(180, 180, 180, 0.06) 100%
             );
-            
             border: 1px solid rgba(255, 255, 255, 0.08);
-            
             box-shadow: 
                 inset 0 1px 0 rgba(255, 255, 255, 0.05),
                 0 1px 3px rgba(0, 0, 0, 0.4);
-            
             transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            
             backdrop-filter: blur(0px);
             -webkit-backdrop-filter: blur(0px);
         }
@@ -847,7 +803,6 @@
                 height: 26px;
                 border-radius: 3px;
             }
-            
             .nav-icon-wrapper img {
                 width: 16px;
                 height: 16px;
@@ -859,7 +814,6 @@
                 width: 24px;
                 height: 24px;
             }
-            
             .nav-icon-wrapper img {
                 width: 14px;
                 height: 14px;
@@ -868,10 +822,8 @@
     </style>
 </head>
 <body>
-    <!-- Capa global de ruido (Film Grain) -->
     <div class="noise-overlay"></div>
 
-    <!-- Navegación Superior -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="#" class="nav-brand mono">
@@ -888,7 +840,6 @@
         </div>
     </nav>
 
-    <!-- Sección Principal (Hero) -->
     <header class="hero">
         <div class="hero-container">
             <div class="hero-content reveal">
@@ -905,7 +856,6 @@
                     <span class="tag">Ghidra</span>
                 </div>
             </div>
-            
             <div class="hero-image-wrapper reveal" style="transition-delay: 0.2s;">
                 <div class="hero-image-container">
                     <img src="p1.jpg" alt="Christian Márquez - Especialista en Ciberseguridad" class="profile-img">
@@ -915,7 +865,6 @@
     </header>
 
     <main>
-        <!-- Sección Sobre mí -->
         <section id="about" class="section">
             <div class="section-header reveal">
                 <h2 class="section-title mono"><span></span>Sobre_mí</h2>
@@ -934,24 +883,17 @@
             </a>
         </section>
 
-        <!-- Sección Experiencia Listada y Agrupada -->
         <section id="experience" class="section">
             <div class="section-header reveal">
                 <h2 class="section-title mono"><span></span>Experiencia_Técnica</h2>
             </div>
-            
             <div class="accordion-container">
-                
-                <!-- Categoría: Infraestructura y Seguridad -->
                 <details class="theme-group reveal" open>
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Infraestructura y Seguridad 
-                        </h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Infraestructura y Seguridad</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
-                        
                         <div class="exp-item">
                             <div class="exp-header">
                                 <h4 class="exp-title">Consultor en Automatización e Infraestructura</h4>
@@ -963,7 +905,6 @@
                                 <p class="exp-detail-row"><strong>Qué aprendí:</strong> Orquestación avanzada de máquinas virtuales y validación de sistemas mediante automatización estricta en Python/Bash.</p>
                             </div>
                         </div>
-
                         <div class="exp-item">
                             <div class="exp-header">
                                 <h4 class="exp-title">Especialista en Ingeniería Inversa y Seguridad</h4>
@@ -975,7 +916,6 @@
                                 <p class="exp-detail-row"><strong>Qué aprendí:</strong> Interacción a bajo nivel con binarios compilados y metodologías para desmantelar mecanismos de protección en ecosistemas cerrados.</p>
                             </div>
                         </div>
-
                         <div class="exp-item">
                             <div class="exp-header">
                                 <h4 class="exp-title">Administrador de Sistemas Linux</h4>
@@ -987,20 +927,14 @@
                                 <p class="exp-detail-row"><strong>Qué aprendí:</strong> Diagnóstico resolutivo de incidencias mediante auditoría profunda de logs del sistema.</p>
                             </div>
                         </div>
-
                     </div>
                 </details>
-
-                <!-- Categoría: Desarrollo y Firmware -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Desarrollo de Software y Firmware 
-                        </h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Desarrollo de Software y Firmware</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
-                        
                         <div class="exp-item">
                             <div class="exp-header">
                                 <h4 class="exp-title">Desarrollador Backend y Scripting</h4>
@@ -1012,7 +946,6 @@
                                 <p class="exp-detail-row"><strong>Qué aprendí:</strong> Arquitectura ágil de bases de datos y orquestación limpia de microservicios.</p>
                             </div>
                         </div>
-
                         <div class="exp-item">
                             <div class="exp-header">
                                 <h4 class="exp-title">Desarrollador de .NET</h4>
@@ -1024,7 +957,6 @@
                                 <p class="exp-detail-row"><strong>Qué aprendí:</strong> Refactorización crítica de lógica de negocio y controladores sin interrumpir operativas existentes.</p>
                             </div>
                         </div>
-
                         <div class="exp-item">
                             <div class="exp-header">
                                 <h4 class="exp-title">Profesional de Apoyo (Hardware/Firmware)</h4>
@@ -1036,7 +968,6 @@
                                 <p class="exp-detail-row"><strong>Qué aprendí:</strong> Rigurosidad en el desarrollo orientado a hardware, electrónica básica y control de versiones institucional.</p>
                             </div>
                         </div>
-
                         <div class="exp-item">
                             <div class="exp-header">
                                 <h4 class="exp-title">Desarrollador Web y Scripting</h4>
@@ -1048,20 +979,14 @@
                                 <p class="exp-detail-row"><strong>Qué aprendí:</strong> El ciclo base de despliegue web y los fundamentos de automatización de servidor.</p>
                             </div>
                         </div>
-
                     </div>
                 </details>
-
-                <!-- Categoría: Redacción Técnica -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Divulgación y Redacción Técnica 
-                        </h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Divulgación y Redacción Técnica</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
-                        
                         <div class="exp-item">
                             <div class="exp-header">
                                 <h4 class="exp-title">Blog Contributor</h4>
@@ -1073,29 +998,20 @@
                                 <p class="exp-detail-row"><strong>Qué aprendí:</strong> Sistematización de la investigación técnica, dinámicas de trabajo colaborativo y control de versiones a nivel básico.</p>
                             </div>
                         </div>
-
                     </div>
                 </details>
-
             </div>
         </section>
 
-        <!-- Sección Investigaciones Agrupadas -->
         <section id="research" class="section">
             <div class="section-header reveal">
                 <h2 class="section-title mono"><span></span>Investigaciones_Temáticas</h2>
             </div>
-            
             <div class="accordion-container">
-                
-                <!-- ============================================================ -->
-                <!-- Categoría 1: Análisis de Malware y Threat Intel             -->
-                <!-- ============================================================ -->
+                <!-- Categoría 1: Análisis de Malware y Threat Intel -->
                 <details class="theme-group reveal" open>
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Análisis de Malware y Threat Intel
-                        </h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Análisis de Malware y Threat Intel</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
@@ -1129,37 +1045,33 @@
                             <p class="article-desc">Auditoría a la app de streaming pirata. Arquitectura del APK, técnicas de evasión (DGA, HTTP DNS) y riesgos del modelo de negocio oculto.</p>
                             <span class="article-arrow">→</span>
                         </a>
-
-                        <!-- ===== Separador: Artículos del Website ===== -->
                         <div class="source-divider">
                             <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
                         </div>
-
-                        <!-- analystty — Triage de Malware -->
                         <a href="analystty.html" class="article-link local-article">
                             <span class="article-date mono">~12 min de lectura</span>
                             <h3 class="article-title">analystty — Automatización de Triage de Malware <span class="local-badge">NOTAS</span></h3>
                             <p class="article-desc">Herramienta interna en Python para automatizar el análisis estático de archivos PE, detección de APIs maliciosas, mapeo de TTPs e integración con x64dbg. Stack: Capstone, pefile, malapi.json.</p>
                             <span class="article-arrow">→</span>
                         </a>
-
                         <a href="threat-hunter-recollection.html" class="article-link local-article">
                             <span class="article-date mono">May 2026 · ~45 min de lectura</span>
                             <h3 class="article-title">Threat Hunter Recollection: Una Crónica de Caza Conectando Campañas <span class="local-badge">NOTAS</span></h3>
                             <p class="article-desc">Cinco investigaciones reales conectadas por un mismo hilo metodológico. Del mapeo de una red de estafa piramidal global con VirusTotal al reversing de un dropper multi-etapa, pasando por la deconstrucción de NetSupport RAT y el análisis de infraestructura BEC. Una crónica que demuestra cómo se forjan las habilidades de un Threat Hunter en el laboratorio.</p>
                             <span class="article-arrow">→</span>
                         </a>
+                        <a href="pigbutchering-bybsusd.html" class="article-link local-article">
+                            <span class="article-date mono">May 2026 · ~30 min de lectura</span>
+                            <h3 class="article-title">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio <span class="local-badge">NOTAS</span></h3>
+                            <p class="article-desc">Investigación técnica de una red de estafa tipo Pig Butchering con rotación rápida de dominios, WebSocket con Workerman PHP, API con captcha roto y certificados falsos. Incluye IoCs, diagramas de infraestructura, análisis del frontend Vue 3 + Vant UI y referencias al FBI, DOJ y Europol.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
                     </div>
                 </details>
-
-                <!-- ============================================================ -->
-                <!-- Categoría 2: Ingeniería Inversa y Low-Level                 -->
-                <!-- ============================================================ -->
+                <!-- Categoría 2: Ingeniería Inversa y Low-Level -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Ingeniería Inversa y Low-Level
-                        </h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Ingeniería Inversa y Low-Level</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
@@ -1181,30 +1093,27 @@
                             <p class="article-desc">Desarrollo de utilidad en terminal para cálculo de entropía, extracción de metadata y hashing SHA-256 automatizado al vuelo.</p>
                             <span class="article-arrow">→</span>
                         </a>
-
-                        <!-- ===== Separador: Artículos del Website ===== -->
                         <div class="source-divider">
                             <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
                         </div>
-
-                        <!-- Assembly para RE -->
                         <a href="assembly.html" class="article-link local-article">
                             <span class="article-date mono">~2 horas de lectura</span>
                             <h3 class="article-title">Assembly para Ingeniería Inversa (RE) <span class="local-badge">NOTAS</span></h3>
                             <p class="article-desc">Referencia de consulta rápida: stack frames, variables globales/locales, clases vs structs, malloc/new, pilas, colas, listas enlazadas, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64) y heurísticas para identificación de funciones.</p>
                             <span class="article-arrow">→</span>
                         </a>
+                        <a href="web-api-pentesting2024.html" class="article-link local-article">
+                            <span class="article-date mono">Jun–Ago 2024 · ~30 min de lectura</span>
+                            <h3 class="article-title">Pentesting a Web API Financiera: Token Reuse, IDOR y Fuga de Datos <span class="local-badge">NOTAS</span></h3>
+                            <p class="article-desc">Auditoría de seguridad ofensiva freelance a una Web API del sector financiero. Ingeniería inversa de APK, bypass de certificate pinning, token reuse con JWT, IDOR y extracción automatizada de datos sensibles. Incluye diagramas de secuencia, referencias al OWASP API Security Top 10 y caso documentado con endpoints anonimizados por confidencialidad.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
                     </div>
                 </details>
-
-                <!-- ============================================================ -->
-                <!-- Categoría 3: Malware Dev y Técnicas Ofensivas               -->
-                <!-- ============================================================ -->
+                <!-- Categoría 3: Malware Dev y Técnicas Ofensivas -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Malware Dev y Técnicas Ofensivas
-                        </h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Malware Dev y Técnicas Ofensivas</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
@@ -1214,21 +1123,15 @@
                             <p class="article-desc">Prueba de concepto de ofuscación (Builder en C + Stub ASM x86) usando aritmética básica para reducir la detección de malware a cero.</p>
                             <span class="article-arrow">→</span>
                         </a>
-
-                        <!-- ===== Separador: Artículos del Website ===== -->
                         <div class="source-divider">
                             <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
                         </div>
-
-                        <!-- De la Shellcode Artesanal al C2 Builder -->
                         <a href="myPracticalShellcodeC2.html" class="article-link local-article">
                             <span class="article-date mono">~120 min de lectura</span>
                             <h3 class="article-title">De la Shellcode Artesanal al C2 Builder <span class="local-badge">NOTAS</span></h3>
                             <p class="article-desc">Evolución técnica de un dropper de shellcode en C/Assembly (WinExec/ExitProcess) a un framework de malware con panel C2 en C#. Incluye compendio extenso de técnicas: inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, XOR encryption, API hashing, y persistencia (Registry, Screensaver, COM hijack, Windows Services, Winlogon, Port Monitors).</p>
                             <span class="article-arrow">→</span>
                         </a>
-
-                        <!-- Infraestructura Ofuscada -->
                         <a href="infraestructura-tunel-ofuscado.html" class="article-link local-article">
                             <span class="article-date mono">~30 min de lectura</span>
                             <h3 class="article-title">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial <span class="local-badge">NOTAS</span></h3>
@@ -1237,15 +1140,10 @@
                         </a>
                     </div>
                 </details>
-
-                <!-- ============================================================ -->
-                <!-- Categoría 4: Seguridad OT e Infraestructura Crítica         -->
-                <!-- ============================================================ -->
+                <!-- Categoría 4: Seguridad OT e Infraestructura Crítica -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Seguridad OT e Infraestructura Crítica
-                        </h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Seguridad OT e Infraestructura Crítica</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
@@ -1267,13 +1165,9 @@
                             <p class="article-desc">Análisis de bajo nivel de la arquitectura interna de autómatas, máquina virtual M7, protocolos industriales y vectores de seguridad ofensiva.</p>
                             <span class="article-arrow">→</span>
                         </a>
-
-                        <!-- ===== Separador: Artículos del Website ===== -->
                         <div class="source-divider">
                             <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
                         </div>
-
-                        <!-- PLC Siemens S5/S7 -->
                         <a href="plc.html" class="article-link local-article">
                             <span class="article-date mono">~40 min de lectura</span>
                             <h3 class="article-title">PLC Siemens S5/S7: Arquitectura, MC7, Seguridad OT y Hallazgos en Infraestructuras Venezolanas <span class="local-badge">NOTAS</span></h3>
@@ -1282,15 +1176,10 @@
                         </a>
                     </div>
                 </details>
-
-                <!-- ============================================================ -->
-                <!-- Categoría 5: Blue Team y Defensa Activa                     -->
-                <!-- ============================================================ -->
+                <!-- Categoría 5: Blue Team y Defensa Activa -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title">
-                            <span class="theme-icon">/</span> Blue Team y Defensa Activa
-                        </h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Blue Team y Defensa Activa</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
@@ -1312,12 +1201,9 @@
                             <p class="article-desc">Demostración práctica de cómo las configuraciones inconsistentes entre servidores de correo permiten eludir controles de seguridad perimetrales.</p>
                             <span class="article-arrow">→</span>
                         </a>
-
                         <div class="source-divider">
                             <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
                         </div>
-
-                        <!-- Laboratorio SOC/Honeypot -->
                         <a href="infra-soc.html" class="article-link local-article">
                             <span class="article-date mono">~35 min de lectura</span>
                             <h3 class="article-title">Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización <span class="local-badge">NOTAS</span></h3>
@@ -1326,14 +1212,10 @@
                         </a>
                     </div>
                 </details>
-
             </div>
         </section>
-
-
     </main>
 
-    <!-- Footer / Contacto -->
     <footer class="footer">
         <div class="footer-content reveal">
             <div class="social-links mono">
@@ -1345,19 +1227,14 @@
         </div>
     </footer>
 
-    <!-- ==================== SCRIPTS ==================== -->
     <script>
-        // Actualizar año dinámicamente
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
-        // Scroll Reveal Nativo (Intersection Observer)
         const revealElements = document.querySelectorAll('.reveal');
-        
         const revealOptions = {
             threshold: 0.15,
             rootMargin: "0px 0px -50px 0px"
         };
-
         const revealObserver = new IntersectionObserver(function(entries, observer) {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1366,12 +1243,8 @@
                 }
             });
         }, revealOptions);
+        revealElements.forEach(el => { revealObserver.observe(el); });
 
-        revealElements.forEach(el => {
-            revealObserver.observe(el);
-        });
-
-        // Efecto de Navbar difuminado al hacer scroll
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
@@ -1383,20 +1256,16 @@
             }
         });
 
-        // Manejo exclusivo de Acordeones
         const detailsElements = document.querySelectorAll('details.theme-group');
         detailsElements.forEach((targetDetail) => {
             targetDetail.addEventListener('click', () => {
                 detailsElements.forEach((detail) => {
-                    if (detail !== targetDetail) {
-                        detail.removeAttribute('open');
-                    }
+                    if (detail !== targetDetail) { detail.removeAttribute('open'); }
                 });
             });
         });
     </script>
 
-    <!-- ==================== STRUCTURED DATA (JSON-LD) MEJORADO ==================== -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
