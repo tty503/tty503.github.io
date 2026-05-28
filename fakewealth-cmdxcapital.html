@@ -7,15 +7,15 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <title>Operación FakeWealth: Inteligencia de amenazas sobre la red cmdxcapital | tty503</title>
+    <title>Operación FakeWealth: Inteligencia de Amenazas sobre la Red cmdxcapital | tty503</title>
     <meta name="description" content="Investigación de threat intelligence sobre la red de fraude financiero cmdxcapital.com. Infraestructura con Cloudflare y Google Cloud, fallos de OpSec con Laravel debug mode expuesto, migración de wallets Bitcoin, spoofing corporativo y IoCs.">
-    <meta name="keywords" content="cmdxcapital, threat intelligence, OSINT, blockchain forensics, laravel debug, proc_open, bitcoin wallet, companies house spoofing, fake trading, crypto scam, IoCs, PlantUML">
+    <meta name="keywords" content="cmdxcapital, threat intelligence, OSINT, blockchain forensics, laravel debug, proc_open, bitcoin wallet, companies house spoofing, fake trading, crypto scam, IoCs, PlantUML, Bremby">
     <meta name="author" content="Christian Márquez">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://tty503.com/fakewealth-cmdxcapital.html">
     <meta name="theme-color" content="#050505">
     
-    <meta property="og:title" content="Operación FakeWealth: Inteligencia de amenazas sobre cmdxcapital | tty503">
+    <meta property="og:title" content="Operación FakeWealth: Inteligencia de Amenazas sobre cmdxcapital | tty503">
     <meta property="og:description" content="Threat intelligence aplicada a la red cmdxcapital. Infraestructura, blockchain, OpSec failures e IoCs.">
     <meta property="og:url" content="https://tty503.com/fakewealth-cmdxcapital.html">
     <meta property="og:type" content="article">
@@ -139,16 +139,16 @@
                 <span class="article-tag">Blockchain</span>
                 <span class="article-tag">OSINT</span>
                 <span>Octubre 2025 – Mayo 2026</span>
-                <span>~55 min de lectura</span>
+                <span>~60 min de lectura</span>
             </div>
-            <h1 class="article-title">Operación FakeWealth: Inteligencia de amenazas sobre la red cmdxcapital</h1>
+            <h1 class="article-title">Operación FakeWealth: Inteligencia de Amenazas sobre la Red cmdxcapital</h1>
             <p class="article-subtitle">
                 Investigación de threat intelligence sobre una campaña de fraude financiero con infraestructura en Cloudflare y Google Cloud, migración de wallets Bitcoin, suplantación corporativa y fallos de OpSec que expusieron consultas SQL, tokens de sesión y rutas absolutas del servidor. Esta es la versión extendida del caso que forma parte de la Threat Hunter Recollection.
             </p>
         </header>
 
-        <!-- INTRODUCCIÓN: ENFOQUE EN THREAT INTEL -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Resumen</h2>
+        <!-- INTRODUCCIÓN -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Resumen de Inteligencia</h2>
         <p>
             La <strong>Operación FakeWealth</strong> es una campaña de fraude financiero que opera bajo la marca <strong>cmdxcapital.com</strong>. Este artículo documenta el ciclo completo de inteligencia de amenazas aplicado sobre esta red: desde la identificación de infraestructura y el mapeo de dominios satélites hasta la correlación de wallets en blockchain, la atribución por reutilización de plantillas y la explotación de fallos de OpSec para extraer inteligencia del backend.
         </p>
@@ -175,13 +175,14 @@
                     <tr><td><strong>Ruta Absoluta del Servidor</strong></td><td class="mono">/home/cmdxcapi/domains/cmdxcapital.com/public_html</td></tr>
                     <tr><td><strong>Wallet BTC Actual</strong></td><td class="mono">bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</td></tr>
                     <tr><td><strong>Entidad Legal Suplantada</strong></td><td class="mono">Companies House UK N° 13699699 (disuelta 2023)</td></tr>
+                    <tr><td><strong>Plataforma Predecesora</strong></td><td class="mono">Bremby (bremby.biz) — $174,664 en depósitos, 13 reportes de estafa</td></tr>
                     <tr><td><strong>Fallos de OpSec Detectados</strong></td><td>Debug mode expuesto, captcha trivial, proc_open() deshabilitada, queries SQL y tokens de sesión fugados</td></tr>
                 </tbody>
             </table>
         </div>
 
         <!-- INFRAESTRUCTURA -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Infraestructura de red y pivoting sobre dominios</h2>
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Infraestructura de Red y Pivoting sobre Dominios</h2>
         <p>
             El mapeo de infraestructura es el primer pilar de la inteligencia de amenazas. La campaña se diversifica en una red de dominios satélites que funcionan como falsos brokers y portales de captación. Utilizando <strong>Cloudflare como CDN y proxy inverso</strong>, los atacantes ocultan el servidor de origen real.
         </p>
@@ -192,12 +193,23 @@
         </div>
 
         <div class="image-container">
-            <img src="img/cmdxcapital_infrastructure_graph.jpg" alt="Grafo de infraestructura de la campaña cmdxcapital" loading="lazy">
-            <div class="image-caption mono">cmdxcapital_infrastructure_graph.jpg — Grafo técnico que asocia todos los vectores de la amenaza: rangos DNS y CDN, host de origen, y firmas criptográficas de los artefactos de la campaña.</div>
+            <img src="img/cmdxcapital_infrastructure_graph.png" alt="Grafo de infraestructura de la campaña cmdxcapital" loading="lazy">
+            <div class="image-caption mono">cmdxcapital_infrastructure_graph.png — Grafo técnico que asocia todos los vectores de la amenaza: rangos DNS y CDN, host de origen, y firmas criptográficas de los artefactos de la campaña.</div>
         </div>
 
         <p>
             Los dominios satélites incluyen <span class="mono">apexreturns.live</span>, <span class="mono">vertexprimestock.com</span>, <span class="mono">nexusinveste.com</span> y al menos 10 dominios adicionales. Todos comparten la misma plantilla HTML, los mismos canales de Telegram y las mismas hojas de estilo Bootstrap. Esta reutilización de infraestructura es un patrón que también documenté en el análisis de la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>, donde los atacantes reciclaban plantillas Vue3 con Vant UI y mantenían un backend constante mientras rotaban dominios.
+        </p>
+
+        <h3 class="subsection-title">El Eslabón Anterior: Bremby (bremby.biz)</h3>
+        <p>
+            La campaña cmdxcapital no nació de la nada. Es la iteración más reciente de una infraestructura de fraude que operó anteriormente bajo la marca <strong>Bremby (bremby.biz)</strong>. Los registros públicos de monitoreo de inversiones revelan que Bremby fue clasificado como <strong>scam confirmado</strong>, con <strong>13 reportes de estafa</strong>, <strong>$174,664 en depósitos fraudulentos</strong> y <strong>$7,282 en listados</strong>. El dominio fue registrado en <strong>NameCheap el 12 de octubre de 2020</strong> con vigencia hasta 2023, y estaba protegido tras el mismo escudo de <strong>Cloudflare</strong> (IPs <span class="mono">104.18.47.118</span>, <span class="mono">172.67.146.22</span>, <span class="mono">104.18.46.118</span>) que hoy utiliza cmdxcapital. El certificado SSL también era emitido por Cloudflare Inc.
+        </p>
+        <p>
+            Los planes de inversión fraudulentos de Bremby —un único plan del 5% mensual— eran monitoreados por 21 plataformas de seguimiento de HYIP (High Yield Investment Programs), incluyendo <span class="mono">invest-tracing.io</span>, <span class="mono">hyiptank.net</span>, <span class="mono">list4hyip.com</span> y <span class="mono">monetka.blog</span>. La existencia de este ecosistema de monitoreo es una mina de oro para la inteligencia de amenazas: permite trazar la evolución completa de la campaña desde su encarnación anterior, confirmando que los atacantes simplemente reciclan la infraestructura, cambian el nombre de la marca y reanudan las operaciones.
+        </p>
+        <p>
+            El patrón es consistente con lo documentado por la <strong>FTC</strong> en múltiples casos de enforcement: los operadores de esquemas HYIP y falsos exchanges mantienen la misma columna vertebral técnica —Cloudflare como escudo, NameCheap como registrador, plantillas recicladas— y solo cambian la fachada cuando la marca anterior se quema. Bremby operó durante tres años antes de ser desmantelado. CMDX Capital es su reemplazo directo.
         </p>
 
         <div class="image-container">
@@ -205,7 +217,12 @@
             <div class="image-caption mono">scam_cloned_template_history.jpg — Reportes en foros financieros que evidencian la reutilización de estructuras visuales de plataformas previas de estafa (como Bremby), operando bajo el mismo número de registro de Companies House antes de migrar a CMDX Capital.</div>
         </div>
 
-        <!-- FALLOS DE OPSEC COMO FUENTE DE INTELIGENCIA -->
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Lección de Threat Intelligence: Trazabilidad de Campañas</div>
+            <p>Los sitios de monitoreo de HYIP como InvestorsStartPage, hyiptank.net y list4hyip.com son fuentes de inteligencia subestimadas. Mantienen registros históricos de dominios, depósitos, reportes de estafa y direcciones IP que permiten trazar la evolución de una campaña a través de múltiples identidades. La correlación entre Bremby y CMDX Capital no es especulativa: comparten el mismo registrador (NameCheap), el mismo CDN (Cloudflare), el mismo rango de IPs de origen y la misma plantilla de sitio. Son la misma operación con distinto nombre.</p>
+        </div>
+
+        <!-- FALLOS DE OPSEC -->
         <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Fallos de OpSec como Fuente de Inteligencia</h2>
         <p>
             En threat intelligence, los errores del adversario son una mina de oro. La Operación FakeWealth cometió varios fallos de seguridad operacional que permitieron extraer información que ningún atacante querría revelar. El más grave fue dejar <strong>el modo de depuración de Laravel activado en producción</strong>.
@@ -313,7 +330,7 @@
 
         <h3 class="subsection-title">Suplantación de Companies House UK</h3>
         <p>
-            La campaña utilizaba identidades clonadas de empresas británicas disueltas. El registro oficial de <strong>Companies House</strong> (Empresa N° 13699699) muestra que la entidad cesó operaciones en 2023. Los atacantes clonaron su estructura antes de la disolución.
+            La campaña utilizaba identidades clonadas de empresas británicas disueltas. El registro oficial de <strong>Companies House</strong> (Empresa N° 13699699) muestra que la entidad cesó operaciones en 2023. Los atacantes clonaron su estructura antes de la disolución. Esta técnica de <strong>legal spoofing</strong> es recurrente en campañas de fraude financiero: los atacantes buscan entidades disueltas en jurisdicciones con registros públicos accesibles (UK, Singapur, Hong Kong) para robar su identidad corporativa y proyectar una falsa sensación de respaldo legal ante las víctimas.
         </p>
 
         <div class="image-container">
@@ -341,15 +358,20 @@
             <li><strong>Rastrear instalaciones de Laravel con debug mode activo</strong> en dominios relacionados con trading o criptomonedas. La exposición de Ignition es un indicador de infraestructura mal configurada vinculada a campañas similares.</li>
             <li><strong>Consultar los hashes SHA-256</strong> de los archivos asociados contra VirusTotal, Maltiverse y Hybrid Analysis.</li>
             <li><strong>Implementar reglas para formularios con captcha vulnerable:</strong> buscar patrones HTML donde el valor de confirmación viaje como input oculto estático en el cliente.</li>
+            <li><strong>Monitorear plataformas de tracking de HYIP</strong> como InvestorsStartPage, hyiptank.net y list4hyip.com para identificar nuevos dominios que repliquen el patrón de Bremby/CMDX Capital.</li>
+            <li><strong>Correlacionar registros de Companies House</strong> con dominios de trading e inversión para detectar suplantación de entidades disueltas.</li>
         </ol>
 
         <!-- CONCLUSIÓN -->
         <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Conclusión</h2>
         <p>
-            La Operación FakeWealth demuestra que la inteligencia de amenazas no depende de zero-days ni de accesos privilegiados. Depende de saber leer lo que el adversario deja expuesto. Un debug mode activo en producción, un captcha con valor estático en el HTML, una wallet Bech32 recién creada y una empresa británica disuelta en 2023 son piezas que, correlacionadas, dibujan el mapa completo de una campaña de fraude.
+            La Operación FakeWealth demuestra que la inteligencia de amenazas no depende de zero-days ni de accesos privilegiados. Depende de saber leer lo que el adversario deja expuesto. Un debug mode activo en producción, un captcha con valor estático en el HTML, una wallet Bech32 recién creada, una empresa británica disuelta en 2023 y un historial de fraude documentado en plataformas públicas de monitoreo de HYIP son piezas que, correlacionadas, dibujan el mapa completo de una campaña que ha estado operando desde al menos 2020 bajo diferentes nombres.
         </p>
         <p>
-            Este caso es la versión extendida de la investigación que menciono brevemente en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>, donde conecto cinco investigaciones reales con sus TTPs, IoCs y lecciones aprendidas. La metodología de pivoting sobre infraestructura es la misma que apliqué en el análisis de la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>: en ambos casos, los atacantes usan Cloudflare como escudo, rotan dominios y reciclan plantillas. La diferencia es que cmdxcapital cometió el error de dejar Laravel hablando solo en producción.
+            La trazabilidad entre Bremby y CMDX Capital —confirmada por el mismo registrador, el mismo CDN, el mismo rango de IPs y la misma plantilla— revela que no estamos ante un atacante oportunista, sino ante un grupo que opera de forma continua, reciclando infraestructura y cambiando de marca cuando la anterior se quema. Los <strong>$174,664 en depósitos fraudulentos</strong> documentados en Bremby son solo la punta del iceberg de lo que esta operación ha generado desde 2020.
+        </p>
+        <p>
+            Este caso es la versión extendida de la investigación que menciono brevemente en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>, donde conecto cinco investigaciones reales con sus TTPs, IoCs y lecciones aprendidas. La metodología de pivoting sobre infraestructura es la misma que apliqué en el análisis de la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>: en ambos casos, los atacantes usan Cloudflare como escudo, rotan dominios y reciclan plantillas. La diferencia es que cmdxcapital cometió el error de dejar Laravel hablando solo en producción, y tuvo la mala suerte de heredar un historial de fraude perfectamente documentado en plataformas públicas de monitoreo.
         </p>
 
         <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Referencias</h2>
@@ -357,9 +379,10 @@
             <li><a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection — Crónica completa de cinco investigaciones reales (tty503.com)</a></li>
             <li><a href="https://tty503.com/pigbutchering-bybsusd.html">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio (tty503.com)</a></li>
             <li><a href="https://find-and-update.company-information.service.gov.uk/company/13699699/filing-history" target="_blank" rel="noopener noreferrer">Companies House UK — Registro de la empresa N° 13699699 (disuelta 2023)</a></li>
+            <li><a href="https://investorsstartpage.com/queue.aspx?mod=check&d=bremby.biz" target="_blank" rel="noopener noreferrer">InvestorsStartPage — Registro de Bremby (bremby.biz) como scam confirmado. Dominio registrado en NameCheap (2020-2023), alojado tras Cloudflare, con 13 reportes de estafa y $174,664 en depósitos fraudulentos. Plantilla clonada posteriormente por CMDX Capital.</a></li>
+            <li><a href="https://brokersrecomendados.com/bremby-valoracion-y-comentarios/" target="_blank" rel="noopener noreferrer">Reporte de fraude — Bremby (plataforma clonada predecesora de CMDX Capital)</a></li>
             <li><a href="https://www.php.net/manual/es/function.proc-open.php" target="_blank" rel="noopener noreferrer">PHP Manual — Función proc_open()</a></li>
             <li><a href="https://www.blockchain.com/explorer" target="_blank" rel="noopener noreferrer">Blockchain.com Explorer — Trazabilidad de wallets Bitcoin</a></li>
-            <li><a href="https://brokersrecomendados.com/bremby-valoracion-y-comentarios/" target="_blank" rel="noopener noreferrer">Reporte de fraude — Bremby (plataforma clonada predecesora de CMDX Capital)</a></li>
         </ul>
     </article>
 
