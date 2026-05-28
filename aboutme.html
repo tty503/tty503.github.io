@@ -6,7 +6,7 @@
     <link rel="apple-touch-icon" href="hat.png">    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Mi Ruta Completa — Christian Márquez (tty503)</title>
-    <meta name="description" content="La trayectoria autodidacta de Christian Márquez (tty503): desde los fundamentos de programación hasta la especialización en ciberseguridad, análisis de malware y entornos OT/PLC.">
+    <meta name="description" content="La trayectoria autodidacta de Christian Márquez (tty503): desde los fundamentos de programación y el desarrollo de firmware hasta la especialización en threat intelligence, análisis de malware, pentesting y entornos OT/PLC.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://tty503.com/aboutme.html">
     <meta name="theme-color" content="#050505">
@@ -29,13 +29,7 @@
             --accent-green: #4ade80;
             --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background-color: var(--bg-base);
             color: var(--text-primary);
@@ -45,11 +39,7 @@
             -moz-osx-font-smoothing: grayscale;
             min-height: 100vh;
         }
-
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
+        .mono { font-family: 'JetBrains Mono', monospace; }
         .top-bar {
             padding: 1.5rem 2rem;
             border-bottom: 1px solid var(--border-subtle);
@@ -60,255 +50,66 @@
             backdrop-filter: blur(12px);
             background: rgba(10, 10, 10, 0.85);
         }
-
-        .top-bar-inner {
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .back-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: var(--transition-smooth);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .back-link:hover {
-            color: var(--text-primary);
-        }
-
-        .page-label {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        .story-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 4rem 2rem 6rem;
-        }
-
-        .story-header {
-            margin-bottom: 3rem;
-            border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 2rem;
-        }
-
-        .story-header h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-
-        .story-subtitle {
-            color: var(--text-muted);
-            font-size: 1rem;
-        }
-
-        .narrative-image {
-            margin: 2rem 0;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--border-subtle);
-            transition: var(--transition-smooth);
-        }
-
-        .narrative-image:hover {
-            border-color: var(--border-hover);
-        }
-
-        .narrative-image img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: grayscale(30%) contrast(1.05);
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .narrative-image:hover img {
-            filter: grayscale(0%) contrast(1.1);
-        }
-
-        .narrative-image .image-caption {
-            padding: 0.8rem 1.2rem;
-            background: var(--bg-card);
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .narrative-image .image-caption strong {
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .phase {
-            margin-bottom: 3.5rem;
-            padding-left: 1.5rem;
-            border-left: 2px solid var(--border-subtle);
-            transition: border-color 0.4s;
-        }
-
-        .phase:hover {
-            border-left-color: var(--border-hover);
-        }
-
-        .phase-header {
-            display: flex;
-            align-items: baseline;
-            gap: 1rem;
-            margin-bottom: 1.2rem;
-            flex-wrap: wrap;
-        }
-
-        .phase-number {
-            font-size: 0.85rem;
-            color: var(--accent-green);
-            font-weight: 600;
-            letter-spacing: 1px;
-            white-space: nowrap;
-        }
-
-        .phase-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            letter-spacing: -0.3px;
-        }
-
-        .phase-years {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-left: auto;
-            white-space: nowrap;
-        }
-
-        .phase-content p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            margin-bottom: 1.2rem;
-            line-height: 1.9;
-        }
-
-        .phase-content p:last-child {
-            margin-bottom: 0;
-        }
-
-        .phase-content strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .phase-content em {
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
+        .top-bar-inner { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .back-link { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: var(--transition-smooth); display: inline-flex; align-items: center; gap: 0.4rem; }
+        .back-link:hover { color: var(--text-primary); }
+        .page-label { color: var(--text-muted); font-size: 0.8rem; }
+        .story-container { max-width: 800px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+        .story-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .story-header h1 { font-size: 2.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        .story-subtitle { color: var(--text-muted); font-size: 1rem; }
+        .narrative-image { margin: 2rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-subtle); transition: var(--transition-smooth); }
+        .narrative-image:hover { border-color: var(--border-hover); }
+        .narrative-image img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        .narrative-image:hover img { filter: grayscale(0%) contrast(1.1); }
+        .narrative-image .image-caption { padding: 0.8rem 1.2rem; background: var(--bg-card); color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border-subtle); }
+        .narrative-image .image-caption strong { color: var(--text-secondary); font-weight: 500; }
+        .phase { margin-bottom: 3.5rem; padding-left: 1.5rem; border-left: 2px solid var(--border-subtle); transition: border-color 0.4s; }
+        .phase:hover { border-left-color: var(--border-hover); }
+        .phase-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+        .phase-number { font-size: 0.85rem; color: var(--accent-green); font-weight: 600; letter-spacing: 1px; white-space: nowrap; }
+        .phase-title { font-size: 1.4rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.3px; }
+        .phase-years { font-size: 0.9rem; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+        .phase-content p { color: var(--text-secondary); font-size: 1rem; margin-bottom: 1.2rem; line-height: 1.9; }
+        .phase-content p:last-child { margin-bottom: 0; }
+        .phase-content strong { color: var(--text-primary); font-weight: 600; }
+        .phase-content em { color: var(--text-secondary); font-style: italic; }
         .highlight-quote {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            padding: 1.5rem 2rem;
-            margin: 2rem 0;
-            color: var(--text-primary);
-            font-style: italic;
-            font-size: 1rem;
-            line-height: 1.7;
-            position: relative;
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+            padding: 1.5rem 2rem; margin: 2rem 0; color: var(--text-primary); font-style: italic;
+            font-size: 1rem; line-height: 1.7; position: relative;
         }
-
-        .highlight-quote::before {
-            content: '"';
-            position: absolute;
-            top: -0.5rem;
-            left: 1rem;
-            font-size: 3rem;
-            color: var(--border-hover);
-            font-family: Georgia, serif;
-            line-height: 1;
-        }
-
-        .image-pair {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .image-pair .narrative-image {
-            margin: 0;
-        }
-
-        .story-divider {
-            border: none;
-            border-top: 1px solid var(--border-subtle);
-            margin: 3rem 0;
-        }
-
-        .story-footer {
-            text-align: center;
-            padding: 2rem;
-            border-top: 1px solid var(--border-subtle);
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .story-footer a {
-            color: var(--text-secondary);
+        .highlight-quote::before { content: '"'; position: absolute; top: -0.5rem; left: 1rem; font-size: 3rem; color: var(--border-hover); font-family: Georgia, serif; line-height: 1; }
+        .image-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
+        .image-pair .narrative-image { margin: 0; }
+        .story-divider { border: none; border-top: 1px solid var(--border-subtle); margin: 3rem 0; }
+        .story-footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border-subtle); color: var(--text-muted); font-size: 0.85rem; }
+        .story-footer a { color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: var(--transition-smooth); }
+        .story-footer a:hover { color: var(--text-primary); }
+        .portfolio-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: var(--accent-green);
             text-decoration: none;
+            font-size: 0.9rem;
             font-weight: 500;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            padding: 0.4rem 1rem;
+            border-radius: 4px;
             transition: var(--transition-smooth);
         }
-
-        .story-footer a:hover {
-            color: var(--text-primary);
-        }
-
+        .portfolio-link:hover { background: rgba(74, 222, 128, 0.05); color: var(--accent-green); }
         @media (max-width: 600px) {
-            .top-bar {
-                padding: 1rem 1.2rem;
-            }
-            .story-container {
-                padding: 2.5rem 1.2rem 4rem;
-            }
-            .story-header h1 {
-                font-size: 1.6rem;
-            }
-            .phase {
-                padding-left: 1rem;
-                margin-bottom: 2.5rem;
-            }
-            .phase-title {
-                font-size: 1.2rem;
-            }
-            .phase-header {
-                flex-direction: column;
-                gap: 0.2rem;
-            }
-            .phase-years {
-                margin-left: 0;
-            }
-            .highlight-quote {
-                padding: 1.2rem 1.5rem;
-                margin: 1.5rem 0;
-            }
-            .image-pair {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            .narrative-image .image-caption {
-                font-size: 0.7rem;
-                padding: 0.6rem 0.9rem;
-            }
+            .top-bar { padding: 1rem 1.2rem; }
+            .story-container { padding: 2.5rem 1.2rem 4rem; }
+            .story-header h1 { font-size: 1.6rem; }
+            .phase { padding-left: 1rem; margin-bottom: 2.5rem; }
+            .phase-title { font-size: 1.2rem; }
+            .phase-header { flex-direction: column; gap: 0.2rem; }
+            .phase-years { margin-left: 0; }
+            .highlight-quote { padding: 1.2rem 1.5rem; margin: 1.5rem 0; }
+            .image-pair { grid-template-columns: 1fr; gap: 1rem; }
+            .narrative-image .image-caption { font-size: 0.7rem; padding: 0.6rem 0.9rem; }
         }
     </style>
 </head>
@@ -325,16 +126,16 @@
         
         <header class="story-header">
             <h1>Mi Ruta Completa</h1>
-            <p class="story-subtitle mono">De la curiosidad infantil a la especialización en ciberseguridad</p>
+            <p class="story-subtitle mono">De la curiosidad infantil a la especialización en threat intelligence y ciberseguridad</p>
         </header>
 
-        <!-- Apertura: El viaje comienza -->
+        <!-- Apertura -->
         <figure class="narrative-image">
             <img src="img/aboutme-0.jpg" alt="Barco navegando bajo la luna — El inicio del viaje técnico" loading="lazy">
             <figcaption class="image-caption"><strong>El viaje comienza.</strong> Así como los navegantes se orientaban por las estrellas, mis primeras preguntas sobre cómo funcionaban los sistemas fueron la luz que guió todo lo que vino después.</figcaption>
         </figure>
 
-        <!-- ==================== FASE 1 ==================== -->
+        <!-- FASE 1 -->
         <section class="phase">
             <div class="phase-header">
                 <span class="phase-number mono">FASE 1</span>
@@ -356,7 +157,7 @@
                     <figcaption class="image-caption"><strong>this->getHiddenObservers();</strong> — La búsqueda de lo que no se ve a simple vista. Desde niño, siempre quise entender los mecanismos ocultos detrás de cada sistema.</figcaption>
                 </figure>
 
-                <p>Mi padre fue el facilitador inconsciente de este viaje. Él introdujo la primera computadora en casa alrededor de 2006 —tengo recuerdos vagos, era muy pequeño— y me enseñó los conceptos básicos sobre sistemas operativos y configuración de programas. <strong>Esos primeros años me enseñaron que la mejor forma de aprender es haciendo</strong>, incluso si eso significaba romper cosas en el proceso. Y vaya que rompí varias computadoras del hogar.</p>
+                <p>Mi padre fue el facilitador inconsciente de este viaje. Él introdujo la primera computadora en casa alrededor de 2006 y me enseñó los conceptos básicos sobre sistemas operativos y configuración de programas. <strong>Esos primeros años me enseñaron que la mejor forma de aprender es haciendo</strong>, incluso si eso significaba romper cosas en el proceso. Y vaya que rompí varias computadoras del hogar.</p>
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-3.jpg" alt="Editor hexadecimal distorsionado con fragmentos de código y figura con paraguas" loading="lazy">
@@ -374,7 +175,7 @@
             </div>
         </section>
 
-        <!-- ==================== FASE 2 ==================== -->
+        <!-- FASE 2 -->
         <section class="phase">
             <div class="phase-header">
                 <span class="phase-number mono">FASE 2</span>
@@ -383,6 +184,30 @@
             </div>
             <div class="phase-content">
                 <p>El descubrimiento de los compiladores y de <strong>C/C++</strong> en 2014 marcó un punto de inflexión. Entender la diferencia entre un intérprete y un compilador me abrió las puertas a un nuevo nivel de comprensión técnica. Poco después, la adopción de <strong>GNU/Linux</strong> expandió mi panorama por completo.</p>
+
+                <p>Empecé a programar de verdad. Manipulación de bits en C, contadores de población con tablas de consulta generadas en tiempo de compilación, empaquetado y desempaquetado de bytes, funciones para verificar el estado de bits individuales. <strong>Entender cómo la computadora representa y manipula datos a nivel binario fue el primer paso real hacia la ingeniería inversa</strong>, aunque en ese momento no lo supiera.</p>
+
+                <div class="image-pair">
+                    <figure class="narrative-image">
+                        <img src="img/c_bitwise_popcount_lookup_table.jpg" alt="Código C para conteo de bits con tabla de consulta" loading="lazy">
+                        <figcaption class="image-caption"><strong>Population Count en C.</strong> Tabla de consulta de 256 elementos generada con macros anidadas. Descomposición de un entero en sus cuatro bytes usando shift y máscaras AND.</figcaption>
+                    </figure>
+                    <figure class="narrative-image">
+                        <img src="img/c_bitwise_bit_status_functions.jpg" alt="Funciones C para verificar estado de bits individuales" loading="lazy">
+                        <figcaption class="image-caption"><strong>isItEnabled_On / isItDisabled_On.</strong> Funciones para verificar el estado de bits individuales usando máscaras de desplazamiento y operadores AND.</figcaption>
+                    </figure>
+                </div>
+
+                <div class="image-pair">
+                    <figure class="narrative-image">
+                        <img src="img/c_bitwise_byte_packing_serialization.jpg" alt="Algoritmo C para empaquetado de bytes" loading="lazy">
+                        <figcaption class="image-caption"><strong>Byte packing.</strong> Consolidación de cuatro caracteres independientes en una variable de 32 bits usando desplazamiento y OR inclusivo.</figcaption>
+                    </figure>
+                    <figure class="narrative-image">
+                        <img src="img/c_bitwise_byte_unpacking_deserialization.jpg" alt="Algoritmo C para desempaquetado de bytes" loading="lazy">
+                        <figcaption class="image-caption"><strong>Byte unpacking.</strong> El proceso inverso: extraer bytes individuales de un entero de 32 bits para reconstruir la cadena original.</figcaption>
+                    </figure>
+                </div>
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-5.jpg" alt="Escritorio Windows retro con herramientas de reversing: Hopper, NASM, LordPE, CFF Explorer" loading="lazy">
@@ -418,17 +243,13 @@
                     <figcaption class="image-caption"><strong>Ghidra CodeBrowser.</strong> Desensamblando <code>strings1.exe</code>. Las flags visibles en el código y el MessageBox "We've been compromised!" — esos momentos de hallazgo que hacen adictivo el reversing.</figcaption>
                 </figure>
 
-                <p>Años después, la nostalgia por aquellos espacios de intercambio real —mucho más íntimos y exigentes que las redes sociales masivas— me llevó a retomar la idea del BBS junto a <strong>@DtxdF</strong> y <strong>@syntaxerr0rs</strong>. La pregunta que lo disparó todo fue simple: <em>"¿y si nos lanzamos un BBS?"</em>. Pero no queríamos un canal genérico más. La visión era ambiciosa y deliberadamente selectiva: un espacio al estilo de los viejos <strong>WarezScene groups</strong>, donde solo el material de alto valor —investigaciones propias, código documentado, tutoriales avanzados— tuviera cabida. Nada de relleno. Nada de ruido.</p>
-
-                <p>Diseñamos la arquitectura sobre <strong>tres pilares fundamentales</strong>: descentralización con mirrors para garantizar disponibilidad, una pasarela mediante bot de Telegram para acceso rápido, y <strong>firmas PGP para validar la identidad</strong> de cada miembro. La autenticidad no era negociable. Incluso exploramos alternativas para reducir la dependencia de infraestructura tradicional, evaluando redes P2P como I2P y Torrent como capa de transporte. La meta era un espacio donde cada quien pudiera publicar con su firma en ASCII, manteniendo el control total sobre su identidad digital, y donde el contenido trivial simplemente no tuviera lugar. Finalmente, el BBS tomó forma sobre <strong>TOR</strong>, reforzando el compromiso con la privacidad y la resistencia a la censura.</p>
-
-                <p>Este proyecto marcó un punto de inflexión en cómo entendía la comunidad técnica. Ya no se trataba solo de aprender y compartir, sino de <strong>construir las estructuras para que otros también pudieran hacerlo</strong>, con los mismos estándares de privacidad, autenticidad y calidad que yo exigía en mi propio trabajo. Fue, en esencia, un laboratorio de infraestructura resiliente aplicada a la colaboración entre pares.</p>
+                <p>Años después, la nostalgia por aquellos espacios de intercambio real —mucho más íntimos y exigentes que las redes sociales masivas— me llevó a retomar la idea del BBS junto a <strong>@DtxdF</strong> y <strong>@syntaxerr0rs</strong>. Diseñamos la arquitectura sobre <strong>tres pilares fundamentales</strong>: descentralización con mirrors, pasarela mediante bot de Telegram, y <strong>firmas PGP para validar la identidad</strong> de cada miembro. El BBS tomó forma sobre <strong>TOR</strong>, reforzando el compromiso con la privacidad y la resistencia a la censura. Fue, en esencia, un laboratorio de infraestructura resiliente aplicada a la colaboración entre pares.</p>
             </div>
         </section>
 
         <hr class="story-divider">
 
-        <!-- ==================== FASE 3 ==================== -->
+        <!-- FASE 3 -->
         <section class="phase">
             <div class="phase-header">
                 <span class="phase-number mono">FASE 3</span>
@@ -445,20 +266,27 @@
 
                 <p>Fue en ese contexto —2020, en pleno encierro— cuando descubrí <strong>VX-Underground</strong>. El hallazgo reavivó algo que llevaba años latente. Después de mucho tiempo en el "limbo" técnico, recordé por qué había empezado todo esto. <strong>Quería dedicarme al análisis de malware y la investigación en seguridad. Era mi meta final.</strong></p>
 
-                <p>Decidí enfocarme. Necesitaba dominar la ingeniería inversa, y para ello necesitaba aprender <strong>Assembly</strong>. Pivoté entre Intel 8086, MIPS, x86 y x86_64, comparando NASM, FASM y MASM. Fue un proceso arduo de lectura y comprensión de las diferencias entre arquitecturas RISC y CISC, entre la sintaxis AT&T e Intel, y entre los modos de direccionamiento. Me hice un curso de x86 con MASM y descubrí que, más allá de los tamaños de registro y algunas instrucciones nuevas, la esencia era la misma que ya conocía por Emu8086.</p>
+                <p>Decidí enfocarme. Necesitaba dominar la ingeniería inversa, y para ello necesitaba aprender <strong>Assembly</strong>. Pivoté entre Intel 8086, MIPS, x86 y x86_64, comparando NASM, FASM y MASM. Fue un proceso arduo de lectura y comprensión de las diferencias entre arquitecturas RISC y CISC, entre la sintaxis AT&T e Intel, y entre los modos de direccionamiento. Esas notas terminaron convirtiéndose en la <a href="assembly.html">guía de Assembly para Ingeniería Inversa</a> que hoy forma parte del portafolio.</p>
 
-                <p>En 2022, <strong>los microcontroladores PIC</strong> se cruzaron en mi camino. Quería profundizar en la programación a bajo nivel y entender cómo el software interactúa directamente con el hardware. Esta decisión —que podría parecer otro desvío— resultó providencial: poco después conseguí mi <strong>primer empleo como desarrollador de firmware en CENDIT</strong>, donde programé microcontroladores PIC 18 y 24 para proyectos médicos y educativos. Implementé protocolos I2C y UART, y documenté algoritmos en LaTeX y PlantUML. Una experiencia invaluable que me enseñó rigurosidad en entornos donde un error de firmware puede tener consecuencias reales.</p>
+                <p>La shellcode fue el siguiente paso lógico. Recuerdo la primera vez que logré ejecutar <code>calc.exe</code> desde un buffer en la pila. Era un Windows Embedded de 32 bits corriendo en una máquina virtual con apenas 3 GB de RAM disponibles. El depurador mostraba los opcodes en hexadecimal y sus instrucciones equivalentes en x86: <code>xor ecx, ecx</code>, <code>push ecx</code>, <code>mov eax, esp</code>, <code>call ebx</code>, <code>jmp eax</code>. Esa progresión —desde entender la microarquitectura de una pila de llamadas hasta abstraer toda esa lógica en una fábrica automatizada de binarios— quedó documentada en el artículo <a href="myPracticalShellcodeC2.html">De la Shellcode Artesanal al C2 Builder</a>, donde recorro tres años de evolución en desarrollo de software de seguridad ofensiva.</p>
+
+                <figure class="narrative-image">
+                    <img src="img/windows_x86_shellcode_debugging_environment.jpg" alt="Laboratorio forense con Windows Embedded 7, depurador y shellcode x86" loading="lazy">
+                    <figcaption class="image-caption"><strong>Shellcode en Windows Embedded.</strong> Depurador de línea de comandos mostrando opcodes x86 — <code>xor ecx, ecx</code>, <code>push ecx</code>, <code>call ebx</code>, <code>jmp eax</code> — junto a las herramientas Flare y Boxstarter. Así se veía mi laboratorio en 2022.</figcaption>
+                </figure>
+
+                <p>En 2022, <strong>los microcontroladores PIC</strong> se cruzaron en mi camino. Quería profundizar en la programación a bajo nivel y entender cómo el software interactúa directamente con el hardware. Esta decisión resultó providencial: poco después conseguí mi <strong>primer empleo como desarrollador de firmware en CENDIT</strong>, donde programé microcontroladores PIC 18 y 24 para proyectos médicos y educativos. Implementé protocolos I2C y UART, y documenté algoritmos en LaTeX y PlantUML.</p>
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-15.jpg" alt="Laboratorio de electrónica con osciloscopio, multímetro, fuentes y cables" loading="lazy">
-                    <figcaption class="image-caption"><strong>El laboratorio en CENDIT.</strong> Osciloscopio digital, multímetro, fuentes de poder, cables por todas partes. Así era mi banco de trabajo durante la etapa de firmware: medir, soldar, depurar. Donde el software se encuentra con el hardware y un error de código puede freír un componente real.</figcaption>
+                    <figcaption class="image-caption"><strong>El laboratorio en CENDIT.</strong> Osciloscopio digital, multímetro, fuentes de poder, cables por todas partes. Donde el software se encuentra con el hardware y un error de código puede freír un componente real.</figcaption>
                 </figure>
 
                 <div class="highlight-quote">
                     Cada "desvío" en mi trayectoria resultó ser una pieza necesaria del rompecabezas. Los microcontroladores me enseñaron la disciplina del hardware; el backend, la arquitectura de sistemas; Linux, la mentalidad de automatización. No hay conocimiento perdido.
                 </div>
 
-                <p>Luego vino lo que llamo <strong>"el período de la ambición"</strong>. Dejé el empleo como desarrollador de firmware para tomar una oportunidad como desarrollador Backend. ¿La razón? Necesitaba capital para comprar mejor equipo y seguir practicando. En menos de dos meses pude adquirir una computadora adecuada para mis laboratorios de análisis. Pero el costo fue alto: me había desviado de mi objetivo principal. Luego, arriesgué mi estabilidad laboral por un proyecto paralelo con un amigo que no llegó a concretarse. Mi rendimiento bajó, mi contrato no fue renovado y volví al desempleo.</p>
+                <p>Luego vino lo que llamo <strong>"el período de la ambición"</strong>. Dejé el empleo como desarrollador de firmware para tomar una oportunidad como desarrollador Backend. ¿La razón? Necesitaba capital para comprar mejor equipo y seguir practicando. En menos de dos meses pude adquirir una computadora adecuada. Pero el costo fue alto: me había desviado de mi objetivo principal. Luego, arriesgué mi estabilidad laboral por un proyecto paralelo con un amigo que no llegó a concretarse. Mi rendimiento bajó, mi contrato no fue renovado y volví al desempleo.</p>
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-11.jpg" alt="Máquina virtual C2-Setup1 con agente de comando y control en Windows" loading="lazy">
@@ -481,29 +309,31 @@
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-14.jpg" alt="Perfil Kr0pl0its en foro de seguridad, registrado en 2016" loading="lazy">
-                    <figcaption class="image-caption"><strong>Kr0pl0its.</strong> Mi perfil en un viejo foro, registrado el 5 de agosto de 2016. "Concéntrate en el momento. Siente, no pienses, usa tu instinto." — Qui-Gon Jinn. Las identidades digitales que construimos en el camino.</figcaption>
+                    <figcaption class="image-caption"><strong>Kr0pl0its.</strong> Mi perfil en un viejo foro, registrado el 5 de agosto de 2016. "Concéntrate en el momento. Siente, no pienses, usa tu instinto." — Qui-Gon Jinn.</figcaption>
                 </figure>
 
-                <p>Hoy, cada proyecto —desde herramientas de triage automatizado como <strong>analystty</strong> hasta investigaciones de infraestructura crítica como el análisis de <strong>PLC Siemens S5/S7</strong>— es un paso firme hacia la maestría técnica. Ya no salto de rama en rama: construyo sobre una base sólida y diversa que pocos recorridos profesionales pueden ofrecer.</p>
+                <p>Hoy, cada proyecto —desde herramientas de triage automatizado como <strong>analystty</strong> hasta investigaciones de threat intelligence como la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a> o la <a href="pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a>— es un paso firme hacia la maestría técnica. Ya no salto de rama en rama: construyo sobre una base sólida y diversa que pocos recorridos profesionales pueden ofrecer.</p>
             </div>
         </section>
 
         <hr class="story-divider">
 
-        <!-- ==================== AHORA ==================== -->
+        <!-- AHORA -->
         <section class="phase" style="border-left-color: rgba(74, 222, 128, 0.3);">
             <div class="phase-header">
                 <span class="phase-number mono" style="color: var(--text-primary);">AHORA</span>
                 <h2 class="phase-title">En qué estoy trabajando</h2>
             </div>
             <div class="phase-content">
-                <p>Actualmente mi investigación se centra en tres líneas principales:</p>
+                <p>Actualmente mi investigación se centra en cuatro líneas principales:</p>
                 <p>
-                    <strong>→ Seguridad OT/PLC:</strong> Análisis de bajo nivel de autómatas Siemens S5/S7, protocolos industriales, y evaluación de vulnerabilidades en infraestructuras críticas venezolanas con fines estrictamente académicos y de concienciación.<br>
-                    <strong>→ Herramientas propias de análisis:</strong> Desarrollo de <strong>analystty</strong>, mi navaja suiza para triage automatizado de malware PE, y otras utilidades forenses en Bash/Python.<br>
-                    <strong>→ Infraestructura resiliente:</strong> Diseño de túneles ofuscados, redes segmentadas y entornos de análisis aislados con Proxmox, Ansible y Terraform.
+                    <strong>→ Threat Intelligence & OSINT:</strong> Investigaciones de fraude financiero, mapeo de infraestructura criminal, correlación de wallets en blockchain y análisis de campañas de Pig Butchering. Documentadas en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a> y el análisis de <a href="pigbutchering-bybsusd.html">bybsusd.com</a>.<br>
+                    <strong>→ Ingeniería Inversa & Pentesting:</strong> Análisis estático y dinámico de malware, auditorías de seguridad a Web APIs financieras (<a href="web-api-pentesting2024.html">Pentesting a Web API Financiera</a>) y desarrollo de herramientas propias como <a href="analystty.html">analystty</a>.<br>
+                    <strong>→ Seguridad OT/PLC:</strong> Análisis de bajo nivel de autómatas Siemens S5/S7, máquina virtual MC7, protocolos industriales sin autenticación y hallazgos en infraestructuras críticas venezolanas (<a href="plc.html">PLC Siemens S5/S7</a>).<br>
+                    <strong>→ Infraestructura Resiliente & Blue Team:</strong> Laboratorio SOC/Honeypot funcional con Proxmox, Wazuh, Grafana y despliegue IaC (<a href="infra-soc.html">infra-soc.html</a>), túneles ofuscados (<a href="infraestructura-tunel-ofuscado.html">WireGuard sobre TCP falso</a>) y automatización con Terraform y Ansible.
                 </p>
                 <p><strong>Estoy tratando activamente de ser mejor —técnica y personalmente—, de retomar el camino con más claridad que nunca, y de alcanzar el objetivo que me tracé hace más de una década.</strong></p>
+                <a href="index.html" class="portfolio-link mono">Ver portafolio completo →</a>
             </div>
         </section>
 
