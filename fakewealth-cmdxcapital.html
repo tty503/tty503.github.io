@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">    
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <title>Operación FakeWealth: Inteligencia de amenazas sobre la red cmdxcapital | tty503</title>
+    <meta name="description" content="Investigación de threat intelligence sobre la red de fraude financiero cmdxcapital.com. Infraestructura con Cloudflare y Google Cloud, fallos de OpSec con Laravel debug mode expuesto, migración de wallets Bitcoin, spoofing corporativo y IoCs.">
+    <meta name="keywords" content="cmdxcapital, threat intelligence, OSINT, blockchain forensics, laravel debug, proc_open, bitcoin wallet, companies house spoofing, fake trading, crypto scam, IoCs, PlantUML">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tty503.com/fakewealth-cmdxcapital.html">
+    <meta name="theme-color" content="#050505">
+    
+    <meta property="og:title" content="Operación FakeWealth: Inteligencia de amenazas sobre cmdxcapital | tty503">
+    <meta property="og:description" content="Threat intelligence aplicada a la red cmdxcapital. Infraestructura, blockchain, OpSec failures e IoCs.">
+    <meta property="og:url" content="https://tty503.com/fakewealth-cmdxcapital.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503 Portfolio">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+        .navbar {
+            position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth);
+        }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+            padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; font-size: 0.9rem;
+            line-height: 1.6; color: var(--text-secondary); position: relative;
+        }
+        .code-block code { color: var(--accent-green); font-family: 'JetBrains Mono', monospace; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); }
+        .callout-danger .callout-title { color: var(--accent-red); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.8rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_threatintel</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Threat Intelligence</span>
+                <span class="article-tag">Fraude Financiero</span>
+                <span class="article-tag">Blockchain</span>
+                <span class="article-tag">OSINT</span>
+                <span>Octubre 2025 – Mayo 2026</span>
+                <span>~55 min de lectura</span>
+            </div>
+            <h1 class="article-title">Operación FakeWealth: Inteligencia de amenazas sobre la red cmdxcapital</h1>
+            <p class="article-subtitle">
+                Investigación de threat intelligence sobre una campaña de fraude financiero con infraestructura en Cloudflare y Google Cloud, migración de wallets Bitcoin, suplantación corporativa y fallos de OpSec que expusieron consultas SQL, tokens de sesión y rutas absolutas del servidor. Esta es la versión extendida del caso que forma parte de la Threat Hunter Recollection.
+            </p>
+        </header>
+
+        <!-- INTRODUCCIÓN: ENFOQUE EN THREAT INTEL -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Resumen</h2>
+        <p>
+            La <strong>Operación FakeWealth</strong> es una campaña de fraude financiero que opera bajo la marca <strong>cmdxcapital.com</strong>. Este artículo documenta el ciclo completo de inteligencia de amenazas aplicado sobre esta red: desde la identificación de infraestructura y el mapeo de dominios satélites hasta la correlación de wallets en blockchain, la atribución por reutilización de plantillas y la explotación de fallos de OpSec para extraer inteligencia del backend.
+        </p>
+        <p>
+            El enfoque principal es la <strong>inteligencia de amenazas</strong>: cómo pivotar sobre indicadores de red, cómo leer los errores de configuración del adversario como fuente de inteligencia, y cómo conectar los hallazgos técnicos con el ecosistema más amplio de fraudes financieros documentados en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>. Las vulnerabilidades encontradas —debug mode de Laravel expuesto, bypass de captcha, proc_open() deshabilitada— no son el fin del análisis, sino evidencias que alimentan la comprensión del adversario.
+        </p>
+        <p>
+            Este caso tiene conexiones directas con otras investigaciones del portafolio. La metodología de mapeo de infraestructura es la misma que apliqué en la <a href="https://tty503.com/pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a>, donde los atacantes también utilizaban Cloudflare como escudo, rotación de dominios y plantillas Vue3 recicladas. La diferencia aquí es que cmdxcapital cometió un error que ninguna otra campaña había cometido: dejar el debug mode de Laravel activado en producción.
+        </p>
+
+        <div class="callout callout-danger">
+            <div class="callout-title mono">Campaña de fraude financiero activa</div>
+            <p>Fecha del informe: Octubre 2025 – Mayo 2026. La infraestructura sigue operativa. Se recomienda bloqueo inmediato de todos los IoCs listados.</p>
+        </div>
+
+        <!-- FICHA TÉCNICA -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Ficha de Inteligencia de la Campaña</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Dominio Core</strong></td><td class="mono">cmdxcapital.com</td></tr>
+                    <tr><td><strong>Framework Backend</strong></td><td class="mono">Laravel 8.83.25 (PHP 8.3.15)</td></tr>
+                    <tr><td><strong>Ruta Absoluta del Servidor</strong></td><td class="mono">/home/cmdxcapi/domains/cmdxcapital.com/public_html</td></tr>
+                    <tr><td><strong>Wallet BTC Actual</strong></td><td class="mono">bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</td></tr>
+                    <tr><td><strong>Entidad Legal Suplantada</strong></td><td class="mono">Companies House UK N° 13699699 (disuelta 2023)</td></tr>
+                    <tr><td><strong>Fallos de OpSec Detectados</strong></td><td>Debug mode expuesto, captcha trivial, proc_open() deshabilitada, queries SQL y tokens de sesión fugados</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- INFRAESTRUCTURA -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Infraestructura de red y pivoting sobre dominios</h2>
+        <p>
+            El mapeo de infraestructura es el primer pilar de la inteligencia de amenazas. La campaña se diversifica en una red de dominios satélites que funcionan como falsos brokers y portales de captación. Utilizando <strong>Cloudflare como CDN y proxy inverso</strong>, los atacantes ocultan el servidor de origen real.
+        </p>
+
+        <div class="image-container">
+            <img src="img/topology_infrastructure_nodes_cmdx.png" alt="Mapa de topología de red de la campaña cmdxcapital" loading="lazy">
+            <div class="image-caption mono">topology_infrastructure_nodes_cmdx.png — Mapa de topología que correlaciona los dominios principales y satélites. El servidor origen en cPanel (198.251.89.82, Frantech/BuyVM) se oculta tras proxies inversos de Cloudflare. Los subdominios de correo se enlazan con Google Cloud Workspace.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/cmdxcapital_infrastructure_graph.jpg" alt="Grafo de infraestructura de la campaña cmdxcapital" loading="lazy">
+            <div class="image-caption mono">cmdxcapital_infrastructure_graph.jpg — Grafo técnico que asocia todos los vectores de la amenaza: rangos DNS y CDN, host de origen, y firmas criptográficas de los artefactos de la campaña.</div>
+        </div>
+
+        <p>
+            Los dominios satélites incluyen <span class="mono">apexreturns.live</span>, <span class="mono">vertexprimestock.com</span>, <span class="mono">nexusinveste.com</span> y al menos 10 dominios adicionales. Todos comparten la misma plantilla HTML, los mismos canales de Telegram y las mismas hojas de estilo Bootstrap. Esta reutilización de infraestructura es un patrón que también documenté en el análisis de la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>, donde los atacantes reciclaban plantillas Vue3 con Vant UI y mantenían un backend constante mientras rotaban dominios.
+        </p>
+
+        <div class="image-container">
+            <img src="img/scam_cloned_template_history.jpg" alt="Historial de plantillas clonadas de CMDX Capital" loading="lazy">
+            <div class="image-caption mono">scam_cloned_template_history.jpg — Reportes en foros financieros que evidencian la reutilización de estructuras visuales de plataformas previas de estafa (como Bremby), operando bajo el mismo número de registro de Companies House antes de migrar a CMDX Capital.</div>
+        </div>
+
+        <!-- FALLOS DE OPSEC COMO FUENTE DE INTELIGENCIA -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Fallos de OpSec como Fuente de Inteligencia</h2>
+        <p>
+            En threat intelligence, los errores del adversario son una mina de oro. La Operación FakeWealth cometió varios fallos de seguridad operacional que permitieron extraer información que ningún atacante querría revelar. El más grave fue dejar <strong>el modo de depuración de Laravel activado en producción</strong>.
+        </p>
+
+        <h3 class="subsection-title">El Crash de Laravel: proc_open() y SwiftMailer</h3>
+        <p>
+            Durante las pruebas de automatización del endpoint de registro, la plataforma expuso un reporte de error completo de Laravel Client. La interfaz Ignition —diseñada para entornos de desarrollo— estaba accesible públicamente con <span class="mono">APP_DEBUG=true</span> y <span class="mono">APP_ENV=production</span>.
+        </p>
+
+        <div class="image-container">
+            <img src="img/laravel_ignition_crash_cmdxcapital.jpg" alt="Interfaz Ignition de Laravel expuesta en cmdxcapital.com" loading="lazy">
+            <div class="image-caption mono">laravel_ignition_crash_cmdxcapital.jpg — Interfaz Ignition expuesta en producción en cmdxcapital.com/register. APP_DEBUG=true en un servidor con APP_ENV=production.</div>
+        </div>
+
+        <p>
+            El siguiente diagrama de secuencia forense mapea la interacción entre el navegador y el backend durante el crash, desde el POST hasta la exposición del stacktrace:
+        </p>
+
+        <div class="image-container">
+            <img src="img/sequence_laravel_production_crash.png" alt="Diagrama de secuencia del crash de Laravel en producción" loading="lazy">
+            <div class="image-caption mono">sequence_laravel_production_crash.png — Diagrama de secuencia forense: POST /register, inserción en MySQL y colapso del framework al invocar proc_open() mediante SwiftMailer.</div>
+        </div>
+
+        <p>
+            El error se originaba en <span class="mono">Swift_Transport_StreamBuffer.php</span>, línea 291. El flujo: el usuario se registra, Laravel Fortify inserta el registro en <span class="mono">users</span> y <span class="mono">crypto_accounts</span>, el sistema intenta despachar un <span class="mono">WelcomeEmail</span> mediante SwiftMailer, este invoca <span class="mono">proc_open()</span> para interactuar con sendmail, y al estar la función deshabilitada en php.ini, la aplicación crashea exponiendo todo.
+        </p>
+
+        <div class="image-container">
+            <img src="img/swiftmailer_proc_open_stacktrace.jpg" alt="Stacktrace de SwiftMailer mostrando la llamada a proc_open()" loading="lazy">
+            <div class="image-caption mono">swiftmailer_proc_open_stacktrace.jpg — Stacktrace forense: Swift_Transport_StreamBuffer (línea 291) intentó invocar proc_open(). El servidor devolvió error fatal por restricciones de hardening en php.ini.</div>
+        </div>
+
+        <h3 class="subsection-title">Inteligencia Extraída del Debug Mode</h3>
+        <p>
+            La interfaz Ignition no solo mostraba el error. Exponía información que alimentó directamente la inteligencia sobre la campaña:
+        </p>
+
+        <div class="image-container">
+            <img src="img/mysql_queries_leak_users_table.jpg" alt="Consultas SQL expuestas por el debug mode" loading="lazy">
+            <div class="image-caption mono">mysql_queries_leak_users_table.jpg — Consultas SQL enviadas a MySQL. Revela el orden de inserción: INSERT en users seguido de creación de cuenta en crypto_accounts.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/http_request_data_payload_leak.jpg" alt="Datos de la petición HTTP expuestos" loading="lazy">
+            <div class="image-caption mono">http_request_data_payload_leak.jpg — Datos persistidos en request_data. Expone parámetros HTTP POST, tokens de sesión e intentos de inyección SQL en el campo email.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/server_environment_variables_exposed.jpg" alt="Variables de entorno del servidor expuestas" loading="lazy">
+            <div class="image-caption mono">server_environment_variables_exposed.jpg — Variables de entorno: ruta raíz del hosting y versiones de Laravel 8.83.25 sobre PHP 8.3.15.</div>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Lección de Threat Intelligence</div>
+            <p>El debug mode activo en producción no es solo una vulnerabilidad: es una <strong>fuente de inteligencia</strong>. Permitió mapear la estructura de la base de datos, identificar la lógica de negocio del backend (Fortify, SwiftMailer, WelcomeEmail) y obtener las rutas absolutas del servidor. En la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a> documento cómo este tipo de errores de configuración son una constante en campañas de fraude: desde OpenSSH 7.4 en servidores de Hong Kong hasta captchas con claves en el JSON del lado del cliente.</p>
+        </div>
+
+        <!-- BYPASS DE CAPTCHA -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Evasión de Controles y Automatización de la Recolección</h2>
+        <p>
+            El formulario de registro implementaba un captcha trivial de evadir. El HTML contenía un input oculto con el valor de confirmación:
+        </p>
+        <div class="code-block mono">
+            &lt;input type='hidden' name='captcha_confirmation' value='61416'&gt;
+        </div>
+        <p>
+            Este patrón —delegar la validación del captcha a un valor estático en el cliente— es el mismo tipo de error que documenté en el análisis de la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering</a>, donde el backend devolvía la clave de validación del captcha en el propio JSON de respuesta. En ambos casos, la inteligencia obtenida permite automatizar la recolección de datos del adversario sin interacción humana.
+        </p>
+
+        <div class="image-container">
+            <img src="img/captcha_bypass_logic_flow.png" alt="Diagrama de flujo del bypass de captcha" loading="lazy">
+            <div class="image-caption mono">captcha_bypass_logic_flow.png — Diagrama del fallo de diseño: el script extrae el valor estático de captcha_confirmation y lo replica en la petición POST.</div>
+        </div>
+
+        <p>
+            La siguiente captura muestra la ejecución real del script de auditoría que desarrollé para validar la evasión:
+        </p>
+
+        <div class="image-container">
+            <img src="img/automation_poc_terminal_output.jpg" alt="Salida de terminal del script PoC automatizado" loading="lazy">
+            <div class="image-caption mono">automation_poc_terminal_output.jpg — Ejecución del script PoC. Fase 1: extracción del token CSRF y evasión del captcha. Fase 2: POST automatizado, respuesta HTTP 500, captura del stacktrace con proc_open(), ruta absoluta del host y consulta SQL cruda.</div>
+        </div>
+
+        <!-- BLOCKCHAIN -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Inteligencia en Blockchain y Suplantación Corporativa</h2>
+
+        <h3 class="subsection-title">Migración de Wallets</h3>
+        <p>
+            Durante el monitoreo, los atacantes migraron su infraestructura de pagos: eliminaron Litecoin, mantuvieron USDT y reemplazaron la dirección de Bitcoin por una billetera <strong>Bech32 nativa sin historial previo</strong>:
+        </p>
+        <div class="code-block mono">
+            bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa
+        </div>
+
+        <div class="image-container">
+            <img src="img/cmdxcapital_btc_wallet_tracking.jpg" alt="Monitoreo de la wallet Bitcoin de cmdxcapital" loading="lazy">
+            <div class="image-caption mono">cmdxcapital_btc_wallet_tracking.jpg — Análisis On-Chain: cambio a formato Bech32 nativo sin transacciones previas. Técnica de rotación limpia para segmentar el rastreo de fondos.</div>
+        </div>
+
+        <div class="image-container">
+            <img src="img/blockchain_ledger_capital_trace.png" alt="Diagrama de flujo de lavado de activos en blockchain" loading="lazy">
+            <div class="image-caption mono">blockchain_ledger_capital_trace.png — Flujo de lavado: Smurfing/Peeling sobre USDT en TRC20 vs. acumulación estática en la nueva dirección Bech32 de Bitcoin.</div>
+        </div>
+
+        <h3 class="subsection-title">Suplantación de Companies House UK</h3>
+        <p>
+            La campaña utilizaba identidades clonadas de empresas británicas disueltas. El registro oficial de <strong>Companies House</strong> (Empresa N° 13699699) muestra que la entidad cesó operaciones en 2023. Los atacantes clonaron su estructura antes de la disolución.
+        </p>
+
+        <div class="image-container">
+            <img src="img/companies_house_uk_spoofing.jpg" alt="Registro de Companies House UK de la empresa disuelta" loading="lazy">
+            <div class="image-caption mono">companies_house_uk_spoofing.jpg — Contraste contra el portal gubernamental del Reino Unido. La corporación 13699699 fue disuelta en 2023, validando la técnica de usurpación de marcas inactivas.</div>
+        </div>
+
+        <!-- GRAFO DE RELACIONES -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Correlación de Actores e Infraestructura</h2>
+        <p>
+            El siguiente grafo une la capa de ingeniería social con la infraestructura on-chain, asociando las identidades de Telegram de los operadores con las carteras que recibieron los fondos.
+        </p>
+
+        <div class="image-container">
+            <img src="img/threat_actor_relationship_graph.png" alt="Grafo de relaciones entre actores e infraestructura" loading="lazy">
+            <div class="image-caption mono">threat_actor_relationship_graph.png — Grafo de relaciones: identidades de Telegram (Juan Gómez, Jesus), grupos de captación y carteras Bitcoin/USDT que recibieron fondos de las víctimas.</div>
+        </div>
+
+        <!-- RECOMENDACIONES DE CAZA -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Recomendaciones de Caza (Threat Hunting)</h2>
+        <ol>
+            <li><strong>Bloquear el dominio core y todos los satélites</strong> en firewalls, proxies y sistemas de filtrado DNS.</li>
+            <li><strong>Monitorear la wallet Bitcoin</strong> <span class="mono">bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</span> para detectar nuevas transacciones y posibles víctimas.</li>
+            <li><strong>Buscar nuevos dominios</strong> que compartan la misma plantilla HTML, canales de Telegram u hojas de estilo Bootstrap.</li>
+            <li><strong>Rastrear instalaciones de Laravel con debug mode activo</strong> en dominios relacionados con trading o criptomonedas. La exposición de Ignition es un indicador de infraestructura mal configurada vinculada a campañas similares.</li>
+            <li><strong>Consultar los hashes SHA-256</strong> de los archivos asociados contra VirusTotal, Maltiverse y Hybrid Analysis.</li>
+            <li><strong>Implementar reglas para formularios con captcha vulnerable:</strong> buscar patrones HTML donde el valor de confirmación viaje como input oculto estático en el cliente.</li>
+        </ol>
+
+        <!-- CONCLUSIÓN -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Conclusión</h2>
+        <p>
+            La Operación FakeWealth demuestra que la inteligencia de amenazas no depende de zero-days ni de accesos privilegiados. Depende de saber leer lo que el adversario deja expuesto. Un debug mode activo en producción, un captcha con valor estático en el HTML, una wallet Bech32 recién creada y una empresa británica disuelta en 2023 son piezas que, correlacionadas, dibujan el mapa completo de una campaña de fraude.
+        </p>
+        <p>
+            Este caso es la versión extendida de la investigación que menciono brevemente en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>, donde conecto cinco investigaciones reales con sus TTPs, IoCs y lecciones aprendidas. La metodología de pivoting sobre infraestructura es la misma que apliqué en el análisis de la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>: en ambos casos, los atacantes usan Cloudflare como escudo, rotan dominios y reciclan plantillas. La diferencia es que cmdxcapital cometió el error de dejar Laravel hablando solo en producción.
+        </p>
+
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Referencias</h2>
+        <ul>
+            <li><a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection — Crónica completa de cinco investigaciones reales (tty503.com)</a></li>
+            <li><a href="https://tty503.com/pigbutchering-bybsusd.html">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio (tty503.com)</a></li>
+            <li><a href="https://find-and-update.company-information.service.gov.uk/company/13699699/filing-history" target="_blank" rel="noopener noreferrer">Companies House UK — Registro de la empresa N° 13699699 (disuelta 2023)</a></li>
+            <li><a href="https://www.php.net/manual/es/function.proc-open.php" target="_blank" rel="noopener noreferrer">PHP Manual — Función proc_open()</a></li>
+            <li><a href="https://www.blockchain.com/explorer" target="_blank" rel="noopener noreferrer">Blockchain.com Explorer — Trazabilidad de wallets Bitcoin</a></li>
+            <li><a href="https://brokersrecomendados.com/bremby-valoracion-y-comentarios/" target="_blank" rel="noopener noreferrer">Reporte de fraude — Bremby (plataforma clonada predecesora de CMDX Capital)</a></li>
+        </ul>
+    </article>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Threat Intelligence — Operación FakeWealth / cmdxcapital.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
+            } else {
+                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
+            }
+        });
+    </script>
+</body>
+</html>
