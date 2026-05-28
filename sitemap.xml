@@ -13,7 +13,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
 
@@ -35,7 +35,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/aboutme.html</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -45,7 +45,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/analystty.html</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
 
@@ -79,7 +79,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/assembly.html</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
@@ -89,7 +89,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/infraestructura-tunel-ofuscado.html</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -99,7 +99,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/myPracticalShellcodeC2.html</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
@@ -109,7 +109,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/plc.html</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
 
@@ -176,11 +176,11 @@
 
     <!-- ===================================================================== -->
     <!-- PÁGINA: Threat Hunter Recollection — Crónica de Caza Conectando     -->
-    <!-- Campañas (NUEVO - Mayo 2026)                                        -->
+    <!-- Campañas                                                             -->
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/threat-hunter-recollection.html</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
 
@@ -343,11 +343,11 @@
 
     <!-- ===================================================================== -->
     <!-- PÁGINA: Laboratorio SOC/Honeypot — Arquitectura de Aislamiento y    -->
-    <!-- Automatización (NUEVO - Mayo 2026)                                   -->
+    <!-- Automatización                                                       -->
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/infra-soc.html</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
 
@@ -371,25 +371,123 @@
     </url>
 
     <!-- ===================================================================== -->
+    <!-- PÁGINA: Pig Butchering — Fake Crypto Exchange Multi-Dominio         -->
+    <!-- ===================================================================== -->
+    <url>
+        <loc>https://tty503.com/pigbutchering-bybsusd.html</loc>
+        <lastmod>2026-05-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-0.png</image:loc>
+            <image:title>Diagrama de Infraestructura — Red de Estafa Pig Butchering</image:title>
+            <image:caption>Diagrama de red completo: servicios de seguridad bloqueando proactivamente, capa de rotación de dominios con Vue 3 + Vant UI, servidor WebSocket en Google Cloud Hong Kong, y backend API con endpoints de carrusel, login, certificados falsos y captcha roto.</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-1.png</image:loc>
+            <image:title>Flujo de Engaño — Las Cuatro Fases del Pig Butchering</image:title>
+            <image:caption>Diagrama de secuencia de las cuatro fases: Captación, Generar Confianza, El Robo y Abandono. Desde el mensaje no solicitado hasta la rotación de dominio y desaparición.</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-2.png</image:loc>
+            <image:title>Secuencia de Conexión WebSocket Fraudulenta</image:title>
+            <image:caption>Diagrama de secuencia del tráfico WebSocket: login, establecimiento del chat, y loop de comunicación donde el estafador monitorea en tiempo real los depósitos de la víctima.</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-3.png</image:loc>
+            <image:title>Componentes del Sistema de Chat Fraudulento</image:title>
+            <image:caption>Arquitectura del chat: Servidor WebSocket con Nginx + Workerman PHP en Google Cloud Hong Kong, panel de control del estafador, y base de datos con datos de víctimas y sesiones.</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-4.png</image:loc>
+            <image:title>Mensaje de Engaño Inicial — Fase de Captación</image:title>
+            <image:caption>Captura de Facebook Messenger con el mensaje de captación: balance ficticio de 5.7 millones de USDT, credenciales preconfiguradas y enlace al frontend fraudulento bybsusd.com.</image:caption>
+        </image:image>
+    </url>
+
+    <!-- ===================================================================== -->
+    <!-- PÁGINA: Web API Pentesting 2024 — Token Reuse, IDOR y Fuga de Datos -->
+    <!-- ===================================================================== -->
+    <url>
+        <loc>https://tty503.com/web-api-pentesting2024.html</loc>
+        <lastmod>2026-05-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/web-api-pentest2024-01-data-leak.png</image:loc>
+            <image:title>Extracción de Registros — Script de Enumeración IDOR</image:title>
+            <image:caption>Captura de terminal mostrando la extracción exitosa de registros con campos: Nombre, Tarjeta, Límite de crédito, Saldo deudor, Fecha Límite y estado de activación.</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/web-api-pentest2024-02-auth-basic-error.png</image:loc>
+            <image:title>Error de Autenticación — Excepción Interna Expuesta</image:title>
+            <image:caption>Diagrama de secuencia del error 401 Unauthorized con "CoreBankingAuthException" y mensaje "Servicio no disponible temporalmente".</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/web-api-pentest2024-03-media-type-mismatch.png</image:loc>
+            <image:title>Error de Media Type — Excepción de Formato Expuesta</image:title>
+            <image:caption>Diagrama de secuencia del error 415 Unsupported Media Type con "InvalidPayloadFormatException" y mensaje de "Mismatch en cabeceras de tipo de contenido".</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/web-api-pentest2024-04-http-headers.png</image:loc>
+            <image:title>Encabezados HTTP Interceptados — Estructura de Autenticación</image:title>
+            <image:caption>Fragmento de código mostrando headers: Host, Cookie de sesión, X-Txn-Ref, Content-Type versionado y token Bearer.</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/web-api-pentest2024-06-jwt-signature.png</image:loc>
+            <image:title>Validación JWT — Firma y Librería Expuesta</image:title>
+            <image:caption>Diagrama de secuencia del error 401 con "io.jsonwebtoken.SignatureException" confirmando la librería de validación utilizada por el backend.</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/web-api-pentest2024-07-successful-data.png</image:loc>
+            <image:title>Respuesta Exitosa — Datos de Producto Financiero</image:title>
+            <image:caption>Diagrama de secuencia de consulta exitosa con HTTP 200 y payload JSON con "product_tier", "valid_thru" y "physical_issued".</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/web-api-pentest2024-08-verification-error.png</image:loc>
+            <image:title>Intento de Evasión — Validación de Token Fallida</image:title>
+            <image:caption>Diagrama de secuencia del POST a endpoint de verificación con payload codificado en Base64 y respuesta "Invalid authorization token provided".</image:caption>
+        </image:image>
+
+        <image:image>
+            <image:loc>https://tty503.com/img/web-api-pentest2024-10-idor-enumeration.png</image:loc>
+            <image:title>Script de Enumeración IDOR — Iteración Secuencial</image:title>
+            <image:caption>Captura de consola mostrando iteración sobre rango de identificadores con Resource ID en Base64 y estado "Not found".</image:caption>
+        </image:image>
+    </url>
+
+    <!-- ===================================================================== -->
     <!-- ANCLAS (HASH URLS) CON VALOR SEMÁNTICO                              -->
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/#about</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
 
     <url>
         <loc>https://tty503.com/#experience</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
 
     <url>
         <loc>https://tty503.com/#research</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
