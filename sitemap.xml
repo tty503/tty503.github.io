@@ -41,7 +41,7 @@
         <image:image><image:loc>https://tty503.com/img/aboutme-3.jpg</image:loc><image:title>Editor hexadecimal distorsionado con fragmentos de código</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/aboutme-4.jpg</image:loc><image:title>Lost Wormhole - Wrong House: póster distópico de casa en llamas</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/aboutme-5.jpg</image:loc><image:title>Escritorio Windows retro con herramientas de reversing: Hopper, NASM, LordPE, CFF Explorer</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-6.jpg</image:loc><image:title>VS Code con estructura MITRE ATT&CK, reglas Yara y código de descifrado en C</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/aboutme-6.jpg</image:loc><image:title>VS Code con estructura MITRE ATT&amp;CK, reglas Yara y código de descifrado en C</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/aboutme-7.jpg</image:loc><image:title>Script gladiador.py usando Capstone para desensamblar malware</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/aboutme-8.jpg</image:loc><image:title>BBS Seknet con hilos sobre syscalls Linux, PEB, evasión de firewall chino</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/aboutme-9.jpg</image:loc><image:title>Ghidra CodeBrowser desensamblando strings1.exe con flags y MessageBox</image:title></image:image>
