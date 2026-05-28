@@ -220,6 +220,20 @@
     </url>
 
     <!-- ===================================================================== -->
+    <!-- PÁGINA: Operaciones General JP y SilentWarn                           -->
+    <!-- ===================================================================== -->
+    <url>
+        <loc>https://tty503.com/operation-general-jp-silentwarn.html</loc>
+        <lastmod>2026-05-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+        <image:image><image:loc>https://tty503.com/img/phishing_traffic_redirection_infrastructure_graph.jpg</image:loc><image:title>Grafo de Infraestructura — Redirección de Phishing General JP</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/phishing_kit_exfiltrated_logins_ledger.png</image:loc><image:title>Bitácora de Credenciales Robadas — Kit General JP</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/meta_phishing_email_intellectual_property_lure.jpg</image:loc><image:title>Correo de Phishing — Suplantación de Meta for Business</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/php_backend_phishing_telemetry_script.jpg</image:loc><image:title>Backend PHP — Exfiltración a Telegram del Kit General JP</image:title></image:image>
+    </url>
+
+    <!-- ===================================================================== -->
     <!-- PÁGINA: Web API Pentesting 2024                                       -->
     <!-- ===================================================================== -->
     <url>
