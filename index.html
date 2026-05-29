@@ -19,9 +19,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
     <!-- ==================== SEO AVANZADO ==================== -->
-    <title>Christian Márquez (tty503) | Automatización, Infraestructura, Ciberseguridad y PLC</title>
-    <meta name="description" content="Christian Márquez (tty503): Especialista en automatización de infraestructura, ciberseguridad ofensiva y defensiva, análisis de malware, ingeniería inversa, PLC Siemens S5/S7, DevSecOps, Linux, Ansible, Terraform y seguridad OT. Portafolio profesional con investigaciones técnicas.">
-    <meta name="keywords" content="Christian Marquez, tty503, Christian Márquez ciberseguridad, tty503 portfolio, automatización infraestructura, análisis malware, ingeniería inversa, PLC Siemens, seguridad OT, DevSecOps, Linux administrador, Ansible Terraform, reversing iOS, Ghidra, Proxmox, threat intelligence, blue team, red team, consultor ciberseguridad Venezuela">
+    <title>Christian Márquez (tty503) | Threat Intelligence, Ingeniería Inversa, Seguridad OT y Automatización</title>
+    <meta name="description" content="Christian Márquez (tty503): Threat Intelligence, ingeniería inversa de malware, seguridad en infraestructuras críticas OT/PLC Siemens S5/S7, DevSecOps, automatización con Ansible y Terraform, y análisis forense de fraudes financieros. Portafolio con investigaciones técnicas reales desde Venezuela.">
+    <meta name="keywords" content="Christian Marquez, tty503, threat intelligence, ingeniería inversa, reversing, malware analysis, PLC Siemens, seguridad OT, SCADA, DevSecOps, Ansible, Terraform, Proxmox, Ghidra, x64dbg, Capstone, Assembly x86, ARM64, APT, ciberdefensa, red team, blue team, SOC, honeypot, Wazuh, blockchain forensics, Pig Butchering, crypto scam, OSINT, infraestructura crítica, Venezuela, consultor ciberseguridad, ciberguerra, guerra híbrida, Mustang Panda, USCYBERCOM, operational technology, cyber warfare">
     <meta name="author" content="Christian Márquez">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="https://tty503.com">
@@ -32,22 +32,22 @@
     <!-- Open Graph / Redes Sociales -->
     <meta property="og:locale" content="es_ES">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Christian Márquez (tty503) — Infraestructura, Seguridad y Automatización">
-    <meta property="og:description" content="Portafolio de Christian Márquez (tty503): Automatización de infraestructura, análisis de malware, ingeniería inversa, PLC Siemens, seguridad OT y DevSecOps. Descubre investigaciones y experiencia técnica.">
+    <meta property="og:title" content="Christian Márquez (tty503) — Threat Intelligence, Ingeniería Inversa y Seguridad OT">
+    <meta property="og:description" content="Portafolio profesional: threat intelligence, ingeniería inversa de malware, seguridad en PLC Siemens, automatización de infraestructura y análisis forense de fraudes financieros. Especialista en infraestructuras críticas desde Venezuela.">
     <meta property="og:url" content="https://tty503.com">
     <meta property="og:site_name" content="tty503 — Christian Márquez Portfolio">
     <meta property="og:image" content="https://tty503.com/p1.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Christian Márquez - Especialista en ciberseguridad, automatización y PLC">
+    <meta property="og:image:alt" content="Christian Márquez - Threat Intelligence, Ingeniería Inversa y Seguridad OT">
     <meta property="og:image:type" content="image/jpeg">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@tty_503">
     <meta name="twitter:creator" content="@tty_503">
-    <meta name="twitter:title" content="Christian Márquez (tty503) | Ciberseguridad, PLC y Automatización">
-    <meta name="twitter:description" content="Especialista en seguridad ofensiva/defensiva, análisis de malware, reversing, PLC Siemens y automatización de infraestructura. Portafolio e investigaciones.">
+    <meta name="twitter:title" content="Christian Márquez (tty503) | Threat Intelligence y Seguridad OT">
+    <meta name="twitter:description" content="Threat intelligence, ingeniería inversa, PLC Siemens, automatización de infraestructura y análisis forense desde Venezuela.">
     <meta name="twitter:image" content="https://tty503.com/p1.jpg">
     <meta name="twitter:image:alt" content="Christian Márquez - tty503 Portfolio">
     
@@ -73,16 +73,8 @@
             --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             background-color: var(--bg-base);
             color: var(--text-primary);
@@ -92,598 +84,112 @@
             -moz-osx-font-smoothing: grayscale;
             overflow-x: hidden;
         }
-
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
+        .mono { font-family: 'JetBrains Mono', monospace; }
         .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.06;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.06;
             background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
         }
-
         .text-gradient {
             background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(3, 3, 3, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-subtle);
-            z-index: 1000;
-            transition: var(--transition-smooth);
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.2rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .nav-brand {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .nav-brand span {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            transition: var(--transition-smooth);
-        }
-
-        .nav-links a:hover {
-            color: var(--accent);
-        }
-
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 8rem 2rem 4rem;
-            position: relative;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60vw;
-            height: 60vw;
-            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 70%);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .hero-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-content h1 {
-            font-size: clamp(3rem, 5vw, 4.5rem);
-            font-weight: 700;
-            line-height: 1.1;
-            letter-spacing: -1px;
-            margin-bottom: 0.5rem;
-        }
-
-        .hero-handle {
-            display: inline-block;
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            background: var(--bg-card);
-            padding: 0.4rem 1rem;
-            border-radius: 4px;
-            border: 1px solid var(--border-subtle);
-        }
-
-        .hero-description {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            max-width: 500px;
-            margin-bottom: 2.5rem;
-            line-height: 1.8;
-        }
-
-        .hero-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-        }
-
-        .tag {
-            background: transparent;
-            color: var(--text-secondary);
-            padding: 0.4rem 0.8rem;
-            border-radius: 2px;
-            font-size: 0.8rem;
-            border: 1px solid var(--border-subtle);
-            transition: var(--transition-smooth);
-            font-weight: 500;
-        }
-
-        .tag:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
-
-        .hero-image-wrapper {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .hero-image-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            aspect-ratio: 3/4;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        .profile-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            filter: grayscale(100%) contrast(1.1) brightness(0.9);
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .hero-image-container:hover .profile-img {
-            filter: grayscale(0%) contrast(1.05) brightness(1);
-            transform: scale(1.02);
-        }
-
-        .section {
-            padding: 6rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-header {
-            margin-bottom: 3rem;
-            border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 1rem;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            letter-spacing: -0.5px;
-        }
-
-        .section-title span {
-            color: var(--text-muted);
-            font-weight: 400;
-            margin-right: 1rem;
-        }
-
-        .about-text {
-            font-size: 1.15rem;
-            color: var(--text-secondary);
-            max-width: 800px;
-            line-height: 1.8;
-        }
-
-        .about-text strong {
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
-        .about-more-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 2rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            border: 1px solid var(--border-subtle);
-            padding: 0.7rem 1.5rem;
-            border-radius: 4px;
-            transition: var(--transition-smooth);
-        }
-
-        .about-more-link:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .about-more-link .arrow-icon {
-            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .about-more-link:hover .arrow-icon {
-            transform: translateX(4px);
-        }
-
-        .theme-group {
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            background: transparent;
-            overflow: hidden;
-            transition: var(--transition-smooth);
-        }
-
-        .theme-group[open] {
-            border-color: var(--border-hover);
-            background: var(--bg-card);
-        }
-
-        .theme-summary {
-            padding: 1.5rem 2rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            list-style: none;
-            user-select: none;
-            transition: background 0.3s;
-            gap: 1.5rem;
-        }
-
-        .theme-summary:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .theme-summary::-webkit-details-marker {
-            display: none;
-        }
-
-        .theme-title {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-
-        .theme-icon {
-            color: var(--text-muted);
-        }
-
-        .toggle-icon {
-            color: var(--text-muted);
-            font-size: 1.5rem;
-            font-weight: 300;
-            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-            line-height: 1;
-            flex-shrink: 0;
-        }
-
-        .theme-group[open] .toggle-icon {
-            transform: rotate(45deg);
-            color: var(--text-primary);
-        }
-
-        .theme-content {
-            padding: 0 2rem 1.5rem;
-            animation: fadeInDown 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .source-divider {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin: 2rem 0 1.2rem;
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-        }
-
-        .source-divider::before,
-        .source-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border-subtle);
-        }
-
-        .source-divider span {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            white-space: nowrap;
-        }
-
-        .source-divider .divider-icon {
-            font-size: 0.9rem;
-        }
-
-        .local-badge {
-            display: inline-block;
-            background: transparent;
-            color: var(--accent-green);
-            padding: 0.15rem 0.5rem;
-            border-radius: 3px;
-            font-size: 0.65rem;
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            margin-left: 0.5rem;
-            vertical-align: middle;
-            letter-spacing: 0.3px;
-        }
-
-        .exp-item {
-            background: var(--bg-base);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: var(--transition-smooth);
-        }
-
-        .exp-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .exp-item:hover {
-            border-color: var(--border-hover);
-            background: #181818;
-        }
-
-        .exp-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.2rem;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 0.8rem;
-        }
-
-        .exp-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .exp-meta {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .exp-details {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-        }
-
-        .exp-detail-row {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            display: flex;
-            flex-direction: row;
-            gap: 0.5rem;
-        }
-
-        .exp-detail-row strong {
-            color: var(--text-primary);
-            font-weight: 500;
-            min-width: 110px;
-            flex-shrink: 0;
-        }
-
-        .article-link {
-            display: block;
-            background: var(--bg-base);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            text-decoration: none;
-            transition: var(--transition-smooth);
-            position: relative;
-        }
-
-        .article-link:last-child {
-            margin-bottom: 0;
-        }
-
-        .article-link:hover {
-            background: #181818;
-            border-color: var(--border-hover);
-        }
-
-        .article-link.local-article:hover {
-            border-color: rgba(74, 222, 128, 0.3);
-        }
-
-        .article-link.local-article:hover .article-arrow {
-            color: var(--accent-green);
-        }
-
-        .article-date {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .article-title {
-            font-size: 1.05rem;
-            color: var(--text-primary);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        .article-desc {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .article-arrow {
-            position: absolute;
-            right: 1.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            transition: var(--transition-smooth);
-        }
-
-        .article-link:hover .article-arrow {
-            color: var(--text-primary);
-            transform: translate(5px, -50%);
-        }
-
-        .footer {
-            border-top: 1px solid var(--border-subtle);
-            padding: 4rem 2rem;
-            text-align: center;
-            background: var(--bg-surface);
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .social-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: var(--transition-smooth);
-            font-weight: 500;
-        }
-
-        .social-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .copyright {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .reveal {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+            position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.7);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth);
+        }
+        .nav-container { max-width: 1200px; margin: 0 auto; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-brand span { color: var(--text-secondary); font-size: 0.9rem; }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.5px; transition: var(--transition-smooth); }
+        .nav-links a:hover { color: var(--accent); }
+        .hero { min-height: 100vh; display: flex; align-items: center; padding: 8rem 2rem 4rem; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 70%); z-index: 0; pointer-events: none; }
+        .hero-container { max-width: 1200px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; position: relative; z-index: 1; }
+        .hero-content h1 { font-size: clamp(3rem, 5vw, 4.5rem); font-weight: 700; line-height: 1.1; letter-spacing: -1px; margin-bottom: 0.5rem; }
+        .hero-handle { display: inline-block; font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem; background: var(--bg-card); padding: 0.4rem 1rem; border-radius: 4px; border: 1px solid var(--border-subtle); }
+        .hero-description { font-size: 1.1rem; color: var(--text-secondary); max-width: 580px; margin-bottom: 2.5rem; line-height: 1.8; }
+        .hero-tags { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+        .tag { background: transparent; color: var(--text-secondary); padding: 0.4rem 0.8rem; border-radius: 2px; font-size: 0.8rem; border: 1px solid var(--border-subtle); transition: var(--transition-smooth); font-weight: 500; }
+        .tag:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+        .hero-image-wrapper { position: relative; display: flex; justify-content: center; align-items: center; }
+        .hero-image-container { position: relative; width: 100%; max-width: 400px; aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.03); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .profile-img { width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(100%) contrast(1.1) brightness(0.9); transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        .hero-image-container:hover .profile-img { filter: grayscale(0%) contrast(1.05) brightness(1); transform: scale(1.02); }
+        .section { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
+        .section-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1rem; }
+        .section-title { font-size: 2rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.5px; }
+        .section-title span { color: var(--text-muted); font-weight: 400; margin-right: 1rem; }
+        .about-text { font-size: 1.15rem; color: var(--text-secondary); max-width: 800px; line-height: 1.8; }
+        .about-text strong { color: var(--text-primary); font-weight: 500; }
+        .about-more-link { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 2rem; color: var(--text-secondary); text-decoration: none; font-size: 0.95rem; font-weight: 500; border: 1px solid var(--border-subtle); padding: 0.7rem 1.5rem; border-radius: 4px; transition: var(--transition-smooth); }
+        .about-more-link:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .about-more-link .arrow-icon { transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .about-more-link:hover .arrow-icon { transform: translateX(4px); }
+        .theme-group { margin-bottom: 1rem; border: 1px solid var(--border-subtle); border-radius: 6px; background: transparent; overflow: hidden; transition: var(--transition-smooth); }
+        .theme-group[open] { border-color: var(--border-hover); background: var(--bg-card); }
+        .theme-summary { padding: 1.5rem 2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; gap: 1.5rem; }
+        .theme-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .theme-summary::-webkit-details-marker { display: none; }
+        .theme-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: flex-start; gap: 0.5rem; }
+        .theme-icon { color: var(--text-muted); }
+        .toggle-icon { color: var(--text-muted); font-size: 1.5rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); line-height: 1; flex-shrink: 0; }
+        .theme-group[open] .toggle-icon { transform: rotate(45deg); color: var(--text-primary); }
+        .theme-content { padding: 0 2rem 1.5rem; animation: fadeInDown 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .source-divider { display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1.2rem; color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.5px; }
+        .source-divider::before, .source-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-subtle); }
+        .source-divider span { display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+        .source-divider .divider-icon { font-size: 0.9rem; }
+        .local-badge { display: inline-block; background: transparent; color: var(--accent-green); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.65rem; border: 1px solid rgba(74, 222, 128, 0.3); margin-left: 0.5rem; vertical-align: middle; letter-spacing: 0.3px; }
+        .exp-item { background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.5rem; margin-bottom: 1rem; transition: var(--transition-smooth); }
+        .exp-item:last-child { margin-bottom: 0; }
+        .exp-item:hover { border-color: var(--border-hover); background: #181818; }
+        .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.8rem; }
+        .exp-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+        .exp-meta { font-size: 0.85rem; color: var(--text-muted); }
+        .exp-details { display: flex; flex-direction: column; gap: 0.8rem; }
+        .exp-detail-row { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; display: flex; flex-direction: row; gap: 0.5rem; }
+        .exp-detail-row strong { color: var(--text-primary); font-weight: 500; min-width: 110px; flex-shrink: 0; }
+        .article-link { display: block; background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.5rem; margin-bottom: 1rem; text-decoration: none; transition: var(--transition-smooth); position: relative; }
+        .article-link:last-child { margin-bottom: 0; }
+        .article-link:hover { background: #181818; border-color: var(--border-hover); }
+        .article-link.local-article:hover { border-color: rgba(74, 222, 128, 0.3); }
+        .article-link.local-article:hover .article-arrow { color: var(--accent-green); }
+        .article-date { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
+        .article-title { font-size: 1.05rem; color: var(--text-primary); font-weight: 500; margin-bottom: 0.5rem; }
+        .article-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+        .article-arrow { position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem; transition: var(--transition-smooth); }
+        .article-link:hover .article-arrow { color: var(--text-primary); transform: translate(5px, -50%); }
+        .footer { border-top: 1px solid var(--border-subtle); padding: 4rem 2rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+        .social-links { display: flex; gap: 2rem; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: var(--transition-smooth); font-weight: 500; }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.85rem; }
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
         @media (max-width: 900px) {
-            .hero-container {
-                grid-template-columns: 1fr;
-                text-align: center;
-                gap: 2.5rem;
-            }
-            .hero-content {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            .hero-tags {
-                justify-content: center;
-            }
-            .article-arrow {
-                display: none;
-            }
-            .exp-detail-row {
-                flex-direction: column;
-                gap: 0.2rem;
-            }
-            .exp-detail-row strong {
-                display: block;
-                margin-bottom: 0.1rem;
-            }
+            .hero-container { grid-template-columns: 1fr; text-align: center; gap: 2.5rem; }
+            .hero-content { display: flex; flex-direction: column; align-items: center; }
+            .hero-tags { justify-content: center; }
+            .article-arrow { display: none; }
+            .exp-detail-row { flex-direction: column; gap: 0.2rem; }
+            .exp-detail-row strong { display: block; margin-bottom: 0.1rem; }
         }
-
         @media (max-width: 600px) {
             .nav-container { padding: 1rem 1.2rem; }
             .nav-links { display: none; }
             .section { padding: 4rem 1.2rem; }
             .section-header { margin-bottom: 2rem; }
-            .section-title {
-                font-size: 1.5rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.3rem;
-                word-wrap: break-word;
-            }
+            .section-title { font-size: 1.5rem; display: flex; flex-direction: column; gap: 0.3rem; word-wrap: break-word; }
             .section-title span { margin-right: 0; font-size: 1.2rem; }
             .hero { padding: 6.5rem 1.2rem 3rem; }
-            .hero-container {
-                display: flex;
-                flex-direction: column;
-                gap: 2.5rem;
-            }
+            .hero-container { display: flex; flex-direction: column; gap: 2.5rem; }
             .hero-content h1 { font-size: 2.6rem; }
             .hero-description { font-size: 1rem; }
             .hero-handle { font-size: 0.9rem; padding: 0.3rem 0.8rem; margin-bottom: 1.5rem; }
@@ -703,7 +209,6 @@
             .source-divider { font-size: 0.7rem; gap: 0.5rem; }
             .source-divider span { gap: 0.2rem; }
         }
-
         @media (max-width: 380px) {
             .hero-content h1 { font-size: 2.2rem; }
             .section-title { font-size: 1.35rem; }
@@ -711,114 +216,23 @@
             .about-text { font-size: 1rem; }
             .hero-image-container { max-width: 180px; }
         }
-
         .nav-icon-wrapper {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            position: relative;
-            overflow: hidden;
-            flex-shrink: 0;
-            background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.12) 0%,
-                rgba(200, 200, 200, 0.08) 30%,
-                rgba(255, 255, 255, 0.15) 60%,
-                rgba(180, 180, 180, 0.06) 100%
-            );
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 
-                inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                0 1px 3px rgba(0, 0, 0, 0.4);
+            display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
+            border-radius: 4px; position: relative; overflow: hidden; flex-shrink: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(200,200,200,0.08) 30%, rgba(255,255,255,0.15) 60%, rgba(180,180,180,0.06) 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 3px rgba(0,0,0,0.4);
             transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            backdrop-filter: blur(0px);
-            -webkit-backdrop-filter: blur(0px);
+            backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
         }
-
-        .nav-icon-wrapper::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            opacity: 0.08;
-            z-index: 2;
-            pointer-events: none;
-            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
-            border-radius: inherit;
-        }
-
-        .nav-icon-wrapper::after {
-            content: '';
-            position: absolute;
-            inset: -1px;
-            border-radius: 5px;
-            z-index: 0;
-            pointer-events: none;
-            background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.06) 50%,
-                rgba(255, 255, 255, 0) 100%
-            );
-            opacity: 0;
-            transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .nav-icon-wrapper:hover::after {
-            opacity: 1;
-        }
-
-        .nav-icon-wrapper img {
-            width: 18px;
-            height: 18px;
-            position: relative;
-            z-index: 1;
-            filter: brightness(1.2) contrast(1.1);
-            transition: filter 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .nav-icon-wrapper:hover {
-            background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.18) 0%,
-                rgba(220, 220, 220, 0.12) 30%,
-                rgba(255, 255, 255, 0.22) 60%,
-                rgba(200, 200, 200, 0.10) 100%
-            );
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 
-                inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                0 2px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        .nav-icon-wrapper:hover img {
-            filter: brightness(1.4) contrast(1.15);
-        }
-
-        @media (max-width: 600px) {
-            .nav-icon-wrapper {
-                width: 26px;
-                height: 26px;
-                border-radius: 3px;
-            }
-            .nav-icon-wrapper img {
-                width: 16px;
-                height: 16px;
-            }
-        }
-
-        @media (max-width: 380px) {
-            .nav-icon-wrapper {
-                width: 24px;
-                height: 24px;
-            }
-            .nav-icon-wrapper img {
-                width: 14px;
-                height: 14px;
-            }
-        }
+        .nav-icon-wrapper::before { content: ''; position: absolute; inset: 0; opacity: 0.08; z-index: 2; pointer-events: none; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); border-radius: inherit; }
+        .nav-icon-wrapper::after { content: ''; position: absolute; inset: -1px; border-radius: 5px; z-index: 0; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 100%); opacity: 0; transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+        .nav-icon-wrapper:hover::after { opacity: 1; }
+        .nav-icon-wrapper img { width: 18px; height: 18px; position: relative; z-index: 1; filter: brightness(1.2) contrast(1.1); transition: filter 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+        .nav-icon-wrapper:hover { background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(220,220,220,0.12) 30%, rgba(255,255,255,0.22) 60%, rgba(200,200,200,0.10) 100%); border-color: rgba(255,255,255,0.15); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.5); }
+        .nav-icon-wrapper:hover img { filter: brightness(1.4) contrast(1.15); }
+        @media (max-width: 600px) { .nav-icon-wrapper { width: 26px; height: 26px; border-radius: 3px; } .nav-icon-wrapper img { width: 16px; height: 16px; } }
+        @media (max-width: 380px) { .nav-icon-wrapper { width: 24px; height: 24px; } .nav-icon-wrapper img { width: 14px; height: 14px; } }
     </style>
 </head>
 <body>
@@ -836,6 +250,7 @@
                 <a href="#about">Sobre mí</a>
                 <a href="#experience">Experiencia</a>
                 <a href="#research">Investigaciones</a>
+                <a href="#articles">Artículos del Sitio</a>
             </div>
         </div>
     </nav>
@@ -846,19 +261,21 @@
                 <div class="hero-handle mono">usuario@tty503:~$ whoami</div>
                 <h1 class="text-gradient">Christian<br>Márquez</h1>
                 <p class="hero-description">
-                    Del firmware de microcontroladores al threat intelligence. Opero en todas las capas —del silicio a la nube— diseñando infraestructura resiliente, desarmando malware a bajo nivel y documentando cada hallazgo. Ingeniería inversa, automatización y seguridad OT/PLC.
+                    Threat intelligence, ingeniería inversa de malware y seguridad en infraestructuras críticas. Del firmware de microcontroladores al análisis de APTs, opero en todas las capas —del registro del procesador a la topología de una red ofuscada, del PLC que controla una subestación al SIEM que correlaciona eventos en tiempo real— diseñando infraestructura resiliente, desarmando binarios a bajo nivel y documentando cada hallazgo desde Venezuela.
                 </p>
                 <div class="hero-tags mono">
                     <span class="tag">Threat Intelligence</span>
                     <span class="tag">Reverse Engineering</span>
-                    <span class="tag">DevSecOps</span>
+                    <span class="tag">Malware Analysis</span>
                     <span class="tag">PLC Siemens</span>
+                    <span class="tag">OT Security</span>
+                    <span class="tag">DevSecOps</span>
                     <span class="tag">Ghidra</span>
                 </div>
             </div>
             <div class="hero-image-wrapper reveal" style="transition-delay: 0.2s;">
                 <div class="hero-image-container">
-                    <img src="p1.jpg" alt="Christian Márquez - Especialista en Ciberseguridad" class="profile-img">
+                    <img src="p1.jpg" alt="Christian Márquez - Threat Intelligence, Ingeniería Inversa y Seguridad OT" class="profile-img">
                 </div>
             </div>
         </div>
@@ -870,9 +287,9 @@
                 <h2 class="section-title mono"><span></span>Sobre_mí</h2>
             </div>
             <p class="about-text reveal">
-                Mi ruta no ha sido lineal. He pasado del firmware de microcontroladores al análisis de amenazas persistentes avanzadas, de la shellcode artesanal a la automatización de infraestructura completa. <strong>Esa amplitud —operar con soltura desde el registro del procesador hasta la topología de una red ofuscada— es lo que define mi enfoque.</strong> No me especializo en una capa: entiendo cómo se conectan todas.<br><br>
-                Mi trayectoria es completamente <strong>autodidacta</strong>, forjada desde 2012 a base de curiosidad técnica y práctica constante. Desde la programación de microcontroladores y el desarrollo de firmware hasta el diseño de túneles de red ofuscados y el análisis de malware a bajo nivel, cada disciplina alimenta a las demás.<br><br>
-                Actualmente, mi investigación se centra en la <strong>inteligencia de amenazas</strong>, la <strong>ingeniería inversa de malware</strong>, la <strong>seguridad de entornos industriales OT/PLC</strong> y el desarrollo de <strong>herramientas propias</strong> para automatizar el análisis. Mi objetivo es la maestría técnica a través de la práctica deliberada y la documentación precisa de cada hallazgo.
+                Mi ruta no ha sido lineal. He pasado del firmware de microcontroladores al análisis de amenazas persistentes avanzadas, de la shellcode artesanal a la automatización de infraestructura completa. <strong>Esa amplitud —operar con soltura desde el registro del procesador hasta la topología de una red ofuscada, desde el PLC que controla un actuador físico hasta el SIEM que correlaciona eventos en tiempo real— es lo que define mi enfoque.</strong> No me especializo en una capa: entiendo cómo se conectan todas, y eso me permite trazar vectores de ataque que otros pasan por alto. En un contexto donde la infraestructura crítica de Venezuela se ha convertido en terreno de disputa cibernética, comprender la intersección entre operational technology, redes de telecomunicaciones y threat intelligence no es un lujo: es una necesidad.<br><br>
+                Mi trayectoria es completamente <strong>autodidacta</strong>, forjada desde 2012 a base de curiosidad técnica y práctica constante. Desde la programación de microcontroladores y el desarrollo de firmware hasta el diseño de túneles de red ofuscados, el análisis de malware a bajo nivel en Assembly x86/ARM64 y la ingeniería inversa de protocolos industriales, cada disciplina alimenta a las demás. Este perfil híbrido —que combina threat intelligence, reversing profundo y automatización DevSecOps— es el que demandan los equipos de ciberdefensa que enfrentan adversarios reales, no simulacros.<br><br>
+                Actualmente, mi investigación se centra en la <strong>inteligencia de amenazas aplicada a fraudes financieros transfronterizos</strong>, la <strong>ingeniería inversa de malware</strong>, la <strong>seguridad de entornos industriales OT/PLC</strong> y el desarrollo de <strong>herramientas propias</strong> para automatizar el análisis forense. Mi objetivo es la maestría técnica a través de la práctica deliberada y la documentación precisa de cada hallazgo.
             </p>
             <a href="aboutme.html" class="about-more-link mono reveal">
                 Ver mi ruta completa <span class="arrow-icon">→</span>
@@ -891,10 +308,7 @@
                     </summary>
                     <div class="theme-content">
                         <div class="exp-item">
-                            <div class="exp-header">
-                                <h4 class="exp-title">Consultor en Automatización e Infraestructura</h4>
-                                <span class="exp-meta mono">tty503 | Ene 2026 - Abr 2026</span>
-                            </div>
+                            <div class="exp-header"><h4 class="exp-title">Consultor en Automatización e Infraestructura</h4><span class="exp-meta mono">tty503 | Ene 2026 - Abr 2026</span></div>
                             <div class="exp-details">
                                 <p class="exp-detail-row"><strong>Qué hice:</strong> Autonomicé despliegues con Ansible y Terraform sobre Linux, configurando entornos aislados con Proxmox, QEMU y Docker.</p>
                                 <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Infraestructura escalable y segura, junto con túneles de tráfico residenciales para facilitar el análisis de plataformas.</p>
@@ -902,10 +316,7 @@
                             </div>
                         </div>
                         <div class="exp-item">
-                            <div class="exp-header">
-                                <h4 class="exp-title">Especialista en Ingeniería Inversa y Seguridad</h4>
-                                <span class="exp-meta mono">tty503 | Abr 2024 - Dic 2024</span>
-                            </div>
+                            <div class="exp-header"><h4 class="exp-title">Especialista en Ingeniería Inversa y Seguridad</h4><span class="exp-meta mono">tty503 | Abr 2024 - Dic 2024</span></div>
                             <div class="exp-details">
                                 <p class="exp-detail-row"><strong>Qué hice:</strong> Ejecuté ingeniería inversa sobre aplicaciones iOS mediante análisis estático (Ghidra, IDA) y analicé tráfico de red con mitmproxy.</p>
                                 <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Extracción de lógica en binarios ofuscados, parcheo ARM64 anti-tamper y herramientas forenses en Bash para el triage de malware.</p>
@@ -913,10 +324,7 @@
                             </div>
                         </div>
                         <div class="exp-item">
-                            <div class="exp-header">
-                                <h4 class="exp-title">Administrador de Sistemas Linux</h4>
-                                <span class="exp-meta mono">tty503 | Ene 2022 - Jun 2022</span>
-                            </div>
+                            <div class="exp-header"><h4 class="exp-title">Administrador de Sistemas Linux</h4><span class="exp-meta mono">tty503 | Ene 2022 - Jun 2022</span></div>
                             <div class="exp-details">
                                 <p class="exp-detail-row"><strong>Qué hice:</strong> Administré servidores Debian/Ubuntu (físicos y virtuales), configurando redes y cortafuegos.</p>
                                 <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Conectividad segura y automatización de mantenimientos/backups para garantizar la continuidad operativa de servicios internos.</p>
@@ -932,10 +340,7 @@
                     </summary>
                     <div class="theme-content">
                         <div class="exp-item">
-                            <div class="exp-header">
-                                <h4 class="exp-title">Desarrollador Backend y Scripting</h4>
-                                <span class="exp-meta mono">tty503 | Mar 2024 - May 2024</span>
-                            </div>
+                            <div class="exp-header"><h4 class="exp-title">Desarrollador Backend y Scripting</h4><span class="exp-meta mono">tty503 | Mar 2024 - May 2024</span></div>
                             <div class="exp-details">
                                 <p class="exp-detail-row"><strong>Qué hice:</strong> Desarrollé APIs REST con FastAPI (Python) integradas con bases SQL (PostgreSQL, MySQL) a través de SQLAlchemy.</p>
                                 <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Backend robusto y documentado desplegado sobre contenedores Docker, con tareas automatizadas en Bash.</p>
@@ -943,10 +348,7 @@
                             </div>
                         </div>
                         <div class="exp-item">
-                            <div class="exp-header">
-                                <h4 class="exp-title">Desarrollador de .NET</h4>
-                                <span class="exp-meta mono">Kexe | Nov 2023 - Mar 2024</span>
-                            </div>
+                            <div class="exp-header"><h4 class="exp-title">Desarrollador de .NET</h4><span class="exp-meta mono">Kexe | Nov 2023 - Mar 2024</span></div>
                             <div class="exp-details">
                                 <p class="exp-detail-row"><strong>Qué hice:</strong> Mantuve y desarrollé un sistema empresarial modular en C# (.NET Framework/Core) colaborando bajo metodología SCRUM.</p>
                                 <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Implementación íntegra de un módulo de reportes de gastos con filtros dinámicos, integrado con DevExpress.</p>
@@ -954,10 +356,7 @@
                             </div>
                         </div>
                         <div class="exp-item">
-                            <div class="exp-header">
-                                <h4 class="exp-title">Profesional de Apoyo (Hardware/Firmware)</h4>
-                                <span class="exp-meta mono">CENDIT | Oct 2022 - Nov 2023</span>
-                            </div>
+                            <div class="exp-header"><h4 class="exp-title">Profesional de Apoyo (Hardware/Firmware)</h4><span class="exp-meta mono">CENDIT | Oct 2022 - Nov 2023</span></div>
                             <div class="exp-details">
                                 <p class="exp-detail-row"><strong>Qué hice:</strong> Programé firmware en C para microcontroladores PIC (18 y 24) en entornos de proyectos médicos y educativos.</p>
                                 <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Implementación estable de protocolos I2C/UART y documentación algorítmica precisa en LaTeX y PlantUML.</p>
@@ -965,10 +364,7 @@
                             </div>
                         </div>
                         <div class="exp-item">
-                            <div class="exp-header">
-                                <h4 class="exp-title">Desarrollador Web y Scripting</h4>
-                                <span class="exp-meta mono">Independiente | Jul 2021 - Dic 2021</span>
-                            </div>
+                            <div class="exp-header"><h4 class="exp-title">Desarrollador Web y Scripting</h4><span class="exp-meta mono">Independiente | Jul 2021 - Dic 2021</span></div>
                             <div class="exp-details">
                                 <p class="exp-detail-row"><strong>Qué hice:</strong> Desarrollé scripts en Python/PHP y colaboré en la construcción de proyectos web usando HTML y jQuery.</p>
                                 <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Automatización temprana de flujos de trabajo e inicialización de entornos LAMP/LEMP en servidores VPS.</p>
@@ -984,10 +380,7 @@
                     </summary>
                     <div class="theme-content">
                         <div class="exp-item">
-                            <div class="exp-header">
-                                <h4 class="exp-title">Blog Contributor</h4>
-                                <span class="exp-meta mono">ReldSec | Jun 2017 - Nov 2019</span>
-                            </div>
+                            <div class="exp-header"><h4 class="exp-title">Blog Contributor</h4><span class="exp-meta mono">ReldSec | Jun 2017 - Nov 2019</span></div>
                             <div class="exp-details">
                                 <p class="exp-detail-row"><strong>Qué hice:</strong> Escribí artículos técnicos centrados en ciberseguridad y programación, apoyando con scripts internos (Python/PHP).</p>
                                 <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Contenido formativo valioso para la comunidad y herramientas personalizadas para el equipo editorial.</p>
@@ -1004,7 +397,6 @@
                 <h2 class="section-title mono"><span></span>Investigaciones_Temáticas</h2>
             </div>
             <div class="accordion-container">
-                <!-- Categoría 1: Análisis de Malware y Threat Intel -->
                 <details class="theme-group reveal" open>
                     <summary class="theme-summary mono">
                         <h3 class="theme-title"><span class="theme-icon">/</span> Análisis de Malware y Threat Intel</h3>
@@ -1041,9 +433,7 @@
                             <p class="article-desc">Auditoría a la app de streaming pirata. Arquitectura del APK, técnicas de evasión (DGA, HTTP DNS) y riesgos del modelo de negocio oculto.</p>
                             <span class="article-arrow">→</span>
                         </a>
-                        <div class="source-divider">
-                            <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
-                        </div>
+                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
                         <a href="analystty.html" class="article-link local-article">
                             <span class="article-date mono">~12 min de lectura</span>
                             <h3 class="article-title">analystty — Automatización de Triage de Malware <span class="local-badge">NOTAS</span></h3>
@@ -1053,30 +443,29 @@
                         <a href="threat-hunter-recollection.html" class="article-link local-article">
                             <span class="article-date mono">May 2026 · ~45 min de lectura</span>
                             <h3 class="article-title">Threat Hunter Recollection: Una Crónica de Caza Conectando Campañas <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Cinco investigaciones reales conectadas por un mismo hilo metodológico. Del mapeo de una red de estafa piramidal global con VirusTotal al reversing de un dropper multi-etapa, pasando por la deconstrucción de NetSupport RAT y el análisis de infraestructura BEC. Una crónica que demuestra cómo se forjan las habilidades de un Threat Hunter en el laboratorio.</p>
+                            <p class="article-desc">Cinco investigaciones reales conectadas por un mismo hilo metodológico. Del mapeo OSINT de una red de estafa piramidal global al reversing de un dropper multi-etapa, pasando por la deconstrucción de NetSupport RAT y el análisis de infraestructura BEC.</p>
                             <span class="article-arrow">→</span>
                         </a>
                         <a href="pigbutchering-bybsusd.html" class="article-link local-article">
                             <span class="article-date mono">May 2026 · ~30 min de lectura</span>
                             <h3 class="article-title">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Investigación técnica de una red de estafa tipo Pig Butchering con rotación rápida de dominios, WebSocket con Workerman PHP, API con captcha roto y certificados falsos. Incluye IoCs, diagramas de infraestructura, análisis del frontend Vue 3 + Vant UI y referencias al FBI, DOJ y Europol.</p>
+                            <p class="article-desc">Investigación técnica de una red de estafa tipo Pig Butchering con rotación rápida de dominios, WebSocket con Workerman PHP, API con captcha roto y certificados falsos. Incluye IoCs, diagramas de infraestructura y referencias al FBI, DOJ y Europol.</p>
                             <span class="article-arrow">→</span>
                         </a>
                         <a href="fakewealth-cmdxcapital.html" class="article-link local-article">
                             <span class="article-date mono">Oct 2025–May 2026 · ~60 min de lectura</span>
                             <h3 class="article-title">Operación FakeWealth: Inteligencia de Amenazas sobre cmdxcapital <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Investigación de threat intelligence sobre una red de fraude financiero con infraestructura en Cloudflare y Google Cloud. Crash de Laravel con appDebug:true en producción, bypass de captcha automatizado, migración de wallets Bitcoin a direcciones Bech32 vírgenes, spoofing de Companies House UK y exposición de consultas SQL, tokens de sesión y rutas absolutas del servidor. Versión extendida del caso documentado en la Threat Hunter Recollection.</p>
+                            <p class="article-desc">Investigación de threat intelligence sobre una red de fraude financiero con infraestructura en Cloudflare y Google Cloud. Crash de Laravel con appDebug:true en producción, bypass de captcha, migración de wallets Bitcoin y spoofing de Companies House UK.</p>
                             <span class="article-arrow">→</span>
                         </a>
                         <a href="operation-general-jp-silentwarn.html" class="article-link local-article">
                             <span class="article-date mono">Jun 2025 · ~55 min de lectura</span>
                             <h3 class="article-title">Operaciones General JP y SilentWarn: Dos Campañas de Phishing Conectadas <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Investigación de threat intelligence sobre dos campañas de phishing activas. General JP: redirección multi-capa, Google Cloud Storage, Filemail API y kit PHP con exfiltración a Telegram. SilentWarn: React + EmailJS + SMTPjs, geofencing para Vietnam, alojada en Cloudflare Pages. Ambas comparten listas de correos de Alien Stealer, combolists y breaches. IoCs, patrones de infraestructura y correlación con investigaciones previas del portafolio.</p>
+                            <p class="article-desc">Investigación de threat intelligence sobre dos campañas de phishing activas. General JP: redirección multi-capa, Google Cloud Storage, Filemail API y kit PHP con exfiltración a Telegram. SilentWarn: React + EmailJS + SMTPjs, geofencing para Vietnam. IoCs, patrones de infraestructura y correlación con investigaciones previas.</p>
                             <span class="article-arrow">→</span>
                         </a>
                     </div>
                 </details>
-                <!-- Categoría 2: Ingeniería Inversa y Low-Level -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
                         <h3 class="theme-title"><span class="theme-icon">/</span> Ingeniería Inversa y Low-Level</h3>
@@ -1101,9 +490,7 @@
                             <p class="article-desc">Desarrollo de utilidad en terminal para cálculo de entropía, extracción de metadata y hashing SHA-256 automatizado al vuelo.</p>
                             <span class="article-arrow">→</span>
                         </a>
-                        <div class="source-divider">
-                            <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
-                        </div>
+                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
                         <a href="assembly.html" class="article-link local-article">
                             <span class="article-date mono">~2 horas de lectura</span>
                             <h3 class="article-title">Assembly para Ingeniería Inversa (RE) <span class="local-badge">NOTAS</span></h3>
@@ -1113,12 +500,11 @@
                         <a href="web-api-pentesting2024.html" class="article-link local-article">
                             <span class="article-date mono">Jun–Ago 2024 · ~30 min de lectura</span>
                             <h3 class="article-title">Pentesting a Web API Financiera: Token Reuse, IDOR y Fuga de Datos <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Auditoría de seguridad ofensiva freelance a una Web API del sector financiero. Ingeniería inversa de APK, bypass de certificate pinning, token reuse con JWT, IDOR y extracción automatizada de datos sensibles. Incluye diagramas de secuencia, referencias al OWASP API Security Top 10 y caso documentado con endpoints anonimizados por confidencialidad.</p>
+                            <p class="article-desc">Auditoría de seguridad ofensiva freelance a una Web API del sector financiero. Ingeniería inversa de APK, bypass de certificate pinning, token reuse con JWT, IDOR y extracción automatizada de datos sensibles.</p>
                             <span class="article-arrow">→</span>
                         </a>
                     </div>
                 </details>
-                <!-- Categoría 3: Malware Dev y Técnicas Ofensivas -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
                         <h3 class="theme-title"><span class="theme-icon">/</span> Malware Dev y Técnicas Ofensivas</h3>
@@ -1131,13 +517,11 @@
                             <p class="article-desc">Prueba de concepto de ofuscación (Builder en C + Stub ASM x86) usando aritmética básica para reducir la detección de malware a cero.</p>
                             <span class="article-arrow">→</span>
                         </a>
-                        <div class="source-divider">
-                            <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
-                        </div>
+                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
                         <a href="myPracticalShellcodeC2.html" class="article-link local-article">
                             <span class="article-date mono">~120 min de lectura</span>
                             <h3 class="article-title">De la Shellcode Artesanal al C2 Builder <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Evolución técnica de un dropper de shellcode en C/Assembly (WinExec/ExitProcess) a un framework de malware con panel C2 en C#. Incluye compendio extenso de técnicas: inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, XOR encryption, API hashing, y persistencia (Registry, Screensaver, COM hijack, Windows Services, Winlogon, Port Monitors).</p>
+                            <p class="article-desc">Evolución técnica de un dropper de shellcode en C/Assembly (WinExec/ExitProcess) a un framework de malware con panel C2 en C#. Incluye compendio extenso de técnicas: inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, XOR encryption, API hashing, y persistencia.</p>
                             <span class="article-arrow">→</span>
                         </a>
                         <a href="infraestructura-tunel-ofuscado.html" class="article-link local-article">
@@ -1148,7 +532,6 @@
                         </a>
                     </div>
                 </details>
-                <!-- Categoría 4: Seguridad OT e Infraestructura Crítica -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
                         <h3 class="theme-title"><span class="theme-icon">/</span> Seguridad OT e Infraestructura Crítica</h3>
@@ -1170,21 +553,18 @@
                         <a href="https://www.linkedin.com/posts/tty503_plc-cybersecurity-reverseengineering-activity-7374521525460443137-Cllg" target="_blank" rel="noopener noreferrer" class="article-link">
                             <span class="article-date mono">Oct 2025</span>
                             <h3 class="article-title">Ingeniería Inversa en PLC Siemens S5/S7</h3>
-                            <p class="article-desc">Análisis de bajo nivel de la arquitectura interna de autómatas, máquina virtual M7, protocolos industriales y vectores de seguridad ofensiva.</p>
+                            <p class="article-desc">Análisis de bajo nivel de la arquitectura interna de autómatas, máquina virtual MC7, protocolos industriales y vectores de seguridad ofensiva.</p>
                             <span class="article-arrow">→</span>
                         </a>
-                        <div class="source-divider">
-                            <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
-                        </div>
+                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
                         <a href="plc.html" class="article-link local-article">
                             <span class="article-date mono">~40 min de lectura</span>
                             <h3 class="article-title">PLC Siemens S5/S7: Arquitectura, MC7, Seguridad OT y Hallazgos en Infraestructuras Venezolanas <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Investigación extendida exportada desde notas personales: fundamentos de STEP5/AWL, transición a STEP7, máquina virtual MC7, ingeniería inversa de bytecodes, hallazgos en Venalum y CorpoElec, y exploración de shellcode para PLCs.</p>
+                            <p class="article-desc">Investigación extendida: fundamentos de STEP5/AWL, transición a STEP7, máquina virtual MC7, ingeniería inversa de bytecodes, hallazgos en Venalum y CorpoElec, y exploración de shellcode para PLCs.</p>
                             <span class="article-arrow">→</span>
                         </a>
                     </div>
                 </details>
-                <!-- Categoría 5: Blue Team y Defensa Activa -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
                         <h3 class="theme-title"><span class="theme-icon">/</span> Blue Team y Defensa Activa</h3>
@@ -1209,13 +589,125 @@
                             <p class="article-desc">Demostración práctica de cómo las configuraciones inconsistentes entre servidores de correo permiten eludir controles de seguridad perimetrales.</p>
                             <span class="article-arrow">→</span>
                         </a>
-                        <div class="source-divider">
-                            <span><span class="divider-icon">📄</span> Notas técnicas exportadas</span>
-                        </div>
+                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
                         <a href="infra-soc.html" class="article-link local-article">
                             <span class="article-date mono">~35 min de lectura</span>
                             <h3 class="article-title">Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Documentación completa del diseño, despliegue y operación de un laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo con Wazuh, Zabbix, Prometheus y Grafana. Incluye anillos de logs, alertas en tiempo real vía Telegram y gestión de secretos con Hashicorp Vault.</p>
+                            <p class="article-desc">Documentación completa del diseño, despliegue y operación de un laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo con Wazuh, Zabbix, Prometheus y Grafana.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <!-- ==================== NUEVA SECCIÓN: ARTÍCULOS DEL SITIO ==================== -->
+        <section id="articles" class="section">
+            <div class="section-header reveal">
+                <h2 class="section-title mono"><span></span>Artículos_del_Sitio</h2>
+            </div>
+            <p class="about-text reveal" style="margin-bottom: 2.5rem; font-size: 1rem;">
+                Documentación técnica en profundidad publicada exclusivamente en <strong>tty503.com</strong>. Análisis de malware a nivel de bytes, deconstrucción de infraestructuras criminales, automatización de laboratorios y auditorías de seguridad ofensiva.
+            </p>
+            <div class="accordion-container">
+                <!-- Clúster A: Malware Analysis & Reverse Engineering -->
+                <details class="theme-group reveal" open>
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Malware Analysis & Ingeniería Inversa</h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="analystty.html" class="article-link local-article">
+                            <span class="article-date mono">~12 min de lectura</span>
+                            <h3 class="article-title">analystty — Automatización de Triage PE con Python, Capstone y pefile <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Herramienta que extrae imports, detecta TTPs, desensambla la sección .text y genera breakpoints para x64dbg de forma automática. Incluye caso real con un Dropper multi-etapa y API Hashing, volcado de memoria con Radare2 e identificación de Clipper e InfoStealer.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="myPracticalShellcodeC2.html" class="article-link local-article">
+                            <span class="article-date mono">~120 min de lectura</span>
+                            <h3 class="article-title">De winshellcode a BugBuilder: Compendio de Técnicas de Inyección y C2 en Windows <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Tres años de evolución documentados. Más de 20 técnicas: inyección clásica, APC, thread hijacking, API hooking, cifrado XOR, API hashing y persistencia. Incluye panel C2 estructurado y sistema de compilación automatizada de payloads.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="plc.html" class="article-link local-article">
+                            <span class="article-date mono">~40 min de lectura</span>
+                            <h3 class="article-title">Ingeniería Inversa de PLC Siemens MC7: Deficiencia Estructural de Logs en Infraestructuras Críticas <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Laboratorio de reversing sobre la máquina virtual MC7 y el lenguaje AWL. Correlación de volcado hexadecimal con rizin. La investigación revela la ausencia total de registros de auditoría en sistemas reales, anulando cualquier intento de atribución forense.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="assembly.html" class="article-link local-article">
+                            <span class="article-date mono">~2 horas de lectura</span>
+                            <h3 class="article-title">Assembly para Ingeniería Inversa: Guía de Referencia Rápida <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Stack frames, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64), estructuras en memoria, heurísticas de identificación de funciones y patrones de desensamblado para threat analysts.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
+                <!-- Clúster B: Threat Intelligence & Fraud Investigations -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Threat Intelligence & Investigaciones de Fraude</h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="threat-hunter-recollection.html" class="article-link local-article">
+                            <span class="article-date mono">~45 min de lectura</span>
+                            <h3 class="article-title">Threat Hunter Recollection: Bitácora de 5 Investigaciones Reales de Caza <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Un año de laboratorio resumido: rastreo OSINT de infraestructuras criminales, análisis de fraude con Lumma Stealer, ingeniería inversa con Ghidra y deconstrucción completa de la Kill Chain de NetSupport RAT (phishing Druni, TDS en Google Cloud, PowerShell ofuscado y DLL Sideloading).</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="pigbutchering-bybsusd.html" class="article-link local-article">
+                            <span class="article-date mono">~30 min de lectura</span>
+                            <h3 class="article-title">Deconstrucción de Red de Pig Butchering: Exchange Falso en Vue3 con WebSocket y Fugas en Backend <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Análisis forense de un exchange falso con frontend Vue3 y WebSocket en tiempo real alojado en Hong Kong. El backend entrega la clave de validación del captcha en el propio JSON. Rotación de dominios, arquitectura de exfiltración y modelo de estafa documentados.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="fakewealth-cmdxcapital.html" class="article-link local-article">
+                            <span class="article-date mono">~60 min de lectura</span>
+                            <h3 class="article-title">Caso cmdxcapital: Fuga de Datos en Laravel por appDebug Activo y Red de Fraude con Smurfing Bitcoin <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">El modo depuración de Laravel en producción expuso consultas SQL, tokens y rutas del servidor. Diez dominios satélite bajo Cloudflare, suplantación de identidad UK y smurfing hacia wallets Bitcoin Bech32. Incluye diagramas PlantUML, grafos on-chain y script PoC.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="operation-general-jp-silentwarn.html" class="article-link local-article">
+                            <span class="article-date mono">~15 min de lectura</span>
+                            <h3 class="article-title">Operaciones General JP y SilentWarn: Dos Campañas de Phishing Conectadas <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">General JP: kit PHP clásico con exfiltración a Telegram. SilentWarn: SPA en React sobre Cloudflare Pages con bloqueo de DevTools, splash screen y geofencing a Vietnam validado por comentarios en el código. IoCs y código desofuscado incluidos.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
+                <!-- Clúster C: Defensive & Offensive Infrastructure -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Infraestructura Defensiva &amp; Ofensiva</h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="infraestructura-tunel-ofuscado.html" class="article-link local-article">
+                            <span class="article-date mono">~30 min de lectura</span>
+                            <h3 class="article-title">Bypass de DPI con WireGuard + udp2raw: Túnel TCP Falso simulando HTTPS (Despliegue en 90s) <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Arquitectura de túnel WireGuard encapsulado en TCP falso mediante udp2raw, combinando iptables con redsocks para enmascarar tráfico a través de proxy residencial. Blindaje DNS sobre HTTPS con dnscrypt-proxy y dnsmasq. Automatización completa en Bash.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="infra-soc.html" class="article-link local-article">
+                            <span class="article-date mono">~35 min de lectura</span>
+                            <h3 class="article-title">Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización Blue Team <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Diseño y despliegue de laboratorio defensivo con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo con Wazuh, Zabbix, Prometheus y Grafana. Infraestructura como código para entornos de detección.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
+                <!-- Clúster D: AppSec & Pentesting -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title"><span class="theme-icon">/</span> AppSec &amp; Pentesting</h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="web-api-pentesting2024.html" class="article-link local-article">
+                            <span class="article-date mono">~25 min de lectura</span>
+                            <h3 class="article-title">Pentesting a Web API Financiera: IDOR por Validación Incompleta de JWT (OWASP API Top 10) <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Auditoría freelance a una API financiera con Certificate Pinning, cifrado y ofuscación burlados por una falla de autorización a nivel de objeto. El backend validaba la firma JWT pero no la pertenencia del recurso. Un script con un único token legítimo extrajo datos de todo el sistema. Diagramas de secuencia y correlación con OWASP.</p>
                             <span class="article-arrow">→</span>
                         </a>
                     </div>
@@ -1231,45 +723,27 @@
                 <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
                 <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
             </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Diseñado con enfoque minimalista y seguro.</p>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Threat Intelligence, Ingeniería Inversa y Seguridad OT — Venezuela.</p>
         </div>
     </footer>
 
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
-
         const revealElements = document.querySelectorAll('.reveal');
-        const revealOptions = {
-            threshold: 0.15,
-            rootMargin: "0px 0px -50px 0px"
-        };
+        const revealOptions = { threshold: 0.15, rootMargin: "0px 0px -50px 0px" };
         const revealObserver = new IntersectionObserver(function(entries, observer) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                    observer.unobserve(entry.target);
-                }
-            });
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); } });
         }, revealOptions);
         revealElements.forEach(el => { revealObserver.observe(el); });
-
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
-                navbar.style.borderBottom = '1px solid var(--border-subtle)';
-            } else {
-                navbar.style.background = 'rgba(3, 3, 3, 0.7)';
-                navbar.style.borderBottom = '1px solid transparent';
-            }
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; navbar.style.borderBottom = '1px solid var(--border-subtle)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.7)'; navbar.style.borderBottom = '1px solid transparent'; }
         });
-
         const detailsElements = document.querySelectorAll('details.theme-group');
         detailsElements.forEach((targetDetail) => {
             targetDetail.addEventListener('click', () => {
-                detailsElements.forEach((detail) => {
-                    if (detail !== targetDetail) { detail.removeAttribute('open'); }
-                });
+                detailsElements.forEach((detail) => { if (detail !== targetDetail) { detail.removeAttribute('open'); } });
             });
         });
     </script>
@@ -1282,37 +756,17 @@
       "alternateName": ["tty503", "Christian Marquez"],
       "url": "https://tty503.com",
       "image": "https://tty503.com/p1.jpg",
-      "sameAs": [
-        "https://linkedin.com/in/tty503",
-        "https://github.com/tty503",
-        "https://x.com/tty_503"
-      ],
-      "jobTitle": "Especialista en Automatización de Infraestructura, Ciberseguridad y PLC",
-      "worksFor": {
-        "@type": "Organization",
-        "name": "tty503 Independent Consultant"
-      },
+      "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503", "https://x.com/tty_503"],
+      "jobTitle": "Threat Intelligence Specialist | Reverse Engineer | OT Security Researcher",
+      "worksFor": { "@type": "Organization", "name": "tty503 Independent Consultant" },
       "knowsAbout": [
-        "Ciberseguridad", 
-        "Análisis de Malware", 
-        "Ingeniería Inversa", 
-        "Automatización Industrial", 
-        "PLC Siemens S5 y S7", 
-        "Linux", 
-        "Ansible", 
-        "Terraform", 
-        "Proxmox",
-        "DevSecOps",
-        "Threat Intelligence",
-        "Blue Team",
-        "Reversing iOS",
-        "Seguridad OT",
-        "Ghidra",
-        "Python",
-        "Bash",
-        "Análisis Forense"
+        "Threat Intelligence", "Malware Analysis", "Reverse Engineering", "Assembly x86", "ARM64",
+        "PLC Siemens S5/S7", "SCADA Security", "OT Security", "Cyber Warfare", "Critical Infrastructure",
+        "DevSecOps", "Ansible", "Terraform", "Proxmox", "Ghidra", "x64dbg", "Capstone",
+        "Wazuh", "SIEM", "Honeypot", "Blockchain Forensics", "Pig Butchering",
+        "Crypto Scam Investigation", "OSINT", "Venezuela", "Python", "Bash", "Linux"
       ],
-      "description": "Christian Márquez (tty503) es un profesional especializado en automatización de infraestructura tecnológica, ingeniería inversa, seguridad ofensiva y defensiva, análisis de malware y entornos OT con PLC Siemens."
+      "description": "Christian Márquez (tty503) es un especialista en threat intelligence, ingeniería inversa de malware y seguridad en infraestructuras críticas OT/PLC. Opera desde Venezuela, documentando investigaciones técnicas que son consumidas por analistas de seguridad en hubs globales como Singapur, Hong Kong, Irlanda y Reino Unido."
     }
     </script>
 </body>

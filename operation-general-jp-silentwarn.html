@@ -7,19 +7,41 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <title>Operaciones General JP y SilentWarn: Dos Campañas de Phishing Conectadas por la Infraestructura | tty503</title>
-    <meta name="description" content="Investigación de threat intelligence sobre dos campañas de phishing: Operación General JP (redirección multi-capa, exfiltración a Telegram) y SilentWarn (React, EmailJS, geofencing Vietnam). Infraestructura, IoCs y patrones compartidos.">
-    <meta name="keywords" content="phishing, threat intelligence, OSINT, Telegram exfiltration, React phishing, EmailJS, SMTPjs, Alien Stealer, geofencing, Vietnam, Irlanda, IoCs">
+    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
+    <title>Análisis de Kits de Phishing: General JP (PHP + Telegram) vs SilentWarn (React + Cloudflare) con Evasión de DevTools y Geofencing | tty503</title>
+    <meta name="description" content="Investigación de threat intelligence sobre dos campañas de phishing simultáneas alimentadas por listas recicladas (Alien Stealer, Deezer). General JP: kit PHP clásico con exfiltración dual a Telegram + bitácora local. SilentWarn: SPA en React sobre Cloudflare Pages con bloqueo de DevTools, splash screen y geofencing a Vietnam validado por comentarios en el código. IoCs y código desofuscado incluidos.">
+    <meta name="keywords" content="phishing, threat intelligence, OSINT, Telegram exfiltration, React phishing, EmailJS, SMTPjs, Alien Stealer, geofencing, Vietnam, Cloudflare Pages, General JP, SilentWarn, bloqueo DevTools, splash screen, Filemail API, IoCs">
     <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="https://tty503.com/operation-general-jp-silentwarn.html">
     <meta name="theme-color" content="#050505">
     
-    <meta property="og:title" content="Operaciones General JP y SilentWarn: Dos Campañas de Phishing | tty503">
-    <meta property="og:description" content="Threat intelligence sobre dos campañas de phishing con infraestructura compartida, exfiltración multicanal y patrones de ataque conectados.">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Análisis de Kits de Phishing: General JP (PHP + Telegram) vs SilentWarn (React + Cloudflare) | tty503">
+    <meta property="og:description" content="Dos campañas de phishing con stacks opuestos pero patrones compartidos. General JP: PHP + Telegram. SilentWarn: React + EmailJS + geofencing Vietnam.">
     <meta property="og:url" content="https://tty503.com/operation-general-jp-silentwarn.html">
     <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503 Portfolio">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/phishing_traffic_redirection_infrastructure_graph.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Grafo de infraestructura de redirección de phishing multi-capa">
+    <meta property="article:published_time" content="2025-06-15">
+    <meta property="article:modified_time" content="2026-05-22">
+    <meta property="article:author" content="Christian Márquez">
+    <meta property="article:tag" content="Phishing">
+    <meta property="article:tag" content="Threat Intelligence">
+    <meta property="article:tag" content="OSINT">
+    <meta property="article:tag" content="React Security">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="General JP vs SilentWarn: Dos Campañas de Phishing Conectadas">
+    <meta name="twitter:description" content="PHP + Telegram vs React + EmailJS + geofencing Vietnam. Infraestructura, IoCs y código desofuscado.">
+    <meta name="twitter:image" content="https://tty503.com/img/phishing_traffic_redirection_infrastructure_graph.jpg">
+    <meta name="twitter:image:alt" content="Infraestructura de redirección de phishing">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -80,6 +102,28 @@
         .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
         .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
         .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+
+        /* ToC */
+        .toc-container {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; margin: 2rem 0; overflow: hidden;
+        }
+        .toc-summary {
+            padding: 1.2rem 1.5rem; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; list-style: none;
+            user-select: none; transition: background 0.3s;
+        }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li { margin-bottom: 0; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
+
         .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
         .section-title:first-of-type { margin-top: 0; border-top: none; }
         .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
@@ -120,6 +164,25 @@
         .callout-danger .callout-title { color: var(--accent-red); }
         a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
         a:hover { color: var(--accent); }
+
+        /* CTA */
+        .cta-closure {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center;
+        }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem;
+            border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none;
+            transition: var(--transition-smooth); border: 1px solid var(--border-subtle);
+            color: var(--text-secondary); background: transparent;
+        }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .cta-btn.primary:hover { background: rgba(96, 165, 250, 0.05); border-color: var(--accent-blue); }
+
         .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
         .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
@@ -134,6 +197,11 @@
             th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
             .social-links { gap: 1rem; }
             .image-contained { max-width: 100%; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+            .toc-content { padding: 0 1rem 1rem; }
+            .toc-summary { padding: 1rem; }
         }
     </style>
 </head>
@@ -163,8 +231,26 @@
             </p>
         </header>
 
+        <!-- ToC -->
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice_de_la_investigación</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s00">Resumen de Inteligencia</a></li>
+                    <li><a href="#s01">Operación General JP (PHP + Telegram)</a></li>
+                    <li><a href="#s02">Operación SilentWarn (React + Cloudflare)</a></li>
+                    <li><a href="#s03">Correlación y Patrones</a></li>
+                    <li><a href="#s04">IoCs Consolidados</a></li>
+                    <li><a href="#s05">Conclusión</a></li>
+                </ol>
+            </div>
+        </details>
+
         <!-- INTRODUCCIÓN -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Resumen de Inteligencia</h2>
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen de Inteligencia</h2>
         <p>
             En junio de 2025 identifiqué dos campañas de phishing activas que, aunque utilizan stacks tecnológicos diferentes, comparten patrones de infraestructura y fuentes de datos que sugieren una conexión operativa o, como mínimo, un ecosistema de atacantes que reciclan las mismas listas de correos filtrados. Este artículo documenta ambas campañas, las correlaciona con investigaciones previas del portafolio y extrae patrones de threat intelligence aplicables a la detección proactiva.
         </p>
@@ -172,13 +258,13 @@
             La <strong>Operación General JP</strong> es una campaña de phishing multi-capa que utiliza Google Cloud Storage como punto de entrada, una cadena de redirección con dominios intermedios, y un kit PHP que exfiltra credenciales a través de la API de Telegram. La <strong>Operación SilentWarn</strong> es una campaña más reciente construida con React y Create React App, que utiliza EmailJS y SMTPjs para la exfiltración de datos, implementa geofencing para redirigir a usuarios vietnamitas, y está alojada en Cloudflare Pages.
         </p>
         <p>
-            Este artículo conecta ambos casos con investigaciones previas del portafolio: la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="https://tty503.com/fakewealth-cmdxcapital.html">Operación FakeWealth</a>, y la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>. El hilo conductor es la metodología: pivotar sobre infraestructura, leer los errores del adversario y correlacionar patrones a través de campañas aparentemente independientes.
+            Este artículo conecta ambos casos con investigaciones previas del portafolio: la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, y la <a href="pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>. El hilo conductor es la metodología: pivotar sobre infraestructura, leer los errores del adversario y correlacionar patrones a través de campañas aparentemente independientes. El análisis de estas campañas se realizó desde un entorno de investigación blindado con la <a href="infraestructura-tunel-ofuscado.html">infraestructura de túnel ofuscado con WireGuard y proxy residencial</a> para evitar alertar a los operadores.
         </p>
 
         <!-- ===================================================================== -->
         <!-- PARTE 1: OPERACIÓN GENERAL JP                                         -->
         <!-- ===================================================================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Operación General JP: Phishing Multi-Capa con Exfiltración a Telegram</h2>
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> Operación General JP: Phishing Multi-Capa con Exfiltración a Telegram</h2>
         
         <h3 class="subsection-title">Descubrimiento: URLs en Caché y Listas de Correos Filtrados</h3>
         <p>
@@ -192,7 +278,7 @@
 <span class="at">&email_id=</span><span class="num">147138100</span>
         </div>
         <p>
-            La IP <span class="mono">185.80.129.110</span> está asociada a <span class="mono">storage.googleapis.com</span>. Al consultar los correos del parámetro <span class="mono">user</span>, confirmé que todos provenían de tres fuentes principales de filtraciones: logs de <strong>Alien Stealer</strong>, breaches de plataformas como <strong>Deezer</strong>, y combolists como <strong>Zacks2024</strong>. Este patrón —reutilizar bases de datos filtradas para alimentar campañas de spam— es consistente con lo documentado en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a> (caso Rekrute y ShinyHunters), donde una filtración de datos se convirtió en el insumo para una operación de fraude masivo años después del breach original.
+            La IP <span class="mono">185.80.129.110</span> está asociada a <span class="mono">storage.googleapis.com</span>. Al consultar los correos del parámetro <span class="mono">user</span>, confirmé que todos provenían de tres fuentes principales de filtraciones: logs de <strong>Alien Stealer</strong>, breaches de plataformas como <strong>Deezer</strong>, y combolists como <strong>Zacks2024</strong>. Este patrón —reutilizar bases de datos filtradas para alimentar campañas de spam— es consistente con lo documentado en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a> (caso Rekrute y ShinyHunters), donde una filtración de datos se convirtió en el insumo para una operación de fraude masivo años después del breach original. La misma dependencia de datos filtrados aparece en la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, donde los atacantes usaban listas de correos comprometidos para alimentar sus campañas de spam financiero.
         </p>
 
         <h3 class="subsection-title">Cadena de Redirección Multi-Capa</h3>
@@ -242,7 +328,7 @@
 
         <div class="callout callout-warning">
             <div class="callout-title mono">Lección de Threat Intelligence: Abuso de APIs Legítimas</div>
-            <p>El abuso de servicios legítimos —Google Cloud Storage para alojar el script de redirección, Filemail API para el envío de correos, IPFS para enmascarar la IP del servidor— es una constante en campañas modernas de phishing. Este patrón es consistente con lo documentado en la <a href="https://tty503.com/fakewealth-cmdxcapital.html">Operación FakeWealth</a>, donde los atacantes abusaban de Cloudflare, Google Cloud y NameCheap como capas de protección. La diferencia aquí es que General JP añadió una capa adicional: un servidor intermedio en Lituania sin dominio que actuaba como punto de entrega de contenido malicioso y, posiblemente, de malware.</p>
+            <p>El abuso de servicios legítimos —Google Cloud Storage para alojar el script de redirección, Filemail API para el envío de correos, IPFS para enmascarar la IP del servidor— es una constante en campañas modernas de phishing. Este patrón es consistente con lo documentado en la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, donde los atacantes abusaban de Cloudflare, Google Cloud y NameCheap como capas de protección. La diferencia aquí es que General JP añadió una capa adicional: un servidor intermedio en Lituania sin dominio que actuaba como punto de entrega de contenido malicioso y, posiblemente, de malware.</p>
         </div>
 
         <h3 class="subsection-title">El Kit de Phishing "General JP"</h3>
@@ -308,7 +394,7 @@
         <!-- ===================================================================== -->
         <!-- PARTE 2: OPERACIÓN SILENTWARN                                         -->
         <!-- ===================================================================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Operación SilentWarn: Phishing en React con Geofencing Vietnamita</h2>
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Operación SilentWarn: Phishing en React con Geofencing Vietnamita</h2>
         
         <h3 class="subsection-title">Descubrimiento y Vector de Entrada</h3>
         <p>
@@ -349,7 +435,7 @@
     .<span class="fn">catch</span>(<span class="kw">console</span>.<span class="fn">error</span>);
         </div>
         <p>
-            Esta técnica —redirigir a los usuarios del país de origen del atacante para evitar que sean víctimas de su propia campaña y, sobre todo, para <strong>proteger la infraestructura de ser analizada por investigadores locales</strong>— es un indicador de atribución consistente con actores de amenazas operando desde Vietnam. Los comentarios en vietnamita dispersos por el código fuente refuerzan esta hipótesis.
+            Esta técnica —redirigir a los usuarios del país de origen del atacante para evitar que sean víctimas de su propia campaña y, sobre todo, para <strong>proteger la infraestructura de ser analizada por investigadores locales</strong>— es un indicador de atribución consistente con actores de amenazas operando desde Vietnam. Los comentarios en vietnamita dispersos por el código fuente refuerzan esta hipótesis. Esta técnica de geofencing es conceptualmente similar a la que documenté en el análisis de la <a href="pigbutchering-bybsusd.html">red de Pig Butchering</a>, donde los atacantes redirigían a usuarios de ciertos países para proteger su infraestructura.
         </p>
         <p>
             Adicionalmente, el sitio implementaba <strong>bloqueo de herramientas de desarrollo</strong> mediante un event listener que prevenía las teclas F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C y Ctrl+U. También mostraba un splash screen de 6 segundos con un video a pantalla completa antes de cargar el contenido principal, una técnica de ofuscación para evadir análisis automatizados.
@@ -380,7 +466,7 @@
         <!-- ===================================================================== -->
         <!-- CORRELACIÓN Y PATRONES                                                -->
         <!-- ===================================================================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Correlación y Patrones entre Campañas</h2>
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Correlación y Patrones entre Campañas</h2>
         <p>
             Aunque General JP y SilentWarn utilizan stacks tecnológicos diferentes —PHP con Telegram vs. React con EmailJS—, comparten patrones que las conectan dentro del mismo ecosistema de amenazas:
         </p>
@@ -394,13 +480,13 @@
 
         <div class="callout callout-warning">
             <div class="callout-title mono">Patrón Transversal: Infraestructura Efímera y Reciclaje de Datos</div>
-            <p>Ambas campañas operan con infraestructura de bajo costo y alta rotación: dominios baratos (one.com), alojamiento en plataformas gratuitas (Cloudflare Pages, Google Cloud Storage), y servicios de exfiltración basados en APIs legítimas. Este patrón —infraestructura desechable alimentada por bases de datos filtradas— es el mismo que documenté en la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a> y en la <a href="https://tty503.com/fakewealth-cmdxcapital.html">Operación FakeWealth</a>. La diferencia es que estas campañas de phishing son más ágiles: se levantan en días, operan durante semanas y desaparecen cuando las listas de correos se agotan o los dominios son bloqueados.</p>
+            <p>Ambas campañas operan con infraestructura de bajo costo y alta rotación: dominios baratos (one.com), alojamiento en plataformas gratuitas (Cloudflare Pages, Google Cloud Storage), y servicios de exfiltración basados en APIs legítimas. Este patrón —infraestructura desechable alimentada por bases de datos filtradas— es el mismo que documenté en la <a href="pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a> y en la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>. La diferencia es que estas campañas de phishing son más ágiles: se levantan en días, operan durante semanas y desaparecen cuando las listas de correos se agotan o los dominios son bloqueados.</p>
         </div>
 
         <!-- ===================================================================== -->
         <!-- IoCs Y CONCLUSIÓN                                                     -->
         <!-- ===================================================================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> IoCs Consolidados</h2>
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> IoCs Consolidados</h2>
         <div class="table-wrapper">
             <table>
                 <thead><tr><th>Campaña</th><th>Tipo</th><th>Valor</th></tr></thead>
@@ -418,7 +504,7 @@
             </table>
         </div>
 
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Conclusión</h2>
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Conclusión</h2>
         <p>
             Las operaciones General JP y SilentWarn representan dos caras del mismo ecosistema de phishing moderno: campañas ágiles, de bajo costo, que abusan de infraestructura legítima y reciclan bases de datos filtradas para maximizar el alcance. La diferencia técnica entre ambas —PHP tradicional vs. React con EmailJS— refleja la diversidad de stacks que los atacantes están adoptando, pero los patrones subyacentes son los mismos.
         </p>
@@ -426,14 +512,27 @@
             Para el threat hunter, la lección es clara: los IoCs específicos de cada campaña caducan rápido, pero los <strong>patrones de infraestructura</strong> —abuso de Google Cloud Storage, Cloudflare Pages, APIs de correo legítimas, geofencing para proteger al atacante, y reutilización de listas de correos filtrados— son atemporales. La detección proactiva debe pivotar sobre estos patrones, no sobre los dominios individuales.
         </p>
         <p>
-            Este artículo se suma a la serie de investigaciones documentadas en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>, conectando casos de phishing con fraudes financieros, Pig Butchering y campañas de malware. El hilo conductor sigue siendo el mismo: la infraestructura es el talón de Aquiles del adversario.
+            Este artículo se suma a la serie de investigaciones documentadas en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, conectando casos de phishing con fraudes financieros, Pig Butchering y campañas de malware. El hilo conductor sigue siendo el mismo: la infraestructura es el talón de Aquiles del adversario.
         </p>
 
+        <!-- ==================== CTA DE CIERRE ==================== -->
+        <div class="cta-closure">
+            <h3 class="mono">/¿Te interesa el análisis de campañas de phishing y threat intelligence?</h3>
+            <p>Estas dos campañas son parte de una serie de investigaciones que abarcan OSINT, ingeniería inversa y deconstrucción de infraestructura criminal. Cada caso revela patrones que trascienden los IoCs individuales.</p>
+            <div class="cta-closure-links">
+                <a href="threat-hunter-recollection.html" class="cta-btn primary mono">Threat Hunter Recollection →</a>
+                <a href="fakewealth-cmdxcapital.html" class="cta-btn mono">Operación FakeWealth →</a>
+                <a href="pigbutchering-bybsusd.html" class="cta-btn mono">Pig Butchering →</a>
+            </div>
+        </div>
+
+        <!-- Referencias -->
         <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Referencias</h2>
         <ul>
-            <li><a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection — Crónica de investigaciones de threat intelligence (tty503.com)</a></li>
-            <li><a href="https://tty503.com/fakewealth-cmdxcapital.html">Operación FakeWealth — Inteligencia de Amenazas sobre cmdxcapital (tty503.com)</a></li>
-            <li><a href="https://tty503.com/pigbutchering-bybsusd.html">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio (tty503.com)</a></li>
+            <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — Crónica de investigaciones de threat intelligence (tty503.com)</a></li>
+            <li><a href="fakewealth-cmdxcapital.html">Operación FakeWealth — Inteligencia de Amenazas sobre cmdxcapital (tty503.com)</a></li>
+            <li><a href="pigbutchering-bybsusd.html">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio (tty503.com)</a></li>
+            <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial (tty503.com)</a></li>
             <li><a href="https://any.run/report/b7eac78f3f4fe47dab686bfb066ef833efd3d0f9d3188c707dbe8c2535adb286/30c28356-a640-4538-a7ff-3df1ba5132d4" target="_blank" rel="noopener noreferrer">ANY.RUN — Reporte de comportamiento similar con redirección y descarga de archivos</a></li>
             <li><a href="https://www.filemail.com/apidoc" target="_blank" rel="noopener noreferrer">Filemail API Documentation</a></li>
             <li><a href="https://www.emailjs.com/" target="_blank" rel="noopener noreferrer">EmailJS — Servicio de envío de correos desde el frontend</a></li>
@@ -441,6 +540,7 @@
         </ul>
     </article>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="social-links mono">
@@ -457,12 +557,36 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
-            } else {
-                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
-            }
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
         });
+    </script>
+
+    <!-- ==================== SCHEMA JSON-LD OPTIMIZADO ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Operaciones General JP y SilentWarn: Dos Campañas de Phishing Conectadas por la Infraestructura",
+      "description": "Investigación de threat intelligence sobre dos campañas de phishing activas en junio de 2025. General JP: kit PHP con exfiltración dual a Telegram + bitácora local. SilentWarn: SPA en React sobre Cloudflare Pages con bloqueo de DevTools, splash screen y geofencing a Vietnam. IoCs y código desofuscado incluidos.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2025-06-15",
+      "dateModified": "2026-05-22",
+      "mainEntityOfPage": "https://tty503.com/operation-general-jp-silentwarn.html",
+      "image": "https://tty503.com/img/phishing_traffic_redirection_infrastructure_graph.jpg",
+      "keywords": ["phishing", "threat intelligence", "OSINT", "Telegram exfiltration", "React phishing", "EmailJS", "SMTPjs", "Alien Stealer", "geofencing", "Vietnam", "Cloudflare Pages", "General JP", "SilentWarn", "bloqueo DevTools", "Filemail API", "IoCs"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "5000",
+      "timeRequired": "PT55M",
+      "about": [
+        { "@type": "Thing", "name": "Phishing" },
+        { "@type": "Thing", "name": "Threat Intelligence" },
+        { "@type": "Thing", "name": "OSINT" },
+        { "@type": "Thing", "name": "React Security" },
+        { "@type": "Thing", "name": "Telegram Exfiltration" }
+      ]
+    }
     </script>
 </body>
 </html>
