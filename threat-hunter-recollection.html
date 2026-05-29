@@ -7,19 +7,41 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <title>Threat Hunter Recollection: Una Crónica de Caza Conectando Fraudes, Malware y Redes de Estafa | tty503</title>
-    <meta name="description" content="Una crónica personal de threat hunting que conecta cinco investigaciones reales, detallando las habilidades adquiridas en OSINT, ingeniería inversa y análisis de malware, y demostrando cómo un perfil de Threat Hunter se forja en el laboratorio.">
-    <meta name="keywords" content="threat hunting, malware analysis, reversing, BEC, Lumma Stealer, crypto scam, dropper, NetSupport RAT, task scam, pyramid scheme, OSINT, ingenieria inversa, triage, analystty, habilidades, Threat Hunter, ShinyHunters, SIM swapping">
+    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
+    <title>Threat Hunter Recollection: 5 Investigaciones Reales de Caza — OSINT, Ingeniería Inversa y Análisis de Malware | tty503</title>
+    <meta name="description" content="Bitácora de threat hunting: 5 investigaciones reales que conectan OSINT, ingeniería inversa, análisis de malware y threat intelligence. Deconstrucción de red de estafa piramidal global, campaña BEC con Lumma Stealer, dropper multi-etapa con API Hashing, automatización de triage con analystty y Kill Chain completa de NetSupport RAT.">
+    <meta name="keywords" content="threat hunting, malware analysis, reversing, BEC, Lumma Stealer, crypto scam, dropper, NetSupport RAT, task scam, pyramid scheme, OSINT, ingenieria inversa, triage, analystty, Threat Hunter, ShinyHunters, SIM swapping, kill chain, DLL sideloading, PowerShell ofuscado, blockchain forensics, Proxmox, Radare2, Ghidra, API Hashing">
     <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://tty503.com/threat-hunter-recollection">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://tty503.com/threat-hunter-recollection.html">
     <meta name="theme-color" content="#050505">
     
-    <meta property="og:title" content="Threat Hunter Recollection: Forjando un Perfil de Caza en el Laboratorio | tty503">
-    <meta property="og:description" content="De la ingeniería inversa al OSINT: cinco investigaciones que demuestran cómo se construye un Threat Hunter. Una crónica de habilidades, impacto y lecciones aprendidas.">
-    <meta property="og:url" content="https://tty503.com/threat-hunter-recollection">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Threat Hunter Recollection: 5 Investigaciones Reales de Caza | tty503">
+    <meta property="og:description" content="Bitácora de threat hunting: del OSINT aplicado a una red de estafa piramidal al reversing de un RAT. 5 investigaciones que demuestran cómo se construye un Threat Hunter.">
+    <meta property="og:url" content="https://tty503.com/threat-hunter-recollection.html">
     <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503 Portfolio">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/threat-hunter-recollection-25.jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Gráfico de VirusTotal mapeando red de estafa piramidal interconectada">
+    <meta property="article:published_time" content="2026-05-22">
+    <meta property="article:modified_time" content="2026-05-22">
+    <meta property="article:author" content="Christian Márquez">
+    <meta property="article:tag" content="Threat Hunting">
+    <meta property="article:tag" content="Malware Analysis">
+    <meta property="article:tag" content="OSINT">
+    <meta property="article:tag" content="Reverse Engineering">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="Threat Hunter Recollection: 5 Investigaciones Reales de Caza">
+    <meta name="twitter:description" content="OSINT, ingeniería inversa, análisis de malware y threat intelligence en 5 investigaciones reales.">
+    <meta name="twitter:image" content="https://tty503.com/img/threat-hunter-recollection-25.jpeg">
+    <meta name="twitter:image:alt" content="Red de estafa piramidal mapeada con VirusTotal">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,6 +95,28 @@
         .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
         .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
         .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+
+        /* ToC */
+        .toc-container {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; margin: 2rem 0; overflow: hidden;
+        }
+        .toc-summary {
+            padding: 1.2rem 1.5rem; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; list-style: none;
+            user-select: none; transition: background 0.3s;
+        }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li { margin-bottom: 0; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
+
         .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
         .section-title:first-of-type { margin-top: 0; border-top: none; }
         .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
@@ -107,8 +151,29 @@
         .callout-warning .callout-title { color: var(--accent-amber); }
         .callout-danger { border-left-color: var(--accent-red); }
         .callout-danger .callout-title { color: var(--accent-red); }
+        .callout ul { margin: 0.5rem 0 0 1.2rem; color: var(--text-secondary); font-size: 0.95rem; }
+        .callout ul li { margin-bottom: 0.3rem; }
         a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
         a:hover { color: var(--accent); }
+
+        /* CTA */
+        .cta-closure {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center;
+        }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem;
+            border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none;
+            transition: var(--transition-smooth); border: 1px solid var(--border-subtle);
+            color: var(--text-secondary); background: transparent;
+        }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .cta-btn.primary:hover { background: rgba(96, 165, 250, 0.05); border-color: var(--accent-blue); }
+
         .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
         .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
@@ -121,6 +186,11 @@
             .section-title { font-size: 1.25rem; }
             .code-block { padding: 1rem; font-size: 0.8rem; }
             .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+            .toc-content { padding: 0 1rem 1rem; }
+            .toc-summary { padding: 1rem; }
         }
     </style>
 </head>
@@ -150,7 +220,26 @@
             </p>
         </header>
 
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Esto No es un Informe: Es Mi Ruta de Aprendizaje</h2>
+        <!-- ToC -->
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice_de_investigaciones</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s00">Esto No es un Informe: Es Mi Ruta de Aprendizaje</a></li>
+                    <li><a href="#s01">Mapeando una Red de Estafa Piramidal Global (OSINT)</a></li>
+                    <li><a href="#s02">Campaña Multi-Vector de Fraude Financiero (BEC + Lumma)</a></li>
+                    <li><a href="#s03">Diseccionando Nexilo-CC-Checker (Ingeniería Inversa)</a></li>
+                    <li><a href="#s04">Automatizando el Triage con Herramientas Propias</a></li>
+                    <li><a href="#s05">Deconstruyendo NetSupport RAT (Kill Chain Completa)</a></li>
+                    <li><a href="#s06">El Hilo que lo Conecta Todo</a></li>
+                </ol>
+            </div>
+        </details>
+
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Esto No es un Informe: Es Mi Ruta de Aprendizaje</h2>
         <p>
             La memoria del cazador es frágil. Cada investigación genera un volumen de inteligencia que, si no se documenta, se evapora. Pero más allá de los IoCs y las TTPs, cada caso deja una <strong>skill</strong> grabada en el instinto. Esta recollection no es solo un compendio de hallazgos: es el mapa de cómo se construye un Threat Hunter desde el laboratorio.
         </p>
@@ -158,8 +247,8 @@
             A lo largo de cinco investigaciones independientes —publicadas originalmente en LinkedIn y X como <em>La Red de Estafadores que Mapeé con VirusTotal</em>, <em>Exponiendo una Campaña Multi-Vector de Fraude Financiero</em>, <em>Análisis de Nexilo-CC-Checker</em>, <em>Detrás de Cámaras: Mi Triage</em> y <em>Deconstruyendo NetSupport RAT</em>— fui adquiriendo las capacidades que hoy definen mi perfil: <strong>OSINT, ingeniería inversa, análisis de malware, automatización de triage, y threat intelligence aplicada</strong>. Cada sección de este artículo detalla no solo el caso, sino la skill que me dejó y cómo se compara con investigaciones de terceros que validan y amplifican el impacto.
         </p>
 
-        <!-- INVESTIGACIÓN 1: LA RED DE ESTAFA PIRAMIDAL (OSINT) - AMPLIADA CON EL HILO DE X Y LOS LOGS -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Mapeando una Red de Estafa Piramidal Global</h2>
+        <!-- INVESTIGACIÓN 1: LA RED DE ESTAFA PIRAMIDAL (OSINT) -->
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> Mapeando una Red de Estafa Piramidal Global</h2>
         <p>
             Esta fue la investigación que lo empezó todo. Mi primera gran lección en <strong>OSINT aplicado a threat hunting</strong> llegó con un mensaje sospechoso de un número sudafricano ofreciendo "clasificar hoteles en Google Maps" por una paga. Lo que comenzó como una curiosidad —y un hilo de X donde fui narrando el hallazgo en tiempo real— terminó revelando una red de estafa piramidal interconectada globalmente con ramificaciones en apuestas fraudulentas, exchanges falsos y robo de identidad corporativa.
         </p>
@@ -238,7 +327,7 @@
             ¿Por qué Rekrute? Esta plataforma de empleo francesa fue víctima de una filtración masiva de datos unos años atrás. Entre las 8.225 bases de datos que el grupo <strong>ShinyHunters</strong> filtró y luego vendió en el mercado negro Empire, se encontraba la de Rekrute. Los estafadores no eligieron esa plataforma al azar: tenían acceso a una base de datos de personas buscando empleo remoto, el perfil perfecto para un task scam.
         </p>
         <p>
-            El gráfico de VirusTotal establecía un vínculo directo con ShinyHunters, con referencias a artículos de Cybernews, ZDNet y SecurityAffairs sobre filtraciones ejecutadas por este grupo. La base de datos de Rekrute utilizada para contactar a las víctimas había sido comprometida por este actor, demostrando cómo una filtración de datos puede convertirse en el insumo para campañas de fraude masivo meses o años después.
+            El gráfico de VirusTotal establecía un vínculo directo con ShinyHunters, con referencias a artículos de Cybernews, ZDNet y SecurityAffairs sobre filtraciones ejecutadas por este grupo. La base de datos de Rekrute utilizada para contactar a las víctimas había sido comprometida por este actor, demostrando cómo una filtración de datos puede convertirse en el insumo para campañas de fraude masivo meses o años después. Este mismo patrón de infraestructura descuidada y fugas de información es el que documenté en la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth sobre cmdxcapital</a>, donde un appDebug:true en Laravel expuso consultas SQL, tokens y rutas del servidor.
         </p>
 
         <div class="callout callout-danger">
@@ -264,7 +353,7 @@
         </p>
 
         <!-- INVESTIGACIÓN 2: LA CAMPAÑA DE FRAUDE FINANCIERO -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Exponiendo una Campaña Multi-Vector de Fraude Financiero</h2>
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Exponiendo una Campaña Multi-Vector de Fraude Financiero</h2>
         <p>
             Apenas unas semanas después del caso de la red de estafa piramidal, un hilo suelto en Telegram me llevó a una operación mucho más sofisticada. Esta investigación me obligó a desarrollar habilidades de <strong>análisis de infraestructura comprometida</strong> y <strong>rastreo financiero en blockchain</strong>.
         </p>
@@ -337,7 +426,7 @@
         </div>
 
         <!-- INVESTIGACIÓN 3: EL DROPPER NEXILO-CC-CHECKER -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Diseccionando Nexilo-CC-Checker: Ingeniería Inversa de un Dropper Multi-etapa</h2>
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Diseccionando Nexilo-CC-Checker: Ingeniería Inversa de un Dropper Multi-etapa</h2>
         <p>
             El tercer caso marcó mi entrada de lleno en la <strong>ingeniería inversa de malware</strong>. Un binario de 14.4 MB distribuido en canales de Telegram como herramienta de carding resultó ser un dropper multi-etapa que desplegaba una armada de seis payloads.
         </p>
@@ -349,7 +438,7 @@
 
         <h3 class="subsection-title">Técnicas de Evasión: API Hashing</h3>
         <p>
-            El binario utilizaba <strong>API Hashing</strong> para ocultar llamadas a funciones sensibles como <span class="mono">IsDebuggerPresent</span>. En lugar de incluirlas en la tabla de importaciones, las resolvía en tiempo de ejecución mediante hashes —la constante <span class="mono">0x2b992ddfa232</span> cargada en RAX— sin dejar cadenas visibles para el análisis estático. Esta técnica, documentada en profundidad por investigadores como Hasherezade, es una de las primeras barreras que un analista de malware debe aprender a sortear.
+            El binario utilizaba <strong>API Hashing</strong> para ocultar llamadas a funciones sensibles como <span class="mono">IsDebuggerPresent</span>. En lugar de incluirlas en la tabla de importaciones, las resolvía en tiempo de ejecución mediante hashes —la constante <span class="mono">0x2b992ddfa232</span> cargada en RAX— sin dejar cadenas visibles para el análisis estático. Esta técnica, documentada en profundidad por investigadores como Hasherezade, es una de las primeras barreras que un analista de malware debe aprender a sortear. El <a href="myPracticalShellcodeC2.html">compendio de técnicas de inyección y evasión del C2 Builder</a> documenta exactamente este mismo mecanismo desde la perspectiva ofensiva: cómo se implementa el API Hashing para evadir firmas estáticas.
         </p>
 
         <div class="image-container">
@@ -397,7 +486,7 @@
         </div>
 
         <!-- INVESTIGACIÓN 4: METODOLOGÍA DE TRIAGE -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Detrás de Cámaras: Automatizando el Triage con Herramientas Propias</h2>
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> Detrás de Cámaras: Automatizando el Triage con Herramientas Propias</h2>
         <p>
             El análisis de Nexilo-CC-Checker no fue un proceso pasivo. El binario usaba API Hashing, así que tuve que forzarlo a revelar sus secretos. Esta fase fue donde adquirí la habilidad de <strong>automatizar el triage con herramientas propias</strong>.
         </p>
@@ -409,7 +498,7 @@
 
         <h3 class="subsection-title">El Búnker: Proxmox VE</h3>
         <p>
-            Todo análisis de malware con evasión comienza con una decisión de infraestructura. Mi elección es <strong>Proxmox VE</strong>: snapshots, rollbacks instantáneos y aislamiento total.
+            Todo análisis de malware con evasión comienza con una decisión de infraestructura. Mi elección es <strong>Proxmox VE</strong>: snapshots, rollbacks instantáneos y aislamiento total. Este mismo entorno de laboratorio está documentado en la <a href="infraestructura-tunel-ofuscado.html">guía de infraestructura ofuscada con WireGuard y proxy residencial</a> que utilizo para todas mis investigaciones.
         </p>
 
         <div class="image-container">
@@ -439,11 +528,11 @@
 
         <div class="callout callout-warning">
             <div class="callout-title mono">El Valor de las Herramientas Propias</div>
-            <p>En un ecosistema donde herramientas como IDA Python o Ghidra scripting dominan, construir una herramienta propia como analystty demuestra una capacidad que va más allá del uso de software: es la habilidad de <strong>resolver problemas de análisis con código</strong>. Esta skill —documentada en profundidad en <a href="https://tty503.com/analystty-dev">analystty: Automatizando el Triage de Malware</a>— es precisamente lo que diferencia a un analista de malware de un Threat Hunter que puede construir su propio arsenal.</p>
+            <p>En un ecosistema donde herramientas como IDA Python o Ghidra scripting dominan, construir una herramienta propia como analystty demuestra una capacidad que va más allá del uso de software: es la habilidad de <strong>resolver problemas de análisis con código</strong>. Esta skill —documentada en profundidad en <a href="analystty.html">analystty: Automatizando el Triage de Malware PE con Python, Capstone y x64dbg</a>— es precisamente lo que diferencia a un analista de malware de un Threat Hunter que puede construir su propio arsenal.</p>
         </div>
 
         <!-- INVESTIGACIÓN 5: NETSUPPORT RAT -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Deconstruyendo NetSupport RAT: La Kill Chain Completa</h2>
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Deconstruyendo NetSupport RAT: La Kill Chain Completa</h2>
         <p>
             La quinta investigación fue la más completa en términos de <strong>análisis de kill chain</strong>: desde el correo de phishing hasta la conexión C2, pasando por cada eslabón de la cadena de infección.
         </p>
@@ -537,7 +626,7 @@
         </div>
 
         <!-- CONCLUSIÓN: EL PERFIL DEL THREAT HUNTER -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> El Hilo que lo Conecta Todo: El Perfil del Threat Hunter</h2>
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> El Hilo que lo Conecta Todo: El Perfil del Threat Hunter</h2>
         <p>
             Cinco investigaciones, cinco vectores distintos, pero un mismo hilo conductor: <strong>la metodología</strong>. Si algo demuestra esta crónica es que un Threat Hunter no se define por una certificación o un título, sino por la acumulación de habilidades forjadas en el laboratorio y validadas contra el adversario real.
         </p>
@@ -566,6 +655,18 @@
             El laboratorio sigue funcionando. Los canales de Telegram siguen siendo monitoreados. Las muestras siguen llegando. <strong>La crónica continuará.</strong>
         </p>
 
+        <!-- ==================== CTA DE CIERRE ==================== -->
+        <div class="cta-closure">
+            <h3 class="mono">/¿Querés ver las herramientas y la infraestructura detrás de estas investigaciones?</h3>
+            <p>Cada caso de esta crónica se apoyó en un stack técnico documentado en el portafolio: desde el triage automatizado con analystty hasta el túnel ofuscado que blindó todas las conexiones durante el análisis de infraestructura criminal.</p>
+            <div class="cta-closure-links">
+                <a href="analystty.html" class="cta-btn primary mono">analystty: Triage Automatizado →</a>
+                <a href="infraestructura-tunel-ofuscado.html" class="cta-btn mono">Infraestructura Ofuscada →</a>
+                <a href="myPracticalShellcodeC2.html" class="cta-btn mono">C2 Builder & Técnicas →</a>
+            </div>
+        </div>
+
+        <!-- Referencias -->
         <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Referencias y Enlaces</h2>
         <ul>
             <li><a href="https://x.com/tty_503/status/1888274753762283988" target="_blank" rel="noopener noreferrer">Hilo original en X: #storytime sobre el ejercicio de OSINT de la red de estafa piramidal</a></li>
@@ -579,10 +680,15 @@
             <li><a href="https://www.gendigital.com/blog/insights/research/remus-64bit-variant-of-lumma-stealer" target="_blank" rel="noopener noreferrer">Remus: The 64-bit Variant of Lumma Stealer - Gen Threat Labs</a></li>
             <li><a href="https://www.thousandguards.com/post/the-clipboard-falls-in-the-net-support-scam" target="_blank" rel="noopener noreferrer">The Clipboard Falls in the (Net)Support Scam - ThousandGuards</a></li>
             <li><a href="https://maltiverse.com/intelligence/sample/d392b1d2ce4e86acc47487351c9f1bc779e421e70a44849d14b8cff69ece538f" target="_blank" rel="noopener noreferrer">Maltiverse Sample Analysis: Nexilo-CC-Checker-Updated.exe</a></li>
-            <li><a href="https://tty503.com/analystty-dev">analystty: Automatizando el Triage de Malware con Python, Capstone y x64dbg</a></li>
+            <li><a href="analystty.html">analystty: Automatizando el Triage de Malware PE con Python, Capstone y x64dbg</a></li>
+            <li><a href="myPracticalShellcodeC2.html">De la Shellcode Artesanal al C2 Builder — Compendio de Técnicas de Inyección</a></li>
+            <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial</a></li>
+            <li><a href="fakewealth-cmdxcapital.html">Operación FakeWealth: Inteligencia de Amenazas sobre cmdxcapital</a></li>
+            <li><a href="pigbutchering-bybsusd.html">Red de Estafa Pig Butchering — Fake Crypto Exchange Multi-Dominio</a></li>
         </ul>
     </article>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="social-links mono">
@@ -599,12 +705,36 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
-            } else {
-                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
-            }
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
         });
+    </script>
+
+    <!-- ==================== SCHEMA JSON-LD OPTIMIZADO ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Threat Hunter Recollection: Forjando un Perfil de Caza en el Laboratorio",
+      "description": "Bitácora de threat hunting: 5 investigaciones reales que conectan OSINT, ingeniería inversa, análisis de malware y threat intelligence. Deconstrucción de red de estafa piramidal global, campaña BEC con Lumma Stealer, dropper multi-etapa con API Hashing, automatización de triage con analystty y Kill Chain completa de NetSupport RAT.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2026-05-22",
+      "dateModified": "2026-05-22",
+      "mainEntityOfPage": "https://tty503.com/threat-hunter-recollection.html",
+      "image": "https://tty503.com/img/threat-hunter-recollection-25.jpeg",
+      "keywords": ["threat hunting", "malware analysis", "OSINT", "ingeniería inversa", "Lumma Stealer", "NetSupport RAT", "BEC", "task scam", "blockchain forensics", "API Hashing", "DLL Sideloading", "ShinyHunters", "analystty"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "5500",
+      "timeRequired": "PT50M",
+      "about": [
+        { "@type": "Thing", "name": "Threat Hunting" },
+        { "@type": "Thing", "name": "Malware Analysis" },
+        { "@type": "Thing", "name": "OSINT" },
+        { "@type": "Thing", "name": "Reverse Engineering" },
+        { "@type": "Thing", "name": "Threat Intelligence" }
+      ]
+    }
     </script>
 </body>
 </html>

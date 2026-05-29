@@ -7,19 +7,41 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <title>Operación FakeWealth: Inteligencia de Amenazas sobre la Red cmdxcapital | tty503</title>
-    <meta name="description" content="Investigación de threat intelligence sobre la red de fraude financiero cmdxcapital.com. Infraestructura con Cloudflare y Google Cloud, fallos de OpSec con Laravel debug mode expuesto, migración de wallets Bitcoin, spoofing corporativo y IoCs.">
-    <meta name="keywords" content="cmdxcapital, threat intelligence, OSINT, blockchain forensics, laravel debug, proc_open, bitcoin wallet, companies house spoofing, fake trading, crypto scam, IoCs, PlantUML, Bremby">
+    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
+    <title>Caso cmdxcapital: Fuga de Datos en Laravel por appDebug Activo y Red de Fraude con Smurfing Bitcoin | tty503</title>
+    <meta name="description" content="Investigación de threat intelligence sobre la red de fraude financiero cmdxcapital.com. El modo depuración de Laravel (appDebug: true) en producción expuso consultas SQL, tokens de sesión y rutas del servidor. 10 dominios satélite bajo Cloudflare, suplantación de Companies House UK, migración de wallets Bitcoin Bech32 y smurfing en USDT TRC20. Incluye diagramas PlantUML, grafos on-chain y script PoC.">
+    <meta name="keywords" content="cmdxcapital, threat intelligence, OSINT, blockchain forensics, laravel debug, proc_open, bitcoin wallet, companies house spoofing, fake trading, crypto scam, IoCs, PlantUML, Bremby, appDebug true, smurfing, Bech32, Cloudflare, HYIP, SwiftMailer, Ignition">
     <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="https://tty503.com/fakewealth-cmdxcapital.html">
     <meta name="theme-color" content="#050505">
     
-    <meta property="og:title" content="Operación FakeWealth: Inteligencia de Amenazas sobre cmdxcapital | tty503">
-    <meta property="og:description" content="Threat intelligence aplicada a la red cmdxcapital. Infraestructura, blockchain, OpSec failures e IoCs.">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Caso cmdxcapital: Fuga de Datos en Laravel por appDebug Activo y Red de Fraude | tty503">
+    <meta property="og:description" content="El modo depuración de Laravel en producción expuso consultas SQL, tokens y rutas del servidor. 10 dominios satélite, suplantación UK y smurfing Bitcoin.">
     <meta property="og:url" content="https://tty503.com/fakewealth-cmdxcapital.html">
     <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503 Portfolio">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/laravel_ignition_crash_cmdxcapital.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Interfaz Ignition de Laravel expuesta en producción en cmdxcapital.com">
+    <meta property="article:published_time" content="2025-10-15">
+    <meta property="article:modified_time" content="2026-05-22">
+    <meta property="article:author" content="Christian Márquez">
+    <meta property="article:tag" content="Threat Intelligence">
+    <meta property="article:tag" content="Fraude Financiero">
+    <meta property="article:tag" content="Blockchain">
+    <meta property="article:tag" content="Laravel Security">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="Caso cmdxcapital: Fuga de Datos en Laravel por appDebug Activo">
+    <meta name="twitter:description" content="Debug mode de Laravel en producción expuso SQL, tokens y rutas. 10 dominios, smurfing Bitcoin y suplantación UK.">
+    <meta name="twitter:image" content="https://tty503.com/img/laravel_ignition_crash_cmdxcapital.jpg">
+    <meta name="twitter:image:alt" content="Ignition de Laravel expuesto en cmdxcapital.com">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,6 +95,28 @@
         .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
         .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
         .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+
+        /* ToC */
+        .toc-container {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; margin: 2rem 0; overflow: hidden;
+        }
+        .toc-summary {
+            padding: 1.2rem 1.5rem; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; list-style: none;
+            user-select: none; transition: background 0.3s;
+        }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li { margin-bottom: 0; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
+
         .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
         .section-title:first-of-type { margin-top: 0; border-top: none; }
         .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
@@ -105,6 +149,25 @@
         .callout-danger .callout-title { color: var(--accent-red); }
         a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
         a:hover { color: var(--accent); }
+
+        /* CTA */
+        .cta-closure {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center;
+        }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem;
+            border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none;
+            transition: var(--transition-smooth); border: 1px solid var(--border-subtle);
+            color: var(--text-secondary); background: transparent;
+        }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .cta-btn.primary:hover { background: rgba(96, 165, 250, 0.05); border-color: var(--accent-blue); }
+
         .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
         .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
@@ -118,6 +181,11 @@
             .code-block { padding: 1rem; font-size: 0.8rem; }
             th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
             .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+            .toc-content { padding: 0 1rem 1rem; }
+            .toc-summary { padding: 1rem; }
         }
     </style>
 </head>
@@ -138,6 +206,7 @@
                 <span class="article-tag">Fraude Financiero</span>
                 <span class="article-tag">Blockchain</span>
                 <span class="article-tag">OSINT</span>
+                <span class="article-tag">Laravel</span>
                 <span>Octubre 2025 – Mayo 2026</span>
                 <span>~60 min de lectura</span>
             </div>
@@ -147,16 +216,37 @@
             </p>
         </header>
 
+        <!-- ToC -->
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice_de_la_investigación</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s00">Resumen de Inteligencia</a></li>
+                    <li><a href="#s01">Ficha de Inteligencia de la Campaña</a></li>
+                    <li><a href="#s02">Infraestructura de Red y Pivoting</a></li>
+                    <li><a href="#s03">Fallos de OpSec como Fuente de Inteligencia</a></li>
+                    <li><a href="#s04">Evasión de Controles y Automatización</a></li>
+                    <li><a href="#s05">Inteligencia en Blockchain y Suplantación</a></li>
+                    <li><a href="#s06">Correlación de Actores e Infraestructura</a></li>
+                    <li><a href="#s07">Recomendaciones de Caza</a></li>
+                    <li><a href="#s08">Conclusión</a></li>
+                </ol>
+            </div>
+        </details>
+
         <!-- INTRODUCCIÓN -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Resumen de Inteligencia</h2>
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen de Inteligencia</h2>
         <p>
             La <strong>Operación FakeWealth</strong> es una campaña de fraude financiero que opera bajo la marca <strong>cmdxcapital.com</strong>. Este artículo documenta el ciclo completo de inteligencia de amenazas aplicado sobre esta red: desde la identificación de infraestructura y el mapeo de dominios satélites hasta la correlación de wallets en blockchain, la atribución por reutilización de plantillas y la explotación de fallos de OpSec para extraer inteligencia del backend.
         </p>
         <p>
-            El enfoque principal es la <strong>inteligencia de amenazas</strong>: cómo pivotar sobre indicadores de red, cómo leer los errores de configuración del adversario como fuente de inteligencia, y cómo conectar los hallazgos técnicos con el ecosistema más amplio de fraudes financieros documentados en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>. Las vulnerabilidades encontradas —debug mode de Laravel expuesto, bypass de captcha, proc_open() deshabilitada— no son el fin del análisis, sino evidencias que alimentan la comprensión del adversario.
+            El enfoque principal es la <strong>inteligencia de amenazas</strong>: cómo pivotar sobre indicadores de red, cómo leer los errores de configuración del adversario como fuente de inteligencia, y cómo conectar los hallazgos técnicos con el ecosistema más amplio de fraudes financieros documentados en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>. Las vulnerabilidades encontradas —debug mode de Laravel expuesto, bypass de captcha, proc_open() deshabilitada— no son el fin del análisis, sino evidencias que alimentan la comprensión del adversario.
         </p>
         <p>
-            Este caso tiene conexiones directas con otras investigaciones del portafolio. La metodología de mapeo de infraestructura es la misma que apliqué en la <a href="https://tty503.com/pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a>, donde los atacantes también utilizaban Cloudflare como escudo, rotación de dominios y plantillas Vue3 recicladas. La diferencia aquí es que cmdxcapital cometió un error que ninguna otra campaña había cometido: dejar el debug mode de Laravel activado en producción.
+            Este caso tiene conexiones directas con otras investigaciones del portafolio. La metodología de mapeo de infraestructura es la misma que apliqué en la <a href="pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a>, donde los atacantes también utilizaban Cloudflare como escudo, rotación de dominios y plantillas Vue3 recicladas. La diferencia aquí es que cmdxcapital cometió un error que ninguna otra campaña había cometido: dejar el debug mode de Laravel activado en producción. Este mismo patrón de fuga de información por malas configuraciones es el que documenté en la <a href="web-api-pentesting2024.html">auditoría a la Web API financiera</a>, donde los errores del backend exponían excepciones personalizadas y detalles de implementación.
         </p>
 
         <div class="callout callout-danger">
@@ -165,7 +255,7 @@
         </div>
 
         <!-- FICHA TÉCNICA -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Ficha de Inteligencia de la Campaña</h2>
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> Ficha de Inteligencia de la Campaña</h2>
         <div class="table-wrapper">
             <table>
                 <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
@@ -182,7 +272,7 @@
         </div>
 
         <!-- INFRAESTRUCTURA -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Infraestructura de Red y Pivoting sobre Dominios</h2>
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Infraestructura de Red y Pivoting sobre Dominios</h2>
         <p>
             El mapeo de infraestructura es el primer pilar de la inteligencia de amenazas. La campaña se diversifica en una red de dominios satélites que funcionan como falsos brokers y portales de captación. Utilizando <strong>Cloudflare como CDN y proxy inverso</strong>, los atacantes ocultan el servidor de origen real.
         </p>
@@ -198,7 +288,7 @@
         </div>
 
         <p>
-            Los dominios satélites incluyen <span class="mono">apexreturns.live</span>, <span class="mono">vertexprimestock.com</span>, <span class="mono">nexusinveste.com</span> y al menos 10 dominios adicionales. Todos comparten la misma plantilla HTML, los mismos canales de Telegram y las mismas hojas de estilo Bootstrap. Esta reutilización de infraestructura es un patrón que también documenté en el análisis de la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>, donde los atacantes reciclaban plantillas Vue3 con Vant UI y mantenían un backend constante mientras rotaban dominios.
+            Los dominios satélites incluyen <span class="mono">apexreturns.live</span>, <span class="mono">vertexprimestock.com</span>, <span class="mono">nexusinveste.com</span> y al menos 10 dominios adicionales. Todos comparten la misma plantilla HTML, los mismos canales de Telegram y las mismas hojas de estilo Bootstrap. Esta reutilización de infraestructura es un patrón que también documenté en el análisis de la <a href="pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>, donde los atacantes reciclaban plantillas Vue3 con Vant UI y mantenían un backend constante mientras rotaban dominios.
         </p>
 
         <h3 class="subsection-title">El Eslabón Anterior: Bremby (bremby.biz)</h3>
@@ -223,7 +313,7 @@
         </div>
 
         <!-- FALLOS DE OPSEC -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Fallos de OpSec como Fuente de Inteligencia</h2>
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Fallos de OpSec como Fuente de Inteligencia</h2>
         <p>
             En threat intelligence, los errores del adversario son una mina de oro. La Operación FakeWealth cometió varios fallos de seguridad operacional que permitieron extraer información que ningún atacante querría revelar. El más grave fue dejar <strong>el modo de depuración de Laravel activado en producción</strong>.
         </p>
@@ -278,11 +368,11 @@
 
         <div class="callout callout-warning">
             <div class="callout-title mono">Lección de Threat Intelligence</div>
-            <p>El debug mode activo en producción no es solo una vulnerabilidad: es una <strong>fuente de inteligencia</strong>. Permitió mapear la estructura de la base de datos, identificar la lógica de negocio del backend (Fortify, SwiftMailer, WelcomeEmail) y obtener las rutas absolutas del servidor. En la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a> documento cómo este tipo de errores de configuración son una constante en campañas de fraude: desde OpenSSH 7.4 en servidores de Hong Kong hasta captchas con claves en el JSON del lado del cliente.</p>
+            <p>El debug mode activo en producción no es solo una vulnerabilidad: es una <strong>fuente de inteligencia</strong>. Permitió mapear la estructura de la base de datos, identificar la lógica de negocio del backend (Fortify, SwiftMailer, WelcomeEmail) y obtener las rutas absolutas del servidor. En la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a> documento cómo este tipo de errores de configuración son una constante en campañas de fraude: desde OpenSSH 7.4 en servidores de Hong Kong hasta captchas con claves en el JSON del lado del cliente. La lección para desarrolladores es clara: <strong>nunca despliegues a producción con APP_DEBUG=true</strong>. Un simple flag en el .env puede exponer toda la arquitectura de tu backend.</p>
         </div>
 
         <!-- BYPASS DE CAPTCHA -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Evasión de Controles y Automatización de la Recolección</h2>
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> Evasión de Controles y Automatización de la Recolección</h2>
         <p>
             El formulario de registro implementaba un captcha trivial de evadir. El HTML contenía un input oculto con el valor de confirmación:
         </p>
@@ -290,7 +380,7 @@
             &lt;input type='hidden' name='captcha_confirmation' value='61416'&gt;
         </div>
         <p>
-            Este patrón —delegar la validación del captcha a un valor estático en el cliente— es el mismo tipo de error que documenté en el análisis de la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering</a>, donde el backend devolvía la clave de validación del captcha en el propio JSON de respuesta. En ambos casos, la inteligencia obtenida permite automatizar la recolección de datos del adversario sin interacción humana.
+            Este patrón —delegar la validación del captcha a un valor estático en el cliente— es el mismo tipo de error que documenté en el análisis de la <a href="pigbutchering-bybsusd.html">red de Pig Butchering</a>, donde el backend devolvía la clave de validación del captcha en el propio JSON de respuesta. En ambos casos, la inteligencia obtenida permite automatizar la recolección de datos del adversario sin interacción humana.
         </p>
 
         <div class="image-container">
@@ -308,7 +398,7 @@
         </div>
 
         <!-- BLOCKCHAIN -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Inteligencia en Blockchain y Suplantación Corporativa</h2>
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Inteligencia en Blockchain y Suplantación Corporativa</h2>
 
         <h3 class="subsection-title">Migración de Wallets</h3>
         <p>
@@ -339,7 +429,7 @@
         </div>
 
         <!-- GRAFO DE RELACIONES -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Correlación de Actores e Infraestructura</h2>
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> Correlación de Actores e Infraestructura</h2>
         <p>
             El siguiente grafo une la capa de ingeniería social con la infraestructura on-chain, asociando las identidades de Telegram de los operadores con las carteras que recibieron los fondos.
         </p>
@@ -350,7 +440,7 @@
         </div>
 
         <!-- RECOMENDACIONES DE CAZA -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Recomendaciones de Caza (Threat Hunting)</h2>
+        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> Recomendaciones de Caza (Threat Hunting)</h2>
         <ol>
             <li><strong>Bloquear el dominio core y todos los satélites</strong> en firewalls, proxies y sistemas de filtrado DNS.</li>
             <li><strong>Monitorear la wallet Bitcoin</strong> <span class="mono">bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</span> para detectar nuevas transacciones y posibles víctimas.</li>
@@ -363,7 +453,7 @@
         </ol>
 
         <!-- CONCLUSIÓN -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Conclusión</h2>
+        <h2 class="section-title mono" id="s08"><span style="color: var(--text-muted);">08.</span> Conclusión</h2>
         <p>
             La Operación FakeWealth demuestra que la inteligencia de amenazas no depende de zero-days ni de accesos privilegiados. Depende de saber leer lo que el adversario deja expuesto. Un debug mode activo en producción, un captcha con valor estático en el HTML, una wallet Bech32 recién creada, una empresa británica disuelta en 2023 y un historial de fraude documentado en plataformas públicas de monitoreo de HYIP son piezas que, correlacionadas, dibujan el mapa completo de una campaña que ha estado operando desde al menos 2020 bajo diferentes nombres.
         </p>
@@ -371,13 +461,27 @@
             La trazabilidad entre Bremby y CMDX Capital —confirmada por el mismo registrador, el mismo CDN, el mismo rango de IPs y la misma plantilla— revela que no estamos ante un atacante oportunista, sino ante un grupo que opera de forma continua, reciclando infraestructura y cambiando de marca cuando la anterior se quema. Los <strong>$174,664 en depósitos fraudulentos</strong> documentados en Bremby son solo la punta del iceberg de lo que esta operación ha generado desde 2020.
         </p>
         <p>
-            Este caso es la versión extendida de la investigación que menciono brevemente en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>, donde conecto cinco investigaciones reales con sus TTPs, IoCs y lecciones aprendidas. La metodología de pivoting sobre infraestructura es la misma que apliqué en el análisis de la <a href="https://tty503.com/pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>: en ambos casos, los atacantes usan Cloudflare como escudo, rotan dominios y reciclan plantillas. La diferencia es que cmdxcapital cometió el error de dejar Laravel hablando solo en producción, y tuvo la mala suerte de heredar un historial de fraude perfectamente documentado en plataformas públicas de monitoreo.
+            Este caso es la versión extendida de la investigación que menciono brevemente en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, donde conecto cinco investigaciones reales con sus TTPs, IoCs y lecciones aprendidas. La metodología de pivoting sobre infraestructura es la misma que apliqué en el análisis de la <a href="pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>: en ambos casos, los atacantes usan Cloudflare como escudo, rotan dominios y reciclan plantillas. La diferencia es que cmdxcapital cometió el error de dejar Laravel hablando solo en producción, y tuvo la mala suerte de heredar un historial de fraude perfectamente documentado en plataformas públicas de monitoreo.
         </p>
 
+        <!-- ==================== CTA DE CIERRE ==================== -->
+        <div class="cta-closure">
+            <h3 class="mono">/¿Te interesa la inteligencia de amenazas aplicada a fraudes financieros?</h3>
+            <p>Este caso es parte de una serie de investigaciones de threat hunting que abarcan OSINT, blockchain forensics y deconstrucción de infraestructura criminal. Cada investigación revela un patrón: los errores de configuración del adversario son la mejor fuente de inteligencia.</p>
+            <div class="cta-closure-links">
+                <a href="threat-hunter-recollection.html" class="cta-btn primary mono">Threat Hunter Recollection →</a>
+                <a href="pigbutchering-bybsusd.html" class="cta-btn mono">Pig Butchering: bybsusd →</a>
+                <a href="web-api-pentesting2024.html" class="cta-btn mono">Pentesting Web API →</a>
+            </div>
+        </div>
+
+        <!-- Referencias -->
         <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Referencias</h2>
         <ul>
-            <li><a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection — Crónica completa de cinco investigaciones reales (tty503.com)</a></li>
-            <li><a href="https://tty503.com/pigbutchering-bybsusd.html">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio (tty503.com)</a></li>
+            <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — Crónica completa de cinco investigaciones reales (tty503.com)</a></li>
+            <li><a href="pigbutchering-bybsusd.html">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio (tty503.com)</a></li>
+            <li><a href="web-api-pentesting2024.html">Pentesting a Web API Financiera: IDOR por Validación Incompleta de JWT (tty503.com)</a></li>
+            <li><a href="plc.html">PLC Siemens S5/S7: Ingeniería Inversa y la Deficiencia Estructural de Logs (tty503.com)</a></li>
             <li><a href="https://find-and-update.company-information.service.gov.uk/company/13699699/filing-history" target="_blank" rel="noopener noreferrer">Companies House UK — Registro de la empresa N° 13699699 (disuelta 2023)</a></li>
             <li><a href="https://investorsstartpage.com/queue.aspx?mod=check&d=bremby.biz" target="_blank" rel="noopener noreferrer">InvestorsStartPage — Registro de Bremby (bremby.biz) como scam confirmado. Dominio registrado en NameCheap (2020-2023), alojado tras Cloudflare, con 13 reportes de estafa y $174,664 en depósitos fraudulentos. Plantilla clonada posteriormente por CMDX Capital.</a></li>
             <li><a href="https://brokersrecomendados.com/bremby-valoracion-y-comentarios/" target="_blank" rel="noopener noreferrer">Reporte de fraude — Bremby (plataforma clonada predecesora de CMDX Capital)</a></li>
@@ -386,6 +490,7 @@
         </ul>
     </article>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="social-links mono">
@@ -402,12 +507,36 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
-            } else {
-                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
-            }
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
         });
+    </script>
+
+    <!-- ==================== SCHEMA JSON-LD OPTIMIZADO ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Operación FakeWealth: Inteligencia de Amenazas sobre la Red cmdxcapital",
+      "description": "Investigación de threat intelligence sobre la red de fraude financiero cmdxcapital.com. El modo depuración de Laravel (appDebug: true) en producción expuso consultas SQL, tokens de sesión y rutas del servidor. 10 dominios satélite bajo Cloudflare, suplantación de Companies House UK, migración de wallets Bitcoin Bech32 y smurfing en USDT TRC20.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2025-10-15",
+      "dateModified": "2026-05-22",
+      "mainEntityOfPage": "https://tty503.com/fakewealth-cmdxcapital.html",
+      "image": "https://tty503.com/img/laravel_ignition_crash_cmdxcapital.jpg",
+      "keywords": ["cmdxcapital", "threat intelligence", "OSINT", "blockchain forensics", "laravel debug", "proc_open", "bitcoin wallet", "companies house spoofing", "fake trading", "crypto scam", "IoCs", "Bremby", "appDebug true", "smurfing", "Bech32", "Cloudflare", "HYIP"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "4500",
+      "timeRequired": "PT60M",
+      "about": [
+        { "@type": "Thing", "name": "Threat Intelligence" },
+        { "@type": "Thing", "name": "Fraude Financiero" },
+        { "@type": "Thing", "name": "Blockchain Forensics" },
+        { "@type": "Thing", "name": "Laravel Security" },
+        { "@type": "Thing", "name": "OSINT" }
+      ]
+    }
     </script>
 </body>
 </html>

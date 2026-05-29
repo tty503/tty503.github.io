@@ -7,19 +7,41 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <title>Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio | tty503</title>
-    <meta name="description" content="Investigación técnica de una red de estafa tipo Pig Butchering que opera un falso exchange de criptomonedas con rotación rápida de dominios, WebSocket con Workerman PHP, API vulnerable y captcha roto. IoCs, diagramas y análisis completo.">
-    <meta name="keywords" content="pig butchering, crypto scam, fake exchange, threat intelligence, OSINT, WebSocket, Workerman PHP, Vue 3, Vant UI, rotación de dominios, captcha vulnerable, IoCs, análisis de malware, estafa criptomonedas">
+    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
+    <title>Deconstrucción de Red de Pig Butchering: Exchange Falso en Vue3 con WebSocket, Rotación de Dominios y Fugas en Backend | tty503</title>
+    <meta name="description" content="Investigación técnica de una red de estafa tipo Pig Butchering que opera un falso exchange de criptomonedas con frontend Vue3 + Vant UI, WebSocket en tiempo real con Workerman PHP, rotación rápida de 7 dominios, API con captcha roto que entrega la clave de validación en el JSON, y certificados falsos. IoCs, diagramas de infraestructura y análisis forense completo.">
+    <meta name="keywords" content="pig butchering, crypto scam, fake exchange, threat intelligence, OSINT, WebSocket, Workerman PHP, Vue 3, Vant UI, rotación de dominios, captcha vulnerable, IoCs, análisis de malware, estafa criptomonedas, Google Cloud, Hong Kong, bybsusd, japfc, cionusdt, MITRE ATT&CK T1665">
     <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="https://tty503.com/pigbutchering-bybsusd.html">
     <meta name="theme-color" content="#050505">
     
-    <meta property="og:title" content="Red de Estafa Pig Butchering — Fake Crypto Exchange Multi-Dominio | tty503">
-    <meta property="og:description" content="Infraestructura de estafa con rotación de dominios, WebSocket fraudulento, API con captcha roto y certificados falsos. IoCs, diagramas y análisis técnico completo.">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Deconstrucción de Red de Pig Butchering: Exchange Falso en Vue3 con WebSocket y Fugas en Backend | tty503">
+    <meta property="og:description" content="Infraestructura de estafa con rotación de 7 dominios, WebSocket fraudulento con Workerman PHP, API con captcha roto que entrega la clave de validación al cliente, y certificados falsos. IoCs, diagramas y análisis técnico completo.">
     <meta property="og:url" content="https://tty503.com/pigbutchering-bybsusd.html">
     <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503 Portfolio">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/pig-butchering_cryptoScam-Facebook-0.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Diagrama de infraestructura de red Pig Butchering con rotación de dominios y WebSocket">
+    <meta property="article:published_time" content="2026-05-26">
+    <meta property="article:modified_time" content="2026-05-26">
+    <meta property="article:author" content="Christian Márquez">
+    <meta property="article:tag" content="Pig Butchering">
+    <meta property="article:tag" content="Threat Intelligence">
+    <meta property="article:tag" content="Crypto Scam">
+    <meta property="article:tag" content="OSINT">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="Deconstrucción de Red de Pig Butchering: Exchange Falso con WebSocket y Captcha Roto">
+    <meta name="twitter:description" content="Infraestructura de estafa con rotación de dominios, WebSocket fraudulento y API vulnerable. IoCs y análisis completo.">
+    <meta name="twitter:image" content="https://tty503.com/img/pig-butchering_cryptoScam-Facebook-0.png">
+    <meta name="twitter:image:alt" content="Diagrama de infraestructura Pig Butchering">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,6 +95,28 @@
         .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
         .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
         .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+
+        /* ToC */
+        .toc-container {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; margin: 2rem 0; overflow: hidden;
+        }
+        .toc-summary {
+            padding: 1.2rem 1.5rem; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; list-style: none;
+            user-select: none; transition: background 0.3s;
+        }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li { margin-bottom: 0; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
+
         .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
         .section-title:first-of-type { margin-top: 0; border-top: none; }
         .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
@@ -105,6 +149,25 @@
         .callout-danger .callout-title { color: var(--accent-red); }
         a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
         a:hover { color: var(--accent); }
+
+        /* CTA */
+        .cta-closure {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center;
+        }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem;
+            border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none;
+            transition: var(--transition-smooth); border: 1px solid var(--border-subtle);
+            color: var(--text-secondary); background: transparent;
+        }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .cta-btn.primary:hover { background: rgba(96, 165, 250, 0.05); border-color: var(--accent-blue); }
+
         .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
         .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
@@ -118,6 +181,11 @@
             .code-block { padding: 1rem; font-size: 0.8rem; }
             th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
             .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+            .toc-content { padding: 0 1rem 1rem; }
+            .toc-summary { padding: 1rem; }
         }
     </style>
 </head>
@@ -147,8 +215,30 @@
             </p>
         </header>
 
+        <!-- ToC -->
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice_de_la_investigación</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s00">Resumen Ejecutivo</a></li>
+                    <li><a href="#s01">Pig Butchering: Contexto Global</a></li>
+                    <li><a href="#s02">Fase 1: Captación</a></li>
+                    <li><a href="#s03">Infraestructura Técnica</a></li>
+                    <li><a href="#s04">Sistema de Chat WebSocket</a></li>
+                    <li><a href="#s05">El Ciclo Completo de la Estafa</a></li>
+                    <li><a href="#s06">Indicadores de Compromiso (IoCs)</a></li>
+                    <li><a href="#s07">Sistema de Rotación de Dominios</a></li>
+                    <li><a href="#s08">Estado de Detección y Bloqueo</a></li>
+                    <li><a href="#s09">Recomendaciones</a></li>
+                </ol>
+            </div>
+        </details>
+
         <!-- RESUMEN EJECUTIVO -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> Resumen Ejecutivo</h2>
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen Ejecutivo</h2>
         <p>
             Se ha identificado y analizado una red de estafa tipo <strong>"Pig Butchering"</strong> que opera una plataforma falsa de intercambio de criptomonedas dirigida a usuarios hispanohablantes. La infraestructura utiliza <strong>rotación rápida de dominios</strong> para evadir bloqueos, <strong>WebSocket con Workerman PHP</strong> para chat fraudulento en tiempo real, y una <strong>API que expone claves de validación de captcha al cliente</strong>.
         </p>
@@ -162,7 +252,7 @@
         </div>
 
         <!-- CONTEXTO GLOBAL DEL PIG BUTCHERING -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Pig Butchering: El Contexto Global de una Epidemia</h2>
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> Pig Butchering: El Contexto Global de una Epidemia</h2>
         <p>
             El término <strong>"Pig Butchering"</strong> describe una modalidad de estafa donde la víctima es "engordada" durante semanas o meses antes del sacrificio financiero. A diferencia de otros fraudes, aquí el estafador invierte tiempo en construir una relación de confianza con la víctima a través de mensajes no solicitados, conversaciones persistentes y la promesa de inversiones altamente rentables en criptomonedas.
         </p>
@@ -173,16 +263,16 @@
             La <strong>FTC</strong> reportó que en el primer semestre de 2024, las pérdidas por task scams y estafas de inversión alcanzaron los <strong>220 millones de dólares</strong> solo en Estados Unidos, con un patrón consistente: pequeños pagos iniciales para generar confianza, seguidos de una exigencia de "inversión" que nunca se recupera. En 2023, el <strong>Departamento de Justicia de EE.UU.</strong> incautó más de <strong>112 millones de dólares</strong> en criptomonedas vinculadas a esquemas de Pig Butchering, en una de las mayores confiscaciones de activos digitales relacionadas con fraudes de inversión hasta la fecha.
         </p>
         <p>
-            Este caso guarda paralelismos directos con la investigación que documenté anteriormente sobre la <strong>red de estafa piramidal global</strong> mapeada con VirusTotal, donde un número sudafricano iniciaba el contacto ofreciendo trabajos de clasificación de hoteles. En aquella ocasión, la infraestructura de los estafadores también se alojaba en Hong Kong, utilizaba exchanges falsos y reciclaba plantillas sin ofuscar. La metodología de OSINT y mapeo de infraestructura que desarrollé en ese caso —documentado en detalle en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>— es exactamente la que apliqué aquí. La diferencia es que esta red de Pig Butchering es más sofisticada técnicamente: tiene rotación de dominios automatizada, WebSocket en tiempo real y una API que, irónicamente, está peor asegurada que la de los task scams.
+            Este caso guarda paralelismos directos con la investigación que documenté anteriormente sobre la <strong>red de estafa piramidal global</strong> mapeada con VirusTotal, donde un número sudafricano iniciaba el contacto ofreciendo trabajos de clasificación de hoteles. En aquella ocasión, la infraestructura de los estafadores también se alojaba en Hong Kong, utilizaba exchanges falsos y reciclaba plantillas sin ofuscar. La metodología de OSINT y mapeo de infraestructura que desarrollé en ese caso —documentado en detalle en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>— es exactamente la que apliqué aquí. La diferencia es que esta red de Pig Butchering es más sofisticada técnicamente: tiene rotación de dominios automatizada, WebSocket en tiempo real y una API que, irónicamente, está peor asegurada que la de los task scams.
         </p>
 
         <div class="callout callout-warning">
             <div class="callout-title mono">Conexión con Investigaciones Previas</div>
-            <p>Este análisis es la continuación directa de la metodología que apliqué en el mapeo de la red de estafa piramidal. En aquel caso, los estafadores operaban con task scams y un falso exchange llamado VCIMP. En este, utilizan Pig Butchering con un exchange llamado bybsusd.com. En ambos casos, la infraestructura está alojada en Hong Kong, los certificados son falsos, y el código fuente revela más de lo que los atacantes creen. Si no has leído esa investigación, está completa en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>.</p>
+            <p>Este análisis es la continuación directa de la metodología que apliqué en el mapeo de la red de estafa piramidal. En aquel caso, los estafadores operaban con task scams y un falso exchange llamado VCIMP. En este, utilizan Pig Butchering con un exchange llamado bybsusd.com. En ambos casos, la infraestructura está alojada en Hong Kong, los certificados son falsos, y el código fuente revela más de lo que los atacantes creen. Si no has leído esa investigación, está completa en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>. La misma pereza operacional —dejar fugas de información por malas configuraciones— es la que documenté en el caso <a href="fakewealth-cmdxcapital.html">cmdxcapital</a>, donde un appDebug:true en Laravel expuso consultas SQL y tokens del servidor.</p>
         </div>
 
         <!-- FASE 1: CAPTACIÓN -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Fase 1: Captación — El Mensaje Inicial</h2>
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Fase 1: Captación — El Mensaje Inicial</h2>
         <p>
             Todo comienza con un mensaje no solicitado. En este caso, la captura evidencia el primer contacto recibido a través de Facebook Messenger el <strong>16 de marzo de 2026 a las 2:30</strong>. El remitente es un perfil con el nombre hispano <strong>"Irene Sanchez"</strong>, una identidad probablemente falsa o comprometida para generar confianza inicial.
         </p>
@@ -208,7 +298,7 @@
         </div>
 
         <!-- FASE 2: INFRAESTRUCTURA -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Infraestructura Técnica de la Estafa</h2>
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Infraestructura Técnica de la Estafa</h2>
 
         <h3 class="subsection-title">Arquitectura General</h3>
         <p>
@@ -247,11 +337,11 @@
 
         <div class="callout callout-danger">
             <div class="callout-title mono">Vulnerabilidad Crítica: Captcha Roto</div>
-            <p>El endpoint <span class="mono">/index/verify</span> devuelve tanto la imagen del captcha como la <strong>clave de validación</strong> en la misma respuesta: <code>{"img": "data:image/jpeg;base64,...", "captcha_key": "abc123..."}</code>. La clave de validación viaja al cliente, permitiendo ataques de replay, bypass del captcha y reutilización de tokens. El backend externaliza la validación y confía en la clave que el propio cliente le devuelve.</p>
+            <p>El endpoint <span class="mono">/index/verify</span> devuelve tanto la imagen del captcha como la <strong>clave de validación</strong> en la misma respuesta: <code>{"img": "data:image/jpeg;base64,...", "captcha_key": "abc123..."}</code>. La clave de validación viaja al cliente, permitiendo ataques de replay, bypass del captcha y reutilización de tokens. El backend externaliza la validación y confía en la clave que el propio cliente le devuelve. Este patrón de validación delegada al cliente es el mismo error de autorización que documenté en la <a href="web-api-pentesting2024.html">auditoría a la Web API financiera con IDOR por validación incompleta de JWT</a>: el backend confía en lo que el cliente le devuelve sin verificarlo.</p>
         </div>
 
         <!-- FASE 3: CHAT WEBSOCKET -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Sistema de Chat WebSocket Fraudulento</h2>
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> Sistema de Chat WebSocket Fraudulento</h2>
         <p>
             El chat en tiempo real es el componente clave para la manipulación psicológica de la víctima. Utiliza <strong>Workerman PHP v5.2.0</strong>, un framework asíncrono legítimo, sobre <strong>Nginx como proxy inverso</strong> en Google Cloud Hong Kong.
         </p>
@@ -270,11 +360,11 @@
             El flujo es quirúrgico: la víctima inicia sesión, recibe un token, y establece una conexión WebSocket persistente. El estafador, desde su panel de control, monitorea en tiempo real el saldo y los depósitos de la víctima para ajustar su discurso de ingeniería social. El mensaje típico: <em>"Sr. Juan, veo que invirtió $500. Le recomiendo aumentar a $5000 para mayores ganancias..."</em>
         </p>
         <p>
-            Esta técnica de manipulación en tiempo real mediante WebSocket es una evolución directa de lo que documenté en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a> con los task scams operados desde Sudáfrica. En aquel caso, la comunicación era asíncrona por Telegram. Aquí, los estafadores implementaron un canal persistente que les permite ver en tiempo real cada acción de la víctima sobre la plataforma. La sofisticación técnica es mayor, pero el patrón de ingeniería social es idéntico: generar confianza, mostrar ganancias ficticias, y bloquear el retiro.
+            Esta técnica de manipulación en tiempo real mediante WebSocket es una evolución directa de lo que documenté en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a> con los task scams operados desde Sudáfrica. En aquel caso, la comunicación era asíncrona por Telegram. Aquí, los estafadores implementaron un canal persistente que les permite ver en tiempo real cada acción de la víctima sobre la plataforma. La sofisticación técnica es mayor, pero el patrón de ingeniería social es idéntico: generar confianza, mostrar ganancias ficticias, y bloquear el retiro.
         </p>
 
         <!-- FASE 4: FLUJO COMPLETO -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> El Ciclo Completo de la Estafa</h2>
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> El Ciclo Completo de la Estafa</h2>
 
         <div class="image-container">
             <img src="img/pig-butchering_cryptoScam-Facebook-1.png" alt="Flujo completo de la estafa Pig Butchering en cuatro fases" loading="lazy">
@@ -286,7 +376,7 @@
         </p>
 
         <!-- IoCs -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Indicadores de Compromiso (IoCs)</h2>
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> Indicadores de Compromiso (IoCs)</h2>
 
         <h3 class="subsection-title">Dominios Maliciosos</h3>
         <div class="table-wrapper">
@@ -327,7 +417,7 @@
         </div>
 
         <!-- ROTACIÓN DE DOMINIOS -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Sistema de Rotación de Dominios</h2>
+        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> Sistema de Rotación de Dominios</h2>
         <p>
             La red emplea rotación rápida de dominios para evadir bloqueos. El patrón identificado muestra <strong>4 dominios en 22 días</strong>:
         </p>
@@ -343,7 +433,7 @@
         </p>
 
         <!-- ESTADO DE DETECCIÓN -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Estado de Detección y Bloqueo</h2>
+        <h2 class="section-title mono" id="s08"><span style="color: var(--text-muted);">08.</span> Estado de Detección y Bloqueo</h2>
         <div class="table-wrapper">
             <table>
                 <thead>
@@ -359,7 +449,7 @@
         </div>
 
         <!-- RECOMENDACIONES -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Recomendaciones</h2>
+        <h2 class="section-title mono" id="s09"><span style="color: var(--text-muted);">09.</span> Recomendaciones</h2>
         <ul>
             <li><strong>Bloquear</strong> todos los IoCs listados en firewalls, proxies y DNS filtering.</li>
             <li><strong>Monitorear</strong> conexiones salientes hacia las IPs <span class="mono">156.254.5.40</span>, <span class="mono">34.150.85.92</span> y el rango de Google Cloud Hong Kong/Singapur.</li>
@@ -370,22 +460,38 @@
 
         <div class="callout callout-warning">
             <div class="callout-title mono">Para Investigadores</div>
-            <p>El backend <span class="mono">api.japfc.top</span> es el punto más estable de la infraestructura. Monitorear sus certificados SSL, nuevos dominios apuntando a la misma IP, y cambios en los endpoints puede revelar nuevos dominios de la campaña antes de que sean utilizados activamente. Esta técnica de pivoting sobre infraestructura es la misma que apliqué en el mapeo de la red de estafa piramidal documentado en la <a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection</a>.</p>
+            <p>El backend <span class="mono">api.japfc.top</span> es el punto más estable de la infraestructura. Monitorear sus certificados SSL, nuevos dominios apuntando a la misma IP, y cambios en los endpoints puede revelar nuevos dominios de la campaña antes de que sean utilizados activamente. Esta técnica de pivoting sobre infraestructura es la misma que apliqué en el mapeo de la red de estafa piramidal documentado en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>. La metodología de infraestructura ofuscada que utilizo para este tipo de investigaciones —desde un entorno blindado con WireGuard y proxy residencial— está documentada en la <a href="infraestructura-tunel-ofuscado.html">guía de túnel ofuscado</a>.</p>
         </div>
 
+        <!-- ==================== CTA DE CIERRE ==================== -->
+        <div class="cta-closure">
+            <h3 class="mono">/¿Te interesa el threat intelligence aplicado a fraudes financieros?</h3>
+            <p>Esta investigación es parte de una serie de casos reales de threat hunting que abarcan OSINT, ingeniería inversa de malware y deconstrucción de infraestructura criminal. Cada caso revela un patrón: la pereza operacional del adversario es la mejor aliada del cazador.</p>
+            <div class="cta-closure-links">
+                <a href="threat-hunter-recollection.html" class="cta-btn primary mono">Threat Hunter Recollection →</a>
+                <a href="fakewealth-cmdxcapital.html" class="cta-btn mono">Operación FakeWealth →</a>
+                <a href="operation-general-jp-silentwarn.html" class="cta-btn mono">Campañas de Phishing →</a>
+            </div>
+        </div>
+
+        <!-- Referencias -->
         <h2 class="section-title mono"><span style="color: var(--text-muted);">10.</span> Referencias</h2>
         <ul>
-            <li><a href="https://tty503.com/threat-hunter-recollection.html">Threat Hunter Recollection — Crónica de cinco investigaciones reales de threat hunting (tty503.com)</a></li>
+            <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — Crónica de cinco investigaciones reales de threat hunting (tty503.com)</a></li>
+            <li><a href="fakewealth-cmdxcapital.html">Operación FakeWealth: Inteligencia de Amenazas sobre cmdxcapital (tty503.com)</a></li>
+            <li><a href="web-api-pentesting2024.html">Pentesting a Web API Financiera: IDOR por Validación Incompleta de JWT (tty503.com)</a></li>
+            <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial (tty503.com)</a></li>
             <li><a href="https://github.com/walkor/workerman" target="_blank" rel="noopener noreferrer">Workerman — Framework PHP asíncrono (GitHub)</a></li>
             <li><a href="https://vant-ui.github.io/vant/" target="_blank" rel="noopener noreferrer">Vant UI — Librería de componentes Vue 3</a></li>
             <li><a href="https://attack.mitre.org/techniques/T1665/" target="_blank" rel="noopener noreferrer">MITRE ATT&CK T1665 — Pig Butchering</a></li>
-            <li><a href="https://www.fbi.gov/contact-us/field-offices/anchorage/news/fbi-releases-annual-internet-crime-report" target="_blank" rel="noopener noreferrer">FBI IC3 2024 Internet Crime Report — $16 billion in reported losses, crypto investment fraud identified as top threat</a> [citation:1]</li>
-            <li><a href="https://www.justice.gov/usao-cdca/pr/justice-dept-seizes-over-112m-funds-linked-cryptocurrency-investment-schemes-over-half" target="_blank" rel="noopener noreferrer">DOJ Seizes Over $112M in Funds Linked to Cryptocurrency Investment Schemes (Pig Butchering) — April 2023</a> [citation:2]</li>
-            <li><a href="https://www.justice.gov/archives/opa/pr/cyber-scam-organization-disrupted-through-seizure-nearly-9m-crypto" target="_blank" rel="noopener noreferrer">DOJ Seizes Nearly $9M in Crypto from Pig Butchering and Romance Scams — November 2023</a> [citation:4]</li>
-            <li><a href="https://www.trmlabs.com/resources/blog/a-record-breaking-year-for-cybercrime-key-findings-from-the-fbis-2024-ic3-report" target="_blank" rel="noopener noreferrer">TRM Labs Analysis: FBI 2024 IC3 Report — $9.3 billion in crypto fraud losses, 66% increase from 2023</a> [citation:7]</li>
+            <li><a href="https://www.fbi.gov/contact-us/field-offices/anchorage/news/fbi-releases-annual-internet-crime-report" target="_blank" rel="noopener noreferrer">FBI IC3 2024 Internet Crime Report — $16 billion in reported losses, crypto investment fraud identified as top threat</a></li>
+            <li><a href="https://www.justice.gov/usao-cdca/pr/justice-dept-seizes-over-112m-funds-linked-cryptocurrency-investment-schemes-over-half" target="_blank" rel="noopener noreferrer">DOJ Seizes Over $112M in Funds Linked to Cryptocurrency Investment Schemes (Pig Butchering) — April 2023</a></li>
+            <li><a href="https://www.justice.gov/archives/opa/pr/cyber-scam-organization-disrupted-through-seizure-nearly-9m-crypto" target="_blank" rel="noopener noreferrer">DOJ Seizes Nearly $9M in Crypto from Pig Butchering and Romance Scams — November 2023</a></li>
+            <li><a href="https://www.trmlabs.com/resources/blog/a-record-breaking-year-for-cybercrime-key-findings-from-the-fbis-2024-ic3-report" target="_blank" rel="noopener noreferrer">TRM Labs Analysis: FBI 2024 IC3 Report — $9.3 billion in crypto fraud losses, 66% increase from 2023</a></li>
         </ul>
     </article>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="social-links mono">
@@ -402,12 +508,36 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
-            } else {
-                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
-            }
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
         });
+    </script>
+
+    <!-- ==================== SCHEMA JSON-LD OPTIMIZADO ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Red de Estafa Pig Butchering — Fake Crypto Exchange Multi-Dominio",
+      "description": "Investigación técnica de una red de estafa tipo Pig Butchering que opera un falso exchange de criptomonedas con frontend Vue3 + Vant UI, WebSocket en tiempo real con Workerman PHP, rotación rápida de 7 dominios, API con captcha roto que entrega la clave de validación en el JSON, y certificados falsos. IoCs, diagramas de infraestructura y análisis forense completo.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2026-05-26",
+      "dateModified": "2026-05-26",
+      "mainEntityOfPage": "https://tty503.com/pigbutchering-bybsusd.html",
+      "image": "https://tty503.com/img/pig-butchering_cryptoScam-Facebook-0.png",
+      "keywords": ["pig butchering", "crypto scam", "fake exchange", "threat intelligence", "OSINT", "WebSocket", "Workerman PHP", "Vue 3", "Vant UI", "rotación de dominios", "captcha vulnerable", "IoCs", "bybsusd", "japfc", "cionusdt", "MITRE ATT&CK T1665"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "3500",
+      "timeRequired": "PT30M",
+      "about": [
+        { "@type": "Thing", "name": "Pig Butchering" },
+        { "@type": "Thing", "name": "Threat Intelligence" },
+        { "@type": "Thing", "name": "Crypto Scam" },
+        { "@type": "Thing", "name": "OSINT" },
+        { "@type": "Thing", "name": "WebSocket" }
+      ]
+    }
     </script>
 </body>
 </html>

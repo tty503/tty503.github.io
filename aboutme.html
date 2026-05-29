@@ -5,11 +5,89 @@
     <link rel="icon" type="image/png" href="hat.png">
     <link rel="apple-touch-icon" href="hat.png">    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Mi Ruta Completa — Christian Márquez (tty503)</title>
-    <meta name="description" content="La trayectoria autodidacta de Christian Márquez (tty503): desde los fundamentos de programación y el desarrollo de firmware hasta la especialización en threat intelligence, análisis de malware, pentesting y entornos OT/PLC.">
-    <meta name="robots" content="index, follow">
+    
+    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
+    <title>Christian Márquez (tty503) — SOC Analyst & Threat Hunter | Malware Analysis, Ingeniería Inversa y Seguridad OT</title>
+    <meta name="description" content="Christian Márquez (tty503): SOC Analyst y Threat Hunter especializado en ingeniería inversa de malware (Ghidra, Radare2, x64dbg), threat intelligence aplicada a fraudes financieros, seguridad en infraestructuras críticas OT/PLC Siemens, y automatización de laboratorios defensivos (Proxmox, Wazuh, Ansible). Trayectoria autodidacta desde 2012.">
+    <meta name="keywords" content="Christian Marquez, tty503, SOC Analyst, Threat Hunter, malware analysis, ingeniería inversa, reversing, Ghidra, x64dbg, PLC Siemens, seguridad OT, threat intelligence, Pig Butchering, crypto scam, OSINT, DevSecOps, Proxmox, Wazuh, Ansible, Terraform, Assembly x86, ARM64, Venezuela, consultor ciberseguridad">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <link rel="canonical" href="https://tty503.com/aboutme.html">
     <meta name="theme-color" content="#050505">
+
+    <!-- Open Graph -->
+    <meta property="og:locale" content="es_ES">
+    <meta property="og:type" content="profile">
+    <meta property="og:title" content="Christian Márquez (tty503) — SOC Analyst & Threat Hunter | Malware Analysis y Seguridad OT">
+    <meta property="og:description" content="Trayectoria autodidacta desde 2012: del firmware de microcontroladores al threat intelligence, ingeniería inversa de malware y seguridad en infraestructuras críticas OT/PLC. Portfolio con investigaciones reales desde Venezuela.">
+    <meta property="og:url" content="https://tty503.com/aboutme.html">
+    <meta property="og:site_name" content="tty503 — Christian Márquez">
+    <meta property="og:image" content="https://tty503.com/p1.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Christian Márquez - SOC Analyst, Threat Hunter, Ingeniería Inversa y Seguridad OT">
+    <meta property="profile:first_name" content="Christian">
+    <meta property="profile:last_name" content="Márquez">
+    <meta property="profile:username" content="tty503">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="Christian Márquez (tty503) — SOC Analyst & Threat Hunter">
+    <meta name="twitter:description" content="Trayectoria autodidacta: firmware, reversing, threat intelligence y seguridad OT. Investigaciones reales desde Venezuela.">
+    <meta name="twitter:image" content="https://tty503.com/p1.jpg">
+    <meta name="twitter:image:alt" content="Christian Márquez - tty503">
+
+    <!-- Schema JSON-LD: Person + hasOccupation + knowsAbout -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Christian Márquez",
+      "alternateName": ["tty503", "Christian Marquez"],
+      "url": "https://tty503.com/aboutme.html",
+      "image": "https://tty503.com/p1.jpg",
+      "sameAs": [
+        "https://linkedin.com/in/tty503",
+        "https://github.com/tty503",
+        "https://x.com/tty_503"
+      ],
+      "jobTitle": "SOC Analyst & Threat Hunter",
+      "description": "SOC Analyst y Threat Hunter especializado en ingeniería inversa de malware, threat intelligence aplicada a fraudes financieros, seguridad en infraestructuras críticas OT/PLC Siemens y automatización de laboratorios defensivos. Trayectoria autodidacta desde 2012. Opera desde Venezuela.",
+      "hasOccupation": {
+        "@type": "Occupation",
+        "name": "SOC Analyst & Threat Hunter",
+        "skills": "Malware Analysis, Reverse Engineering, Threat Intelligence, Python, Bash, Ghidra, Radare2, x64dbg, Proxmox, Wazuh, Ansible, Terraform, PLC Siemens, OT Security, Assembly x86, ARM64, OSINT, Blockchain Forensics"
+      },
+      "knowsAbout": [
+        "Malware Analysis",
+        "Reverse Engineering",
+        "Threat Intelligence",
+        "OT Security",
+        "PLC Siemens S5/S7",
+        "SCADA Security",
+        "DevSecOps",
+        "Python",
+        "Bash",
+        "Ghidra",
+        "Radare2",
+        "x64dbg",
+        "Proxmox",
+        "Wazuh",
+        "Ansible",
+        "Terraform",
+        "Assembly x86",
+        "ARM64",
+        "OSINT",
+        "Blockchain Forensics",
+        "Pig Butchering",
+        "Crypto Scam Investigation",
+        "Venezuela",
+        "Critical Infrastructure Protection"
+      ]
+    }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,6 +136,100 @@
         .story-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
         .story-header h1 { font-size: 2.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
         .story-subtitle { color: var(--text-muted); font-size: 1rem; }
+
+        /* ==================== NUEVO: DASHBOARD DE KPIs ==================== */
+        .kpi-dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2.5rem 0;
+        }
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+        .kpi-card:hover {
+            border-color: var(--border-hover);
+            background: #181818;
+        }
+        .kpi-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            line-height: 1.2;
+            margin-bottom: 0.3rem;
+        }
+        .kpi-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        @media (max-width: 600px) {
+            .kpi-dashboard {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.7rem;
+                margin: 2rem 0;
+            }
+            .kpi-card { padding: 1rem 0.8rem; }
+            .kpi-number { font-size: 1.5rem; }
+            .kpi-label { font-size: 0.7rem; }
+        }
+
+        /* ==================== NUEVO: STACK TÉCNICO VISUAL ==================== */
+        .stack-section {
+            margin: 2.5rem 0;
+            padding: 1.5rem 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+        }
+        .stack-section h3 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+        }
+        .stack-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.2rem;
+        }
+        .stack-category h4 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .stack-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .stack-tag {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 0.25rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-subtle);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+        .stack-tag:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+        @media (max-width: 600px) {
+            .stack-section { padding: 1.2rem 1rem; margin: 2rem 0; }
+            .stack-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .stack-tag { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
+        }
+
         .narrative-image { margin: 2rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-subtle); transition: var(--transition-smooth); }
         .narrative-image:hover { border-color: var(--border-hover); }
         .narrative-image img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
@@ -74,6 +246,8 @@
         .phase-content p:last-child { margin-bottom: 0; }
         .phase-content strong { color: var(--text-primary); font-weight: 600; }
         .phase-content em { color: var(--text-secondary); font-style: italic; }
+        .phase-content a { color: var(--accent-green); text-decoration: none; font-weight: 500; transition: var(--transition-smooth); }
+        .phase-content a:hover { text-decoration: underline; }
         .highlight-quote {
             background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
             padding: 1.5rem 2rem; margin: 2rem 0; color: var(--text-primary); font-style: italic;
@@ -99,6 +273,67 @@
             transition: var(--transition-smooth);
         }
         .portfolio-link:hover { background: rgba(74, 222, 128, 0.05); color: var(--accent-green); }
+
+        /* ==================== NUEVO: CTA PARA RECLUTADORES ==================== */
+        .cta-recruiter {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 2rem;
+            margin: 3rem 0 2rem;
+            text-align: center;
+        }
+        .cta-recruiter h3 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+        .cta-recruiter p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.2rem;
+            line-height: 1.7;
+        }
+        .cta-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            background: transparent;
+        }
+        .cta-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .cta-btn.primary {
+            border-color: rgba(74, 222, 128, 0.3);
+            color: var(--accent-green);
+        }
+        .cta-btn.primary:hover {
+            background: rgba(74, 222, 128, 0.05);
+            border-color: var(--accent-green);
+        }
+        @media (max-width: 600px) {
+            .cta-recruiter { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+        }
+
         @media (max-width: 600px) {
             .top-bar { padding: 1rem 1.2rem; }
             .story-container { padding: 2.5rem 1.2rem 4rem; }
@@ -126,8 +361,77 @@
         
         <header class="story-header">
             <h1>Mi Ruta Completa</h1>
-            <p class="story-subtitle mono">De la curiosidad infantil a la especialización en threat intelligence y ciberseguridad</p>
+            <p class="story-subtitle mono">De la curiosidad infantil a la especialización en threat intelligence, ingeniería inversa y ciberseguridad</p>
         </header>
+
+        <!-- ==================== NUEVO: DASHBOARD DE KPIs ==================== -->
+        <div class="kpi-dashboard">
+            <div class="kpi-card">
+                <div class="kpi-number mono">10+</div>
+                <div class="kpi-label">Campañas de fraude y malware deconstruidas</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number mono">8</div>
+                <div class="kpi-label">Herramientas propias desarrolladas y documentadas</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number mono">4</div>
+                <div class="kpi-label">Laboratorios de infraestructura táctica desplegados</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number mono">12+</div>
+                <div class="kpi-label">Años de práctica autodidacta continua</div>
+            </div>
+        </div>
+
+        <!-- ==================== NUEVO: STACK TÉCNICO VISUAL ==================== -->
+        <div class="stack-section">
+            <h3 class="mono">/stack_técnico</h3>
+            <div class="stack-grid">
+                <div class="stack-category">
+                    <h4 class="mono">Reverse Engineering</h4>
+                    <div class="stack-tags">
+                        <span class="stack-tag">Ghidra</span>
+                        <span class="stack-tag">Radare2 / rizin</span>
+                        <span class="stack-tag">x64dbg</span>
+                        <span class="stack-tag">Capstone</span>
+                        <span class="stack-tag">pefile</span>
+                        <span class="stack-tag">Assembly x86/ARM64</span>
+                    </div>
+                </div>
+                <div class="stack-category">
+                    <h4 class="mono">Infraestructura & DevOps</h4>
+                    <div class="stack-tags">
+                        <span class="stack-tag">Proxmox VE</span>
+                        <span class="stack-tag">Docker / Podman</span>
+                        <span class="stack-tag">Ansible</span>
+                        <span class="stack-tag">Terraform</span>
+                        <span class="stack-tag">WireGuard</span>
+                        <span class="stack-tag">OPNsense</span>
+                    </div>
+                </div>
+                <div class="stack-category">
+                    <h4 class="mono">Defensa & Monitoreo</h4>
+                    <div class="stack-tags">
+                        <span class="stack-tag">Wazuh</span>
+                        <span class="stack-tag">Zabbix</span>
+                        <span class="stack-tag">Grafana</span>
+                        <span class="stack-tag">T-Pot</span>
+                        <span class="stack-tag">Tailscale</span>
+                    </div>
+                </div>
+                <div class="stack-category">
+                    <h4 class="mono">Automatización & Scripting</h4>
+                    <div class="stack-tags">
+                        <span class="stack-tag">Python</span>
+                        <span class="stack-tag">Bash</span>
+                        <span class="stack-tag">C</span>
+                        <span class="stack-tag">FastAPI</span>
+                        <span class="stack-tag">SQLAlchemy</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <figure class="narrative-image">
             <img src="img/aboutme-0.jpg" alt="Barco navegando bajo la luna — El inicio del viaje técnico" loading="lazy">
@@ -149,7 +453,7 @@
                     <figcaption class="image-caption"><strong>La mente corre libremente.</strong> Esas preguntas existenciales sobre las decisiones, los pensamientos y el control sobre lo que hacemos me acompañaban mientras descubría el mundo de la programación.</figcaption>
                 </figure>
                 
-                <p>La película <em>Hackers</em> (1995), que vi por casualidad en Space Channel, y la fascinación por casos históricos como Melissa e ILoveYou, me dieron un objetivo claro: <strong>entender cómo era posible infectar sistemas</strong>. Quería comprender la mecánica detrás de lo que veía en pantalla.</p>
+                <p>La película <em>Hackers</em> (1995), que vi por casualidad en Space Channel, y la fascinación por casos históricos como Melissa e ILoveYou, me dieron un objetivo claro: <strong>entender cómo era posible infectar sistemas</strong>. Quería comprender la mecánica detrás de lo que veía en pantalla. Esa curiosidad por el malware —qué lo hacía funcionar, cómo se propagaba, cómo evadía defensas— fue el primer indicio de lo que años después se convertiría en mi enfoque profesional.</p>
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-2.jpg" alt="Collage glitch con vela y código getHiddenObservers" loading="lazy">
@@ -160,11 +464,11 @@
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-3.jpg" alt="Editor hexadecimal distorsionado con fragmentos de código y figura con paraguas" loading="lazy">
-                    <figcaption class="image-caption"><strong>Los bytes crudos.</strong> Mi primer contacto visual con un editor hexadecimal. Aunque entonces no entendía nada, esa ventana a las entrañas del binario me resultaba hipnótica.</figcaption>
+                    <figcaption class="image-caption"><strong>Los bytes crudos.</strong> Mi primer contacto visual con un editor hexadecimal. Aunque entonces no entendía nada, esa ventana a las entrañas del binario me resultaba hipnótica. Años después, ese mismo formato —opcodes en hexadecimal— se convertiría en mi lenguaje de trabajo diario.</figcaption>
                 </figure>
 
                 <div class="highlight-quote">
-                    ¿Cómo sabe la computadora a dónde mover el puntero del mouse? ¿Qué provoca que al pulsar la tecla 'A' se muestre en pantalla? Esas preguntas me mantenían despierto de noche.
+                    ¿Cómo sabe la computadora a dónde mover el puntero del mouse? ¿Qué provoca que al pulsar la tecla 'A' se muestre en pantalla? Esas preguntas me mantenían despierto de noche. Quería entender la capa más baja, donde el software toca el silicio.
                 </div>
 
                 <figure class="narrative-image">
@@ -182,9 +486,7 @@
                 <span class="phase-years mono">2014 – 2018</span>
             </div>
             <div class="phase-content">
-                <p>El descubrimiento de los compiladores y de <strong>C/C++</strong> en 2014 marcó un punto de inflexión. Entender la diferencia entre un intérprete y un compilador me abrió las puertas a un nuevo nivel de comprensión técnica. Poco después, la adopción de <strong>GNU/Linux</strong> expandió mi panorama por completo.</p>
-
-                <p>Empecé a programar de verdad. Manipulación de bits en C, contadores de población con tablas de consulta generadas en tiempo de compilación, empaquetado y desempaquetado de bytes, funciones para verificar el estado de bits individuales. <strong>Entender cómo la computadora representa y manipula datos a nivel binario fue el primer paso real hacia la ingeniería inversa</strong>, aunque en ese momento no lo supiera.</p>
+                <p>El descubrimiento de los compiladores y de <strong>C/C++</strong> en 2014 marcó un punto de inflexión. Entender la diferencia entre un intérprete y un compilador me abrió las puertas a un nuevo nivel de comprensión técnica. Poco después, la adopción de <strong>GNU/Linux</strong> expandió mi panorama por completo. Empecé a programar de verdad: manipulación de bits en C, contadores de población con tablas de consulta generadas en tiempo de compilación, empaquetado y desempaquetado de bytes, funciones para verificar el estado de bits individuales. <strong>Entender cómo la computadora representa y manipula datos a nivel binario fue el primer paso real hacia la ingeniería inversa</strong>, aunque en ese momento no lo supiera.</p>
 
                 <div class="image-pair">
                     <figure class="narrative-image">
@@ -210,7 +512,7 @@
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-5.jpg" alt="Escritorio Windows retro con herramientas de reversing: Hopper, NASM, LordPE, CFF Explorer" loading="lazy">
-                    <figcaption class="image-caption"><strong>El arsenal temprano.</strong> Hopper Disassembler, NASM, LordPE, CFF Explorer, PEView. Las primeras herramientas de ingeniería inversa que empecé a coleccionar en mi escritorio, junto a las flags de mis primeros retos de reversing.</figcaption>
+                    <figcaption class="image-caption"><strong>El arsenal temprano.</strong> Hopper Disassembler, NASM, LordPE, CFF Explorer, PEView. Las primeras herramientas de reversing que empecé a coleccionar, junto a las flags de mis primeros retos. Así se empieza: desensamblando binarios a mano, instrucción por instrucción.</figcaption>
                 </figure>
 
                 <p>Este período fue de una exploración deliberadamente amplia. Pasé por el desarrollo web, de videojuegos, móvil y de sistemas embebidos. Probé decenas de distribuciones Linux y caí —como muchos— en el "fandom radical" de algunas tecnologías. <strong>Lejos de ser tiempo perdido, esta fase de sobresaturación me obligó a desarrollar una capacidad crítica para evaluar herramientas de manera objetiva</strong>, reconocer patrones entre distintas áreas y, crucialmente, entender qué ramas no eran para mí.</p>
@@ -218,7 +520,7 @@
                 <div class="image-pair">
                     <figure class="narrative-image">
                         <img src="img/aboutme-6.jpg" alt="VS Code con estructura MITRE ATT&CK, reglas Yara y código de descifrado en C" loading="lazy">
-                        <figcaption class="image-caption"><strong>Estructura y método.</strong> Organización de muestras por técnicas MITRE ATT&amp;CK, reglas Yara para BazarBackdoor, y rutinas de descifrado. La exploración caótica empezaba a tomar forma.</figcaption>
+                        <figcaption class="image-caption"><strong>Estructura y método.</strong> Organización de muestras por técnicas MITRE ATT&amp;CK, reglas Yara para BazarBackdoor, y rutinas de descifrado. La exploración caótica empezaba a tomar forma de metodología.</figcaption>
                     </figure>
                     <figure class="narrative-image">
                         <img src="img/aboutme-7.jpg" alt="Script gladiador.py usando Capstone para desensamblar malware; carpeta Dvju_2020-2022" loading="lazy">
@@ -226,9 +528,9 @@
                     </figure>
                 </div>
 
-                <p>Alrededor de 2014-2015 escribí mi primer malware en C. La historia es simple: un familiar insistente desde una cuenta falsa de Facebook. Le seguí la corriente varios días y luego preparé un programa que creaba múltiples hilos, esperaba un rato y mostraba mensajes en pantalla hasta sobrecargar la memoria. Sin mecanismos de persistencia ni evasión de AVs —no eran necesarios—. Comprimido en un RAR autoextraíble con un señuelo de "desnudos.jpg", cumplió su propósito. <strong>Fue divertido, pero sobre todo fue una lección práctica temprana sobre cómo el software puede afectar sistemas reales</strong>.</p>
+                <p>Alrededor de 2014-2015 escribí mi primer malware en C. La historia es simple: un familiar insistente desde una cuenta falsa de Facebook. Le seguí la corriente varios días y luego preparé un programa que creaba múltiples hilos, esperaba un rato y mostraba mensajes en pantalla hasta sobrecargar la memoria. Sin mecanismos de persistencia ni evasión de AVs —no eran necesarios—. Comprimido en un RAR autoextraíble con un señuelo, cumplió su propósito. <strong>Fue divertido, pero sobre todo fue una lección práctica temprana sobre cómo el software puede afectar sistemas reales</strong>.</p>
 
-                <p>Por esa misma época desarrollé un keylogger que recopilaba pulsaciones en archivos diarios y las enviaba a un servidor No-IP que tenía configurado. <strong>Nunca le di un uso malicioso</strong>; solo lo probé en las computadoras de casa de mi abuelo. Era pura curiosidad técnica: entender cómo funcionaba el hooking de teclado y la exfiltración de datos.</p>
+                <p>Por esa misma época desarrollé un keylogger que recopilaba pulsaciones en archivos diarios y las enviaba a un servidor No-IP que tenía configurado. <strong>Nunca le di un uso malicioso</strong>; solo lo probé en las computadoras de casa de mi abuelo. Era pura curiosidad técnica: entender cómo funcionaba el hooking de teclado y la exfiltración de datos a nivel de sistema operativo.</p>
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-8.jpg" alt="BBS Seknet con hilos sobre syscalls Linux, PEB, evasión de firewall chino" loading="lazy">
@@ -278,11 +580,11 @@
 
                 <figure class="narrative-image">
                     <img src="img/aboutme-15.jpg" alt="Laboratorio de electrónica con osciloscopio, multímetro, fuentes y cables" loading="lazy">
-                    <figcaption class="image-caption"><strong>El laboratorio en CENDIT.</strong> Osciloscopio digital, multímetro, fuentes de poder, cables por todas partes. Donde el software se encuentra con el hardware y un error de código puede freír un componente real.</figcaption>
+                    <figcaption class="image-caption"><strong>El laboratorio en CENDIT.</strong> Osciloscopio digital, multímetro, fuentes de poder, cables por todas partes. Donde el software se encuentra con el hardware y un error de código puede freír un componente real. Esta experiencia con sistemas embebidos fue la base para entender, años después, la seguridad en entornos OT/PLC.</figcaption>
                 </figure>
 
                 <div class="highlight-quote">
-                    Hay una diferencia entre entender un sistema y comprenderlo. Entender es saber qué hace. Comprender es saber qué hará antes de que lo haga. Esa diferencia se mide en capas: desde el silicio hasta la nube, desde el registro del procesador hasta el túnel ofuscado que enmascara el tráfico. Pocas disciplinas exigen ese rango. Esta es una de ellas.
+                    Hay una diferencia entre entender un sistema y comprenderlo. Entender es saber qué hace. Comprender es saber qué hará antes de que lo haga. Esa diferencia se mide en capas: desde el silicio hasta la nube, desde el registro del procesador hasta el túnel ofuscado que enmascara el tráfico, desde el PLC que controla un actuador físico hasta el SIEM que correlaciona eventos en tiempo real. Pocas disciplinas exigen ese rango. Esta es una de ellas.
                 </div>
 
                 <p>Luego vino lo que llamo <strong>"el período de la ambición"</strong>. Dejé el empleo como desarrollador de firmware para tomar una oportunidad como desarrollador Backend. ¿La razón? Necesitaba capital para comprar mejor equipo y seguir practicando. En menos de dos meses pude adquirir una computadora adecuada. Pero el costo fue alto: me había desviado de mi objetivo principal. Luego, arriesgué mi estabilidad laboral por un proyecto paralelo con un amigo que no llegó a concretarse. Mi rendimiento bajó, mi contrato no fue renovado y volví al desempleo.</p>
@@ -311,7 +613,7 @@
                     <figcaption class="image-caption"><strong>Kr0pl0its.</strong> Mi perfil en un viejo foro, registrado el 5 de agosto de 2016. "Concéntrate en el momento. Siente, no pienses, usa tu instinto." — Qui-Gon Jinn.</figcaption>
                 </figure>
 
-                <p>Hoy, cada proyecto —desde herramientas de triage automatizado como <strong>analystty</strong> hasta investigaciones de threat intelligence como la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a> o la <a href="pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a>— es un paso firme hacia la maestría técnica. Ya no salto de rama en rama: construyo sobre una base sólida y diversa que pocos recorridos profesionales pueden ofrecer.</p>
+                <p>Hoy, cada proyecto —desde herramientas de triage automatizado como <strong>analystty</strong> hasta investigaciones de threat intelligence como la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, las <a href="operation-general-jp-silentwarn.html">Operaciones General JP y SilentWarn</a> o la <a href="pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a>— es un paso firme hacia la maestría técnica. Ya no salto de rama en rama: construyo sobre una base sólida y diversa que pocos recorridos profesionales pueden ofrecer. <strong>Del firmware al threat hunting, del Assembly al SIEM, del PLC al honeypot: cada capa que he habitado me da una perspectiva que los especialistas unidimensionales no pueden replicar.</strong></p>
             </div>
         </section>
 
@@ -324,24 +626,35 @@
                 <h2 class="phase-title">En qué estoy trabajando</h2>
             </div>
             <div class="phase-content">
-                <p>Actualmente mi investigación se centra en cuatro líneas principales:</p>
+                <p>Actualmente mi investigación se centra en cuatro líneas principales que se alimentan entre sí:</p>
                 <p>
-                    <strong>→ Threat Intelligence & OSINT:</strong> Investigaciones de fraude financiero, mapeo de infraestructura criminal, correlación de wallets en blockchain y análisis de campañas de Pig Butchering. Documentadas en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, las <a href="operation-general-jp-silentwarn.html">Operaciones General JP y SilentWarn</a> y el análisis de <a href="pigbutchering-bybsusd.html">bybsusd.com</a>.<br>
-                    <strong>→ Ingeniería Inversa & Pentesting:</strong> Análisis estático y dinámico de malware, auditorías de seguridad a Web APIs financieras (<a href="web-api-pentesting2024.html">Pentesting a Web API Financiera</a>) y desarrollo de herramientas propias como <a href="analystty.html">analystty</a>.<br>
-                    <strong>→ Seguridad OT/PLC:</strong> Análisis de bajo nivel de autómatas Siemens S5/S7, máquina virtual MC7, protocolos industriales sin autenticación y hallazgos en infraestructuras críticas venezolanas (<a href="plc.html">PLC Siemens S5/S7</a>).<br>
-                    <strong>→ Infraestructura Resiliente & Blue Team:</strong> Laboratorio SOC/Honeypot funcional con Proxmox, Wazuh, Grafana y despliegue IaC (<a href="infra-soc.html">infra-soc.html</a>), túneles ofuscados (<a href="infraestructura-tunel-ofuscado.html">WireGuard sobre TCP falso</a>) y automatización con Terraform y Ansible.
+                    <strong>→ Threat Intelligence & OSINT:</strong> Investigaciones de fraude financiero transfronterizo, mapeo de infraestructura criminal, correlación de wallets en blockchain y análisis de campañas de Pig Butchering. Documentadas en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, las <a href="operation-general-jp-silentwarn.html">Operaciones General JP y SilentWarn</a> y el análisis de <a href="pigbutchering-bybsusd.html">bybsusd.com</a>. Cada investigación incluye IoCs, TTPs y correlación con amenazas documentadas por la industria.<br>
+                    <strong>→ Ingeniería Inversa & Pentesting:</strong> Análisis estático y dinámico de malware con Ghidra, x64dbg y Radare2. Auditorías de seguridad a Web APIs financieras (<a href="web-api-pentesting2024.html">Pentesting a Web API Financiera</a>), bypass de certificate pinning, token reuse con JWT, IDOR y desarrollo de herramientas propias como <a href="analystty.html">analystty</a> para automatizar el triage de binarios PE.<br>
+                    <strong>→ Seguridad OT/PLC & Infraestructura Crítica:</strong> Análisis de bajo nivel de autómatas Siemens S5/S7, máquina virtual MC7, ingeniería inversa de bytecodes, protocolos industriales sin autenticación y hallazgos en infraestructuras críticas venezolanas como Venalum y CorpoElec (<a href="plc.html">PLC Siemens S5/S7</a>). En un país donde la infraestructura eléctrica y de telecomunicaciones se ha convertido en terreno de disputa, entender cómo proteger —o auditar— los controladores que gobiernan subestaciones y plantas no es académico: es estratégico.<br>
+                    <strong>→ Infraestructura Resiliente & Blue Team:</strong> Laboratorio SOC/Honeypot funcional con Proxmox, Wazuh, Zabbix, Grafana y despliegue IaC con Terraform y Ansible (<a href="infra-soc.html">infra-soc.html</a>). Túneles ofuscados con WireGuard sobre TCP falso (<a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada</a>), segmentación con OPNsense, Tailscale y Podman rootless. Cuando las redes nacionales están bajo vigilancia o sufren interferencias, mantener canales de comunicación seguros y resistentes a la interceptación deja de ser un ejercicio de laboratorio.
                 </p>
-                <p>Mi ruta no ha sido lineal. He pasado del firmware de microcontroladores al análisis de amenazas persistentes avanzadas, de la shellcode artesanal a la automatización de infraestructura completa. <strong>Esa amplitud —operar con soltura desde el registro del procesador hasta la topología de una red ofuscada— es lo que define mi enfoque.</strong> No me especializo en una capa: entiendo cómo se conectan todas.</p>
+                <p>Mi ruta no ha sido lineal. He pasado del firmware de microcontroladores al análisis de amenazas persistentes avanzadas, de la shellcode artesanal a la automatización de infraestructura completa, del PLC que controla un actuador físico al SIEM que correlaciona eventos en tiempo real. <strong>Esa amplitud —operar con soltura desde el registro del procesador hasta la topología de una red ofuscada— es lo que define mi enfoque.</strong> No me especializo en una capa: entiendo cómo se conectan todas, y eso me permite trazar vectores de ataque y defensa que otros pasan por alto.</p>
                 <p><strong>Estoy tratando activamente de ser mejor —técnica y personalmente—, de retomar el camino con más claridad que nunca, y de alcanzar el objetivo que me tracé hace más de una década.</strong></p>
                 <a href="index.html" class="portfolio-link mono">Ver portafolio completo →</a>
             </div>
         </section>
 
+        <!-- ==================== NUEVO: CTA PARA RECLUTADORES ==================== -->
+        <div class="cta-recruiter">
+            <h3 class="mono">/¿Buscas un analista que documente el malware a nivel de bytes?</h3>
+            <p>Si tu equipo necesita a alguien que entienda la amenaza desde el opcode hasta la infraestructura del adversario —y que documente cada hallazgo con rigor técnico—, hablemos.</p>
+            <div class="cta-links">
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer" class="cta-btn primary mono">LinkedIn →</a>
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer" class="cta-btn mono">GitHub →</a>
+                <a href="index.html" class="cta-btn mono">Portafolio →</a>
+            </div>
+        </div>
+
     </article>
 
     <footer class="story-footer">
         <p><a href="index.html">← Volver al portafolio principal</a></p>
-        <p style="margin-top: 0.5rem;">© <span id="current-year"></span> Christian Márquez</p>
+        <p style="margin-top: 0.5rem;">© <span id="current-year"></span> Christian Márquez — SOC Analyst & Threat Hunter | Venezuela</p>
     </footer>
 
     <script>

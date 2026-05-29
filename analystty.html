@@ -7,19 +7,42 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <title>analystty — Automatización de Análisis PE y Triage de Malware | tty503</title>
-    <meta name="description" content="Desarrollo y arquitectura de analystty, una herramienta Python para automatizar el análisis estático de archivos PE, detección de APIs maliciosas, mapeo de TTPs e integración con x64dbg para debugging dinámico.">
-    <meta name="keywords" content="analystty, analisis PE, malware analysis, triage, python, capstone, x64dbg, reversing, ingenieria inversa, threat intelligence, TTPs">
+    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
+    <title>analystty: Automatiza el Triage de Malware PE con Python, Capstone y x64dbg | tty503</title>
+    <meta name="description" content="Herramienta Python para triage de archivos PE: extracción de imports, detección de TTPs (Evasión, Inyección, Spying) con MITRE ATT&CK, desensamblado de .text con Capstone y generación automática de breakpoints en x64dbg. Caso real con dropper multi-etapa y API Hashing.">
+    <meta name="keywords" content="analystty, analisis PE, malware analysis, triage, python, capstone, x64dbg, reversing, ingenieria inversa, threat intelligence, TTPs, API Hashing evasion, detección TTPs MITRE ATT&CK, volcado memoria Radare2, breakpoints automaticos, pefile">
     <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://tty503.com/analystty-dev">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://tty503.com/analystty.html">
     <meta name="theme-color" content="#050505">
     
-    <meta property="og:title" content="analystty — Automatización de Análisis PE y Triage de Malware | tty503">
-    <meta property="og:description" content="Construcción de una herramienta interna para automatizar el triage de binarios Windows: static analysis, detección de APIs maliciosas, correlación de funciones y scripting de breakpoints en x64dbg.">
-    <meta property="og:url" content="https://tty503.com/analystty-dev">
+    <!-- Open Graph -->
+    <meta property="og:title" content="analystty: Automatiza el Triage de Malware PE con Python, Capstone y x64dbg | tty503">
+    <meta property="og:description" content="Herramienta Python para triage de archivos PE: extracción de imports, detección de TTPs con MITRE ATT&CK, desensamblado con Capstone y generación automática de breakpoints en x64dbg. Caso real con dropper multi-etapa y API Hashing.">
+    <meta property="og:url" content="https://tty503.com/analystty.html">
     <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503 Portfolio">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/analyst0.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Pipeline de automatización con Radare2 y volcado de módulos para triage de malware">
+    <meta property="article:published_time" content="2024-10-01">
+    <meta property="article:modified_time" content="2025-11-30">
+    <meta property="article:author" content="Christian Márquez">
+    <meta property="article:tag" content="Malware Analysis">
+    <meta property="article:tag" content="Python">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Capstone">
+    <meta property="article:tag" content="x64dbg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="analystty: Automatiza el Triage de Malware PE con Python, Capstone y x64dbg">
+    <meta name="twitter:description" content="Herramienta Python para triage de archivos PE: detección de TTPs, desensamblado con Capstone y breakpoints automáticos en x64dbg.">
+    <meta name="twitter:image" content="https://tty503.com/img/analyst0.jpg">
+    <meta name="twitter:image:alt" content="Pipeline de automatización de triage de malware">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,16 +66,8 @@
             --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             background-color: var(--bg-base);
             color: var(--text-primary);
@@ -61,359 +76,176 @@
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
         }
-
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
+        .mono { font-family: 'JetBrains Mono', monospace; }
         .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.05;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
             background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
         }
-
         .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(3, 3, 3, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-subtle);
-            z-index: 1000;
-            transition: var(--transition-smooth);
+            position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth);
         }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
 
-        .nav-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* ==================== NUEVO: HOOK VISUAL DE TERMINAL ==================== */
+        .terminal-hook {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            margin: 2rem 0;
+            overflow: hidden;
         }
-
-        .nav-brand {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            text-decoration: none;
+        .terminal-hook-header {
+            background: #1a1a1a;
+            padding: 0.5rem 1rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        .nav-back {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: var(--transition-smooth);
-        }
-
-        .nav-back:hover {
-            color: var(--accent);
-        }
-
-        .article-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 7rem 1.5rem 4rem;
-        }
-
-        .article-header {
-            margin-bottom: 3rem;
             border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 2rem;
         }
-
-        .article-meta {
-            display: flex;
-            gap: 1.5rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
         }
-
-        .article-tag {
-            background: transparent;
-            color: var(--accent-blue);
-            padding: 0.25rem 0.75rem;
-            border-radius: 3px;
+        .terminal-dot.red { background: #ef4444; }
+        .terminal-dot.yellow { background: #f59e0b; }
+        .terminal-dot.green { background: #4ade80; }
+        .terminal-hook-title {
+            margin-left: 0.5rem;
             font-size: 0.75rem;
-            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: var(--text-muted);
         }
-
-        .article-title {
-            font-size: clamp(2rem, 4vw, 2.8rem);
-            font-weight: 700;
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .article-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
+        .terminal-hook-body {
+            padding: 1.2rem 1.5rem;
+            font-size: 0.85rem;
             line-height: 1.7;
-            max-width: 650px;
+            color: var(--text-secondary);
+            overflow-x: auto;
         }
+        .terminal-hook-body .prompt { color: var(--accent-green); }
+        .terminal-hook-body .cmd { color: var(--text-primary); }
+        .terminal-hook-body .output { color: var(--accent-blue); }
 
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+            padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; font-size: 0.9rem;
+            line-height: 1.6; color: var(--text-secondary); position: relative;
+        }
+        .code-block code { color: var(--accent-green); font-family: 'JetBrains Mono', monospace; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+        ul ul { margin: 0.5rem 0 0.5rem 1.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); }
+        .callout-danger .callout-title { color: var(--accent-red); }
+        .callout ul { margin: 0.5rem 0 0 1.2rem; color: var(--text-secondary); font-size: 0.95rem; }
+        .callout ul li { margin-bottom: 0.3rem; }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+
+        /* ==================== NUEVO: CTA DE CIERRE ==================== */
+        .cta-closure {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 2rem;
+            margin: 3rem 0 2rem;
+            text-align: center;
+        }
+        .cta-closure h3 {
+            font-size: 1.1rem;
             color: var(--text-primary);
-            margin: 2.5rem 0 1.2rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .section-title:first-of-type {
-            margin-top: 0;
-            border-top: none;
-        }
-
-        .subsection-title {
-            font-size: 1.15rem;
+            margin-bottom: 0.8rem;
             font-weight: 600;
-            color: var(--text-primary);
-            margin: 2rem 0 0.8rem;
         }
-
-        p {
+        .cta-closure p {
+            font-size: 0.95rem;
             color: var(--text-secondary);
             margin-bottom: 1.2rem;
-            font-size: 1rem;
-            line-height: 1.8;
+            line-height: 1.7;
         }
-
-        strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .code-block {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            padding: 1.2rem 1.5rem;
-            margin: 1.5rem 0;
-            overflow-x: auto;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            position: relative;
-        }
-
-        .code-block code {
-            color: var(--accent-green);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-            margin: 2rem 0;
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        th {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            padding: 0.8rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 1px solid var(--border-hover);
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 0.7rem 1rem;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border-subtle);
-            vertical-align: top;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        ul, ol {
-            color: var(--text-secondary);
-            margin: 1rem 0 1.5rem 1.5rem;
-            line-height: 1.8;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
-        }
-
-        ul ul {
-            margin: 0.5rem 0 0.5rem 1.5rem;
-        }
-
-        .image-container {
-            margin: 2rem 0;
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            overflow: hidden;
-            background: var(--bg-card);
-        }
-
-        .image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: grayscale(30%) contrast(1.05);
-            transition: filter 0.4s ease;
-        }
-
-        .image-container img:hover {
-            filter: grayscale(0%) contrast(1.1);
-        }
-
-        .image-caption {
-            padding: 0.8rem 1rem;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .callout {
-            background: var(--bg-card);
-            border-left: 3px solid var(--accent-blue);
-            padding: 1.2rem 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 6px 6px 0;
-        }
-
-        .callout-title {
-            font-weight: 600;
-            color: var(--accent-blue);
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .callout p {
-            margin-bottom: 0;
-            font-size: 0.95rem;
-        }
-
-        .callout-warning {
-            border-left-color: var(--accent-amber);
-        }
-
-        .callout-warning .callout-title {
-            color: var(--accent-amber);
-        }
-
-        .callout-danger {
-            border-left-color: var(--accent-red);
-        }
-
-        .callout-danger .callout-title {
-            color: var(--accent-red);
-        }
-
-        .callout ul {
-            margin: 0.5rem 0 0 1.2rem;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .callout ul li {
-            margin-bottom: 0.3rem;
-        }
-
-        a {
-            color: var(--accent-blue);
-            text-decoration: none;
-            transition: var(--transition-smooth);
-            word-break: break-word;
-        }
-
-        a:hover {
-            color: var(--accent);
-        }
-
-        .footer {
-            border-top: 1px solid var(--border-subtle);
-            padding: 3rem 1.5rem;
-            text-align: center;
-            background: var(--bg-surface);
-        }
-
-        .footer-content {
-            max-width: 900px;
-            margin: 0 auto;
+        .cta-closure-links {
             display: flex;
-            flex-direction: column;
-            align-items: center;
             gap: 1rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
             justify-content: center;
+            flex-wrap: wrap;
         }
-
-        .social-links a {
-            color: var(--text-secondary);
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
             text-decoration: none;
-            font-size: 0.85rem;
             transition: var(--transition-smooth);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            background: transparent;
         }
-
-        .social-links a:hover {
+        .cta-btn:hover {
+            border-color: var(--text-secondary);
             color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .cta-btn.primary {
+            border-color: rgba(96, 165, 250, 0.3);
+            color: var(--accent-blue);
+        }
+        .cta-btn.primary:hover {
+            background: rgba(96, 165, 250, 0.05);
+            border-color: var(--accent-blue);
         }
 
-        .copyright {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
         @media (max-width: 600px) {
-            .article-container {
-                padding: 6rem 1rem 3rem;
-            }
-            .article-title {
-                font-size: 1.6rem;
-            }
-            .section-title {
-                font-size: 1.25rem;
-            }
-            .code-block {
-                padding: 1rem;
-                font-size: 0.8rem;
-            }
-            th, td {
-                padding: 0.5rem 0.6rem;
-                font-size: 0.75rem;
-            }
-            .social-links {
-                gap: 1rem;
-            }
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.8rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+            .terminal-hook-body { padding: 1rem; font-size: 0.75rem; }
         }
     </style>
 </head>
@@ -433,15 +265,35 @@
                 <span class="article-tag">Python</span>
                 <span class="article-tag">Malware Analysis</span>
                 <span class="article-tag">Automatización</span>
+                <span class="article-tag">Reverse Engineering</span>
                 <span>Inicio: Octubre 2024</span>
                 <span>Actualizado: Noviembre 2025</span>
                 <span>~12 min de lectura</span>
             </div>
-            <h1 class="article-title">analystty: Automatizando el Triage de Malware con Python, Capstone y x64dbg</h1>
+            <h1 class="article-title">analystty: Automatizando el Triage de Malware PE con Python, Capstone y x64dbg</h1>
             <p class="article-subtitle">
-                El desarrollo de una herramienta interna para acelerar el análisis estático de archivos PE, la detección de TTPs mediante inteligencia de amenazas, y la instrumentación dinámica en entornos controlados.
+                Herramienta interna para acelerar el análisis estático de archivos PE: extracción de imports, detección de TTPs mediante inteligencia de amenazas, desensamblado de la sección .text con Capstone e instrumentación dinámica con x64dbg. Incluye caso real de un dropper multi-etapa con API Hashing.
             </p>
         </header>
+
+        <!-- ==================== NUEVO: HOOK VISUAL DE TERMINAL ==================== -->
+        <div class="terminal-hook">
+            <div class="terminal-hook-header">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+                <span class="terminal-hook-title mono">tty503@lab:~$ analystty --target dropper_nexilo.exe</span>
+            </div>
+            <div class="terminal-hook-body mono">
+                <span class="prompt">[+]</span> <span class="cmd">PE cargado:</span> dropper_nexilo.exe (x86_64)<br>
+                <span class="prompt">[+]</span> <span class="cmd">Imports extraídos:</span> 47 APIs en 5 DLLs<br>
+                <span class="prompt">[!]</span> <span class="cmd">TTPs detectadas:</span> <span class="output">Evasión (TA0005), Inyección (TA0004), Ejecución (TA0002)</span><br>
+                <span class="prompt">[+]</span> <span class="cmd">Sección .text desensamblada:</span> 1,247 instrucciones desde Entry Point<br>
+                <span class="prompt">[+]</span> <span class="cmd">Correlación completada:</span> 8 funciones mapeadas a APIs sospechosas<br>
+                <span class="prompt">[+]</span> <span class="cmd">Breakpoints generados para x64dbg:</span> <span class="output">4 breakpoints en direcciones críticas</span><br>
+                <span class="prompt">[+]</span> <span class="cmd">Script exportado:</span> analystty_dropper_nexilo.txt
+            </div>
+        </div>
 
         <!-- ==================== SECCIÓN 1: MOTIVACIÓN ==================== -->
         <h2 class="section-title mono"><span style="color: var(--text-muted);">00.</span> La Motivación: Aburrirse de lo Repetitivo</h2>
@@ -453,7 +305,7 @@
         </p>
         <div class="callout">
             <div class="callout-title mono">Filosofía del proyecto</div>
-            <p>Más que una herramienta innovadora, <strong>analystty</strong> es un ejercicio de automatización y consolidación de conocimientos. Sirve como puente entre el análisis estático (estructura PE, desensamblado) y el dinámico (depuración con x64dbg), eliminando la fricción de tener que hacerlo todo manualmente.</p>
+            <p>Más que una herramienta innovadora, <strong>analystty</strong> es un ejercicio de automatización y consolidación de conocimientos. Sirve como puente entre el análisis estático (estructura PE, desensamblado) y el dinámico (depuración con x64dbg), eliminando la fricción de tener que hacerlo todo manualmente. Si querés ver cómo se aplica en un caso real, el <a href="threat-hunter-recollection.html">dropper multi-etapa que analicé en la Threat Hunter Recollection</a> usó exactamente este pipeline.</p>
         </div>
 
         <!-- ==================== SECCIÓN 2: ARQUITECTURA ==================== -->
@@ -464,23 +316,11 @@
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr>
-                        <th>Componente</th>
-                        <th>Clase</th>
-                        <th>Rol</th>
-                    </tr>
+                    <tr><th>Componente</th><th>Clase</th><th>Rol</th></tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="mono">frm_pe</td>
-                        <td>Motor de Análisis Estático</td>
-                        <td>Parseo de headers, secciones, imports, desensamblado con Capstone y detección de funciones.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">medbg</td>
-                        <td>Interfaz de Depuración</td>
-                        <td>Conexión TCP con x64dbg, traducción de direcciones virtuales (ASLR) y colocación automática de breakpoints.</td>
-                    </tr>
+                    <tr><td class="mono">frm_pe</td><td>Motor de Análisis Estático</td><td>Parseo de headers, secciones, imports, desensamblado con Capstone y detección de funciones.</td></tr>
+                    <tr><td class="mono">medbg</td><td>Interfaz de Depuración</td><td>Conexión TCP con x64dbg, traducción de direcciones virtuales (ASLR) y colocación automática de breakpoints.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -493,9 +333,9 @@
         </ul>
 
         <!-- ==================== SECCIÓN 3: FLUJO DE TRABAJO ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> El Pipeline de Análisis</h2>
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> El Pipeline de Análisis: Del Binario al Breakpoint</h2>
         <p>
-            El flujo de trabajo definido en <span class="mono">__init__.py</span> es totalmente secuencial y orquestado:
+            El flujo de trabajo definido en <span class="mono">__init__.py</span> es totalmente secuencial y orquestado. Cada fase alimenta a la siguiente sin intervención manual:
         </p>
         <ol>
             <li><strong>Ingesta del PE:</strong> Se carga el binario con pefile. La herramienta detecta automáticamente si es de 32 o 64 bits.</li>
@@ -507,75 +347,79 @@
             <li><strong>Instrumentación:</strong> <span class="mono">medbg</span> traduce las direcciones y establece breakpoints en x64dbg justo antes de las llamadas críticas.</li>
         </ol>
         <div class="image-container">
-            <img src="img/analyst0.jpg" alt="Pipeline de automatización con Radare2 y volcado de módulos" loading="lazy">
-            <div class="image-caption mono">Automatización del proceso de volcado (dump) de módulos desempaquetados en memoria usando scripts sobre Radare2.</div>
+            <img src="img/analyst0.jpg" alt="Pipeline de automatización con Radare2 y volcado de módulos desempaquetados en memoria para triage de malware" loading="lazy">
+            <div class="image-caption mono">Automatización del proceso de volcado (dump) de módulos desempaquetados en memoria usando scripts sobre Radare2 para triage de malware.</div>
         </div>
 
         <!-- ==================== SECCIÓN 4: DETECCIÓN DE TTPs ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Inteligencia de Amenazas: malapi.json</h2>
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> Detección de TTPs con MITRE ATT&amp;CK desde Imports PE</h2>
         <p>
-            El corazón de la detección estática reside en el archivo <span class="mono">malapi.json</span>. En lugar de limitarse a decir "este binario es malo", analystty clasifica el comportamiento potencial basándose en las APIs de Windows:
+            El corazón de la detección estática reside en el archivo <span class="mono">malapi.json</span>. En lugar de limitarse a decir "este binario es malo", analystty clasifica el comportamiento potencial basándose en las APIs de Windows y las correlaciona con tácticas del framework MITRE ATT&amp;CK:
         </p>
         <div class="code-block mono">
-            <span style="color: var(--text-muted);">// Ejemplo de firmas en malapi.json</span><br>
-            "Evasión": ["Sleep", "GetModuleHandleA", "IsDebuggerPresent", ...],<br>
-            "Inyección": ["VirtualAllocEx", "WriteProcessMemory", "CreateRemoteThread", ...],<br>
-            "Ejecución": ["WinExec", "ShellExecute", "CreateProcess", ...]
+            <span style="color: var(--text-muted);">// Firmas en malapi.json — cada categoría mapea a una táctica MITRE ATT&amp;CK</span><br>
+            <span style="color: var(--accent-amber);">"Evasión"</span>: ["Sleep", "GetModuleHandleA", "IsDebuggerPresent", ...]<br>
+            <span style="color: var(--accent-red);">"Inyección"</span>: ["VirtualAllocEx", "WriteProcessMemory", "CreateRemoteThread", ...]<br>
+            <span style="color: var(--accent-blue);">"Ejecución"</span>: ["WinExec", "ShellExecute", "CreateProcess", ...]
         </div>
         <p>
-            Cuando un binario importa <span class="mono">WinExec</span> y <span class="mono">Sleep</span>, la herramienta no solo lo reporta, sino que las etiqueta como <strong>Ejecución</strong> y <strong>Evasión</strong>, dándonos inmediatamente una idea de las TTPs del malware.
+            Cuando un binario importa <span class="mono">WinExec</span> y <span class="mono">Sleep</span>, la herramienta no solo lo reporta, sino que las etiqueta como <strong>Ejecución (TA0002)</strong> y <strong>Evasión de Defensas (TA0005)</strong>, dándonos inmediatamente una idea de las TTPs del malware sin necesidad de ejecutarlo.
         </p>
 
         <!-- ==================== SECCIÓN 5: CORRELACIÓN ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Correlación y Mapeo de Funciones</h2>
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Correlación y Mapeo de Funciones: Del Import al Call Graph</h2>
         <p>
             Identificar <i>qué</i> hace el binario es bueno, pero identificar <i>dónde</i> lo hace es mejor. La función <span class="mono">getFunctionsByMalApiDetect()</span> resuelve las direcciones de las instrucciones <span class="mono">call</span> y <span class="mono">jmp</span> para crear una tabla de correlación.
         </p>
         <p>
-            Esto nos permite pasar de una lista plana de imports a un <strong>call graph</strong> simplificado, donde vemos que, por ejemplo, la función en <span class="mono">0x140001450</span> es la responsable de ejecutar comandos y evadir sandboxes.
+            Esto nos permite pasar de una lista plana de imports a un <strong>call graph</strong> simplificado, donde vemos que, por ejemplo, la función en <span class="mono">0x140001450</span> es la responsable de ejecutar comandos y evadir sandboxes. Esta capacidad de trazar la relación entre APIs sospechosas y las funciones que las invocan es lo que diferencia un análisis automatizado real de una simple enumeración de imports.
         </p>
         <div class="image-container">
-            <img src="img/analyst2.jpg" alt="Tablas de correlación de funciones y APIs" loading="lazy">
+            <img src="img/analyst2.jpg" alt="Tablas de correlación de funciones y APIs: mapeo de direcciones de instrucciones a funciones API como Sleep y WinExec" loading="lazy">
             <div class="image-caption mono">Resultados del módulo de correlación: mapeo de direcciones de instrucciones (ADDR) a funciones API (NAME) como Sleep y WinExec dentro de sus respectivas funciones contenedoras (START).</div>
         </div>
 
         <!-- ==================== SECCIÓN 6: INTEGRACIÓN CON x64dbg ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Scripting del Depurador: Traducción de Direcciones</h2>
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Scripting del Depurador: Traducción de Direcciones y Breakpoints Automáticos</h2>
         <p>
             Uno de los mayores dolores de cabeza en análisis dinámico es la aleatoriedad (ASLR). Una dirección en IDA o Ghidra rara vez coincide con la dirección real en el depurador. <span class="mono">medbg</span> soluciona esto con una aritmética simple pero efectiva en <span class="mono">__mappingPhysicalAddress</span>:
         </p>
         <div class="code-block mono">
-            <span style="color: var(--text-muted);">// Fórmula de traducción</span><br>
+            <span style="color: var(--text-muted);">// Fórmula de traducción de direcciones virtuales a físicas</span><br>
             Physical_Address = (Virtual_AVA - ImageBase) + ModuleBase_Actual<br><br>
             <span style="color: var(--text-muted);">// Ejemplo real del caso de prueba:</span><br>
-            IMAGE BASE (Disco):  0x140000000<br>
-            BASE ADDRESS (RAM):  0x7ff780fd0000<br>
-            Breakpoint calculado: 0x7ff780fd1464 → <span style="color: var(--accent-green);">OK</span>
+            IMAGE BASE (Disco):  <span class="mono">0x140000000</span><br>
+            BASE ADDRESS (RAM):  <span class="mono">0x7ff780fd0000</span><br>
+            Breakpoint calculado: <span class="mono">0x7ff780fd1464</span> → <span style="color: var(--accent-green);">OK</span>
         </div>
         <p>
-            Con esto, la herramienta coloca breakpoints automáticamente justo en las instrucciones <span class="mono">call rax</span> o en los saltos a las APIs sospechosas.
+            Con esto, la herramienta coloca breakpoints automáticamente justo en las instrucciones <span class="mono">call rax</span> o en los saltos a las APIs sospechosas, eliminando la necesidad de calcular offsets manualmente.
         </p>
         <div class="image-container">
-            <img src="img/analyst1.jpg" alt="Sesión de x64dbg con breakpoints automáticos" loading="lazy">
-            <div class="image-caption mono">Sesión de x64dbg instrumentada. Se observan los breakpoints establecidos automáticamente tras la traducción de direcciones, apuntando a instrucciones críticas.</div>
+            <img src="img/analyst1.jpg" alt="Sesión de x64dbg con breakpoints automáticos establecidos tras la traducción de direcciones" loading="lazy">
+            <div class="image-caption mono">Sesión de x64dbg instrumentada. Se observan los breakpoints establecidos automáticamente tras la traducción de direcciones, apuntando a instrucciones críticas del binario analizado.</div>
         </div>
 
         <!-- ==================== SECCIÓN 7: CASO DE USO REAL ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Caso de Uso: Diseccionando un Dropper (Noviembre 2025)</h2>
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Caso de Uso Real: Diseccionando un Dropper Multi-Etapa con API Hashing</h2>
         <p>
-            En noviembre de 2025, desempolvé el proyecto para una tarea real: analizar un dropper multi-etapa. El binario utilizaba <strong>API Hashing</strong> para ocultar sus imports, pero analystty fue clave en la fase de desempaquetado y volcado.
+            En noviembre de 2025, desempolvé el proyecto para una tarea real: analizar un dropper multi-etapa. El binario utilizaba <strong>API Hashing</strong> para ocultar sus imports —una técnica de evasión que resuelve dinámicamente las funciones en tiempo de ejecución en lugar de declararlas en la tabla de importaciones—, pero analystty fue clave en la fase de desempaquetado y volcado.
         </p>
+        <h3 class="subsection-title">Volcado de Memoria con Radare2 para Triage de Malware</h3>
         <p>
-            El flujo fue el siguiente:
+            El flujo de trabajo aplicado fue el siguiente:
         </p>
         <ol>
-            <li><strong>Aislamiento:</strong> Ejecución en un bunker de Proxmox VE.</li>
-            <li><strong>Forzado de ejecución:</strong> Se dejó correr el malware hasta que desempaquetara su payload en memoria.</li>
+            <li><strong>Aislamiento:</strong> Ejecución en un bunker de Proxmox VE con snapshot para rollback inmediato. Este mismo entorno de laboratorio está documentado en la <a href="infraestructura-tunel-ofuscado.html">guía de infraestructura ofuscada con WireGuard y proxy residencial</a> que utilizo para todas mis investigaciones.</li>
+            <li><strong>Forzado de ejecución:</strong> Se dejó correr el malware hasta que desempaquetara su payload en memoria, evitando el API Hashing inicial.</li>
             <li><strong>Scripting de volcado:</strong> Usando un script similar a los de la herramienta, se automatizó el dump de las regiones de memoria de interés con Radare2 (<span class="mono">functions_to_dump.txt</span>).</li>
-            <li><strong>Análisis de TTPs:</strong> Una vez volcado el payload, analystty mapeó rápidamente las capacidades, identificando la lógica de <strong>Clipper</strong> (robo de criptomonedas) e <strong>InfoStealer</strong>.</li>
+            <li><strong>Análisis de TTPs:</strong> Una vez volcado el payload, analystty mapeó rápidamente las capacidades, identificando la lógica de <strong>Clipper</strong> (robo de criptomonedas mediante reemplazo de direcciones en el portapapeles) e <strong>InfoStealer</strong> (exfiltración de credenciales y datos del sistema).</li>
         </ol>
+        <p>
+            Este caso real está documentado en profundidad en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, donde además se cubren las técnicas de evasión que el dropper implementaba y cómo el pipeline de analystty permitió identificar sus capacidades en minutos en lugar de horas. Las <a href="myPracticalShellcodeC2.html">técnicas de inyección documentadas en el C2 Builder</a> comparten el mismo ADN que este dropper: API Hashing, inyección en memoria y persistencia en el registro de Windows.
+        </p>
         <div class="image-container">
-            <img src="img/analyst3.jpg" alt="Cálculo de offsets y validación de breakpoints" loading="lazy">
+            <img src="img/analyst3.jpg" alt="Validación manual de offsets calculados por analystty confirmando breakpoints en funciones maliciosas" loading="lazy">
             <div class="image-caption mono">Validación manual de los offsets calculados por la herramienta. Se confirma que los breakpoints apuntan correctamente a las funciones maliciosas en el espacio de memoria del proceso.</div>
         </div>
 
@@ -585,9 +429,9 @@
             Siendo una herramienta de práctica en evolución, <strong>analystty</strong> tiene aristas que debo pulir. La honestidad técnica es clave aquí:
         </p>
         <div class="callout callout-warning">
-            <div class="callout-title mono">⚠️ Limitaciones Actuales</div>
+            <div class="callout-title mono">Limitaciones Actuales</div>
             <ul>
-                <li><strong>Detección de funciones ingenua:</strong> Se basa en <span class="mono">push rbp</span>. Falla con código ofuscado, compilado con optimizaciones extrema o en ausencia de frame pointer.</li>
+                <li><strong>Detección de funciones ingenua:</strong> Se basa en <span class="mono">push rbp</span>. Falla con código ofuscado, compilado con optimizaciones extremas o en ausencia de frame pointer. La migración a un enfoque basado en CFG resolverá esto.</li>
                 <li><strong>Resolución de saltos incompleta:</strong> Solo maneja saltos directos o mediante <span class="mono">rax</span>. No resuelve flujos de control complejos (<span class="mono">jne</span>, <span class="mono">push/ret</span>).</li>
                 <li><strong>Bug en getInstruction():</strong> El método <span class="mono">getInstruction</span> de <span class="mono">medbg</span> itera sobre una lista vacía, por lo que no retorna correctamente el desensamblado del debugger.</li>
                 <li><strong>Soporte PE32 parcial:</strong> Aunque el motor lo detecta, el cálculo de offsets no está completamente adaptado a 32 bits.</li>
@@ -609,19 +453,33 @@
             <strong>analystty</strong> no pretende ser un producto comercial ni competir con las suites de reversing establecidas. Es mi <strong>herramienta de confianza</strong>, un proyecto vivo que crece con cada nuevo bicho que analizo. Representa la automatización de esas tareas que, aunque repetitivas, requieren precisión quirúrgica.
         </p>
         <p>
-            Si algo he aprendido en este proceso es que "nunca se debe dejar nada incompleto". Desempolvar el código tras un año y adaptarlo para una amenaza real fue un recordatorio brutal de que las herramientas que construimos para nosotros mismos suelen ser las más valiosas a largo plazo.
+            Si algo he aprendido en este proceso es que nunca se debe dejar nada incompleto. Desempolvar el código tras un año y adaptarlo para una amenaza real —el dropper con API Hashing documentado en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>— fue un recordatorio brutal de que las herramientas que construimos para nosotros mismos suelen ser las más valiosas a largo plazo. Las <a href="myPracticalShellcodeC2.html">técnicas de evasión documentadas en el desarrollo del C2 Builder</a> comparten el mismo ADN: automatizar lo repetitivo para dedicar el tiempo humano a lo que realmente requiere criterio.
         </p>
         <p>
             El código está disponible en GitHub para quien quiera echarle un vistazo, destriparlo o adaptarlo a sus propias necesidades de triage.
         </p>
 
+        <!-- ==================== NUEVO: CTA DE CIERRE ==================== -->
+        <div class="cta-closure">
+            <h3 class="mono">/¿Querés ver esta herramienta en acción?</h3>
+            <p>El pipeline completo de analystty se utilizó para diseccionar un dropper multi-etapa real con API Hashing. El caso está documentado con lujo de detalle —desde el aislamiento en Proxmox hasta la identificación del Clipper y el InfoStealer— en la bitácora de Threat Hunting.</p>
+            <div class="cta-closure-links">
+                <a href="threat-hunter-recollection.html" class="cta-btn primary mono">Threat Hunter Recollection →</a>
+                <a href="https://github.com/tty503/analystty" target="_blank" rel="noopener noreferrer" class="cta-btn mono">GitHub →</a>
+                <a href="myPracticalShellcodeC2.html" class="cta-btn mono">C2 Builder →</a>
+            </div>
+        </div>
+
         <!-- Referencias -->
         <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Referencias y Enlaces</h2>
         <ul>
             <li><a href="https://github.com/tty503/analystty" target="_blank" rel="noopener noreferrer">Repositorio de analystty en GitHub</a></li>
-            <li><a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-proxmox-ugcPost-7392246317483315200-hz5X" target="_blank" rel="noopener noreferrer">Análisis del Dropper Nexilo-CC (LinkedIn)</a></li>
-            <li><a href="https://www.capstone-engine.org" target="_blank" rel="noopener noreferrer">Capstone Engine</a></li>
-            <li><a href="https://github.com/erocarrera/pefile" target="_blank" rel="noopener noreferrer">pefile (Python PE parsing)</a></li>
+            <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — El dropper multi-etapa analizado con este pipeline</a></li>
+            <li><a href="myPracticalShellcodeC2.html">De la Shellcode Artesanal al C2 Builder — Técnicas de evasión relacionadas</a></li>
+            <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada con WireGuard — El entorno de laboratorio utilizado</a></li>
+            <li><a href="plc.html">PLC Siemens S5/S7 — Ingeniería inversa aplicada a OT</a></li>
+            <li><a href="https://www.capstone-engine.org" target="_blank" rel="noopener noreferrer">Capstone Engine — Motor de desensamblado</a></li>
+            <li><a href="https://github.com/erocarrera/pefile" target="_blank" rel="noopener noreferrer">pefile — Python PE parsing</a></li>
         </ul>
     </article>
 
@@ -634,21 +492,45 @@
                 <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
                 <a href="https://tty503.com">tty503.com</a>
             </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo técnico sobre el desarrollo de analystty — Automatización de análisis PE y triage de malware.</p>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo técnico sobre analystty — Automatización de triage de malware PE con Python, Capstone y x64dbg.</p>
         </div>
     </footer>
 
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
-
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
-            } else {
-                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
-            }
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
         });
+    </script>
+
+    <!-- ==================== SCHEMA JSON-LD OPTIMIZADO ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "analystty: Automatizando el Triage de Malware PE con Python, Capstone y x64dbg",
+      "description": "Herramienta interna en Python para acelerar el análisis estático de archivos PE: extracción de imports, detección de TTPs con MITRE ATT&CK, desensamblado de la sección .text con Capstone e instrumentación dinámica con x64dbg. Incluye caso real de un dropper multi-etapa con API Hashing.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2024-10-01",
+      "dateModified": "2025-11-30",
+      "mainEntityOfPage": "https://tty503.com/analystty.html",
+      "image": "https://tty503.com/img/analyst0.jpg",
+      "keywords": ["malware analysis", "PE triage", "Python", "Capstone", "x64dbg", "API Hashing", "TTPs", "MITRE ATT&CK", "reverse engineering", "pefile", "Radare2", "breakpoints automáticos"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "3500",
+      "timeRequired": "PT12M",
+      "about": [
+        { "@type": "Thing", "name": "Malware Analysis" },
+        { "@type": "Thing", "name": "Reverse Engineering" },
+        { "@type": "Thing", "name": "Python" },
+        { "@type": "Thing", "name": "Capstone Engine" },
+        { "@type": "Thing", "name": "x64dbg" },
+        { "@type": "Thing", "name": "MITRE ATT&CK" }
+      ]
+    }
     </script>
 </body>
 </html>

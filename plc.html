@@ -7,24 +7,41 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <title>Ingeniería Inversa en PLC Siemens S5/S7 | tty503</title>
-    <meta name="description" content="Análisis de bajo nivel de la arquitectura interna de autómatas Siemens S5/S7, máquina virtual MC7, protocolos industriales, hallazgos en infraestructuras venezolanas y vectores de seguridad ofensiva.">
-    <meta name="keywords" content="PLC Siemens, S5, S7, STEP5, STEP7, AWL, MC7, ingeniería inversa, seguridad OT, automatización industrial, Modbus, OPC, Havex, Venalum, CorpoElec, Schneider Electric, Modicon Quantum, shellcode PLC, fuzzing ICS">
+    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
+    <title>Ingeniería Inversa en PLC Siemens S5/S7: Arquitectura MC7, AWL y la Deficiencia Estructural de Logs en Infraestructuras Críticas | tty503</title>
+    <meta name="description" content="Análisis de bajo nivel de la máquina virtual MC7 en autómatas Siemens S5/S7. Ingeniería inversa de bytecodes, formato de instrucción fija, protocolos sin autenticación y el hallazgo crítico: ausencia total de registros de auditoría en infraestructuras venezolanas reales (Venalum, CorpoElec).">
+    <meta name="keywords" content="PLC Siemens, S5, S7, STEP5, STEP7, AWL, MC7, ingeniería inversa, seguridad OT, automatización industrial, Modbus, OPC, Havex, Venalum, CorpoElec, Schneider Electric, Modicon Quantum, shellcode PLC, fuzzing ICS, forensic readiness, ausencia de logs, infraestructura crítica, Venezuela">
     <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://tty503.com/plc-siemens-s5-s7">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://tty503.com/plc.html">
     <meta name="theme-color" content="#050505">
     
-    <meta property="og:title" content="Ingeniería Inversa en PLC Siemens S5/S7 — Investigación Completa | tty503">
-    <meta property="og:description" content="Deconstrucción técnica de la arquitectura de autómatas Siemens, hallazgos de seguridad en infraestructuras industriales venezolanas, y exploración de shellcode para entornos OT.">
-    <meta property="og:url" content="https://tty503.com/plc-siemens-s5-s7">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Ingeniería Inversa en PLC Siemens S5/S7: Arquitectura MC7 y la Deficiencia de Logs en OT | tty503">
+    <meta property="og:description" content="Deconstrucción técnica de la arquitectura de autómatas Siemens, hallazgos de seguridad en infraestructuras industriales venezolanas, y el fallo estructural crítico: la ausencia total de registros de auditoría.">
+    <meta property="og:url" content="https://tty503.com/plc.html">
     <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503 Portfolio">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/plc-2.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Laboratorio de ingeniería inversa MC7 con hexdump, rizin y WinSPS-S7">
+    <meta property="article:published_time" content="2025-10-15">
+    <meta property="article:modified_time" content="2026-04-15">
+    <meta property="article:author" content="Christian Márquez">
+    <meta property="article:tag" content="PLC Siemens">
+    <meta property="article:tag" content="OT Security">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Critical Infrastructure">
     
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
     <meta name="twitter:title" content="Ingeniería Inversa en PLC Siemens S5/S7 — Investigación Completa">
-    <meta name="twitter:description" content="Análisis profundo de la arquitectura de autómatas Siemens, hallazgos en infraestructuras venezolanas y seguridad ofensiva en entornos OT.">
+    <meta name="twitter:description" content="Análisis profundo de la arquitectura de autómatas Siemens, hallazgos en infraestructuras venezolanas y la ausencia crítica de logs.">
+    <meta name="twitter:image" content="https://tty503.com/img/plc-2.jpg">
+    <meta name="twitter:image:alt" content="Laboratorio de reversing MC7">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,17 +64,8 @@
             --accent-red: #ef4444;
             --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             background-color: var(--bg-base);
             color: var(--text-primary);
@@ -66,359 +74,120 @@
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
         }
-
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
+        .mono { font-family: 'JetBrains Mono', monospace; }
         .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.05;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
             background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
         }
-
         .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(3, 3, 3, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-subtle);
-            z-index: 1000;
-            transition: var(--transition-smooth);
+            position: fixed; top: 0; width: 100%;
+            background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle);
+            z-index: 1000; transition: var(--transition-smooth);
         }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
 
-        .nav-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* ToC */
+        .toc-container {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; margin: 2rem 0; overflow: hidden;
         }
-
-        .nav-brand {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .toc-summary {
+            padding: 1.2rem 1.5rem; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; list-style: none;
+            user-select: none; transition: background 0.3s;
         }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; columns: 2; column-gap: 2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li { margin-bottom: 0; break-inside: avoid; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
 
-        .nav-back {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: var(--transition-smooth);
-        }
-
-        .nav-back:hover {
-            color: var(--accent);
-        }
-
-        .article-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 7rem 1.5rem 4rem;
-        }
-
-        .article-header {
-            margin-bottom: 3rem;
-            border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 2rem;
-        }
-
-        .article-meta {
-            display: flex;
-            gap: 1.5rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .article-tag {
-            background: transparent;
-            color: var(--accent-blue);
-            padding: 0.25rem 0.75rem;
-            border-radius: 3px;
-            font-size: 0.75rem;
-            border: 1px solid rgba(96, 165, 250, 0.3);
-        }
-
-        .article-title {
-            font-size: clamp(2rem, 4vw, 2.8rem);
-            font-weight: 700;
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .article-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            max-width: 650px;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 2.5rem 0 1.2rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .section-title:first-of-type {
-            margin-top: 0;
-            border-top: none;
-        }
-
-        .subsection-title {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 2rem 0 0.8rem;
-        }
-
-        p {
-            color: var(--text-secondary);
-            margin-bottom: 1.2rem;
-            font-size: 1rem;
-            line-height: 1.8;
-        }
-
-        strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
         .code-block {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            padding: 1.2rem 1.5rem;
-            margin: 1.5rem 0;
-            overflow-x: auto;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            position: relative;
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+            padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; font-size: 0.9rem;
+            line-height: 1.6; color: var(--text-secondary); position: relative;
         }
+        .code-block code { color: var(--accent-green); font-family: 'JetBrains Mono', monospace; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; } tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; } ul ul { margin: 0.5rem 0 0.5rem 1.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); }
+        .callout-danger .callout-title { color: var(--accent-red); }
+        .callout ul { margin: 0.5rem 0 0 1.2rem; color: var(--text-secondary); font-size: 0.95rem; }
+        .callout ul li { margin-bottom: 0.3rem; }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
 
-        .code-block code {
-            color: var(--accent-green);
-            font-family: 'JetBrains Mono', monospace;
+        /* CTA */
+        .cta-closure {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center;
         }
-
-        .table-wrapper {
-            overflow-x: auto;
-            margin: 2rem 0;
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem;
+            border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none;
+            transition: var(--transition-smooth); border: 1px solid var(--border-subtle);
+            color: var(--text-secondary); background: transparent;
         }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .cta-btn.primary:hover { background: rgba(96, 165, 250, 0.05); border-color: var(--accent-blue); }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        th {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            padding: 0.8rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 1px solid var(--border-hover);
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 0.7rem 1rem;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border-subtle);
-            vertical-align: top;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        ul, ol {
-            color: var(--text-secondary);
-            margin: 1rem 0 1.5rem 1.5rem;
-            line-height: 1.8;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
-        }
-
-        ul ul {
-            margin: 0.5rem 0 0.5rem 1.5rem;
-        }
-
-        .image-container {
-            margin: 2rem 0;
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            overflow: hidden;
-            background: var(--bg-card);
-        }
-
-        .image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-            filter: grayscale(30%) contrast(1.05);
-            transition: filter 0.4s ease;
-        }
-
-        .image-container img:hover {
-            filter: grayscale(0%) contrast(1.1);
-        }
-
-        .image-caption {
-            padding: 0.8rem 1rem;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border-subtle);
-        }
-
-        .callout {
-            background: var(--bg-card);
-            border-left: 3px solid var(--accent-blue);
-            padding: 1.2rem 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 6px 6px 0;
-        }
-
-        .callout-title {
-            font-weight: 600;
-            color: var(--accent-blue);
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .callout p {
-            margin-bottom: 0;
-            font-size: 0.95rem;
-        }
-
-        .callout-warning {
-            border-left-color: var(--accent-amber);
-        }
-
-        .callout-warning .callout-title {
-            color: var(--accent-amber);
-        }
-
-        .callout-danger {
-            border-left-color: var(--accent-red);
-        }
-
-        .callout-danger .callout-title {
-            color: var(--accent-red);
-        }
-
-        .callout ul {
-            margin: 0.5rem 0 0 1.2rem;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .callout ul li {
-            margin-bottom: 0.3rem;
-        }
-
-        a {
-            color: var(--accent-blue);
-            text-decoration: none;
-            transition: var(--transition-smooth);
-            word-break: break-word;
-        }
-
-        a:hover {
-            color: var(--accent);
-        }
-
-        .footer {
-            border-top: 1px solid var(--border-subtle);
-            padding: 3rem 1.5rem;
-            text-align: center;
-            background: var(--bg-surface);
-        }
-
-        .footer-content {
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .social-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: var(--transition-smooth);
-        }
-
-        .social-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .copyright {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
         @media (max-width: 600px) {
-            .article-container {
-                padding: 6rem 1rem 3rem;
-            }
-            .article-title {
-                font-size: 1.6rem;
-            }
-            .section-title {
-                font-size: 1.25rem;
-            }
-            .code-block {
-                padding: 1rem;
-                font-size: 0.8rem;
-            }
-            th, td {
-                padding: 0.5rem 0.6rem;
-                font-size: 0.75rem;
-            }
-            .social-links {
-                gap: 1rem;
-            }
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.8rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+            .toc-content { columns: 1; padding: 0 1rem 1rem; }
+            .toc-summary { padding: 1rem; }
         }
     </style>
 </head>
@@ -437,17 +206,54 @@
             <div class="article-meta mono">
                 <span class="article-tag">Seguridad OT</span>
                 <span class="article-tag">Ingeniería Inversa</span>
+                <span class="article-tag">Infraestructura Crítica</span>
                 <span>Actualizado: Abril 2026</span>
                 <span>~60 min de lectura</span>
             </div>
             <h1 class="article-title">Ingeniería Inversa en PLC Siemens S5/S7: Arquitectura, STEP5, MC7 y Vectores de Seguridad en Entornos Reales</h1>
             <p class="article-subtitle">
-                Análisis de bajo nivel de la arquitectura interna de autómatas Siemens, su máquina virtual de ejecución, protocolos industriales, hallazgos en infraestructuras venezolanas, y exploración de shellcode para entornos OT/ICS.
+                Análisis de bajo nivel de la arquitectura interna de autómatas Siemens, su máquina virtual de ejecución, protocolos industriales, hallazgos en infraestructuras venezolanas, y el fallo estructural crítico: la ausencia total de registros de auditoría que anula cualquier intento de atribución forense.
             </p>
         </header>
 
+        <!-- ToC -->
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice_de_contenidos</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s01">Fundamentos del PLC</a></li>
+                    <li><a href="#s02">Bloques del Programa de Usuario</a></li>
+                    <li><a href="#s03">AWL: Un Assembly para Autómatas</a></li>
+                    <li><a href="#s04">Compuertas Lógicas y Operaciones</a></li>
+                    <li><a href="#s05">Arquitectura de Registros</a></li>
+                    <li><a href="#s06">Direccionamiento de Entradas/Salidas</a></li>
+                    <li><a href="#s07">Flip-Flop S/R por Software</a></li>
+                    <li><a href="#s08">Temporizadores en Siemens S5</a></li>
+                    <li><a href="#s09">Contadores y Operaciones</a></li>
+                    <li><a href="#s10">Comparaciones y Saltos</a></li>
+                    <li><a href="#s11">Transición STEP5 a STEP7</a></li>
+                    <li><a href="#s12">Tipos de Datos y Direccionamiento</a></li>
+                    <li><a href="#s13">Direccionamiento Indirecto</a></li>
+                    <li><a href="#s14">Interfaces de Bus y Protocolos</a></li>
+                    <li><a href="#s15">Hallazgos en Infraestructuras Venezolanas</a></li>
+                    <li><a href="#s16">Malware en Entornos ICS</a></li>
+                    <li><a href="#s17">Ingeniería Inversa del Bytecode MC7</a></li>
+                    <li><a href="#s18">Shellcode y Binary Exploitation</a></li>
+                    <li><a href="#s19">La Caja Negra que Nunca se Instaló</a></li>
+                    <li><a href="#s20">Por Qué los PLCs No Generan Logs</a></li>
+                    <li><a href="#s21">Casos Globales sin Logs</a></li>
+                    <li><a href="#s22">Monitoreo Basado en Red</a></li>
+                    <li><a href="#s23">Perspectivas Futuras</a></li>
+                    <li><a href="#s24">Conclusiones</a></li>
+                </ol>
+            </div>
+        </details>
+
         <!-- ==================== SECCIÓN 1: FUNDAMENTOS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">01.</span> Fundamentos del PLC</h2>
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> Fundamentos del PLC</h2>
         
         <h3 class="subsection-title">¿Qué es un PLC?</h3>
         <p>
@@ -491,43 +297,19 @@
         </ul>
 
         <!-- ==================== SECCIÓN 2: BLOQUES DE PROGRAMA ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">02.</span> Bloques del Programa de Usuario</h2>
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Bloques del Programa de Usuario</h2>
 
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr>
-                        <th>Bloque</th>
-                        <th>Nombre</th>
-                        <th>Función</th>
-                    </tr>
+                    <tr><th>Bloque</th><th>Nombre</th><th>Función</th></tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="mono">OB</td>
-                        <td>Bloque de Organización</td>
-                        <td>Controla la secuencia de ejecución del programa. Define puntos de entrada e interrupciones. Esencial para la estructura del programa.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">PB</td>
-                        <td>Bloque de Programa</td>
-                        <td>Contiene el programa principal de control. Puede llamar a otros bloques de funciones y datos.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">FB</td>
-                        <td>Bloque de Funciones</td>
-                        <td>Contiene funciones reutilizables que se pueden llamar desde otros bloques. Permite modularizar el programa.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">SB</td>
-                        <td>Bloque Secuencial</td>
-                        <td>Utilizado para programar secuencias de pasos. Define transiciones entre pasos y acciones asociadas.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">DB</td>
-                        <td>Bloque de Datos</td>
-                        <td>Almacena datos variables utilizados en el programa. Facilita el intercambio de datos entre diferentes bloques.</td>
-                    </tr>
+                    <tr><td class="mono">OB</td><td>Bloque de Organización</td><td>Controla la secuencia de ejecución del programa. Define puntos de entrada e interrupciones. Esencial para la estructura del programa.</td></tr>
+                    <tr><td class="mono">PB</td><td>Bloque de Programa</td><td>Contiene el programa principal de control. Puede llamar a otros bloques de funciones y datos.</td></tr>
+                    <tr><td class="mono">FB</td><td>Bloque de Funciones</td><td>Contiene funciones reutilizables que se pueden llamar desde otros bloques. Permite modularizar el programa.</td></tr>
+                    <tr><td class="mono">SB</td><td>Bloque Secuencial</td><td>Utilizado para programar secuencias de pasos. Define transiciones entre pasos y acciones asociadas.</td></tr>
+                    <tr><td class="mono">DB</td><td>Bloque de Datos</td><td>Almacena datos variables utilizados en el programa. Facilita el intercambio de datos entre diferentes bloques.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -545,7 +327,7 @@
         </ul>
 
         <!-- ==================== SECCIÓN 3: AWL Y SU PARALELISMO CON ASSEMBLY ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">03.</span> AWL: Un Assembly para Autómatas</h2>
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> AWL: Un Assembly para Autómatas</h2>
 
         <p>
             La sintaxis de AWL guarda un paralelismo notable con el Assembly de arquitecturas como x86. Se compone de un <strong>operador</strong> (la instrucción), un <strong>indicador de operando</strong> (el tipo de dato sobre el que se opera) y un <strong>operando</strong> (la dirección o valor concreto). El resultado de cada operación lógica se almacena en el registro <strong>RLO</strong> (Result of Logic Operation), que cumple una función análoga al registro <strong>EAX en x86</strong>: actúa como acumulador donde se deposita el resultado de la última evaluación.
@@ -602,7 +384,7 @@
         </div>
 
         <!-- ==================== SECCIÓN 4: COMPUERTAS LÓGICAS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">04.</span> Compuertas Lógicas y Operaciones</h2>
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> Compuertas Lógicas y Operaciones</h2>
 
         <h3 class="subsection-title">AND (AWL = U)</h3>
         <ul>
@@ -656,64 +438,28 @@
         </div>
 
         <!-- ==================== SECCIÓN 5: REGISTROS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">05.</span> Arquitectura de Registros</h2>
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Arquitectura de Registros</h2>
 
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr>
-                        <th>Bit</th>
-                        <th>Registro</th>
-                        <th>Función</th>
-                    </tr>
+                    <tr><th>Bit</th><th>Registro</th><th>Función</th></tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="mono">0</td>
-                        <td class="mono">ER</td>
-                        <td>Indica si la instrucción es la primera de una cadena lógica (inhibida). En este estado, la consulta se almacena directamente en RLO.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">1</td>
-                        <td class="mono">RLO</td>
-                        <td>Registro donde se realizan las operaciones a nivel de bit. Almacena el resultado lógico (acumulador).</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">2</td>
-                        <td class="mono">STA</td>
-                        <td>Gestión de errores.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">3</td>
-                        <td class="mono">OR</td>
-                        <td>Requerido para el proceso AND delante de OR. Indica si la operación AND ha dado valor 1.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">4</td>
-                        <td class="mono">OV</td>
-                        <td>Se activa si durante una operación aritmética o de comparación de coma flotante se produce un error de desbordamiento, operación no admisible o relación incorrecta.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">5</td>
-                        <td class="mono">OS</td>
-                        <td>Se activa a la par de OV. Indica que previamente se ha producido un error. Solo cambia a 0 con la instrucción SPS o al alcanzar el fin de módulo.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">6-7</td>
-                        <td class="mono">A0, A1</td>
-                        <td>Códigos de condición: resultados de operaciones aritméticas, comparaciones, operaciones digitales, bits desplazados.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">8</td>
-                        <td class="mono">RB</td>
-                        <td>Resultado binario. Permite interpretar el resultado de una operación de palabras como resultado binario e integrarlo en la cadena lógica.</td>
-                    </tr>
+                    <tr><td class="mono">0</td><td class="mono">ER</td><td>Indica si la instrucción es la primera de una cadena lógica (inhibida). En este estado, la consulta se almacena directamente en RLO.</td></tr>
+                    <tr><td class="mono">1</td><td class="mono">RLO</td><td>Registro donde se realizan las operaciones a nivel de bit. Almacena el resultado lógico (acumulador).</td></tr>
+                    <tr><td class="mono">2</td><td class="mono">STA</td><td>Gestión de errores.</td></tr>
+                    <tr><td class="mono">3</td><td class="mono">OR</td><td>Requerido para el proceso AND delante de OR. Indica si la operación AND ha dado valor 1.</td></tr>
+                    <tr><td class="mono">4</td><td class="mono">OV</td><td>Se activa si durante una operación aritmética o de comparación de coma flotante se produce un error de desbordamiento, operación no admisible o relación incorrecta.</td></tr>
+                    <tr><td class="mono">5</td><td class="mono">OS</td><td>Se activa a la par de OV. Indica que previamente se ha producido un error. Solo cambia a 0 con la instrucción SPS o al alcanzar el fin de módulo.</td></tr>
+                    <tr><td class="mono">6-7</td><td class="mono">A0, A1</td><td>Códigos de condición: resultados de operaciones aritméticas, comparaciones, operaciones digitales, bits desplazados.</td></tr>
+                    <tr><td class="mono">8</td><td class="mono">RB</td><td>Resultado binario. Permite interpretar el resultado de una operación de palabras como resultado binario e integrarlo en la cadena lógica.</td></tr>
                 </tbody>
             </table>
         </div>
 
         <!-- ==================== SECCIÓN 6: DIRECCIONAMIENTO ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">06.</span> Direccionamiento de Entradas/Salidas</h2>
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> Direccionamiento de Entradas/Salidas</h2>
 
         <p>
             Las direcciones de entrada/salida se estructuran de la siguiente manera: el número de la izquierda representa el <strong>byte</strong> y el número de la derecha representa los <strong>bits</strong> pertenecientes a este byte (máximo 7, ocupando 8 posiciones desde el 0 al 7).
@@ -738,7 +484,7 @@
         </p>
 
         <!-- ==================== SECCIÓN 7: EJEMPLO FLIP-FLOP ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Ejemplo: Mando Condicional (Flip-Flop S/R por Software)</h2>
+        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> Ejemplo: Mando Condicional (Flip-Flop S/R por Software)</h2>
 
         <p>
             Implementación de un pulsador que enciende/apaga un LED utilizando marcas de memoria para detectar flancos:
@@ -781,48 +527,20 @@
         </div>
 
         <!-- ==================== SECCIÓN 8: TEMPORIZADORES ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Temporizadores en Siemens S5</h2>
+        <h2 class="section-title mono" id="s08"><span style="color: var(--text-muted);">08.</span> Temporizadores en Siemens S5</h2>
 
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr>
-                        <th>Tipo</th>
-                        <th>Nemónico</th>
-                        <th>Comportamiento</th>
-                    </tr>
+                    <tr><th>Tipo</th><th>Nemónico</th><th>Comportamiento</th></tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="mono">S_EVERZ</td>
-                        <td class="mono">SE</td>
-                        <td>Retardo a la conexión. La salida se activa solo después de transcurrido el tiempo TV, siempre que la entrada S permanezca activa. Si S se desactiva antes, el temporizador se reinicia.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">S_SEVERZ</td>
-                        <td class="mono">SS</td>
-                        <td>Retardo a la conexión con memoria. Una vez activada la salida, permanece activa incluso si la entrada S se desactiva. Requiere entrada de reset (R) para reiniciar.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">S_IMPULS</td>
-                        <td class="mono">SI</td>
-                        <td>Genera un pulso de salida de duración definida (TV) cuando la entrada S se activa. La duración del pulso es independiente de la duración de la señal de entrada.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">S_VIMP</td>
-                        <td class="mono">SV</td>
-                        <td>Pulso prolongado. Solo genera el pulso si la señal de entrada se mantiene activa durante un tiempo mínimo.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">S_PULS</td>
-                        <td class="mono">SP</td>
-                        <td>Genera un pulso de duración definida (TV). La duración es independiente de cuánto tiempo se mantenga activa la entrada.</td>
-                    </tr>
-                    <tr>
-                        <td class="mono">S_AVERZ</td>
-                        <td class="mono">SA</td>
-                        <td>Retardo a la desconexión. La salida se activa inmediatamente con S y comienza a contar TV cuando S se desactiva. La salida se desactiva después de transcurrido TV.</td>
-                    </tr>
+                    <tr><td class="mono">S_EVERZ</td><td class="mono">SE</td><td>Retardo a la conexión. La salida se activa solo después de transcurrido el tiempo TV, siempre que la entrada S permanezca activa. Si S se desactiva antes, el temporizador se reinicia.</td></tr>
+                    <tr><td class="mono">S_SEVERZ</td><td class="mono">SS</td><td>Retardo a la conexión con memoria. Una vez activada la salida, permanece activa incluso si la entrada S se desactiva. Requiere entrada de reset (R) para reiniciar.</td></tr>
+                    <tr><td class="mono">S_IMPULS</td><td class="mono">SI</td><td>Genera un pulso de salida de duración definida (TV) cuando la entrada S se activa. La duración del pulso es independiente de la duración de la señal de entrada.</td></tr>
+                    <tr><td class="mono">S_VIMP</td><td class="mono">SV</td><td>Pulso prolongado. Solo genera el pulso si la señal de entrada se mantiene activa durante un tiempo mínimo.</td></tr>
+                    <tr><td class="mono">S_PULS</td><td class="mono">SP</td><td>Genera un pulso de duración definida (TV). La duración es independiente de cuánto tiempo se mantenga activa la entrada.</td></tr>
+                    <tr><td class="mono">S_AVERZ</td><td class="mono">SA</td><td>Retardo a la desconexión. La salida se activa inmediatamente con S y comienza a contar TV cuando S se desactiva. La salida se desactiva después de transcurrido TV.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -845,7 +563,7 @@
         </div>
 
         <!-- ==================== SECCIÓN 9: CONTADORES ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Contadores y Operaciones de Cómputo</h2>
+        <h2 class="section-title mono" id="s09"><span style="color: var(--text-muted);">09.</span> Contadores y Operaciones de Cómputo</h2>
 
         <p>Permiten contar y/o descontar impulsos entre 0 y 999. Parámetros:</p>
         <ul>
@@ -858,7 +576,7 @@
         </ul>
 
         <!-- ==================== SECCIÓN 10: COMPARACIONES Y SALTOS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">10.</span> Operaciones de Comparación y Saltos</h2>
+        <h2 class="section-title mono" id="s10"><span style="color: var(--text-muted);">10.</span> Operaciones de Comparación y Saltos</h2>
 
         <h3 class="subsection-title">Comparaciones</h3>
         <p>Un comparador relaciona dos datos del mismo formato (BYTE o WORD). Tipos disponibles:</p>
@@ -879,10 +597,7 @@
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr>
-                        <th>Instrucción</th>
-                        <th>Condición</th>
-                    </tr>
+                    <tr><th>Instrucción</th><th>Condición</th></tr>
                 </thead>
                 <tbody>
                     <tr><td class="mono">SPA</td><td>Salto Incondicional</td></tr>
@@ -904,7 +619,7 @@
         </div>
 
         <!-- ==================== SECCIÓN 11: TRANSICIÓN S5 → S7 ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">11.</span> Transición de STEP5 a STEP7</h2>
+        <h2 class="section-title mono" id="s11"><span style="color: var(--text-muted);">11.</span> Transición de STEP5 a STEP7</h2>
 
         <p>
             Es importante aclarar que <strong>S5-95 es comparable con S7-200</strong> (ambos de gama baja). La transición real es del S5-95 usado en el curso al <strong>S7-300</strong> usado en la mayoría de simulaciones y proyectos modernos.
@@ -914,61 +629,27 @@
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr>
-                        <th>Característica</th>
-                        <th>S5-95</th>
-                        <th>S7-300</th>
-                    </tr>
+                    <tr><th>Característica</th><th>S5-95</th><th>S7-300</th></tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>RAM</td>
-                        <td>16 KB (STEP5) + 64 KB (ejecución)</td>
-                        <td>Mayor capacidad, dependiente del modelo</td>
-                    </tr>
-                    <tr>
-                        <td>Puerto de programación</td>
-                        <td>AS511</td>
-                        <td>Interfaces MPI</td>
-                    </tr>
-                    <tr>
-                        <td>Memoria de trabajo</td>
-                        <td>RAM</td>
-                        <td>RAM</td>
-                    </tr>
-                    <tr>
-                        <td>Memoria de carga</td>
-                        <td>RAM o EPROM</td>
-                        <td>RAM, Flash o tarjeta de memoria</td>
-                    </tr>
-                    <tr>
-                        <td>Datos locales</td>
-                        <td>No existen</td>
-                        <td>Sí (datos temporales dentro de un bloque)</td>
-                    </tr>
-                    <tr>
-                        <td>Datos remanentes</td>
-                        <td>Menor capacidad</td>
-                        <td>Mayor capacidad de conservación ante pérdida de energía</td>
-                    </tr>
+                    <tr><td>RAM</td><td>16 KB (STEP5) + 64 KB (ejecución)</td><td>Mayor capacidad, dependiente del modelo</td></tr>
+                    <tr><td>Puerto de programación</td><td>AS511</td><td>Interfaces MPI</td></tr>
+                    <tr><td>Memoria de trabajo</td><td>RAM</td><td>RAM</td></tr>
+                    <tr><td>Memoria de carga</td><td>RAM o EPROM</td><td>RAM, Flash o tarjeta de memoria</td></tr>
+                    <tr><td>Datos locales</td><td>No existen</td><td>Sí (datos temporales dentro de un bloque)</td></tr>
+                    <tr><td>Datos remanentes</td><td>Menor capacidad</td><td>Mayor capacidad de conservación ante pérdida de energía</td></tr>
                 </tbody>
             </table>
         </div>
 
         <!-- ==================== SECCIÓN 12: FORMATOS Y DIRECCIONAMIENTO AVANZADO ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">12.</span> Tipos de Datos, Constantes y Direccionamiento en STEP7</h2>
+        <h2 class="section-title mono" id="s12"><span style="color: var(--text-muted);">12.</span> Tipos de Datos, Constantes y Direccionamiento en STEP7</h2>
 
         <h3 class="subsection-title">Formatos de constantes: equivalencia S5 → S7</h3>
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr>
-                        <th>Formato S5</th>
-                        <th>Ejemplo S5</th>
-                        <th>Formato S7</th>
-                        <th>Ejemplo S7</th>
-                        <th>Tipo de dato</th>
-                    </tr>
+                    <tr><th>Formato S5</th><th>Ejemplo S5</th><th>Formato S7</th><th>Ejemplo S7</th><th>Tipo de dato</th></tr>
                 </thead>
                 <tbody>
                     <tr><td class="mono">KB</td><td class="mono">L KB 10</td><td class="mono">B#16#</td><td class="mono">L B#16# A</td><td>BYTE (8 bits)</td></tr>
@@ -1010,7 +691,7 @@
         </div>
 
         <!-- ==================== SECCIÓN 13: DIRECCIONAMIENTO INDIRECTO ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">13.</span> Direccionamiento Indirecto</h2>
+        <h2 class="section-title mono" id="s13"><span style="color: var(--text-muted);">13.</span> Direccionamiento Indirecto</h2>
 
         <h3 class="subsection-title">Formato de los punteros</h3>
         <p>En S5 el puntero para la operación indizada de elaboración ocupa una palabra. En S7 los punteros pueden tener dos formatos: <strong>palabra y palabra doble</strong>.</p>
@@ -1045,7 +726,7 @@
         </div>
 
         <!-- ==================== SECCIÓN 14: INTERFACES Y PROTOCOLOS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">14.</span> Interfaces de Bus y Protocolos Industriales</h2>
+        <h2 class="section-title mono" id="s14"><span style="color: var(--text-muted);">14.</span> Interfaces de Bus y Protocolos Industriales</h2>
 
         <h3 class="subsection-title">Buses de campo</h3>
         <p>Sistemas de comunicación ideados para conectar sensores, actuadores y otros dispositivos E/S a un PLC:</p>
@@ -1076,16 +757,16 @@
         </ul>
 
         <!-- ==================== SECCIÓN 15: HALLAZGOS EN INFRAESTRUCTURAS VENEZOLANAS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">15.</span> Hallazgos en Infraestructuras Venezolanas</h2>
+        <h2 class="section-title mono" id="s15"><span style="color: var(--text-muted);">15.</span> Hallazgos en Infraestructuras Venezolanas</h2>
 
         <div class="callout callout-danger">
-            <div class="callout-title mono">⚠️ Divulgación responsable</div>
+            <div class="callout-title mono">Divulgación responsable</div>
             <p>Toda la información presentada en esta sección proviene de <strong>fuentes públicas</strong>: trabajos de grado universitarios, documentos académicos, reportes de organismos oficiales y artículos de divulgación. El objetivo es estrictamente académico y de concienciación sobre la importancia de la seguridad en infraestructuras críticas.</p>
         </div>
 
         <h3 class="subsection-title">CorpoElec y el ecosistema Schneider Electric</h3>
         <p>
-            Investigaciones basadas en documentos públicos indican que <strong>CorpoElec</strong> utiliza PLCs de la serie <strong>Schneider Electric Modicon Quantum</strong> en sus sistemas de control. Estos dispositivos, programados mediante Unity Pro, son ampliamente utilizados en el sector eléctrico venezolano. 
+            Investigaciones basadas en documentos públicos indican que <strong>CorpoElec</strong> utiliza PLCs de la serie <strong>Schneider Electric Modicon Quantum</strong> en sus sistemas de control. Estos dispositivos, programados mediante Unity Pro, son ampliamente utilizados en el sector eléctrico venezolano.
         </p>
         <p>
             Un hallazgo particularmente relevante es la existencia de una vulnerabilidad en el Modicon Quantum que <strong>permite paralizar la CPU sin autenticación previa si se tiene acceso al puerto Modbus TCP</strong>. El aviso ICS-ALERT-12-020-03B de CISA documenta esta falla, y existen fundadas dudas sobre si fue efectivamente parcheada a tiempo en las infraestructuras afectadas. Adicionalmente, se han reportado configuraciones que exponían acceso remoto a estos sistemas, aunque la veracidad de estos reportes no ha sido confirmada de forma independiente.
@@ -1124,11 +805,11 @@
             Existe un debate legítimo sobre si los trabajos de grado y tesis universitarias que documentan infraestructuras críticas deberían ser de acceso público. Literalmente, con solo recopilar trabajos de grado, un atacante podría formarse una idea detallada de todas las tecnologías presentes en una empresa. Sin embargo, el problema de fondo no es la disponibilidad de esta información —una nación con recursos de inteligencia podría obtenerla por otros medios—, sino la <strong>falta de personal calificado en seguridad informática</strong> dentro de estas organizaciones.
         </p>
         <p>
-            La realidad es que en muchos casos no existe un modelo de amenazas formalmente definido, y la inversión en seguridad suele producirse <strong>después del incidente, no antes</strong>. Esta aproximación reactiva es particularmente peligrosa en entornos OT/ICS, donde una interrupción puede tener consecuencias físicas y económicas catastróficas.
+            La realidad es que en muchos casos no existe un modelo de amenazas formalmente definido, y la inversión en seguridad suele producirse <strong>después del incidente, no antes</strong>. Esta aproximación reactiva es particularmente peligrosa en entornos OT/ICS, donde una interrupción puede tener consecuencias físicas y económicas catastróficas. La misma lógica de descuido interno —invertir en el perímetro y olvidar la auditoría del núcleo— es la que permite vulnerabilidades como las documentadas en la <a href="web-api-pentesting2024.html">auditoría a la Web API financiera con IDOR por validación incompleta de JWT</a>. El patrón se repite: sin logs ni autorización interna, el sistema está ciego.
         </p>
 
         <!-- ==================== SECCIÓN 16: MALWARE EN ENTORNOS ICS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">16.</span> Malware y Tácticas de Compromiso en ICS</h2>
+        <h2 class="section-title mono" id="s16"><span style="color: var(--text-muted);">16.</span> Malware y Tácticas de Compromiso en ICS</h2>
 
         <h3 class="subsection-title">Havex RAT y el vector OPC</h3>
         <p>
@@ -1149,7 +830,7 @@
         </div>
 
         <!-- ==================== SECCIÓN 17: INGENIERÍA INVERSA DE MC7 ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">17.</span> Ingeniería Inversa del Bytecode MC7</h2>
+        <h2 class="section-title mono" id="s17"><span style="color: var(--text-muted);">17.</span> Ingeniería Inversa del Bytecode MC7</h2>
 
         <h3 class="subsection-title">La arquitectura subyacente: ¿VM o microprogramación?</h3>
         <p>
@@ -1183,7 +864,7 @@
         </div>
 
         <p>
-            En la ventana superior izquierda se ejecuta <span class="mono">cat test.wld | hexdump -C</span>, mostrando el volcado hexadecimal del archivo de firmware. A la derecha, la herramienta de desensamblado <span class="mono">rizin</span> analiza el código estructurado y localiza direcciones simbólicas como <span class="mono">I 124.0</span> (entrada) y <span class="mono">Q 124.0</span> (salida). En la ventana inferior, el software <strong>WinSPS-S7 V6</strong> exhibe el bloque de función <span class="mono">FC23</span> programado en AWL: la lógica mínima <span class="mono">U E 124.0</span> seguida de <span class="mono">= A 124.0</span>. Esta práctica de correlacionar binario con nemónicos es exactamente el tipo de arqueología digital que se necesita para desarrollar shellcode funcional sobre entornos MC7.
+            En la ventana superior izquierda se ejecuta <span class="mono">cat test.wld | hexdump -C</span>, mostrando el volcado hexadecimal del archivo de firmware. A la derecha, la herramienta de desensamblado <span class="mono">rizin</span> analiza el código estructurado y localiza direcciones simbólicas como <span class="mono">I 124.0</span> (entrada) y <span class="mono">Q 124.0</span> (salida). En la ventana inferior, el software <strong>WinSPS-S7 V6</strong> exhibe el bloque de función <span class="mono">FC23</span> programado en AWL: la lógica mínima <span class="mono">U E 124.0</span> seguida de <span class="mono">= A 124.0</span>. Esta práctica de correlacionar binario con nemónicos es exactamente el tipo de arqueología digital que se necesita para desarrollar shellcode funcional sobre entornos MC7. Es la misma metodología de reversing que aplico en el <a href="analystty.html">análisis de malware PE con Capstone y x64dbg</a>, pero trasladada al dominio OT.
         </p>
 
         <div class="callout">
@@ -1199,7 +880,7 @@
         </div>
 
         <!-- ==================== SECCIÓN 18: EXPLORACIÓN DE SHELLCODE Y EXPLOTACIÓN ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">18.</span> Exploración de Shellcode y Binary Exploitation en PLCs</h2>
+        <h2 class="section-title mono" id="s18"><span style="color: var(--text-muted);">18.</span> Exploración de Shellcode y Binary Exploitation en PLCs</h2>
 
         <h3 class="subsection-title">Del reversing a la explotación</h3>
         <p>
@@ -1233,11 +914,11 @@
         </div>
 
         <!-- ==================== SECCIÓN 19: LA CAJA NEGRA QUE NUNCA SE INSTALÓ ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">19.</span> La Caja Negra que Nunca se Instaló: Por Qué las Plantas No Pueden Contar su Propia Historia</h2>
+        <h2 class="section-title mono" id="s19"><span style="color: var(--text-muted);">19.</span> La Caja Negra que Nunca se Instaló: Por Qué las Plantas No Pueden Contar su Propia Historia</h2>
 
         <h3 class="subsection-title">El hallazgo en las tesis universitarias</h3>
         <p>
-            La investigación en de este post comenzó por curiosidad técnica: entender la máquina virtual que ejecuta bytecode MC7, cómo se codifican las instrucciones AWL y qué vectores de ataque pueden explotarse desde la red. Pero al cruzar ese trabajo con tesis de grado que detallan sistemas de control en infraestructuras reales, surgió un hallazgo más urgente que cualquier exploit de Modbus.
+            La investigación de este post comenzó por curiosidad técnica: entender la máquina virtual que ejecuta bytecode MC7, cómo se codifican las instrucciones AWL y qué vectores de ataque pueden explotarse desde la red. Pero al cruzar ese trabajo con tesis de grado que detallan sistemas de control en infraestructuras reales, surgió un hallazgo más urgente que cualquier exploit de Modbus.
         </p>
         <p>
             Revisé múltiples trabajos académicos accesibles en repositorios universitarios venezolanos como el de la Universidad Central de Venezuela (saber.ucv.ve). Todos describen con lujo de detalles arquitecturas de control: marcas y modelos de PLC, planos de red, configuración de tópicos OPC, protocolos de comunicación, listados de tags, estrategias de redundancia. Información suficiente para que un atacante dedicado se forme una idea muy precisa del sistema.
@@ -1271,12 +952,7 @@
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr>
-                        <th>Trabajo de Grado</th>
-                        <th>Tecnologías Documentadas</th>
-                        <th>¿Menciona Sistema de Registro de Eventos?</th>
-                        <th>Enlace</th>
-                    </tr>
+                    <tr><th>Trabajo de Grado</th><th>Tecnologías Documentadas</th><th>¿Menciona Sistema de Registro de Eventos?</th><th>Enlace</th></tr>
                 </thead>
                 <tbody>
                     <tr>
@@ -1324,7 +1000,7 @@
         </p>
 
         <!-- ==================== SECCIÓN 20: POR QUÉ LOS PLC NO GENERAN LOGS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">20.</span> Por Qué los PLCs No Generan Logs: Una Propiedad del Diseño</h2>
+        <h2 class="section-title mono" id="s20"><span style="color: var(--text-muted);">20.</span> Por Qué los PLCs No Generan Logs: Una Propiedad del Diseño</h2>
 
         <h3 class="subsection-title">El determinismo como prioridad absoluta</h3>
         <p>
@@ -1353,7 +1029,7 @@
         </p>
 
         <!-- ==================== SECCIÓN 21: CASOS GLOBALES DONDE LA FALTA DE LOGS FUE CRÍTICA ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">21.</span> Casos Globales: Cuando la Falta de Evidencia Impide la Atribución</h2>
+        <h2 class="section-title mono" id="s21"><span style="color: var(--text-muted);">21.</span> Casos Globales: Cuando la Falta de Evidencia Impide la Atribución</h2>
 
         <h3 class="subsection-title">Ucrania 2015: el primer apagón cibernético confirmado</h3>
         <p>
@@ -1371,14 +1047,14 @@
         </p>
 
         <!-- ==================== SECCIÓN 22: MONITOREO BASADO EN RED Y SIEM INDUSTRIAL ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">22.</span> Qué Se Puede Hacer: Monitoreo Basado en Red y Forensic Readiness</h2>
+        <h2 class="section-title mono" id="s22"><span style="color: var(--text-muted);">22.</span> Qué Se Puede Hacer: Monitoreo Basado en Red y Forensic Readiness</h2>
 
         <h3 class="subsection-title">La alternativa viable: monitoreo pasivo de red</h3>
         <p>
             Para cerrar esta brecha, la alternativa más viable hoy es el monitoreo basado en red: capturar tráfico con switches con mirroring y herramientas como Zeek permite registrar cada paquete Modbus u OPC sin tocar el PLC. Este enfoque tiene la ventaja de no interferir con el ciclo de scan determinista del controlador: la captura de tráfico ocurre fuera del PLC, en la capa de red, sin consumir recursos del dispositivo de control. Es, en esencia, una capa de auditoría externa que no estaba prevista en el diseño original pero que puede añadirse sin modificar la infraestructura existente.
         </p>
         <p>
-            Los SIEM industriales como Nozomi o Dragos analizan ese tráfico y crean una capa de visibilidad que antes no existía. Pueden detectar comandos anómalos, cambios en la lógica de control y patrones de comunicación sospechosos, generando alertas que un operador humano puede investigar. No reemplazan los logs nativos que el PLC debería generar, pero ofrecen un paliativo inmediato para infraestructuras que hoy operan completamente a ciegas desde el punto de vista forense.
+            Los SIEM industriales como Nozomi o Dragos analizan ese tráfico y crean una capa de visibilidad que antes no existía. Pueden detectar comandos anómalos, cambios en la lógica de control y patrones de comunicación sospechosos, generando alertas que un operador humano puede investigar. No reemplazan los logs nativos que el PLC debería generar, pero ofrecen un paliativo inmediato para infraestructuras que hoy operan completamente a ciegas desde el punto de vista forense. Esta arquitectura de monitoreo pasivo es conceptualmente similar al <a href="infra-soc.html">laboratorio SOC/Honeypot con Wazuh, Zabbix y Grafana</a> que desplegué para entornos IT, pero adaptada a las restricciones del mundo OT.
         </p>
 
         <h3 class="subsection-title">Forensic readiness: diseñar para la evidencia desde el día uno</h3>
@@ -1397,7 +1073,7 @@
         </p>
 
         <!-- ==================== SECCIÓN 23: PERSPECTIVAS FUTURAS ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">23.</span> Perspectivas Futuras y Líneas de Investigación</h2>
+        <h2 class="section-title mono" id="s23"><span style="color: var(--text-muted);">23.</span> Perspectivas Futuras y Líneas de Investigación</h2>
 
         <h3 class="subsection-title">Desarrollo de herramientas propias</h3>
         <p>
@@ -1428,8 +1104,8 @@
             <p>Queda pendiente determinar si los S5-95 tienen capacidades de comunicación suficientes para realizar prácticas significativas de análisis de protocolos. Sería una limitación considerable estudiar estos sistemas de forma aislada sin poder experimentar con el proceso de comunicación, el formato de los paquetes y las reglas de negociación. El costo de los PLCs modernos sigue siendo una barrera de entrada significativa para la investigación independiente.</p>
         </div>
 
-        <!-- ==================== CONCLUSIÓN ==================== -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">24.</span> Conclusiones y Superficie de Ataque</h2>
+        <!-- ==================== SECCIÓN 24: CONCLUSIÓN ==================== -->
+        <h2 class="section-title mono" id="s24"><span style="color: var(--text-muted);">24.</span> Conclusiones y Superficie de Ataque</h2>
 
         <p>
             El análisis exhaustivo de la arquitectura Siemens S5/S7 y su contexto en infraestructuras reales revela múltiples vectores de seguridad que merecen atención urgente en entornos OT:
@@ -1450,7 +1126,7 @@
             La ingeniería inversa aplicada a estos sistemas no solo permite comprender su funcionamiento interno, sino también anticipar vectores de ataque y diseñar defensas adecuadas para entornos OT/ICS. En un contexto donde la inversión en seguridad suele ser reactiva y posterior al incidente, la investigación proactiva se convierte en una herramienta esencial para la protección de infraestructuras críticas.
         </p>
 
-        <!-- Referencias -->
+        <!-- ==================== REFERENCIAS ==================== -->
         <h2 class="section-title mono"><span style="color: var(--text-muted);">25.</span> Referencias</h2>
         <ul>
             <li><a href="https://www.cisa.gov/news-events/ics-alerts/ics-alert-12-020-03b" target="_blank" rel="noopener noreferrer">CISA — ICS Alert: Schneider Electric Modicon Quantum PLC Vulnerabilities</a></li>
@@ -1470,6 +1146,18 @@
             <li>Yau, Chow & Yiu (2018). "A Forensic Logging System for Siemens Programmable Logic Controllers". IEEE Transactions on Industrial Informatics.</li>
             <li>Shahbi, F. (2026). "Forensic Readiness in Industrial Control Systems". Tesis doctoral, University of Bristol.</li>
         </ul>
+
+        <!-- ==================== CTA DE CIERRE ==================== -->
+        <div class="cta-closure">
+            <h3 class="mono">/¿Te interesa la seguridad en infraestructuras críticas?</h3>
+            <p>Este análisis de PLC es parte de una investigación más amplia que abarca reversing de malware, threat intelligence y despliegue de infraestructura defensiva. La ausencia de logs en OT es el mismo patrón de descuido interno que permite vulnerabilidades IDOR en APIs financieras.</p>
+            <div class="cta-closure-links">
+                <a href="web-api-pentesting2024.html" class="cta-btn primary mono">Pentesting Web API →</a>
+                <a href="infra-soc.html" class="cta-btn mono">Laboratorio SOC/Honeypot →</a>
+                <a href="analystty.html" class="cta-btn mono">Triage de Malware →</a>
+            </div>
+        </div>
+
     </article>
 
     <!-- Footer -->
@@ -1481,37 +1169,44 @@
                 <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
                 <a href="https://tty503.com">tty503.com</a>
             </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo técnico — Ingeniería Inversa en PLC Siemens S5/S7. Información recopilada exclusivamente de fuentes públicas con fines académicos y de investigación en seguridad.</p>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo técnico — Ingeniería Inversa en PLC Siemens S5/S7 y Seguridad OT. Información recopilada exclusivamente de fuentes públicas con fines académicos y de investigación en seguridad.</p>
         </div>
     </footer>
 
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
-
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(3, 3, 3, 0.9)';
-            } else {
-                navbar.style.background = 'rgba(3, 3, 3, 0.75)';
-            }
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
         });
     </script>
 
+    <!-- ==================== SCHEMA JSON-LD OPTIMIZADO ==================== -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "Ingeniería Inversa en PLC Siemens S5/S7: Arquitectura, STEP5, MC7 y Vectores de Seguridad en Entornos Reales",
-      "author": {
-        "@type": "Person",
-        "name": "Christian Márquez",
-        "url": "https://tty503.com"
-      },
+      "headline": "Ingeniería Inversa en PLC Siemens S5/S7: Arquitectura, STEP5, MC7 y la Deficiencia Estructural de Logs en Infraestructuras Críticas",
+      "description": "Análisis de bajo nivel de la máquina virtual MC7 en autómatas Siemens S5/S7. Ingeniería inversa de bytecodes, formato de instrucción fija, protocolos sin autenticación y el hallazgo crítico: ausencia total de registros de auditoría en infraestructuras venezolanas reales (Venalum, CorpoElec).",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
       "datePublished": "2025-10-15",
       "dateModified": "2026-04-15",
-      "description": "Análisis de bajo nivel de la arquitectura interna de autómatas Siemens, su máquina virtual de ejecución MC7, protocolos industriales, hallazgos en infraestructuras venezolanas, y exploración de shellcode para entornos OT/ICS.",
-      "keywords": ["PLC Siemens", "S5", "S7", "STEP5", "STEP7", "AWL", "MC7", "ingeniería inversa", "seguridad OT", "automatización industrial", "Modbus", "OPC", "Havex", "Venalum", "CorpoElec", "Modicon Quantum", "shellcode PLC"]
+      "mainEntityOfPage": "https://tty503.com/plc.html",
+      "image": "https://tty503.com/img/plc-2.jpg",
+      "keywords": ["PLC Siemens", "S5", "S7", "STEP5", "STEP7", "AWL", "MC7", "ingeniería inversa", "seguridad OT", "automatización industrial", "Modbus", "OPC", "Havex", "Venalum", "CorpoElec", "Modicon Quantum", "shellcode PLC", "fuzzing ICS", "forensic readiness", "ausencia de logs", "infraestructura crítica", "Venezuela"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "10000",
+      "timeRequired": "PT60M",
+      "about": [
+        { "@type": "Thing", "name": "PLC Siemens" },
+        { "@type": "Thing", "name": "OT Security" },
+        { "@type": "Thing", "name": "Reverse Engineering" },
+        { "@type": "Thing", "name": "Critical Infrastructure" },
+        { "@type": "Thing", "name": "Industrial Control Systems" },
+        { "@type": "Thing", "name": "Forensic Readiness" }
+      ]
     }
     </script>
 </body>
