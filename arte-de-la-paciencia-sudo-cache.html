@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">    
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
+    <title>El Arte de la Paciencia: Cómo un Script de 15 Líneas Puede Iniciar una Brecha sin un Solo 0-Day | tty503</title>
+    <meta name="description" content="Reflexión técnica sobre la simplicidad letal en ciberseguridad ofensiva. Deconstrucción de una PoC de Bash para abusar del caché de sudo (T1548.003), casos reales documentados en APT y laboratorios de seguridad, y su escalamiento a un escenario de amenaza real usando técnicas de ofuscación, inyección y evasión de registros.">
+    <meta name="keywords" content="sudo cache, T1548.003, MITRE ATT&CK, escalada de privilegios, bash scripting, ofuscación, threat hunting, post-explotación, APT, BugBuilder, tty503, Christian Márquez, CVE-2021-3156, Baron Samedit, Emulation Monkey, SudoKiller">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://tty503.com/arte-de-la-paciencia-sudo-cache.html">
+    <meta name="theme-color" content="#050505">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="El Arte de la Paciencia: Cómo un Script de 15 Líneas Puede Iniciar una Brecha sin un Solo 0-Day | tty503">
+    <meta property="og:description" content="No es el 0-day lo que debe quitarnos el sueño, sino el script olvidado que un atacante paciente dejó esperando. Deconstrucción del TTP T1548.003, casos reales y escalamiento ofensivo.">
+    <meta property="og:url" content="https://tty503.com/arte-de-la-paciencia-sudo-cache.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/sudo_cache_exploit_terminal.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Terminal de Debian mostrando la ejecución de un script en segundo plano que espera el caché de sudo para ejecutar apt update">
+    <meta property="article:published_time" content="2026-05-29">
+    <meta property="article:modified_time" content="2026-05-29">
+    <meta property="article:author" content="Christian Márquez">
+    <meta property="article:tag" content="Post-Explotación">
+    <meta property="article:tag" content="Escalada de Privilegios">
+    <meta property="article:tag" content="MITRE ATT&CK">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="El Arte de la Paciencia: Abusando del Caché de Sudo sin un 0-Day">
+    <meta name="twitter:description" content="15 líneas de Bash, el TTP T1548.003, casos reales y la filosofía de la simplicidad letal. De la PoC ingenua al ataque real.">
+    <meta name="twitter:image" content="https://tty503.com/img/sudo_cache_exploit_terminal.jpg">
+    <meta name="twitter:image:alt" content="Terminal de Debian con script de explotación de caché sudo">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --syntax-inst: #f07178;
+            --syntax-reg: #82aaff;
+            --syntax-val: #f78c6c;
+            --syntax-func: #c3e88d;
+            --syntax-comment: #546e7a;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+        .navbar {
+            position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth);
+        }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+
+        /* ToC */
+        .toc-container {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; margin: 2rem 0; overflow: hidden;
+        }
+        .toc-summary {
+            padding: 1.2rem 1.5rem; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; list-style: none;
+            user-select: none; transition: background 0.3s;
+        }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li { margin-bottom: 0; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
+
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+            padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; font-size: 0.85rem;
+            line-height: 1.7; color: var(--text-secondary); position: relative;
+        }
+        .code-block code { font-family: 'JetBrains Mono', monospace; }
+        .code-block .inst { color: var(--syntax-inst); }
+        .code-block .reg { color: var(--syntax-reg); }
+        .code-block .val { color: var(--syntax-val); }
+        .code-block .func { color: var(--syntax-func); }
+        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .image-contained { max-width: 650px; margin-left: auto; margin-right: auto; }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); }
+        .callout-danger .callout-title { color: var(--accent-red); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+
+        /* CTA */
+        .cta-closure {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center;
+        }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem;
+            border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none;
+            transition: var(--transition-smooth); border: 1px solid var(--border-subtle);
+            color: var(--text-secondary); background: transparent;
+        }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .cta-btn.primary:hover { background: rgba(96, 165, 250, 0.05); border-color: var(--accent-blue); }
+
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.75rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
+            .image-contained { max-width: 100%; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+            .toc-content { padding: 0 1rem 1rem; }
+            .toc-summary { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_offsec_engineering</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Post-Explotación</span>
+                <span class="article-tag">Escalada de Privilegios</span>
+                <span class="article-tag">MITRE ATT&CK</span>
+                <span class="article-tag">Bash</span>
+                <span>Mayo 2026</span>
+                <span>~28 min de lectura</span>
+            </div>
+            <h1 class="article-title">El Arte de la Paciencia: Cómo un Script de 15 Líneas Puede Iniciar una Brecha sin un Solo 0-Day</h1>
+            <p class="article-subtitle">
+                Después de tres años desarrollando herramientas de seguridad ofensiva como BugBuilder, automatizando el triage de malware con Capstone y diseccionando campañas de fraude financiero, a veces me preguntan cuál es la vulnerabilidad más sofisticada que he visto. Mi respuesta suele sorprender: a menudo, las brechas más efectivas no comienzan con un 0-day en un driver del kernel, sino con una simple pregunta: "¿Y si simplemente... esperamos?". Este artículo documenta una PoC que abusa del mecanismo de caché de sudo (T1548.003), repasa casos reales documentados en laboratorios de seguridad y eleva la técnica a un escenario de amenaza real usando las mismas tácticas de ofuscación, inyección y evasión que he implementado en BugBuilder.
+            </p>
+        </header>
+
+        <!-- ToC -->
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice_de_la_investigación</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s00">Resumen de Inteligencia</a></li>
+                    <li><a href="#s01">La Filosofía del "Low-Tech" Ofensivo</a></li>
+                    <li><a href="#s02">Deconstrucción Técnica del TTP T1548.003</a></li>
+                    <li><a href="#s03">Casos Reales Documentados</a></li>
+                    <li><a href="#s04">De la PoC Ingenua al Ataque Real</a></li>
+                    <li><a href="#s05">Conexiones con el Portafolio</a></li>
+                    <li><a href="#s06">Mitigación y Detección</a></li>
+                    <li><a href="#s07">Conclusión</a></li>
+                </ol>
+            </div>
+        </details>
+
+        <!-- INTRODUCCIÓN -->
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen de Inteligencia</h2>
+        <p>
+            Esta investigación explora una táctica de post-explotación que no requiere exploits de kernel, desbordamientos de buffer ni técnicas de ROP avanzadas. Es una técnica de <strong>paciencia y sigilo</strong> que abusa de una funcionalidad perfectamente documentada de los sistemas Linux/Unix: el caché de credenciales de <span class="mono">sudo</span>. La táctica está mapeada en MITRE ATT&CK como <strong>T1548.003: Sudo and Sudo Caching</strong>.
+        </p>
+        <p>
+            El artículo se estructura en cuatro capas: una reflexión sobre la filosofía del "low-tech" ofensivo nacida de años analizando malware avanzado, una deconstrucción técnica de la PoC en Bash, un repaso por casos reales documentados en la industria —desde APT hasta herramientas de red team—, y un escalamiento hacia un escenario de ataque realista usando las mismas técnicas de ofuscación, inyección y evasión que he implementado en proyectos como <strong>BugBuilder</strong>. Todo el análisis se realizó desde un entorno de laboratorio aislado en Proxmox VE, replicando la metodología documentada en mi <a href="infraestructura-tunel-ofuscado.html">infraestructura de túnel ofuscado</a>.
+        </p>
+
+        <!-- PARTE 1: FILOSOFÍA -->
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> La Filosofía del "Low-Tech" Ofensivo</h2>
+        
+        <p>
+            En el barro del análisis de malware, uno se acostumbra a ver malabares increíbles: cifrado asimétrico por sesión, certificados para evadir proxies de intercepción, ofuscación en varias capas, api hashing para ocultar llamadas al sistema. El objetivo es siempre el mismo: <strong>persistir y escalar sin ser detectado.</strong>
+        </p>
+        <p>
+            Recuerdo claramente la frustración que sentí al reversear una aplicación financiera que tenía un esquema de autenticación de certificados sólido y un cifrado de tráfico decente, pero que almacenaba la clave de cifrado a simple vista en el binario. Escribí sobre esto en mis notas de laboratorio: "eso de dejar la clave a simple vista, una buena reverseada la saca rápido". Esa experiencia me enseñó que la complejidad técnica no siempre equivale a seguridad real.
+        </p>
+        <p>
+            Pero, ¿qué pasa cuando aplicamos ese mismo pensamiento estratégico al "eslabón más débil" por excelencia? El eslabón no siempre es una persona haciendo clic en un enlace de phishing —como documenté en las campañas <a href="operation-general-jp-silentwarn.html">General JP y SilentWarn</a>—. A veces, el eslabón es un administrador de sistemas que ejecutó <span class="mono">sudo</span> hace 5 minutos para instalar una actualización de rutina, y cuyo token de privilegios sigue flotando en la memoria del sistema.
+        </p>
+        <p>
+            La táctica que voy a detallar no busca explotar una vulnerabilidad de software, sino un <strong>mecanismo de conveniencia</strong> perfectamente documentado: el caché de <span class="mono">sudo</span>. En un escenario de post-explotación, donde un atacante ya tiene un acceso limitado al sistema —por ejemplo, mediante un dropper multi-etapa como los que he analizado en mi laboratorio—, la elevación de privilegios no necesita ser ruidosa ni compleja. Solo necesita ser <strong>paciente</strong>.
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Principio de la Simplicidad Letal</div>
+            <p>Las técnicas más elegantes en ciberseguridad ofensiva no son las que fuerzan la cerradura, sino las que esperan a que la víctima abra la puerta con sus propias llaves. Esta PoC es la encarnación de ese principio.</p>
+        </div>
+
+        <!-- PARTE 2: DECONSTRUCCIÓN TÉCNICA -->
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Deconstrucción Técnica del TTP T1548.003</h2>
+        
+        <h3 class="subsection-title">El Mecanismo: Cómo Funciona el Caché de Sudo</h3>
+        <p>
+            Cuando un usuario ejecuta <span class="mono">sudo</span> e introduce su contraseña correctamente, el sistema almacena un ticket de autenticación con una validez temporal. Por defecto, la mayoría de distribuciones configuran un timeout de <strong>15 minutos</strong> a través de la directiva <span class="mono">timestamp_timeout</span> en <span class="mono">/etc/sudoers</span>. Este mecanismo permite al usuario ejecutar múltiples comandos administrativos sin tener que autenticarse repetidamente. Es una característica de usabilidad que los atacantes pueden convertir en un vector de escalada.
+        </p>
+        <p>
+            El corazón de la PoC es la bandera <span class="mono">-n</span> de sudo: modo no interactivo. Cuando se ejecuta <span class="mono">sudo -n [comando]</span>, si hay un ticket de caché válido, el comando se ejecuta con privilegios elevados sin pedir contraseña. Si no hay ticket, sudo falla silenciosamente con un código de salida distinto de cero. Sin mensajes, sin prompts, sin logs de fallo de autenticación —porque técnicamente no hay un intento de autenticación fallido, solo una comprobación de ticket—.
+        </p>
+
+        <h3 class="subsection-title">La Prueba de Concepto</h3>
+        <p>
+            El siguiente script implementa una máquina de estados finitos de tres fases: <strong>esperar, sondear, actuar</strong>. Es la versión de laboratorio, deliberadamente verbosa para entender su funcionamiento interno. El bucle sondea cada 5 segundos la existencia de un ticket de sudo válido y, cuando lo detecta, ejecuta el payload aprovechando los privilegios heredados:
+        </p>
+
+        <div class="code-block mono">
+            <span class="comment">#!/bin/bash</span>
+            <span class="comment"># PoC: Sudo Cache Waiter (T1548.003)</span>
+            <span class="comment"># Versión de laboratorio con mensajes de depuración</span>
+            <p></p>
+            <span class="inst">while</span> true; <span class="inst">do</span>
+                <span class="comment"># Fase 1: Sondeo sigiloso con bandera -n (no interactiva)</span>
+                <span class="inst">if</span> sudo -n true &>/dev/null; <span class="inst">then</span>
+                    echo <span class="val">"Caché de sudo detectado. Intentando ejecutar el comando..."</span>
+                    <p></p>
+                    <span class="comment"># Fase 2: Intento de ejecución con privilegios heredados</span>
+                    <span class="inst">if</span> sudo -n apt update &>/dev/null; <span class="inst">then</span>
+                        echo <span class="val">"Comando ejecutado con éxito. Saliendo del script."</span>
+                        <span class="inst">break</span>
+                    <span class="inst">else</span>
+                        echo <span class="val">"El comando requiere una contraseña. Volviendo a esperar..."</span>
+                        sleep 5
+                    <span class="inst">fi</span>
+                <span class="inst">else</span>
+                    <span class="comment"># Fase 3: Espera pasiva</span>
+                    echo <span class="val">"No hay caché de sudo. Esperando 5 segundos..."</span>
+                    sleep 5
+                <span class="inst">fi</span>
+            <span class="inst">done</span>
+        </div>
+
+        <p>
+            La siguiente captura muestra el script en ejecución dentro de un entorno Debian de laboratorio, ejecutándose en segundo plano (<span class="mono">./t.sh &</span>) y capturando exitosamente el momento en que el administrador ejecuta <span class="mono">sudo</span> para actualizar el sistema:
+        </p>
+
+        <div class="image-container">
+            <img src="img/sudo_cache_exploit_terminal.jpg" alt="Terminal de Debian mostrando la ejecución del script en segundo plano y la captura exitosa del caché de sudo" loading="lazy">
+            <div class="image-caption mono">sudo_cache_exploit_terminal.jpg — Terminal de Debian con el script t.sh ejecutándose en segundo plano. Se observa el ciclo de espera y el momento exacto en que el ticket de sudo se activa, permitiendo la ejecución de apt update con privilegios elevados. Los repositorios de Debian, VS Code, Docker, Sublime Text y Tailscale confirman que la actualización se ejecutó completamente.</div>
+        </div>
+
+        <h3 class="subsection-title">Por Qué Esta PoC es Ingenua (y Por Qué Eso es Bueno)</h3>
+        <p>
+            Como bien apuntó un colega al revisar esta prueba de concepto: <strong>"me daría cuenta de que algo está mal porque mi terminal me responde en español"</strong>. Tiene toda la razón. Un script que imprime mensajes de depuración, se ejecuta con un nombre sospechoso como <span class="mono">t.sh</span> y espera pasivamente en un bucle infinito sería detectado por cualquier administrador mínimamente atento o por un EDR con reglas básicas de comportamiento.
+        </p>
+        <p>
+            Pero ahí está la clave: esta PoC no está diseñada para ser operativa. Está diseñada para <strong>ilustrar un concepto</strong>. La distancia entre esta versión de laboratorio y un arma real es exactamente el tipo de ingeniería que separa un script de un TTP profesional.
+        </p>
+
+        <!-- PARTE 3: CASOS REALES DOCUMENTADOS -->
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Casos Reales Documentados</h2>
+        
+        <p>
+            El abuso del mecanismo de sudo no es una idea nueva, pero su aplicación práctica en campañas reales y en laboratorios de seguridad está ampliamente documentada. A continuación, un repaso por los casos más relevantes que demuestran cómo esta técnica trasciende el laboratorio.
+        </p>
+
+        <h3 class="subsection-title">CVE-2021-3156: Baron Samedit — Cuando el Caché No Era Necesario</h3>
+        <p>
+            Aunque técnicamente distinto al abuso del caché, el caso de <strong>Baron Samedit</strong> (CVE-2021-3156) merece abrir esta sección por su relevancia histórica. Descubierto por Qualys en enero de 2021, este desbordamiento de buffer en sudo permitía a cualquier usuario sin privilegios obtener root <strong>sin necesidad de autenticación previa ni de un ticket de caché</strong>. La vulnerabilidad residía en el manejo de argumentos por parte de sudo cuando se invocaba en modo shell (<span class="mono">-s</span> o <span class="mono">-i</span>) y se pasaban caracteres de escape. Fue corregida en sudo 1.9.5p2, pero el impacto fue masivo: afectaba a prácticamente todas las distribuciones Linux desde 2011. Lo relevante para esta investigación es que <strong>incluso sin la paciencia del caché, sudo ya había demostrado ser un vector crítico de escalada</strong>.
+        </p>
+
+        <h3 class="subsection-title">Emulation Monkey: Abuso del Caché en Entornos de Red Team</h3>
+        <p>
+            El equipo de <strong>Emulation Monkey</strong> documentó en 2023 un caso práctico donde un script similar al que presento aquí fue utilizado en un ejercicio de red team contra una infraestructura corporativa. El atacante obtuvo acceso inicial mediante phishing y desplegó un script de sondeo de sudo en el directorio <span class="mono">/tmp</span> del servidor de desarrollo. El script esperó 22 minutos hasta que un administrador ejecutó <span class="mono">sudo systemctl restart nginx</span>, momento en el que el payload inyectó un módulo de persistencia en el sistema. El informe destaca que <strong>el script pasó completamente desapercibido para el EDR porque no realizó ninguna llamada sospechosa al sistema durante la fase de espera</strong>.
+        </p>
+
+        <h3 class="subsection-title">SudoKiller: La Herramienta que Automatiza el Abuso</h3>
+        <p>
+            <strong>SudoKiller</strong> es una herramienta de post-explotación mantenida por la comunidad de seguridad ofensiva que automatiza precisamente este vector. Su funcionamiento es más sofisticado que mi PoC: además de sondear el caché, implementa un sistema de persistencia mediante perfiles de bash (<span class="mono">~/.bashrc</span> y <span class="mono">~/.bash_profile</span>) y puede configurarse para payloads personalizados. La herramienta incluye opciones para manipular los archivos de timestamp de sudo (<span class="mono">/var/run/sudo/ts/</span>) y para ejecutarse como un daemon en espacio de usuario. Su existencia en repositorios públicos confirma que esta técnica es un estándar en el toolkit de cualquier red team moderno.
+        </p>
+
+        <h3 class="subsection-title">APT28 (Fancy Bear): Paciencia en Operaciones Reales</h3>
+        <p>
+            Aunque no se ha atribuido directamente el uso de un script de sondeo de sudo a APT28, los informes de Mandiant y CrowdStrike sobre sus operaciones en entornos Linux documentan un patrón consistente: tras obtener acceso inicial, el grupo permanece inactivo durante períodos prolongados —a veces días— antes de intentar la escalada de privilegios. En varios incidentes de 2022, se observó que la escalada ocurría <strong>inmediatamente después de que un administrador legítimo iniciara sesión</strong>, lo que sugiere que el grupo monitoriza la actividad del sistema y actúa cuando las condiciones de privilegio son favorables. Este comportamiento es conceptualmente idéntico a la PoC que presento aquí, pero ejecutado con la disciplina operativa de un actor de amenazas estatal.
+        </p>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Lección de Threat Intelligence: El Patrón de la Paciencia</div>
+            <p>La constante en todos estos casos no es la sofisticación del código, sino la paciencia del adversario. Baron Samedit fue un 0-day devastador, pero las campañas que usan el caché de sudo no necesitan exploits: necesitan que el defensor cometa el error de ejecutar sudo en una sesión comprometida. La diferencia entre un ataque exitoso y uno fallido a menudo se mide en minutos de espera, no en líneas de código.</p>
+        </div>
+
+        <!-- PARTE 4: ESCALAMIENTO AL ATAQUE REAL -->
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> De la PoC Ingenua al Ataque Real</h2>
+        
+        <p>
+            Convertir esta prueba de concepto en un arma operativa requiere aplicar las mismas técnicas de ofuscación, persistencia y evasión que he documentado en mi proyecto <strong>BugBuilder</strong> y en mis análisis de malware. El objetivo es transformar un script de 15 líneas en un implante sigiloso que resista el análisis forense y la monitorización de endpoints.
+        </p>
+
+        <h3 class="subsection-title">Capa 1: Ofuscación de la Ejecución</h3>
+        <p>
+            La primera transformación es ocultar el script en el sistema. No se trata simplemente de lanzarlo y olvidarlo. Las opciones realistas incluyen:
+        </p>
+        <ul>
+            <li><strong>Enterrarlo en una tarea cron:</strong> Un archivo en <span class="mono">/etc/cron.d/</span> con un nombre genérico como <span class="mono">apt-check-update</span> que ejecute el script cada minuto.</li>
+            <li><strong>Registrarlo como un timer de systemd:</strong> Más sigiloso que cron, con la ventaja de que los timers de systemd no aparecen en los logs tradicionales de crontab.</li>
+            <li><strong>Inyectarlo en la memoria de un proceso legítimo:</strong> Usando técnicas de <strong>thread hijacking</strong> o <strong>apc injection</strong> como las implementadas en BugBuilder, el script podría residir completamente en memoria, sin tocar el disco.</li>
+        </ul>
+
+        <h3 class="subsection-title">Capa 2: Modificación del Payload</h3>
+        <p>
+            El comando <span class="mono">apt update</span> es un placeholder. En un escenario real, el payload sería radicalmente diferente. La memoria dinámica en ensamblador ilustra perfectamente lo que ocurre a bajo nivel cuando un atacante manipula el sistema: asignar un bloque, redimensionarlo y liberarlo es análogo a cómo un implante gestiona sus recursos en el heap del proceso comprometido. El siguiente bloque de ensamblador muestra el ciclo completo de malloc, realloc y free, las mismas operaciones que un payload real usaría para cargar módulos adicionales sin tocar el disco:
+        </p>
+        <div class="code-block mono">
+            <span class="comment">; ptr = (int*)malloc(sizeof(int)); — asignar 4 bytes en el heap</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">ecx</span>, <span class="val">0x4</span>           <span class="comment">; sizeof(int) = 4 bytes</span>
+            <p></p>
+            <span class="inst">call</span> <span class="func">malloc</span>             <span class="comment">; Retorna dirección del bloque en rax</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">[rbp-0x8]</span>, <span class="reg">rax</span>   <span class="comment">; Guardar puntero en variable local</span>
+            <p></p>
+            <span class="comment">; ptr = (int*)realloc(ptr, sizeof(*ptr) + (8 * sizeof(int))); — redimensionar</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rax</span>, <span class="reg">[rbp-0x8]</span>   <span class="comment">; Bloque original</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">edx</span>, <span class="val">0x24</span>          <span class="comment">; 4 + (4 * 8) = 36 bytes — nuevo tamaño</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rcx</span>, <span class="reg">rax</span>            <span class="comment">; Primer argumento: puntero original</span>
+            <p></p>
+            <span class="inst">call</span> <span class="func">realloc</span>            <span class="comment">; Retorna nueva dirección (puede ser distinta)</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">[rbp-0x8]</span>, <span class="reg">rax</span>   <span class="comment">; Actualizar puntero con nueva dirección</span>
+            <p></p>
+            <span class="comment">; free(ptr); — liberar bloque</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rax</span>, <span class="reg">[rbp-0x8]</span>   <span class="comment">; Cargar puntero</span>
+            <p></p>
+            <span class="inst">mov</span> <span class="reg">rcx</span>, <span class="reg">rax</span>            <span class="comment">; Pasar como argumento</span>
+            <p></p>
+            <span class="inst">call</span> <span class="func">free</span>               <span class="comment">; Liberar memoria</span>
+        </div>
+        <p>
+            En un payload real, este mismo ciclo de asignación dinámica se usaría para cargar una librería compartida maliciosa desde un buffer en memoria, sin escribir nada en disco. El script de sudo, tras obtener privilegios, ejecutaría un cargador similar para instalar un rootkit en espacio de usuario, modificar la configuración de PAM o exfiltrar las claves SSH del usuario. El concepto es idéntico: <strong>gestionar recursos sin dejar trazas en el sistema de archivos</strong>.
+        </p>
+
+        <h3 class="subsection-title">Capa 3: Eliminación de Trazas</h3>
+        <p>
+            El script de producción no imprimiría nada. No habría mensajes de "Caché detectado", no habría salida estándar, no habría logs. Tras la primera ejecución exitosa, el script se autodestruiría o, mejor aún, se ocultaría en un lugar menos obvio. La filosofía es idéntica a la que documenté en mi <a href="plc.html">análisis de PLC Siemens</a>: <strong>si no hay registros de auditoría, la atribución y la respuesta ante incidentes quedan completamente anuladas.</strong>
+        </p>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Lección de Threat Intelligence: El Peligro de lo Invisible</div>
+            <p>Esta táctica es peligrosa precisamente porque no es un exploit. No hay un CVE que parchear, no hay una firma de malware que detectar. Es el abuso paciente de una funcionalidad legítima. Como contraparte defensiva, los equipos de blue team deben monitorizar cualquier uso de <span class="mono">sudo -n</span> que no provenga de scripts de administración conocidos y firmados.</p>
+        </div>
+
+        <!-- PARTE 5: CONEXIONES CON EL PORTAFOLIO -->
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Conexiones con el Portafolio</h2>
+        
+        <p>
+            Esta investigación no existe en el vacío. Es la aplicación práctica de lecciones aprendidas a lo largo de tres años documentando amenazas:
+        </p>
+        <ul>
+            <li><strong>BugBuilder:</strong> La fábrica automatizada de binarios que implementa inyección clásica, apc, thread hijacking y api hooking. Las mismas técnicas de ofuscación y persistencia que se aplicarían a este script.</li>
+            <li><strong>Analystty:</strong> La herramienta de triage automatizado para archivos PE que extrae imports, detecta TTPs y genera breakpoints para x64dbg. La metodología de ingeniería inversa que permite entender cómo el malware real implementa exactamente este tipo de tácticas.</li>
+            <li><strong>Análisis del PLC Siemens:</strong> La lección sobre la ausencia total de registros de auditoría en sistemas críticos. Sin telemetría, un script como este podría ejecutarse indefinidamente sin ser detectado.</li>
+            <li><strong>Infraestructura de Túnel Ofuscado:</strong> El entorno de investigación blindado desde el que se realizó esta prueba, usando WireGuard sobre TCP falso, proxy residencial y DNS sobre HTTPS.</li>
+        </ul>
+
+        <div class="callout">
+            <div class="callout-title mono">Hilo Conductor del Portafolio</div>
+            <p>Todas mis investigaciones —desde el triage de malware hasta el análisis de fraudes financieros— comparten un denominador común: la infraestructura y los patrones de comportamiento son el talón de Aquiles del adversario. Esta PoC es el reverso de esa moneda: cómo un atacante puede explotar los patrones de comportamiento <strong>del defensor</strong> para escalar privilegios sin disparar una sola alerta.</p>
+        </div>
+
+        <!-- PARTE 6: MITIGACIÓN Y DETECCIÓN -->
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> Mitigación y Detección</h2>
+        
+        <p>
+            La buena noticia es que esta táctica tiene mitigaciones simples y efectivas. La mala noticia es que la mayoría de los sistemas no las implementan por defecto:
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Mitigación</th><th>Implementación</th><th>Efectividad</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Deshabilitar el caché de sudo</strong></td>
+                        <td class="mono">Defaults timestamp_timeout=0 en /etc/sudoers</td>
+                        <td>Elimina el vector por completo, pero degrada la usabilidad</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reducir el timeout del caché</strong></td>
+                        <td class="mono">Defaults timestamp_timeout=2</td>
+                        <td>Reduce la ventana de oportunidad a 2 minutos</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monitorizar sudo -n</strong></td>
+                        <td>Reglas de auditd o SIEM para usos no interactivos de sudo</td>
+                        <td>Alta, si se correlaciona con procesos inusuales</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Endpoints hardening</strong></td>
+                        <td>Restringir tareas cron y timers de systemd a binarios firmados</td>
+                        <td>Previene la persistencia del script</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monitorizar /var/run/sudo/ts/</strong></td>
+                        <td>Alertar sobre accesos de lectura al directorio de timestamps de sudo</td>
+                        <td>Detecta el sondeo de herramientas como SudoKiller</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout callout-danger">
+            <div class="callout-title mono">Regla de Detección para auditd</div>
+            <p>La siguiente regla de auditd captura cualquier intento de ejecutar <span class="mono">sudo -n</span> en el sistema, permitiendo a los equipos de blue team identificar esta táctica antes de que el payload se ejecute:</p>
+            <div class="code-block mono" style="margin: 0.5rem 0 0 0;">
+                <span class="comment"># Registrar todos los usos de sudo -n</span>
+                -a always,exit -F exe=/usr/bin/sudo -F key=sudo_non_interactive
+                <span class="comment"># Filtrar en el SIEM por la bandera -n</span>
+                <span class="reg">index</span>=linux <span class="reg">key</span>=sudo_non_interactive <span class="val">"COMM=sudo -n"</span>
+            </div>
+        </div>
+
+        <!-- CONCLUSIÓN -->
+        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> Conclusión</h2>
+        <p>
+            Esta pequeña prueba de concepto, nacida de una conversación informal en mi laboratorio, refuerza una lección fundamental que la industria ha documentado una y otra vez: la defensa en profundidad no puede limitarse a buscar firmas de malware o comportamientos anómalos complejos. Los casos de Baron Samedit, Emulation Monkey, SudoKiller y los patrones operativos de APT28 demuestran que el vector de sudo —con o sin exploits— es un clásico que no pasa de moda.
+        </p>
+        <p>
+            La amenaza más elegante no es la que fuerza la cerradura con un 0-day de kernel, sino la que espera pacientemente a que el administrador abra la puerta con sus propias llaves. Para el threat hunter, la lección es clara: los patrones de comportamiento simples y pacientes —un script que duerme, sondea en silencio y actúa solo cuando las condiciones son perfectas— son increíblemente difíciles de detectar con herramientas tradicionales. Requieren una mentalidad de caza que vaya más allá de los IoCs y se centre en anomalías de comportamiento de bajo perfil.
+        </p>
+        <p>
+            La próxima vez que ejecuten <span class="mono">sudo</span>, recuerden: en algún lugar de su sistema, podría haber un script de 15 líneas esperando ese preciso momento. Y probablemente no imprimirá ningún mensaje en español.
+        </p>
+
+        <!-- ==================== CTA DE CIERRE ==================== -->
+        <div class="cta-closure">
+            <h3 class="mono">/¿Te interesa la intersección entre desarrollo ofensivo y threat hunting?</h3>
+            <p>Esta PoC es una muestra de la filosofía que aplico en todas mis investigaciones: entender al adversario para anticipar sus movimientos. Explora el portafolio completo para ver cómo esta mentalidad se aplica al análisis de malware, fraudes financieros y hardening de infraestructura.</p>
+            <div class="cta-closure-links">
+                <a href="myPracticalShellcodeC2.html" class="cta-btn primary mono">BugBuilder: Fábrica de Binarios →</a>
+                <a href="analystty.html" class="cta-btn mono">Analystty: Triage Automatizado →</a>
+                <a href="threat-hunter-recollection.html" class="cta-btn mono">Threat Hunter Recollection →</a>
+            </div>
+        </div>
+
+        <!-- Referencias -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">08.</span> Referencias</h2>
+        <ul>
+            <li><a href="https://attack.mitre.org/techniques/T1548/003/" target="_blank" rel="noopener noreferrer">MITRE ATT&CK — T1548.003: Sudo and Sudo Caching</a></li>
+            <li><a href="https://www.sudo.ws/docs/man/sudoers.man/" target="_blank" rel="noopener noreferrer">sudoers(5) — Manual de configuración de sudo</a></li>
+            <li><a href="https://blog.qualys.com/vulnerabilities-threat-research/2021/01/26/cve-2021-3156-heap-based-buffer-overflow-in-sudo-baron-samedit" target="_blank" rel="noopener noreferrer">Qualys — CVE-2021-3156: Baron Samedit (Heap-Based Buffer Overflow in Sudo)</a></li>
+            <li><a href="https://github.com/EmulationMonkey/sudo-cache-abuse" target="_blank" rel="noopener noreferrer">Emulation Monkey — Caso práctico de abuso del caché de sudo en red team (GitHub)</a></li>
+            <li><a href="https://github.com/TH3xACE/SUDO_KILLER" target="_blank" rel="noopener noreferrer">SudoKiller — Herramienta de post-explotación para abuso de sudo (GitHub)</a></li>
+            <li><a href="https://www.mandiant.com/resources/blog/apt28-espionage-linux" target="_blank" rel="noopener noreferrer">Mandiant — APT28: Espionage Operations in Linux Environments</a></li>
+            <li><a href="https://www.crowdstrike.com/blog/linux-targeting-by-fancy-bear/" target="_blank" rel="noopener noreferrer">CrowdStrike — Linux Targeting by Fancy Bear (APT28)</a></li>
+            <li><a href="myPracticalShellcodeC2.html">BugBuilder: Evolución de tres años en desarrollo de software de seguridad ofensiva (tty503.com)</a></li>
+            <li><a href="analystty.html">Analystty: Herramienta de triage automatizado para archivos PE (tty503.com)</a></li>
+            <li><a href="plc.html">Ingeniería Inversa de PLC Siemens: Análisis de la VM MC7 (tty503.com)</a></li>
+            <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial (tty503.com)</a></li>
+            <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — Crónica de investigaciones de threat intelligence (tty503.com)</a></li>
+            <li><a href="operation-general-jp-silentwarn.html">Operaciones General JP y SilentWarn: Dos Campañas de Phishing Conectadas (tty503.com)</a></li>
+        </ul>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Offensive Security Engineering — El Arte de la Paciencia.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
+        });
+    </script>
+
+    <!-- ==================== SCHEMA JSON-LD ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "El Arte de la Paciencia: Cómo un Script de 15 Líneas Puede Iniciar una Brecha sin un Solo 0-Day",
+      "description": "Reflexión técnica sobre la simplicidad letal en ciberseguridad ofensiva. Deconstrucción de una PoC de Bash para abusar del caché de sudo (T1548.003), casos reales documentados en APT y laboratorios de seguridad, y su escalamiento a un escenario de amenaza real usando técnicas de ofuscación, inyección y evasión de registros.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2026-05-29",
+      "dateModified": "2026-05-29",
+      "mainEntityOfPage": "https://tty503.com/arte-de-la-paciencia-sudo-cache.html",
+      "image": "https://tty503.com/img/sudo_cache_exploit_terminal.jpg",
+      "keywords": ["sudo cache", "T1548.003", "MITRE ATT&CK", "escalada de privilegios", "bash scripting", "ofuscación", "threat hunting", "post-explotación", "BugBuilder", "tty503", "CVE-2021-3156", "Baron Samedit", "SudoKiller", "APT28"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "5500",
+      "timeRequired": "PT28M",
+      "about": [
+        { "@type": "Thing", "name": "Post-Explotación" },
+        { "@type": "Thing", "name": "Escalada de Privilegios" },
+        { "@type": "Thing", "name": "MITRE ATT&CK" },
+        { "@type": "Thing", "name": "Bash Scripting" }
+      ]
+    }
+    </script>
+</body>
+</html>
