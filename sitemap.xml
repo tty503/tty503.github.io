@@ -12,13 +12,13 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/</loc>
-        <lastmod>2026-05-29</lastmod>
-        <changefreq>weekly</changefreq>
+        <lastmod>2026-06-01</lastmod>
+        <changefreq>daily</changefreq>
         <priority>1.0</priority>
         <image:image>
             <image:loc>https://tty503.com/p1.jpg</image:loc>
-            <image:title>Christian Márquez (tty503) — SOC Analyst &amp; Threat Hunter | Malware Analysis, Ingeniería Inversa y Seguridad OT</image:title>
-            <image:caption>Christian Márquez (tty503): Portafolio profesional de threat intelligence, ingeniería inversa de malware, seguridad en infraestructuras críticas OT/PLC Siemens S5/S7, DevSecOps y automatización con Ansible, Terraform y Proxmox.</image:caption>
+            <image:title>Christian Márquez (tty503) — Threat Intelligence, Ingeniería Inversa y Seguridad OT</image:title>
+            <image:caption>Portafolio profesional: threat intelligence, ingeniería inversa de malware, seguridad en infraestructuras críticas OT/PLC Siemens S5/S7, DevSecOps y automatización con Ansible, Terraform y Proxmox.</image:caption>
         </image:image>
         <image:image>
             <image:loc>https://tty503.com/hat.png</image:loc>
@@ -32,7 +32,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/aboutme.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
         <image:image><image:loc>https://tty503.com/img/aboutme-0.jpg</image:loc><image:title>Barco navegando bajo la luna — El inicio del viaje técnico</image:title></image:image>
@@ -62,10 +62,28 @@
     <!-- CLÚSTER A: MALWARE ANALYSIS & REVERSE ENGINEERING                     -->
     <!-- ===================================================================== -->
 
+    <!-- Evasión Estática a Bajo Nivel: Mirai con Aritmética en ASM (NUEVO) -->
+    <url>
+        <loc>https://tty503.com/evasion-estatica-asm-mirai.html</loc>
+        <lastmod>2026-06-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <image:image><image:loc>https://tty503.com/img/vt_malware_detection_before.jpg</image:loc><image:title>VirusTotal — 16/64 detecciones para muestra original de Mirai</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/vt_malware_detection_after.jpg</image:loc><image:title>VirusTotal — 0/65 detecciones tras ofuscación aritmética en ASM</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/evasion-mirai-flowchart.png</image:loc><image:title>Diagrama de flujo del proceso de evasión estática de Mirai</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/opcode-mutation-decision-tree.png</image:loc><image:title>Árbol de decisión para mutación de opcodes según tipo de instrucción</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/stub-denuvo-comparison.png</image:loc><image:title>Comparativa arquitectónica: Stub descifrador vs Denuvo DRM</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/vt-comparison-diagram.png</image:loc><image:title>Comparativa estructural del binario antes y después de la ofuscación</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/dga-mutant-delivery-sequence.png</image:loc><image:title>Arquitectura de entrega mutante con DGA en tres fases</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/mutant-binary-lifecycle.png</image:loc><image:title>Ciclo de vida de un binario mutante: generación a autodestrucción</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/dga-domain-flow.png</image:loc><image:title>Infraestructura DGA: rotación de dominios y dominios señuelo</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/defense-vs-evasion-context.png</image:loc><image:title>Ecosistema de detección vs evasión organizado por capas</image:title></image:image>
+    </url>
+
     <!-- Herramienta analystty -->
     <url>
         <loc>https://tty503.com/analystty.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/analyst0.jpg</image:loc><image:title>Pipeline de Automatización con Radare2 — analystty</image:title></image:image>
@@ -77,7 +95,7 @@
     <!-- Assembly para Ingeniería Inversa (RE) -->
     <url>
         <loc>https://tty503.com/assembly.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
@@ -85,18 +103,18 @@
     <!-- De la Shellcode Artesanal al C2 Builder -->
     <url>
         <loc>https://tty503.com/myPracticalShellcodeC2.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/bugbuilder-0.png</image:loc><image:title>BugBuilder — Panel de Control C2</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/bugbuilder-1.png</image:loc><image:title>BugBuilder — Configuración de Payload</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/bugbuilder-2.png</image:loc><image:title>BugBuilder — Sistema de Compilación</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/bugbuilder-0.png</image:loc><image:title>BugBuilder — Panel de Control C2 con opciones de ofuscación</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/bugbuilder-1.png</image:loc><image:title>BugBuilder — Pestaña Infected con grid de bots conectados</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/bugbuilder-2.png</image:loc><image:title>BugBuilder — C2 activo con cliente conectado desde Venezuela</image:title></image:image>
     </url>
 
     <!-- PLC Siemens S5/S7 — Seguridad OT e Infraestructuras Críticas -->
     <url>
         <loc>https://tty503.com/plc.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/plc-0.jpg</image:loc><image:title>Tablero de Control Industrial — Riel DIN con Interruptor y Relés</image:title></image:image>
@@ -118,7 +136,7 @@
     <!-- Threat Hunter Recollection -->
     <url>
         <loc>https://tty503.com/threat-hunter-recollection.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-0.jpeg</image:loc><image:title>Conversación de Scam de Inversión en Telegram</image:title></image:image>
@@ -142,7 +160,7 @@
         <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-18.jpeg</image:loc><image:title>Script hreflon.htm — Redirección alojada en Google Cloud</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-19.jpeg</image:loc><image:title>Script file.ps1 — PowerShell Ofuscado</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-20.jpeg</image:loc><image:title>Suite NetSupport Manager — DLL Sideloading</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-21.jpeg</image:loc><image:title>Página Señuelo "Coming Soon" — gremorygame.net</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-21.jpeg</image:loc><image:title>Página Señuelo Coming Soon — gremorygame.net</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-22.jpeg</image:loc><image:title>Archivo authroot.stl — Lista de Certificados</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-23.jpeg</image:loc><image:title>Script Forense sc.py — Análisis Automatizado</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-24.jpeg</image:loc><image:title>Diagrama de Kill Chain Completa — NetSupport RAT</image:title></image:image>
@@ -156,7 +174,7 @@
     <!-- Pig Butchering — Fake Crypto Exchange -->
     <url>
         <loc>https://tty503.com/pigbutchering-bybsusd.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-0.png</image:loc><image:title>Diagrama de Infraestructura — Red de Estafa Pig Butchering</image:title></image:image>
@@ -169,7 +187,7 @@
     <!-- Operación FakeWealth — cmdxcapital -->
     <url>
         <loc>https://tty503.com/fakewealth-cmdxcapital.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/topology_infrastructure_nodes_cmdx.png</image:loc><image:title>Mapa de Topología de Red — Campaña cmdxcapital</image:title></image:image>
@@ -192,7 +210,7 @@
     <!-- Operaciones General JP y SilentWarn -->
     <url>
         <loc>https://tty503.com/operation-general-jp-silentwarn.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/phishing_traffic_redirection_infrastructure_graph.jpg</image:loc><image:title>Grafo de Infraestructura — Redirección de Phishing General JP</image:title></image:image>
@@ -208,7 +226,7 @@
     <!-- Infraestructura Ofuscada — WireGuard, Proxy, DNS Blindado -->
     <url>
         <loc>https://tty503.com/infraestructura-tunel-ofuscado.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
         <image:image><image:loc>https://tty503.com/img/infraestructura-tunel-ofuscado.png</image:loc><image:title>Diagrama de Infraestructura — Túnel WireGuard Ofuscado con udp2raw y Proxy Residencial</image:title></image:image>
@@ -217,7 +235,7 @@
     <!-- Laboratorio SOC/Honeypot -->
     <url>
         <loc>https://tty503.com/infra-soc.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
         <image:image><image:loc>https://tty503.com/img/infra-soc.png</image:loc><image:title>Diagrama de Arquitectura Lógica — Laboratorio SOC/Honeypot</image:title></image:image>
@@ -232,7 +250,7 @@
     <!-- Web API Pentesting 2024 -->
     <url>
         <loc>https://tty503.com/web-api-pentesting2024.html</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-01-data-leak.png</image:loc><image:title>Extracción de Registros — Script de Enumeración IDOR</image:title></image:image>
@@ -246,29 +264,41 @@
     </url>
 
     <!-- ===================================================================== -->
+    <!-- CLÚSTER E: RED TEAM & EVASION                                         -->
+    <!-- ===================================================================== -->
+
+    <!-- El Arte de la Paciencia: Sudo Cache -->
+    <url>
+        <loc>https://tty503.com/arte-de-la-paciencia-sudo-cache.html</loc>
+        <lastmod>2026-06-01</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- ===================================================================== -->
     <!-- ANCLAS (HASH URLS) CON VALOR SEMÁNTICO — INDEX.HTML                  -->
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/#about</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://tty503.com/#experience</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://tty503.com/#research</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://tty503.com/#articles</loc>
-        <lastmod>2026-05-29</lastmod>
+        <lastmod>2026-06-01</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
     </url>
