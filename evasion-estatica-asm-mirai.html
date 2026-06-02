@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
+    <title>Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM | tty503</title>
+    <meta name="description" content="Análisis avanzado de evasión de antivirus: cómo destruir firmas estáticas del malware Mirai mediante polimorfismo manual en ASM y ofuscación aritmética dinámica. Incluye propuesta de arquitectura DGA mutante, correlación con MITRE ATT&CK y paralelismos con el DRM Denuvo.">
+    <meta name="keywords" content="evasión de malware, Mirai, ASM, polimorfismo, ofuscación aritmética, YARA evasion, VirusTotal, Red Team, Reverse Engineering, x86, shellcode, DGA, MITRE ATT&CK, T1027, T1562.001, Denuvo, MBA, Mixed Boolean Arithmetic, tty503">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://tty503.com/evasion-estatica-asm-mirai.html">
+    <meta name="theme-color" content="#050505">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM | tty503">
+    <meta property="og:description" content="Destrucción quirúrgica de firmas YARA sin packers. Cómo pasé una muestra de Mirai de 16/64 a 0/65 en VirusTotal usando metamorfismo aritmético y un stub descifrador en Assembly. Propuesta de infraestructura DGA mutante.">
+    <meta property="og:url" content="https://tty503.com/evasion-estatica-asm-mirai.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/vt_malware_detection_after.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="VirusTotal mostrando 0 detecciones para el binario de Mirai modificado">
+    <meta property="article:published_time" content="2026-05-28">
+    <meta property="article:modified_time" content="2026-06-01">
+    <meta property="article:author" content="Christian Márquez">
+    <meta property="article:tag" content="Malware Evasion">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Assembly">
+    <meta property="article:tag" content="Mirai">
+    <meta property="article:tag" content="DGA">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM">
+    <meta name="twitter:description" content="Polimorfismo manual en ASM contra Mirai. De 16/64 a 0/65 en VT sin packers, solo aritmética. Análisis de arquitectura DGA.">
+    <meta name="twitter:image" content="https://tty503.com/img/vt_malware_detection_after.jpg">
+    <meta name="twitter:image:alt" content="0 detecciones en VirusTotal para muestra de Mirai ofuscada">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+        .navbar {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle);
+            z-index: 1000; transition: var(--transition-smooth);
+        }
+        .nav-container {
+            max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+            overflow-x: auto; font-size: 0.9rem; line-height: 1.6;
+            position: relative; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);
+        }
+        .code-block .line { display: block; }
+        .code-block .comment { color: #6a9955; }
+        .code-block .directive { color: #569cd6; }
+        .code-block .keyword { color: #c586c0; }
+        .code-block .string { color: #ce9178; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .opcode { color: #4ec9b0; }
+        .code-block .register { color: #9cdcfe; }
+        .code-block .label { color: #dcdcaa; }
+        .code-block .func { color: #dcdcaa; }
+        
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: #ffffff; }
+        .image-container img { width: 100%; height: auto; display: block; filter: none; transition: filter 0.4s ease; }
+        .image-container img:hover { filter: brightness(1.05); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: #666666; border-top: 1px solid #e5e7eb; background: #fafafa; }
+        
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+        
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+
+        .mitre-ref {
+            display: inline-block; background: rgba(96, 165, 250, 0.1);
+            color: var(--accent-blue); font-size: 0.8rem; font-weight: 600;
+            padding: 0.2rem 0.6rem; border-radius: 3px;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            margin: 0 0.2rem; font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cta-closure {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 2rem;
+            margin: 3rem 0 2rem;
+            text-align: center;
+        }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem;
+            border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none;
+            transition: var(--transition-smooth); border: 1px solid var(--border-subtle);
+            color: var(--text-secondary); background: transparent;
+        }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .cta-btn.primary:hover { background: rgba(96, 165, 250, 0.05); border-color: var(--accent-blue); }
+
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.8rem; }
+            .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_research</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Malware Analysis</span>
+                <span class="article-tag">Reverse Engineering</span>
+                <span class="article-tag">x86/x64 Assembly</span>
+                <span class="article-tag">Evasion</span>
+                <span>Actualizado: Junio 2026</span>
+                <span>~25 min de lectura</span>
+            </div>
+            <h1 class="article-title">Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM</h1>
+            <p class="article-subtitle">
+                Cómo romper las reglas YARA y los hashes SHA256 sin packers ni crypters. Una guía avanzada de polimorfismo manual, ofuscación aritmética dinámica y parcheo hexadecimal quirúrgico que redujo la tasa de detección de una muestra real de Mirai de 16/64 a 0/65 en VirusTotal. Incluye la propuesta de una arquitectura de entrega mutante orquestada por DGA.
+            </p>
+        </header>
+
+        <!-- SECCIÓN 1: INTRODUCCIÓN -->
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> El Mito del Packer: ¿Por Qué Seguimos Ofuscando Mal?</h2>
+        <p>
+            Existe una creencia arraigada en el ecosistema Red Team y entre los desarrolladores de malware: para evadir un motor antivirus (AV) o un EDR en su fase estática, <strong>necesitas un packer, un crypter o un loader complejo</strong>. Esta premisa es técnicamente falsa. De hecho, el uso de herramientas como <strong>UPX</strong> o crypters comerciales a menudo se ha convertido en una sentencia de muerte para cualquier payload. La mayoría de los motores modernos levantan alertas heurísticas inmediatas basadas únicamente en la <strong>entropía anómala</strong> del binario o las firmas propias del propio packer <span class="mitre-ref">T1027.002</span>.
+        </p>
+        <p>
+            La fase inicial de la detección depende críticamente del <strong>análisis estático</strong>: hashes de integridad (SHA256), reglas <strong>YARA</strong> que buscan secuencias de opcodes específicas, y la extracción de "strings" reveladores. La solución más elegante y quirúrgica no es añadir capas de ofuscación ruidosas, sino <strong>manipular la microarquitectura del binario</strong>. Se trata de cambiar los opcodes subyacentes manteniendo intacta la lógica de ejecución: polimorfismo manual. Esta técnica se alinea directamente con la táctica de <strong>Defense Evasion</strong> del framework MITRE ATT&CK <span class="mitre-ref">TA0005</span>.
+        </p>
+        <div class="callout callout-warning">
+            <div class="callout-title mono">La analogía de la placa de un carro</div>
+            <p>Mientras estaba en la cola de la gasolina, vi la placa de un carro y pensé: "parece una secuencia de bytes". Ahí nació esta investigación. Si cambias los bytes pero el carro sigue siendo el mismo, ¿cómo te identifican? La respuesta está en la aritmética dinámica y en una infraestructura de entrega que nunca repite la misma matrícula.</p>
+        </div>
+
+        <!-- DIAGRAMA 1: FLUJO PRINCIPAL -->
+        <div class="image-container">
+            <img src="img/evasion-mirai-flowchart.png" alt="Diagrama de flujo del proceso de evasión estática: de la muestra original de Mirai al binario indetectable" loading="lazy">
+            <div class="image-caption mono">evasion-mirai-flowchart.png — Flujo completo del proceso de ofuscación. Desde la muestra original detectada por 16/64 motores hasta el binario modificado con 0/65 detecciones, pasando por la extracción de opcodes, generación de claves dinámicas, compilación del stub en NASM y parcheo hexadecimal.</div>
+        </div>
+
+        <!-- SECCIÓN 2: LABORATORIO -->
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Entorno de Laboratorio y Preparación</h2>
+        <p>Para esta prueba de concepto se utilizó un entorno aislado sobre <strong>Proxmox VE</strong>. La metodología se basa en el rigor del análisis estático y la validación dinámica:</p>
+        <ul>
+            <li><strong>El Artefacto:</strong> Una muestra real del código fuente filtrado de <strong>Mirai</strong>, compilada para arquitectura x86/x64 (ELF). Aunque Mirai es icónico en IoT, su lógica de red es perfecta para demostrar la evasión.</li>
+            <li><strong>Baseline (Punto de partida):</strong> La muestra original se subió a VirusTotal, arrojando un resultado de <strong>16/64</strong> detecciones. Firmas como <span class="mono">trojan.mirai/gafgyt</span> ya la tenían plenamente catalogada.</li>
+            <li><strong>Herramientas requeridas:</strong>
+                <ul>
+                    <li>Desensamblador/Debugger: <strong>Radare2</strong>, Ghidra o x64dbg.</li>
+                    <li>Editor hexadecimal: <strong>HxD</strong> o wxHexEditor.</li>
+                    <li>Ensamblador para pruebas de opcodes: <strong>NASM</strong> y scripts en Bash/Python para automatización.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <!-- IMAGEN: ANTES -->
+        <div class="image-container">
+            <img src="img/vt_malware_detection_before.jpg" alt="16/64 detecciones en VirusTotal para la muestra original de Mirai" loading="lazy">
+            <div class="image-caption mono">preview-1.jpg — Estado inicial en VirusTotal. La muestra es detectada como trojan.mirai/gafgyt por 16 proveedores, incluyendo Avast, Kaspersky, Microsoft, Google y Fortinet.</div>
+        </div>
+
+        <!-- SECCIÓN 3: TEORÍA DE LA EVASIÓN -->
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Teoría de la Evasión: Sustitución Aritmética en ASM</h2>
+        <p>
+            Una regla YARA detecta una secuencia de bytes específica. Por ejemplo, la instrucción <span class="mono">MOV EAX, 1</span> se traduce a los bytes <span class="mono">B8 01 00 00 00</span>. Si un motor de seguridad busca esa cadena exacta, basta con alterarla. Este principio es análogo a lo que el DRM <strong>Denuvo</strong> realiza con sus "constantes robadas" (stolen constants), donde ciertos bytes del binario original simplemente no existen en el ejecutable distribuido y deben ser recuperados dinámicamente mediante una licencia <span class="mitre-ref">T1027.005</span>.
+        </p>
+        <p>
+            El <strong>metamorfismo aritmético</strong> se basa en un principio fundamental: en ensamblador, hay múltiples caminos para llegar al mismo resultado en un registro. Alterar las instrucciones rompe el hash de la sección <span class="mono">.text</span> y evade la coincidencia exacta de bytes sin necesidad de modificar el flujo lógico del programa.
+        </p>
+
+        <!-- DIAGRAMA 6: ÁRBOL DE DECISIÓN -->
+        <div class="image-container">
+            <img src="img/opcode-mutation-decision-tree.png" alt="Árbol de decisión para la estrategia de mutación de opcodes según el tipo de instrucción" loading="lazy">
+            <div class="image-caption mono">opcode-mutation-decision-tree.png — Árbol de decisión completo para la mutación de opcodes. La estrategia varía según el tipo de instrucción: asignaciones a cero (MOV→XOR), cargas de constantes (descomposición aritmética), operaciones aritméticas (descomposición en múltiples instrucciones) o instrucciones no críticas (NOPs aleatorios). Cada rama incluye la verificación de alineación de bytes.</div>
+        </div>
+
+        <h3 class="subsection-title">Ejemplo 1: Asignación a Cero</h3>
+        <div class="code-block">
+            <span class="line"><span class="comment">; Firma original (5 bytes)</span></span>
+            <span class="line"><span class="opcode">MOV</span> <span class="register">EAX</span>, <span class="number">0</span>     <span class="comment">; B8 00 00 00 00</span></span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="comment">; Mutaciones (2 bytes)</span></span>
+            <span class="line"><span class="opcode">XOR</span> <span class="register">EAX</span>, <span class="register">EAX</span>    <span class="comment">; 31 C0</span></span>
+            <span class="line"><span class="opcode">SUB</span> <span class="register">EAX</span>, <span class="register">EAX</span>    <span class="comment">; 29 C0</span></span>
+        </div>
+
+        <h3 class="subsection-title">Ejemplo 2: Ofuscación de Constantes Lógicas</h3>
+        <p>En lugar de cargar un valor directamente, se puede cargar el doble y desplazar bits, o usar operaciones compuestas que rompen los patrones de búsqueda lineales. Esta técnica se conecta directamente con el <strong>Mixed Boolean-Arithmetic (MBA)</strong> usado por Denuvo, donde expresiones simples se convierten en polinomios booleanos extremadamente complejos.</p>
+        <div class="code-block">
+            <span class="line"><span class="comment">; Firma original: MOV ECX, 0x10</span></span>
+            <span class="line"><span class="opcode">MOV</span> <span class="register">ECX</span>, <span class="number">0x20</span></span>
+            <span class="line"><span class="opcode">SHR</span> <span class="register">ECX</span>, <span class="number">1</span>      <span class="comment">; ECX ahora contiene 0x10</span></span>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title mono">Referencia: Denuvo y la Ofuscación de Constantes</div>
+            <p>En el análisis de Connor-Jay Dunn sobre Denuvo, se detalla cómo el DRM elimina constantes de las instrucciones (ej. un <span class="mono">-4</span> en <span class="mono">mov DWORD PTR [rbp-4], edi</span>). El programa no funciona a menos que esa constante sea recuperada del servidor de licencias. Nuestra técnica de "stub descifrador" opera bajo el mismo principio: el opcode original no existe en el binario hasta que se ejecuta la aritmética de descifrado en tiempo de ejecución.</p>
+        </div>
+
+        <!-- SECCIÓN 4: EL ALGORITMO DINÁMICO -->
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> La Fábrica de Opcodes: Ofuscación Dinámica en C++</h2>
+        <p>
+            Inspirado por la idea de que las constantes nunca deben aparecer planas en el binario, desarrollé un generador de bloques de ofuscación. La función <span class="mono">generar_bloque</span> utiliza números pseudoaleatorios para crear valores auxiliares (val_B, val_C, val_D) y, mediante una operación combinada de suma, resta y XOR, calcula un valor final (val_A) que reconstruye el opcode original.
+        </p>
+        <p>Esta técnica es extremadamente efectiva porque elimina por completo las firmas de "Magic Numbers". El valor final nunca aparece estático en el binario compilado; solo existe en tiempo de ejecución dentro de los registros de la CPU. Esto se correlaciona con la sub-técnica de MITRE <span class="mitre-ref">T1027.005</span> (Code Signing and Obfuscated Constants).</p>
+
+        <div class="code-block">
+            <span class="line"><span class="comment">// dynamic_key_obfuscator.cpp (Fragmento)</span></span>
+            <span class="line"><span class="label">KeyBlock</span> <span class="func">generar_bloque</span>(<span class="keyword">uint32_t</span> target) {</span>
+            <span class="line">    <span class="label">KeyBlock</span> k;</span>
+            <span class="line">    <span class="comment">// 1. Ruido aleatorio</span></span>
+            <span class="line">    k.val_B = (<span class="func">rand</span>() << <span class="number">16</span>) | (<span class="func">rand</span>() & <span class="number">0xFFFF</span>);</span>
+            <span class="line">    k.val_C = (<span class="func">rand</span>() << <span class="number">16</span>) | (<span class="func">rand</span>() & <span class="number">0xFFFF</span>);</span>
+            <span class="line">    k.val_D = (<span class="func">rand</span>() << <span class="number">16</span>) | (<span class="func">rand</span>() & <span class="number">0xFFFF</span>);</span>
+            <span class="line">&nbsp;</span>
+            <span class="line">    <span class="comment">// 2. Despejar A: (A ^ B) = Target + (D + 1) - (C - 1)</span></span>
+            <span class="line">    <span class="keyword">uint32_t</span> term_C_dec = k.val_C - <span class="number">1</span>;</span>
+            <span class="line">    <span class="keyword">uint32_t</span> term_D_inc = k.val_D + <span class="number">1</span>;</span>
+            <span class="line">    <span class="keyword">uint32_t</span> needed_xor = target + term_D_inc - term_C_dec;</span>
+            <span class="line">    k.val_A = needed_xor ^ k.val_B;</span>
+            <span class="line">&nbsp;</span>
+            <span class="line">    <span class="keyword">return</span> k;</span>
+            <span class="line">}</span>
+        </div>
+
+        <div class="callout">
+            <div class="callout-title mono">El Reto del Stub Compacto</div>
+            <p>El éxito de esta técnica depende de que el stub en Assembly x86 realice la operación inversa de forma compacta. Si el descifrador es demasiado complejo, corremos el riesgo de crear una nueva firma estática: "detectar el mecanismo de evasión en lugar del malware". Este equilibrio es el mismo que enfrenta Denuvo con sus spin-locks para proteger CPUID encriptados on-the-fly.</p>
+        </div>
+
+        <!-- SECCIÓN 5: EJECUCIÓN PRÁCTICA -->
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Ejecución Práctica: Parcheando el Binario de Mirai</h2>
+        
+        <h3 class="subsection-title">Paso 1: Del Binario al Arreglo de Opcodes</h3>
+        <p>
+            Desarrollé un script en Bash que, utilizando <strong>objdump</strong> y otras utilidades, extrae todos los bytes de la sección <span class="mono">.text</span> y los empaqueta en un arreglo de <span class="mono">uint32_t</span> en formato little-endian. Este arreglo se convierte en el "payload" a proteger, similar a cómo Denuvo selecciona funciones críticas para proteger dentro de su VM.
+        </p>
+        <div class="code-block">
+            <span class="line"><span class="comment">// Opcodes originales:</span></span>
+            <span class="line"><span class="comment">//   xor ebx, ebx          (31 DB)</span></span>
+            <span class="line"><span class="comment">//   mov eax, 1            (B8 01 00 00 00)</span></span>
+            <span class="line"><span class="comment">//   int 0x80              (CD 80)</span></span>
+            <span class="line"><span class="comment">//   NOPs de relleno       (90...)</span></span>
+            <span class="line"><span class="comment">//</span></span>
+            <span class="line"><span class="comment">// Empaquetado en Little Endian (uint32_t):</span></span>
+            <span class="line"><span class="comment">// Bloque 0: 31 DB B8 01 -> 0x01B8DB31</span></span>
+            <span class="line"><span class="comment">// Bloque 1: 00 00 00 CD -> 0xCD000000</span></span>
+            <span class="line"><span class="comment">// Bloque 2: 80 90 90 90 -> 0x90909080 (Relleno con NOPs)</span></span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="keyword">uint32_t</span> payload[] = {</span>
+            <span class="line">    <span class="number">0x01B8DB31</span>,</span>
+            <span class="line">    <span class="number">0xCD000000</span>,</span>
+            <span class="line">    <span class="number">0x90909080</span></span>
+            <span class="line">};</span>
+        </div>
+
+        <h3 class="subsection-title">Paso 2: El Parche Hexadecimal y el Code Cave</h3>
+        <p>
+            Al mutar las instrucciones, el tamaño en bytes cambia. Si la mutación ocupa menos espacio, se utiliza un relleno inteligente con <strong>NOPs (0x90)</strong> o instrucciones basura que no alteren los flags de la CPU <span class="mitre-ref">T1001.003</span>. Este detalle es crítico: cualquier desplazamiento incorrecto rompería los offsets de memoria relativos y causaría un <strong>crash</strong> inmediato del binario.
+        </p>
+
+        <h3 class="subsection-title">Paso 3: El Stub Desensamblador en NASM</h3>
+        <p>
+            El stub final en Assembly es el encargado de leer los bloques cifrados, aplicar la fórmula inversa <span class="mono">((A⊕B)+(C−1))−(D+1)</span>, y reconstruir los opcodes originales en un buffer de memoria. Una vez descifrado, transfiere el control al código generado mediante un <strong>JMP</strong> directo, una técnica análoga a la transferencia de control que Denuvo realiza al OEP (Original Entry Point) después de validar la licencia.
+        </p>
+        <div class="code-block">
+            <span class="line"><span class="comment">; ASM resultante del stub descifrador</span></span>
+            <span class="line"><span class="label">_start:</span></span>
+            <span class="line">    <span class="opcode">mov</span> <span class="register">esi</span>, encrypted_data</span>
+            <span class="line">    <span class="opcode">mov</span> <span class="register">edi</span>, decoded_buffer</span>
+            <span class="line">    <span class="opcode">mov</span> <span class="register">ecx</span>, <span class="number">3</span>             <span class="comment">; Bloques detectados automáticamente</span></span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="label">decode_loop:</span></span>
+            <span class="line">    <span class="opcode">mov</span> <span class="register">eax</span>, [<span class="register">esi</span>]       <span class="comment">; A</span></span>
+            <span class="line">    <span class="opcode">mov</span> <span class="register">ebx</span>, [<span class="register">esi</span>+<span class="number">4</span>]     <span class="comment">; B</span></span>
+            <span class="line">    <span class="opcode">mov</span> <span class="register">edx</span>, [<span class="register">esi</span>+<span class="number">8</span>]     <span class="comment">; C</span></span>
+            <span class="line">    <span class="opcode">mov</span> <span class="register">ebp</span>, [<span class="register">esi</span>+<span class="number">12</span>]    <span class="comment">; D</span></span>
+            <span class="line">    </span>
+            <span class="line">    <span class="opcode">xor</span> <span class="register">eax</span>, <span class="register">ebx</span>         <span class="comment">; A ^ B</span></span>
+            <span class="line">    <span class="opcode">dec</span> <span class="register">edx</span>              <span class="comment">; C - 1</span></span>
+            <span class="line">    <span class="opcode">add</span> <span class="register">eax</span>, <span class="register">edx</span>         <span class="comment">; + (C-1)</span></span>
+            <span class="line">    <span class="opcode">inc</span> <span class="register">ebp</span>              <span class="comment">; D + 1</span></span>
+            <span class="line">    <span class="opcode">sub</span> <span class="register">eax</span>, <span class="register">ebp</span>         <span class="comment">; - (D+1)</span></span>
+            <span class="line">    </span>
+            <span class="line">    <span class="opcode">mov</span> [<span class="register">edi</span>], <span class="register">eax</span>       <span class="comment">; Escribir opcode restaurado</span></span>
+            <span class="line">    <span class="opcode">add</span> <span class="register">esi</span>, <span class="number">16</span>          <span class="comment">; Siguiente bloque de llaves</span></span>
+            <span class="line">    <span class="opcode">add</span> <span class="register">edi</span>, <span class="number">4</span>           <span class="comment">; Siguiente bloque destino</span></span>
+            <span class="line">    <span class="opcode">loop</span> <span class="label">decode_loop</span></span>
+            <span class="line">&nbsp;</span>
+            <span class="line">    <span class="comment">; Transferencia de control al payload original</span></span>
+            <span class="line">    <span class="opcode">jmp</span> <span class="label">decoded_buffer</span></span>
+        </div>
+
+        <!-- DIAGRAMA 3: COMPARATIVA STUB VS DENUVO -->
+        <div class="image-container">
+            <img src="img/stub-denuvo-comparison.png" alt="Diagrama de componentes comparando el stub descifrador con el DRM Denuvo" loading="lazy">
+            <div class="image-caption mono">stub-denuvo-comparison.png — Comparativa arquitectónica entre el stub descifrador desarrollado en esta investigación y el DRM Denuvo. Ambos comparten el principio de eliminar bytes críticos del binario (opcodes vs stolen constants), almacenarlos de forma protegida (claves A,B,C,D vs license file) y recuperarlos en tiempo de ejecución mediante descifrado aritmético (loop XOR+ADD+SUB vs VM handlers con MBA).</div>
+        </div>
+
+        <!-- SECCIÓN 6: RESULTADOS -->
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> Resultados: Rompiendo los Motores Estáticos</h2>
+        <p>
+            El binario modificado se ejecutó en un entorno aislado, capturando el tráfico de red para verificar que el <strong>beacon de Mirai</strong> se ejecutaba sin crashes. Una vez validada la integridad lógica, se procedió al análisis estático.
+        </p>
+        <p>
+            El resultado fue contundente. Al no haber un packer, el cálculo de entropía seguía siendo bajo (parecía un ejecutable normal). Al mutar los opcodes, el hash SHA256 cambió y las reglas YARA estáticas quedaron completamente ciegas, demostrando la efectividad de <span class="mitre-ref">T1562.001</span> (Impair Defenses: Disable or Modify Tools).
+        </p>
+
+        <!-- IMAGEN: DESPUÉS -->
+        <div class="image-container">
+            <img src="img/vt_malware_detection_after.jpg" alt="0/65 detecciones en VirusTotal para el binario de Mirai modificado" loading="lazy">
+            <div class="image-caption mono">preview-2.jpg — El clímax del artículo. Tasa de detección reducida a 0/65. Todos los campos de actividad maliciosa figuran como "NOT FOUND": Detections, Mitre Signatures, IDS Rules, Sigma Rules, Dropped Files y Network Communications.</div>
+        </div>
+
+        <!-- DIAGRAMA 8: COMPARATIVA VT -->
+        <div class="image-container">
+            <img src="img/vt-comparison-diagram.png" alt="Diagrama comparativo del antes y después en VirusTotal y cambios estructurales del binario" loading="lazy">
+            <div class="image-caption mono">vt-comparison-diagram.png — Comparativa estructural del binario antes y después de la ofuscación. El hash SHA256 cambia completamente, la sección .text contiene opcodes mutados que ciegan las firmas YARA, los strings del C2 quedan ofuscados con XOR, y la entropía se mantiene normal (sin packer). El resultado final: de 16/64 a 0/65 detecciones.</div>
+        </div>
+
+        <!-- SECCIÓN 7: PROPUESTA DE ARQUITECTURA DGA MUTANTE -->
+        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> Propuesta: Arquitectura de Entrega Mutante con DGA</h2>
+        <p>
+            La evasión estática es el primer eslabón. Pero, ¿qué ocurre cuando el binario debe ser distribuido a gran escala? Si cada víctima descarga exactamente el mismo archivo, basta con que un solo sensor lo capture para que el hash sea quemado y distribuido a todos los endpoints del mundo en minutos. La solución es una <strong>arquitectura de entrega mutante orquestada por DGA (Domain Generation Algorithm)</strong>.
+        </p>
+
+        <!-- DIAGRAMA 2: SECUENCIA DGA -->
+        <div class="image-container">
+            <img src="img/dga-mutant-delivery-sequence.png" alt="Diagrama de secuencia de la arquitectura de entrega mutante con DGA" loading="lazy">
+            <div class="image-caption mono">dga-mutant-delivery-sequence.png — Arquitectura completa de entrega mutante en tres fases. Fase 1 (Preparación): la fábrica genera binarios con claves únicas y el algoritmo DGA calcula y registra dominios. Fase 2 (Entrega): la víctima descarga el binario vía dominio DGA, ejecuta el stub descifrador, solicita token de sesión al C2 y ejecuta el payload. Fase 3 (Rotación): desregistro de dominios antiguos, apagado de listeners y despliegue de nueva infraestructura para el siguiente ciclo.</div>
+        </div>
+
+        <h3 class="subsection-title">El Concepto: Fábrica de Binarios Efímeros</h3>
+        <p>
+            Inspirado por la microsegmentación de campañas de malware moderno y la rotación de dominios observada en mi análisis de <strong>cmdxcapital</strong> <a href="fakewealth-cmdxcapital.html">(ver caso)</a>, propongo un sistema donde cada muestra entregada sea genéticamente única:
+        </p>
+        <ul>
+            <li><strong>Capa 1 — Payload Polimórfico:</strong> El stub descifrador desarrollado en este artículo se modifica automáticamente en tiempo de compilación. Las claves A, B, C, D se regeneran para cada binario, produciendo hashes SHA256 completamente diferentes para la misma lógica maliciosa. <span class="mitre-ref">T1027</span></li>
+            <li><strong>Capa 2 — DGA (Domain Generation Algorithm):</strong> Un algoritmo determinista que genera cientos de dominios pseudoaleatorios diarios. El servidor C2 registra solo unos pocos de esos dominios, rotándolos constantemente. <span class="mitre-ref">T1568.002</span></li>
+            <li><strong>Capa 3 — Validación Efímera del Canal:</strong> El binario, además de descifrar sus opcodes, incluye un módulo que consulta un dominio DGA específico para obtener un token de sesión. Si el dominio no responde o el token es inválido, el payload no se ejecuta o se autodestruye. Esto añade una capa de validación que recuerda a la "licencia" de Denuvo: el binario no funciona sin una respuesta válida del servidor. <span class="mitre-ref">T1102.002</span></li>
+            <li><strong>Capa 4 — Infraestructura Efímera:</strong> Utilizando servicios cloud o VPS desechables, cada dominio DGA apunta a una IP diferente durante ventanas de tiempo limitadas, coordinado con el generador de claves. Esto asegura que, incluso si un dominio es identificado, el vector de ataque ya ha migrado.</li>
+        </ul>
+
+        <!-- DIAGRAMA 4: CICLO DE VIDA -->
+        <div class="image-container">
+            <img src="img/mutant-binary-lifecycle.png" alt="Diagrama de estados del ciclo de vida de un binario mutante" loading="lazy">
+            <div class="image-caption mono">mutant-binary-lifecycle.png — Ciclo de vida completo de un binario mutante. Desde la generación con claves únicas (T1027), pasando por la distribución vía dominio DGA activo, la descarga por la víctima, la ejecución con validación Denuvo-like (el payload no se ejecuta sin token del C2), hasta la expiración y autodestrucción cuando el TTL se cumple o el dominio es desregistrado.</div>
+        </div>
+
+        <!-- DIAGRAMA 7: FLUJO DE DOMINIOS DGA -->
+        <div class="image-container">
+            <img src="img/dga-domain-flow.png" alt="Diagrama de infraestructura DGA mostrando la rotación de dominios" loading="lazy">
+            <div class="image-caption mono">dga-domain-flow.png — Infraestructura de rotación de dominios DGA. Una semilla (fecha + nonce + clave simétrica) alimenta el algoritmo generador que produce 30+ dominios diarios. Solo 3-5 se registran efectivamente y apuntan a IPs C2 activas. Los 25+ dominios restantes actúan como señuelo para generar ruido DNS y dificultar la ingeniería inversa del algoritmo.</div>
+        </div>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">Advertencia de Investigación</div>
+            <p>Esta arquitectura no ha sido probada en un entorno de producción. Representa una propuesta teórica de investigación ofensiva que sintetiza técnicas observadas en APT28, la rotación de infraestructura de Pig Butchering, y los mecanismos de validación de DRM como Denuvo. La implementación real requeriría resolver problemas de sincronización de claves y race conditions en la generación de binarios.</p>
+        </div>
+
+        <h3 class="subsection-title">Paralelismos con Denuvo y MBA</h3>
+        <p>
+            La conexión con Denuvo no es casual. El análisis de Connor-Jay Dunn revela que Denuvo utiliza <strong>Mixed Boolean-Arithmetic (MBA)</strong> para transformar instrucciones simples en expresiones polinómicas de complejidad extrema. Según los teoremas de <strong>zhou2007</strong>, toda operación en álgebra booleana puede representarse como un polinomio MBA de alto grado. Esto significa que, en teoría, podríamos reescribir nuestro stub descifrador utilizando MBA, haciendo que cada muestra no solo tenga claves diferentes, sino que el propio algoritmo de descifrado sea estructuralmente distinto en cada binario.
+        </p>
+        <p>
+            Denuvo también emplea "bit vectors" para almacenar valores de registro con sus bits dispersos en memoria, y "on-the-fly decrypted+re-encrypted CPUID" para proteger sus handlers de integridad. Estas técnicas ofrecen un roadmap claro para la evolución de este proyecto: <strong>un stub que no solo descifra opcodes, sino que también muta su propia lógica de descifrado en cada instancia, haciendo imposible una firma estática del propio mecanismo de evasión.</strong>
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Referencia Cruzada: Operación General JP y SilentWarn</div>
+            <p>En mi investigación de campañas de phishing (<a href="operation-general-jp-silentwarn.html">Operation General JP</a>), documenté cómo los atacantes rotan dominios y utilizan infraestructura efímera en Cloudflare Pages. La combinación de DGA con ofuscación aritmética es la evolución natural de esas tácticas hacia un modelo de entrega completamente dinámico. <span class="mitre-ref">T1583.004</span></p>
+        </div>
+
+        <!-- DIAGRAMA 5: DEFENSA VS EVASIÓN -->
+        <div class="image-container">
+            <img src="img/defense-vs-evasion-context.png" alt="Diagrama de contexto del ecosistema de detección versus evasión por capas" loading="lazy">
+            <div class="image-caption mono">defense-vs-evasion-context.png — Ecosistema completo de detección vs evasión organizado por capas. En la capa de red: DNS sinkholing, IDS/IPS y firewalls. En la capa de endpoint: AV/EDR estático (EVADIDO: VT 0/65), sandbox dinámico (PARCIAL: requiere token del C2) y escaneo de memoria (DETECTABLE: post-descifrado). Las técnicas de evasión se dividen en ofuscación aritmética, DGA + infraestructura efímera y validación Denuvo-like.</div>
+        </div>
+
+        <!-- SECCIÓN 8: BLUE TEAM -->
+        <h2 class="section-title mono" id="s08"><span style="color: var(--text-muted);">08.</span> Perspectiva Defensiva (Blue Team)</h2>
+        <p>
+            Esta demostración valida la base de la <strong>Pirámide del Dolor de David Bianco</strong>: los IoCs basados en Hashes son triviales de evadir. Si los SOCs dependen únicamente de firmas en disco, están condenados al fracaso. La defensa contra arquitecturas DGA mutantes requiere un enfoque en capas:
+        </p>
+        <ul>
+            <li><strong>Análisis de Entropía de Red:</strong> Monitorizar consultas DNS a dominios con baja reputación o patrones de generación algorítmica (longitud inusual de subdominios, distribución de caracteres). <span class="mitre-ref">DS0029</span></li>
+            <li><strong>Sandboxing Dinámico:</strong> Ejecutar binarios en entornos controlados que emulen diferentes configuraciones de hardware para forzar la ejecución del stub descifrador y capturar el payload en memoria.</li>
+            <li><strong>Escaneo de Memoria en Tiempo de Ejecución:</strong> Buscar strings descifrados o patrones de red anómalos en regiones de memoria RWX, donde la ofuscación aritmética ya se ha resuelto. <span class="mitre-ref">T1562.004</span></li>
+            <li><strong>Detección de Stubs de Descifrado:</strong> Identificar patrones de loops con operaciones XOR/ADD/SUB que iteran sobre buffers, combinado con saltos incondicionales a regiones de memoria dinámica.</li>
+        </ul>
+
+        <!-- CTA DE CIERRE -->
+        <div class="cta-closure">
+            <h3 class="mono">/¿Querés ver el análisis completo del binario y su comportamiento en red?</h3>
+            <p>Esta técnica de evasión se conecta con metodologías de triage automatizado, análisis de infraestructura criminal y desarrollo de malware ofensivo. Explorá cómo aplico estos principios en casos reales de Threat Hunting, pentesting y reverse engineering.</p>
+            <div class="cta-closure-links">
+                <a href="analystty.html" class="cta-btn primary mono">analystty: Triage Automatizado →</a>
+                <a href="myPracticalShellcodeC2.html" class="cta-btn mono">Desarrollo de Shellcode C2 →</a>
+                <a href="threat-hunter-recollection.html" class="cta-btn mono">Threat Hunter Recollection →</a>
+                <a href="operation-general-jp-silentwarn.html" class="cta-btn mono">Operación General JP →</a>
+                <a href="fakewealth-cmdxcapital.html" class="cta-btn mono">Caso cmdxcapital →</a>
+            </div>
+        </div>
+
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo técnico — Prácticas de Malware Dev con fines académicos y de investigación en seguridad ofensiva. Referencias a Denuvo y MBA basadas en el análisis de Connor-Jay Dunn.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
+        });
+    </script>
+
+    <!-- Schema JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM",
+      "description": "Análisis avanzado de evasión de antivirus: cómo destruir firmas estáticas del malware Mirai mediante polimorfismo manual en ASM y ofuscación aritmética dinámica. Incluye propuesta de arquitectura DGA mutante, correlación con MITRE ATT&CK y paralelismos con el DRM Denuvo.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2026-05-28",
+      "dateModified": "2026-06-01",
+      "mainEntityOfPage": "https://tty503.com/evasion-estatica-asm-mirai.html",
+      "image": "https://tty503.com/img/vt_malware_detection_after.jpg",
+      "keywords": ["evasión de malware", "Mirai", "ASM", "polimorfismo", "ofuscación aritmética", "YARA evasion", "VirusTotal", "Red Team", "Reverse Engineering", "DGA", "MITRE ATT&CK", "T1027", "Denuvo", "MBA"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "5200",
+      "timeRequired": "PT25M",
+      "about": [
+        { "@type": "Thing", "name": "Malware Evasion" },
+        { "@type": "Thing", "name": "Reverse Engineering" },
+        { "@type": "Thing", "name": "Assembly Language" },
+        { "@type": "Thing", "name": "Static Analysis" },
+        { "@type": "Thing", "name": "Domain Generation Algorithm" },
+        { "@type": "Thing", "name": "MITRE ATT&CK" }
+      ]
+    }
+    </script>
+</body>
+</html>
