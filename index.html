@@ -21,7 +21,7 @@
     <!-- ==================== SEO AVANZADO ==================== -->
     <title>Christian Márquez (tty503) | Threat Intelligence, Ingeniería Inversa, Seguridad OT y Automatización</title>
     <meta name="description" content="Christian Márquez (tty503): Threat Intelligence, ingeniería inversa de malware, seguridad en infraestructuras críticas OT/PLC Siemens S5/S7, DevSecOps, automatización con Ansible y Terraform, y análisis forense de fraudes financieros. Portafolio con investigaciones técnicas reales desde Venezuela.">
-    <meta name="keywords" content="Christian Marquez, tty503, threat intelligence, ingeniería inversa, reversing, malware analysis, PLC Siemens, seguridad OT, SCADA, DevSecOps, Ansible, Terraform, Proxmox, Ghidra, x64dbg, Capstone, Assembly x86, ARM64, APT, ciberdefensa, red team, blue team, SOC, honeypot, Wazuh, blockchain forensics, Pig Butchering, crypto scam, OSINT, infraestructura crítica, Venezuela, consultor ciberseguridad, ciberguerra, guerra híbrida, Mustang Panda, USCYBERCOM, operational technology, cyber warfare">
+    <meta name="keywords" content="Christian Marquez, tty503, threat intelligence, ingeniería inversa, reversing, malware analysis, PLC Siemens, seguridad OT, SCADA, DevSecOps, Ansible, Terraform, Proxmox, Ghidra, x64dbg, Capstone, Assembly x86, ARM64, APT, ciberdefensa, red team, blue team, SOC, honeypot, Wazuh, blockchain forensics, Pig Butchering, crypto scam, OSINT, infraestructura crítica, Venezuela, consultor ciberseguridad, ciberguerra, guerra híbrida, Mustang Panda, USCYBERCOM, operational technology, cyber warfare, evasión estática, Mirai, YARA evasion, DGA, polimorfismo ASM">
     <meta name="author" content="Christian Márquez">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="https://tty503.com">
@@ -271,6 +271,8 @@
                     <span class="tag">OT Security</span>
                     <span class="tag">DevSecOps</span>
                     <span class="tag">Ghidra</span>
+                    <span class="tag">Assembly x86</span>
+                    <span class="tag">Evasión de Firmas</span>
                 </div>
             </div>
             <div class="hero-image-wrapper reveal" style="transition-delay: 0.2s;">
@@ -421,6 +423,12 @@
                             <p class="article-desc">Análisis de malware distribuido vía Telegram, uso de API Hashing para evasión y despliegue modular de un Clipper e InfoStealer.</p>
                             <span class="article-arrow">→</span>
                         </a>
+                        <a href="https://www.linkedin.com/posts/tty503_cybersecurity-malwareanalysis-assembly-activity-7400333681262870528-O57N" target="_blank" rel="noopener noreferrer" class="article-link">
+                            <span class="article-date mono">Nov 2025</span>
+                            <h3 class="article-title">Mirai 0/65 en VirusTotal: Evasión de firmas estáticas con ASM</h3>
+                            <p class="article-desc">Prueba de concepto de ofuscación (Builder en C + Stub ASM x86) usando aritmética para reducir la detección de malware a cero. Publicación completa en el sitio.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
                         <a href="https://www.linkedin.com/posts/tty503_threatintelligence-ciberseguridad-bec-ugcPost-7385113809625088000-l8bP" target="_blank" rel="noopener noreferrer" class="article-link">
                             <span class="article-date mono">Oct 2025</span>
                             <h3 class="article-title">Ciclo Completo de Fraude Financiero: Lumma Stealer</h3>
@@ -438,6 +446,12 @@
                             <span class="article-date mono">~12 min de lectura</span>
                             <h3 class="article-title">analystty — Automatización de Triage de Malware <span class="local-badge">NOTAS</span></h3>
                             <p class="article-desc">Herramienta interna en Python para automatizar el análisis estático de archivos PE, detección de APIs maliciosas, mapeo de TTPs e integración con x64dbg. Stack: Capstone, pefile, malapi.json.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="evasion-estatica-asm-mirai.html" class="article-link local-article">
+                            <span class="article-date mono">May 2026 · ~25 min de lectura</span>
+                            <h3 class="article-title">Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Polimorfismo manual en Assembly para tumbar detecciones de 16/64 a 0/65 en VirusTotal. Stub descifrador en NASM con claves dinámicas, propuesta de arquitectura DGA mutante con validación Denuvo-like, 8 diagramas PlantUML y correlación con MITRE ATT&CK (T1027, T1562.001, T1568.002).</p>
                             <span class="article-arrow">→</span>
                         </a>
                         <a href="threat-hunter-recollection.html" class="article-link local-article">
@@ -518,6 +532,12 @@
                             <span class="article-arrow">→</span>
                         </a>
                         <div class="source-divider"><span>Notas técnicas exportadas</span></div>
+                        <a href="evasion-estatica-asm-mirai.html" class="article-link local-article">
+                            <span class="article-date mono">May 2026 · ~25 min de lectura</span>
+                            <h3 class="article-title">Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">De 16/64 a 0/65 en VirusTotal sin packers ni crypters. Polimorfismo manual en Assembly, stub descifrador en NASM con fórmula ((A^B)+(C-1))-(D+1), propuesta de arquitectura DGA mutante con validación Denuvo-like, 8 diagramas y correlación MITRE ATT&CK.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
                         <a href="myPracticalShellcodeC2.html" class="article-link local-article">
                             <span class="article-date mono">~120 min de lectura</span>
                             <h3 class="article-title">De la Shellcode Artesanal al C2 Builder <span class="local-badge">NOTAS</span></h3>
@@ -601,7 +621,7 @@
             </div>
         </section>
 
-        <!-- ==================== NUEVA SECCIÓN: ARTÍCULOS DEL SITIO ==================== -->
+        <!-- ==================== SECCIÓN: ARTÍCULOS DEL SITIO ==================== -->
         <section id="articles" class="section">
             <div class="section-header reveal">
                 <h2 class="section-title mono"><span></span>Artículos_del_Sitio</h2>
@@ -617,6 +637,12 @@
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
+                        <a href="evasion-estatica-asm-mirai.html" class="article-link local-article">
+                            <span class="article-date mono">May 2026 · ~25 min de lectura</span>
+                            <h3 class="article-title">Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Cómo pasé una muestra real de Mirai de 16/64 a 0/65 en VirusTotal sin packers ni crypters. Polimorfismo manual en Assembly, stub descifrador en NASM con fórmula aritmética dinámica, y propuesta de arquitectura de entrega mutante con DGA y validación Denuvo-like. 8 diagramas PlantUML, correlación con MITRE ATT&CK (T1027, T1562.001, T1568.002) y paralelismos con MBA.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
                         <a href="analystty.html" class="article-link local-article">
                             <span class="article-date mono">~12 min de lectura</span>
                             <h3 class="article-title">analystty — Automatización de Triage PE con Python, Capstone y pefile <span class="local-badge">ARTÍCULO</span></h3>
@@ -679,7 +705,7 @@
                 <!-- Clúster C: Defensive & Offensive Infrastructure -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Infraestructura Defensiva &amp; Ofensiva</h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Infraestructura Defensiva & Ofensiva</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
@@ -700,7 +726,7 @@
                 <!-- Clúster D: AppSec & Pentesting -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> AppSec &amp; Pentesting</h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> AppSec & Pentesting</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
@@ -708,6 +734,39 @@
                             <span class="article-date mono">~25 min de lectura</span>
                             <h3 class="article-title">Pentesting a Web API Financiera: IDOR por Validación Incompleta de JWT (OWASP API Top 10) <span class="local-badge">ARTÍCULO</span></h3>
                             <p class="article-desc">Auditoría freelance a una API financiera con Certificate Pinning, cifrado y ofuscación burlados por una falla de autorización a nivel de objeto. El backend validaba la firma JWT pero no la pertenencia del recurso. Un script con un único token legítimo extrajo datos de todo el sistema. Diagramas de secuencia y correlación con OWASP.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
+                <!-- Clúster E: Red Team & Evasion -->
+                <details class="theme-group reveal">
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Red Team & Técnicas de Evasión</h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="evasion-estatica-asm-mirai.html" class="article-link local-article">
+                            <span class="article-date mono">May 2026 · ~25 min de lectura</span>
+                            <h3 class="article-title">Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Polimorfismo manual en Assembly x86 para evadir firmas YARA. Stub descifrador en NASM, generador de claves dinámicas en C++, y propuesta de infraestructura DGA mutante con validación Denuvo-like. De 16/64 a 0/65 en VirusTotal. 8 diagramas PlantUML y referencias MITRE ATT&CK.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="arte-de-la-paciencia-sudo-cache.html" class="article-link local-article">
+                            <span class="article-date mono">~15 min de lectura</span>
+                            <h3 class="article-title">El Arte de la Paciencia: Cómo un Script de 15 Líneas Puede Iniciar una Brecha sin un Solo 0-Day <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">PoC que abusa del mecanismo de caché de sudo (T1548.003). Elevación a escenario de ataque real con ofuscación y evasión, conectado con casos documentados desde Baron Samedit hasta APT28. Incluye reglas de auditd para detección Blue Team.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="myPracticalShellcodeC2.html" class="article-link local-article">
+                            <span class="article-date mono">~120 min de lectura</span>
+                            <h3 class="article-title">De winshellcode a BugBuilder: Compendio de Técnicas de Inyección, API Hashing y C2 en Windows <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Compendio extenso de desarrollo de malware ofensivo: shellcode artesanal en C/Assembly, inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, cifrado XOR, API hashing, persistencia en registro y builder con panel C2 en C#.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="infraestructura-tunel-ofuscado.html" class="article-link local-article">
+                            <span class="article-date mono">~30 min de lectura</span>
+                            <h3 class="article-title">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Túnel WireGuard encapsulado en TCP falso mediante udp2raw para simular tráfico HTTPS legítimo. Enmascaramiento de salida TCP con redsocks + SOCKS5 residencial. Blindaje DNS con dnscrypt-proxy. Despliegue automatizado en 90 segundos.</p>
                             <span class="article-arrow">→</span>
                         </a>
                     </div>
@@ -764,7 +823,8 @@
         "PLC Siemens S5/S7", "SCADA Security", "OT Security", "Cyber Warfare", "Critical Infrastructure",
         "DevSecOps", "Ansible", "Terraform", "Proxmox", "Ghidra", "x64dbg", "Capstone",
         "Wazuh", "SIEM", "Honeypot", "Blockchain Forensics", "Pig Butchering",
-        "Crypto Scam Investigation", "OSINT", "Venezuela", "Python", "Bash", "Linux"
+        "Crypto Scam Investigation", "OSINT", "Venezuela", "Python", "Bash", "Linux",
+        "Malware Evasion", "YARA Evasion", "DGA", "MITRE ATT&CK", "Polimorfismo ASM"
       ],
       "description": "Christian Márquez (tty503) es un especialista en threat intelligence, ingeniería inversa de malware y seguridad en infraestructuras críticas OT/PLC. Opera desde Venezuela, documentando investigaciones técnicas que son consumidas por analistas de seguridad en hubs globales como Singapur, Hong Kong, Irlanda y Reino Unido."
     }
