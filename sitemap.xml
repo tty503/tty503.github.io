@@ -12,13 +12,13 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
         <image:image>
             <image:loc>https://tty503.com/p1.jpg</image:loc>
-            <image:title>Christian Márquez (tty503) — Threat Intelligence, Ingeniería Inversa y Seguridad OT</image:title>
-            <image:caption>Portafolio profesional: threat intelligence, ingeniería inversa de malware, seguridad en infraestructuras críticas OT/PLC Siemens S5/S7, DevSecOps y automatización con Ansible, Terraform y Proxmox.</image:caption>
+            <image:title>Christian Márquez (tty503) — Threat Intelligence, Ingeniería Inversa, Exploit Development y Seguridad OT</image:title>
+            <image:caption>Portafolio profesional: threat intelligence, ingeniería inversa de malware, exploit development, seguridad en infraestructuras críticas OT/PLC Siemens S5/S7, DevSecOps y automatización con Ansible, Terraform y Proxmox.</image:caption>
         </image:image>
         <image:image>
             <image:loc>https://tty503.com/hat.png</image:loc>
@@ -32,7 +32,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/aboutme.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
         <image:image><image:loc>https://tty503.com/img/aboutme-0.jpg</image:loc><image:title>Barco navegando bajo la luna — El inicio del viaje técnico</image:title></image:image>
@@ -62,10 +62,34 @@
     <!-- CLÚSTER A: MALWARE ANALYSIS & REVERSE ENGINEERING                     -->
     <!-- ===================================================================== -->
 
-    <!-- Evasión Estática a Bajo Nivel: Mirai con Aritmética en ASM (NUEVO) -->
+    <!-- Laboratorio de Exploit Development (NUEVO) -->
+    <url>
+        <loc>https://tty503.com/exploit-development-lab.html</loc>
+        <lastmod>2026-06-04</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <image:image><image:loc>https://tty503.com/img/windows-user-kernel-modes.png</image:loc><image:title>Diagrama de arquitectura de modos de operación en Windows</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/virtual-physical-memory-mapping.png</image:loc><image:title>Mapeo de memoria virtual a física entre procesos</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/windows-2000-architecture-core.png</image:loc><image:title>Arquitectura completa del sistema operativo Windows NT/2000</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/pci-device-objects-tree.png</image:loc><image:title>Árbol jerárquico de objetos de dispositivo PCI</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/pdo-fdo-device-objects.png</image:loc><image:title>Relación entre PDO y FDO en el Bus PCI</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/device-stack-filter-fdo-pdo.png</image:loc><image:title>Pila de dispositivos con filtro, FDO y PDO</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/proseware-gizmo-stack-details.png</image:loc><image:title>Detalle de la pila de Proseware Gizmo</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/umdf-kmdf-usb-stack.png</image:loc><image:title>Arquitectura híbrida UMDF y KMDF para dispositivo USB</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/arquitectura_dotnet_windows.png</image:loc><image:title>Diagrama de arquitectura .NET y Windows</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/configuracion_ip_estatica_win10.png</image:loc><image:title>Configuración de IP estática en Windows 10</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/inetsim_ejecucion_vms.png</image:loc><image:title>INetSim ejecutándose en las tres máquinas virtuales</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/fakedns_redireccion_win10.png</image:loc><image:title>fakedns redirigiendo tráfico en Windows 10</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/fakedns_inetsim_kali.png</image:loc><image:title>Redirección DNS vista desde Kali Linux</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/servidor_http_python_kali.png</image:loc><image:title>Servidor HTTP Python en Kali Linux</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/listado_directorio_navegador_host.png</image:loc><image:title>Listado de directorios del home de Kali expuesto vía HTTP</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/servidor_http_python_win10.png</image:loc><image:title>Servidor HTTP Python en Windows 10</image:title></image:image>
+    </url>
+
+    <!-- Evasión Estática a Bajo Nivel: Mirai con Aritmética en ASM -->
     <url>
         <loc>https://tty503.com/evasion-estatica-asm-mirai.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/vt_malware_detection_before.jpg</image:loc><image:title>VirusTotal — 16/64 detecciones para muestra original de Mirai</image:title></image:image>
@@ -83,7 +107,7 @@
     <!-- Herramienta analystty -->
     <url>
         <loc>https://tty503.com/analystty.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/analyst0.jpg</image:loc><image:title>Pipeline de Automatización con Radare2 — analystty</image:title></image:image>
@@ -95,7 +119,7 @@
     <!-- Assembly para Ingeniería Inversa (RE) -->
     <url>
         <loc>https://tty503.com/assembly.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
@@ -103,7 +127,7 @@
     <!-- De la Shellcode Artesanal al C2 Builder -->
     <url>
         <loc>https://tty503.com/myPracticalShellcodeC2.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/bugbuilder-0.png</image:loc><image:title>BugBuilder — Panel de Control C2 con opciones de ofuscación</image:title></image:image>
@@ -114,7 +138,7 @@
     <!-- PLC Siemens S5/S7 — Seguridad OT e Infraestructuras Críticas -->
     <url>
         <loc>https://tty503.com/plc.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/plc-0.jpg</image:loc><image:title>Tablero de Control Industrial — Riel DIN con Interruptor y Relés</image:title></image:image>
@@ -136,7 +160,7 @@
     <!-- Threat Hunter Recollection -->
     <url>
         <loc>https://tty503.com/threat-hunter-recollection.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-0.jpeg</image:loc><image:title>Conversación de Scam de Inversión en Telegram</image:title></image:image>
@@ -174,7 +198,7 @@
     <!-- Pig Butchering — Fake Crypto Exchange -->
     <url>
         <loc>https://tty503.com/pigbutchering-bybsusd.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-0.png</image:loc><image:title>Diagrama de Infraestructura — Red de Estafa Pig Butchering</image:title></image:image>
@@ -187,7 +211,7 @@
     <!-- Operación FakeWealth — cmdxcapital -->
     <url>
         <loc>https://tty503.com/fakewealth-cmdxcapital.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/topology_infrastructure_nodes_cmdx.png</image:loc><image:title>Mapa de Topología de Red — Campaña cmdxcapital</image:title></image:image>
@@ -210,7 +234,7 @@
     <!-- Operaciones General JP y SilentWarn -->
     <url>
         <loc>https://tty503.com/operation-general-jp-silentwarn.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/phishing_traffic_redirection_infrastructure_graph.jpg</image:loc><image:title>Grafo de Infraestructura — Redirección de Phishing General JP</image:title></image:image>
@@ -226,7 +250,7 @@
     <!-- Infraestructura Ofuscada — WireGuard, Proxy, DNS Blindado -->
     <url>
         <loc>https://tty503.com/infraestructura-tunel-ofuscado.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
         <image:image><image:loc>https://tty503.com/img/infraestructura-tunel-ofuscado.png</image:loc><image:title>Diagrama de Infraestructura — Túnel WireGuard Ofuscado con udp2raw y Proxy Residencial</image:title></image:image>
@@ -235,7 +259,7 @@
     <!-- Laboratorio SOC/Honeypot -->
     <url>
         <loc>https://tty503.com/infra-soc.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
         <image:image><image:loc>https://tty503.com/img/infra-soc.png</image:loc><image:title>Diagrama de Arquitectura Lógica — Laboratorio SOC/Honeypot</image:title></image:image>
@@ -250,7 +274,7 @@
     <!-- Web API Pentesting 2024 -->
     <url>
         <loc>https://tty503.com/web-api-pentesting2024.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-01-data-leak.png</image:loc><image:title>Extracción de Registros — Script de Enumeración IDOR</image:title></image:image>
@@ -264,15 +288,23 @@
     </url>
 
     <!-- ===================================================================== -->
-    <!-- CLÚSTER E: RED TEAM & EVASION                                         -->
+    <!-- CLÚSTER E: RED TEAM & EXPLOIT DEVELOPMENT                             -->
     <!-- ===================================================================== -->
 
     <!-- El Arte de la Paciencia: Sudo Cache -->
     <url>
         <loc>https://tty503.com/arte-de-la-paciencia-sudo-cache.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
+    </url>
+
+    <!-- Laboratorio de Exploit Development (duplicado en Clúster A y aquí por relevancia cross-clúster) -->
+    <url>
+        <loc>https://tty503.com/exploit-development-lab.html</loc>
+        <lastmod>2026-06-04</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
     </url>
 
     <!-- ===================================================================== -->
@@ -280,25 +312,25 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/#about</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://tty503.com/#experience</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://tty503.com/#research</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://tty503.com/#articles</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-04</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
     </url>
