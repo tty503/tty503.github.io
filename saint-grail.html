@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">    
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <title>SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva | tty503</title>
+    <meta name="description" content="SAINT GRAIL es una plataforma modular para documentar, visualizar y ejecutar investigaciones de seguridad ofensiva. Integra APIs de IA como DeepSeek, utiliza DeepWiki para recopilar contexto de proyectos open-source y crea un loop de hallazgos de vulnerabilidades. Conoce su arquitectura, flujo de trabajo y el agente híbrido de investigación.">
+    <meta name="keywords" content="SAINT GRAIL, bug hunting, vulnerability research, DeepSeek, DeepWiki, SurrealDB, Flask, graph visualization, security research, AI agent, hybrid loop, exploit development, offensive security, tty503">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://tty503.com/saint-grail.html">
+    <meta name="theme-color" content="#050505">
+    
+    <meta property="og:title" content="SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva | tty503">
+    <meta property="og:description" content="SAINT GRAIL es una plataforma modular para documentar, visualizar y ejecutar investigaciones de seguridad ofensiva. Integra DeepSeek, DeepWiki y un agente híbrido.">
+    <meta property="og:url" content="https://tty503.com/saint-grail.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/grafo-principal-interfaz.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Interfaz principal del grafo de SAINT GRAIL">
+    <meta property="article:published_time" content="2026-06-25">
+    <meta property="article:modified_time" content="2026-06-25">
+    <meta property="article:author" content="Christian Márquez">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="SAINT GRAIL: Plataforma Modular de Investigación Ofensiva">
+    <meta name="twitter:image" content="https://tty503.com/img/grafo-principal-interfaz.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+        .navbar {
+            position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth);
+        }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+
+        .toc-container { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; margin: 2rem 0; overflow: hidden; }
+        .toc-summary { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li { margin-bottom: 0; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
+
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+            padding: 0; margin: 1.5rem 0; overflow-x: auto; font-size: 0.85rem;
+            line-height: 1.5; position: relative;
+        }
+        .code-block .line {
+            display: block; padding: 0.04rem 1.5rem; white-space: pre;
+            color: var(--text-secondary); font-family: 'JetBrains Mono', monospace;
+        }
+        .code-block .line:nth-child(odd) { background: rgba(255,255,255,0.01); }
+        .code-block .line:first-child { padding-top: 1rem; }
+        .code-block .line:last-child { padding-bottom: 1rem; }
+        .code-block .keyword { color: #c678dd; }
+        .code-block .func { color: #61afef; }
+        .code-block .string { color: #98c379; }
+        .code-block .number { color: #d19a66; }
+        .code-block .comment { color: #5c6370; font-style: italic; }
+        .code-block .directive { color: #c678dd; }
+        .code-block .type { color: #e5c07b; }
+
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); }
+        .callout-danger .callout-title { color: var(--accent-red); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+
+        .cta-closure { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center; }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem; border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: var(--transition-smooth); border: 1px solid var(--border-subtle); color: var(--text-secondary); background: transparent; }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .cta-btn.primary:hover { background: rgba(96, 165, 250, 0.05); border-color: var(--accent-blue); }
+
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block .line { padding: 0.04rem 1rem; font-size: 0.7rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+            .toc-content { padding: 0 1rem 1rem; }
+            .toc-summary { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_research</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Security Research</span>
+                <span class="article-tag">AI Integration</span>
+                <span class="article-tag">Open Source</span>
+                <span class="article-tag">Bug Hunting</span>
+                <span class="article-tag">DeepSeek</span>
+                <span class="article-tag">DeepWiki</span>
+                <span>Junio 2026</span>
+                <span>~25 min de lectura</span>
+            </div>
+            <h1 class="article-title">SAINT GRAIL: Una Plataforma Modular para Investigación de Seguridad Ofensiva con IA</h1>
+            <p class="article-subtitle">
+                Construí un sistema que integra APIs de modelos de lenguaje, investigación asistida por DeepWiki y un grafo interactivo para documentar y ejecutar hallazgos de vulnerabilidades. Un vistazo al estado actual, la arquitectura y hacia dónde voy.
+            </p>
+        </header>
+
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s00">Motivación: El Bug Hunting No Es un Sprint</a></li>
+                    <li><a href="#s01">¿Qué es SAINT GRAIL?</a></li>
+                    <li><a href="#s02">Arquitectura y Componentes</a></li>
+                    <li><a href="#s03">El Agente Híbrido y DeepWiki</a></li>
+                    <li><a href="#s04">Dashboard y Flujo de Trabajo</a></li>
+                    <li><a href="#s05">Galería de Capturas</a></li>
+                    <li><a href="#s06">Estado Actual y Próximos Pasos</a></li>
+                </ol>
+            </div>
+        </details>
+
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Motivación: El Bug Hunting No Es un Sprint</h2>
+        <p>
+            Durante años, colegas y amigos me han sugerido que me meta de lleno al <strong>bug hunting</strong>. "Con lo que sabes, deberías estar reportando CVEs todas las semanas", me dicen. Y sí, la idea es tentadora. Pero cualquiera que haya intentado vivir de esto sabe que <strong>los años de investigación no siempre se traducen en ingresos mensuales estables</strong>. Entre la fuga de cerebros hacia las FAANG, la competencia feroz y el hecho de que un solo bug puede llevarte semanas de trabajo sin garantía de recompensa... la ecuación no es sencilla.
+        </p>
+        <p>
+            Sin embargo, la inquietud por explorar vulnerabilidades nunca desapareció. Lo que necesitaba era <strong>un sistema que multiplicara mi capacidad de investigación</strong>. Algo que me permitiera documentar cada paso, visualizar las relaciones entre componentes y, sobre todo, <strong>integrar inteligencia artificial para acelerar el proceso</strong>. Así nació SAINT GRAIL.
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Nota sobre los datos</div>
+            <p>Todas las capturas de pantalla y datos mostrados en este artículo son de <strong>prueba</strong>. Utilicé un conjunto de datos genérico (un programa ficticio llamado "GenericApp") para no exponer mi investigación real. La plataforma es completamente funcional, pero los vectores, fases y primitivas que se ven aquí son placeholders.</p>
+        </div>
+
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> ¿Qué es SAINT GRAIL?</h2>
+        <p>
+            SAINT GRAIL es una <strong>plataforma modular para documentar, visualizar y ejecutar investigaciones de seguridad ofensiva</strong>. Combina un backend API REST con base de datos SurrealDB embebida, un frontend de grafo interactivo (HTML5 Canvas + vanilla JS), un dashboard administrativo y utilidades de línea de comandos. Todo el código es editable directamente, sin dependencias de frameworks pesados.
+        </p>
+        <p>
+            El objetivo es simple: <strong>tener un "copiloto" de investigación que no reemplace al analista, sino que lo potencie</strong>. La plataforma te permite:
+        </p>
+        <ul>
+            <li>Crear <strong>vectores de ataque</strong> a partir de hallazgos en proyectos open-source.</li>
+            <li>Generar <strong>preguntas contextuales</strong> con DeepWiki para profundizar en componentes específicos.</li>
+            <li>Clasificar respuestas con IA (DeepSeek en mis pruebas) y <strong>crear automáticamente primitivas explotables</strong>.</li>
+            <li>Ejecutar PoCs y registrar resultados en un ciclo de mejora continua.</li>
+            <li>Visualizar todo el progreso en un <strong>grafo interactivo</strong> que muestra fases, vectores, brechas y primitivas.</li>
+        </ul>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">¿Por qué no es público todavía?</div>
+            <p>El sistema aún no está lo suficientemente maduro para liberarlo como open-source. Hay piezas que necesitan pulirse, documentación que completar y pruebas de estrés que realizar. Pero estoy compartiendo los avances porque creo que la comunidad puede beneficiarse de las ideas, incluso si el código no está listo para consumo masivo.</p>
+        </div>
+
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Arquitectura y Componentes</h2>
+        <p>
+            La plataforma sigue los principios <strong>KISS (Keep It Simple, Stupid)</strong> y <strong>filosofía Unix</strong>: cada módulo tiene una responsabilidad única y se comunica mediante APIs bien definidas.
+        </p>
+
+        <h3 class="subsection-title mono">2.1 Estructura del Proyecto</h3>
+        <div class="code-block">
+            <span class="line"><span class="comment"># Árbol simplificado de SAINT GRAIL</span></span>
+            <span class="line">saint-grail/</span>
+            <span class="line">├── api/                    # Backend Flask + SurrealDB</span>
+            <span class="line">│   ├── server.py           # Arranque de la app Flask</span>
+            <span class="line">│   ├── storage.py          # Capa de persistencia (SurrealDB)</span>
+            <span class="line">│   ├── llm.py              # Cliente DeepSeek, token budget</span>
+            <span class="line">│   ├── deepwiki.py         # Generación de preguntas DeepWiki</span>
+            <span class="line">│   └── routes/</span>
+            <span class="line">│       ├── agent.py        # Agente híbrido (bucle DeepWiki)</span>
+            <span class="line">│       ├── ingest.py       # Ingesta de datos, PoC</span>
+            <span class="line">│       └── ...</span>
+            <span class="line">├── graph/                  # Frontend del grafo (HTML5 Canvas)</span>
+            <span class="line">├── admin/                  # Dashboard de administración</span>
+            <span class="line">├── utils/                  # Scripts auxiliares (fetch_commits, etc.)</span>
+            <span class="line">├── config/</span>
+            <span class="line">│   └── saint-grail.conf    # Configuración global (tokens, GitHub)</span>
+            <span class="line">└── data/                   # Base de datos SurrealDB + JSONs</span>
+        </div>
+
+        <div class="image-container">
+            <img src="img/arquitectura-componentes-resumen.png" alt="Resumen de la arquitectura de componentes de SAINT GRAIL" loading="lazy">
+            <div class="image-caption mono">arquitectura-componentes-resumen.png — Resumen detallado de la arquitectura: API, frontend, dashboard y utilidades.</div>
+        </div>
+
+        <h3 class="subsection-title mono">2.2 Backend y Base de Datos</h3>
+        <p>
+            La API está construida con <strong>Flask</strong> y utiliza <strong>SurrealDB</strong> en modo embebido. Esto significa que no necesitas instalar un servidor de base de datos externo; todo se almacena en un archivo local. La taxonomía de nodos incluye:
+        </p>
+        <div class="table-wrapper">
+            <table>
+                <tr><th>Kind</th><th>Forma en el grafo</th><th>Descripción</th></tr>
+                <tr><td><span class="mono">phase</span></td><td>Cuadrado</td><td>Fases de la cadena de ataque</td></tr>
+                <tr><td><span class="mono">vector</span></td><td>Círculo</td><td>Vectores de ataque específicos</td></tr>
+                <tr><td><span class="mono">primitive</span></td><td>Triángulo</td><td>Primitivas explotables (addr_of, fake_obj, etc.)</td></tr>
+                <tr><td><span class="mono">barrier</span></td><td>Rombo</td><td>Brechas o bloqueantes</td></tr>
+                <tr><td><span class="mono">research</span></td><td>Rectángulo</td><td>Preguntas DeepWiki o referencias externas</td></tr>
+            </table>
+        </div>
+        <p>
+            La API expone endpoints para CRUD de datos, ingesta de hallazgos desde DeepWiki, creación y ejecución de PoCs, sincronización P2P entre instancias, y todo el ciclo de trabajo del agente híbrido.
+        </p>
+
+        <div class="image-container">
+            <img src="img/documentacion-api-endpoints.png" alt="Documentación de la API con Swagger" loading="lazy">
+            <div class="image-caption mono">documentacion-api-endpoints.png — Interfaz Swagger mostrando los endpoints de la API REST.</div>
+        </div>
+
+        <h3 class="subsection-title mono">2.3 Orquestador y Línea de Comandos</h3>
+        <p>
+            Todo se controla desde un script Bash llamado <span class="mono">saint_grail.sh</span> que actúa como orquestador. Desde aquí puedo iniciar los servicios, ver el estado, ejecutar el agente y monitorear el presupuesto de tokens de DeepSeek.
+        </p>
+
+        <div class="image-container">
+            <img src="img/ayuda-consola-saint-grail.png" alt="Menú de comandos del orquestador" loading="lazy">
+            <div class="image-caption mono">ayuda-consola-saint-grail.png — Menú de ayuda del script orquestador con todos los comandos disponibles.</div>
+        </div>
+        <div class="image-container">
+            <img src="img/ejecucion-status-orquestador.png" alt="Estado de la API y presupuesto de tokens" loading="lazy">
+            <div class="image-caption mono">ejecucion-status-orquestador.png — Estado en tiempo real: API, presupuesto de tokens y ciclo de trabajo.</div>
+        </div>
+
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> El Agente Híbrido y DeepWiki</h2>
+        <p>
+            Una de las características más potentes es el <strong>agente híbrido de investigación</strong>. La idea es crear un ciclo donde la IA y el analista humano se complementan:
+        </p>
+        <ol>
+            <li><strong>Selección automática:</strong> el bucle toma el primer vector activo que no esté en un estado final.</li>
+            <li><strong>Generación de preguntas DeepWiki:</strong> usando el módulo <span class="mono">deepwiki.py</span>, se crean preguntas contextuales en español basadas en el componente, archivos de auditoría y tipo de vector. Por ejemplo: <em>"En el canal IPC, ¿se validan los tamaños de los mensajes antes de asignar buffers? ¿Es posible enviar un mensaje manipulado que provoque una corrupción de memoria?"</em></li>
+            <li><strong>Intervención humana:</strong> el nodo se pausa en estado <span class="mono">AWAITING_DEEPWIKI</span> y las preguntas aparecen en el dashboard. El analista investiga y responde.</li>
+            <li><strong>Clasificación y acción:</strong> el endpoint <span class="mono">/api/agent/deepwiki/answer</span> clasifica el riesgo usando DeepSeek (o mediante palabras clave si el presupuesto de tokens está agotado). Si el riesgo es <strong>alto</strong>, se crea automáticamente un nuevo nodo <span class="mono">primitive</span>, se genera un PoC y se ejecuta.</li>
+        </ol>
+
+        <div class="callout">
+            <div class="callout-title mono">DeepSeek como LLM de pruebas</div>
+            <p>Utilicé <strong>DeepSeek</strong> (modelo gratuito con límite diario de tokens) para todas las pruebas de integración. La plataforma está diseñada para ser agnóstica al proveedor: puedes configurar cualquier API compatible con OpenAI en <span class="mono">saint-grail.conf</span>.</p>
+        </div>
+
+        <div class="image-container">
+            <img src="img/dashboard-flujo-hibrido.png" alt="Dashboard mostrando el flujo híbrido de investigación" loading="lazy">
+            <div class="image-caption mono">dashboard-flujo-hibrido.png — Panel de control del flujo híbrido: preguntas DeepWiki pendientes, primitivas creadas y ejecución manual de PoCs.</div>
+        </div>
+
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> Dashboard y Flujo de Trabajo</h2>
+        <p>
+            El dashboard es el centro de mando. Desde aquí gestiono todo el ciclo de investigación, desde la creación de vectores hasta la validación de integridad.
+        </p>
+
+        <h3 class="subsection-title mono">4.1 Visión General y Progreso</h3>
+        <p>
+            La pantalla principal muestra el progreso global del proyecto, con fases que van desde "Reconocimiento" hasta "Escape Lógico". Cada fase tiene sus vectores y primitivas asociados.
+        </p>
+
+        <div class="image-container">
+            <img src="img/progreso-global-dashboard.png" alt="Vista general del progreso de fases" loading="lazy">
+            <div class="image-caption mono">progreso-global-dashboard.png — Resumen del progreso de fases y estado de integración de nodos.</div>
+        </div>
+
+        <h3 class="subsection-title mono">4.2 Grafo Interactivo</h3>
+        <p>
+            El frontend del grafo es una de las partes que más tiempo me llevó. Renderiza los nodos según su <span class="mono">kind</span> (cuadrados para fases, círculos para vectores, triángulos para primitivas, rombos para barreras) y colorea según el estado. El panel de detalles muestra información exhaustiva: auditoría, PoC, logs, preguntas DeepWiki respondidas, etc.
+        </p>
+
+        <div class="image-container">
+            <img src="img/grafo-principal-interfaz.png" alt="Interfaz principal del grafo con nodos y detalles" loading="lazy">
+            <div class="image-caption mono">grafo-principal-interfaz.png — Grafo interactivo mostrando fases, vectores y detalles del nodo seleccionado.</div>
+        </div>
+        <div class="image-container">
+            <img src="img/detalle-tecnico-nodo-v05.png" alt="Vista detallada de un nodo vector" loading="lazy">
+            <div class="image-caption mono">detalle-tecnico-nodo-v05.png — Panel de detalles de un nodo con información de auditoría, referencias MITRE y más.</div>
+        </div>
+
+        <h3 class="subsection-title mono">4.3 Editor de Datos y Carga de JSON</h3>
+        <p>
+            Para crear vectores rápidamente, hay un formulario que te permite definir ID, componente, tipo de vector y descripción. También se pueden cargar y descargar datasets completos en formato JSON.
+        </p>
+
+        <div class="image-container">
+            <img src="img/editor-datos-vectorial.png" alt="Editor para crear y gestionar vectores de ataque" loading="lazy">
+            <div class="image-caption mono">editor-datos-vectorial.png — Editor de datos: creación rápida de vectores y gestión de nodos.</div>
+        </div>
+        <div class="image-container">
+            <img src="img/interfaz-carga-descarga-json.png" alt="Panel de carga y descarga de archivos JSON" loading="lazy">
+            <div class="image-caption mono">interfaz-carga-descarga-json.png — Interfaz para importar y exportar configuraciones en formato JSON.</div>
+        </div>
+
+        <h3 class="subsection-title mono">4.4 Validación de Integridad</h3>
+        <p>
+            Con el tiempo, los nodos pueden acumular referencias a archivos de log o commits que ya no existen. El panel de validación escanea y limpia estas referencias rotas, manteniendo la base de datos consistente.
+        </p>
+
+        <div class="image-container">
+            <img src="img/panel-validacion-integridad.png" alt="Panel de validación de integridad" loading="lazy">
+            <div class="image-caption mono">panel-validacion-integridad.png — Herramienta para verificar y limpiar referencias a logs inexistentes.</div>
+        </div>
+
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">05.</span> Estado Actual y Próximos Pasos</h2>
+        <p>
+            SAINT GRAIL ya es funcional en mi entorno de desarrollo. El agente híbrido genera preguntas, el dashboard permite responderlas, se crean primitivas automáticamente y los PoCs se ejecutan. Pero <strong>aún no está listo para producción ni para un repositorio público</strong>.
+        </p>
+        <p>
+            Las tareas pendientes incluyen:
+        </p>
+        <ul>
+            <li>Completar la <strong>ejecución real de PoCs</strong> (ahora es simulada en muchos endpoints).</li>
+            <li>Migrar de los scripts generadores Bash (<span class="mono">gen_*.sh</span>) a una estructura de proyecto estable, aunque los generadores han sido increíblemente útiles para prototipado rápido.</li>
+            <li>Mejorar la UI/UX del dashboard para hacer el flujo de investigación más intuitivo.</li>
+            <li>Añadir tests automatizados para el ciclo completo del agente híbrido.</li>
+            <li>Explorar integraciones con otros modelos de IA más allá de DeepSeek.</li>
+        </ul>
+
+        <div class="callout callout-warning">
+            <div class="callout-title mono">¿Cuándo será público?</div>
+            <p>Cuando considere que el código está en un estado digno de ser compartido. No me gusta liberar proyectos a medias. Mientras tanto, este artículo y las futuras actualizaciones en el blog serán el canal para compartir avances.</p>
+        </div>
+
+        <p>
+            Lo que más me entusiasma es el potencial de <strong>DeepWiki como fuente de contexto</strong>. La capacidad de generar preguntas específicas sobre archivos de código fuente, commits y componentes abre una puerta a una investigación semi-automatizada que no había visto en otras herramientas. No se trata de reemplazar al analista, sino de <strong>darle superpoderes</strong>.
+        </p>
+
+        <!-- CTA de cierre -->
+        <div class="cta-closure">
+            <h3 class="mono">/¿Te interesa la investigación de seguridad y la integración con IA?</h3>
+            <p>Este proyecto se alinea con otras áreas de mi portafolio: exploit development, reversing y automatización de análisis.</p>
+            <div class="cta-closure-links">
+                <a href="exploit-development-lab.html" class="cta-btn primary mono">Laboratorio de Exploit Dev →</a>
+                <a href="analystty.html" class="cta-btn mono">Triage de Malware PE →</a>
+                <a href="plc.html" class="cta-btn mono">Reversing PLC Siemens →</a>
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer" class="cta-btn mono">GitHub/tty503 →</a>
+            </div>
+        </div>
+
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">07.</span> Referencias y Enlaces</h2>
+        <ul>
+            <li><a href="https://deepseek.com" target="_blank" rel="noopener noreferrer">DeepSeek API</a> — Modelo de lenguaje utilizado en las pruebas.</li>
+            <li><a href="https://surrealdb.com" target="_blank" rel="noopener noreferrer">SurrealDB</a> — Base de datos multimodelo embebida.</li>
+            <li><a href="https://flask.palletsprojects.com" target="_blank" rel="noopener noreferrer">Flask</a> — Microframework web para Python.</li>
+            <li>Repositorios de Chromium, GenericApp y otros proyectos open-source analizados con DeepWiki.</li>
+            <li>MITRE ATT&CK — Framework de tácticas y técnicas utilizado en la taxonomía de nodos.</li>
+        </ul>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Artículo sobre SAINT GRAIL — Plataforma de Investigación de Seguridad Ofensiva con IA.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
+        });
+    </script>
+
+    <!-- Schema JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA",
+      "description": "SAINT GRAIL es una plataforma para documentar, visualizar y ejecutar investigaciones de seguridad. Integra DeepSeek, DeepWiki y un agente híbrido. Conoce su arquitectura y flujo de trabajo.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "datePublished": "2026-06-25",
+      "dateModified": "2026-06-25",
+      "mainEntityOfPage": "https://tty503.com/saint-grail.html",
+      "image": "https://tty503.com/img/grafo-principal-interfaz.png",
+      "keywords": ["SAINT GRAIL", "bug hunting", "DeepSeek", "DeepWiki", "SurrealDB", "Flask", "security research", "AI agent", "hybrid loop", "vulnerability research"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es"
+    }
+    </script>
+</body>
+</html>
