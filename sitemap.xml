@@ -12,7 +12,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/</loc>
-        <lastmod>2026-06-05</lastmod>
+        <lastmod>2026-06-25</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
         <image:image>
@@ -62,7 +62,7 @@
     <!-- CLÚSTER A: MALWARE ANALYSIS & REVERSE ENGINEERING                     -->
     <!-- ===================================================================== -->
 
-    <!-- Exploit Development en Entornos OT: AWL, Shellcode, ROP, Sandbox Escape (NUEVO) -->
+    <!-- Exploit Development en Entornos OT: AWL, Shellcode, ROP, Sandbox Escape -->
     <url>
         <loc>https://tty503.com/exploit-development-ot-awl-arm.html</loc>
         <lastmod>2026-06-05</lastmod>
@@ -78,6 +78,25 @@
         <image:image><image:loc>https://tty503.com/img/photo_2025-03-31_12-16-20.jpg</image:loc><image:title>Estructura de Datos SDB — Memoria de PLC S7-300 y Bloque de Contraseñas</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/Estructura_Bloques_Siemens.png</image:loc><image:title>Diagrama de Bloques Organizacionales — OB, FC, FB en SIMATIC S7</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/1761986030277.jpeg</image:loc><image:title>Arquitectura de Memoria PLC — Jerarquía de Bloques y Sistema Operativo</image:title></image:image>
+    </url>
+
+    <!-- SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA (NUEVO) -->
+    <url>
+        <loc>https://tty503.com/saint-grail.html</loc>
+        <lastmod>2026-06-25</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <image:image><image:loc>https://tty503.com/img/grafo-principal-interfaz.png</image:loc><image:title>Interfaz principal del grafo mostrando fases y detalles del nodo seleccionado.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/progreso-global-dashboard.png</image:loc><image:title>Vista general del progreso de fases y estado de integración de nodos.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/detalle-tecnico-nodo-v05.png</image:loc><image:title>Vista detallada del nodo V05 con información de auditoría y referencias MITRE.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/documentacion-api-endpoints.png</image:loc><image:title>Interfaz de documentación de la API con endpoints para gestión de datos.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/dashboard-flujo-hibrido.png</image:loc><image:title>Interfaz del flujo de trabajo con gestión de primitivas y ejecución.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/panel-validacion-integridad.png</image:loc><image:title>Panel de control para verificar y limpiar referencias de logs inexistentes.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/editor-datos-vectorial.png</image:loc><image:title>Editor para la creación rápida y gestión de vectores de ataque.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/interfaz-carga-descarga-json.png</image:loc><image:title>Panel para la gestión de archivos de configuración JSON.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/ayuda-consola-saint-grail.png</image:loc><image:title>Menú de comandos del script saint_grail.sh para control del orquestador.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/ejecucion-status-orquestador.png</image:loc><image:title>Vista de consola con estado de API, presupuesto de tokens y ciclo de trabajo.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/arquitectura-componentes-resumen.png</image:loc><image:title>Resumen detallado de la arquitectura de la API, frontend, dashboard y utilidades del sistema.</image:title></image:image>
     </url>
 
     <!-- Laboratorio de Exploit Development -->
@@ -322,25 +341,25 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/#about</loc>
-        <lastmod>2026-06-05</lastmod>
+        <lastmod>2026-06-25</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://tty503.com/#experience</loc>
-        <lastmod>2026-06-05</lastmod>
+        <lastmod>2026-06-25</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://tty503.com/#research</loc>
-        <lastmod>2026-06-05</lastmod>
+        <lastmod>2026-06-25</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://tty503.com/#articles</loc>
-        <lastmod>2026-06-05</lastmod>
+        <lastmod>2026-06-25</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
     </url>
