@@ -54,41 +54,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared/base.css">
     
     <style>
-        /* ==================== VARIABLES Y RESET ==================== */
-        :root {
-            --bg-base: #030303;
-            --bg-surface: #0a0a0a;
-            --bg-card: #111111;
-            --border-subtle: #222222;
-            --border-hover: #444444;
-            --text-primary: #f5f5f5;
-            --text-secondary: #a3a3a3;
-            --text-muted: #666666;
-            --accent: #ffffff;
-            --accent-green: #4ade80;
-            --accent-blue: #60a5fa;
-            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
-        }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .noise-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 9999; opacity: 0.06;
-            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
-        }
+        body { line-height: 1.6; -moz-osx-font-smoothing: grayscale; }
         .text-gradient {
             background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
             -webkit-background-clip: text;
@@ -164,12 +133,7 @@
         .article-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
         .article-arrow { position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem; transition: var(--transition-smooth); }
         .article-link:hover .article-arrow { color: var(--text-primary); transform: translate(5px, -50%); }
-        .footer { border-top: 1px solid var(--border-subtle); padding: 4rem 2rem; text-align: center; background: var(--bg-surface); }
-        .footer-content { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
-        .social-links { display: flex; gap: 2rem; }
-        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: var(--transition-smooth); font-weight: 500; }
-        .social-links a:hover { color: var(--text-primary); }
-        .copyright { color: var(--text-muted); font-size: 0.85rem; }
+        .footer-content { max-width: 1200px; }
         .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
         @media (max-width: 900px) {
@@ -861,8 +825,8 @@
         </div>
     </footer>
 
+    <script src="shared/main.js"></script>
     <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
         const revealElements = document.querySelectorAll('.reveal');
         const revealOptions = { threshold: 0.15, rootMargin: "0px 0px -50px 0px" };
         const revealObserver = new IntersectionObserver(function(entries, observer) {
