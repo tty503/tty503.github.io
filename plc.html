@@ -1174,12 +1174,19 @@
     </footer>
 
     <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const yearEl = document.getElementById('current-year');
+        if (yearEl) { yearEl.textContent = new Date().getFullYear(); }
+        else { console.warn('[plc] Element #current-year not found.'); }
+
         const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
-            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
-        });
+        if (navbar) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+                else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
+            });
+        } else {
+            console.warn('[plc] Element .navbar not found — scroll effect disabled.');
+        }
     </script>
 
     <!-- ==================== SCHEMA JSON-LD OPTIMIZADO ==================== -->
