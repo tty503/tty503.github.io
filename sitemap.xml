@@ -12,7 +12,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/</loc>
-        <lastmod>2026-06-25</lastmod>
+        <lastmod>2026-07-28</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
         <image:image>
@@ -80,7 +80,7 @@
         <image:image><image:loc>https://tty503.com/img/1761986030277.jpeg</image:loc><image:title>Arquitectura de Memoria PLC — Jerarquía de Bloques y Sistema Operativo</image:title></image:image>
     </url>
 
-    <!-- SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA (NUEVO) -->
+    <!-- SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA (Python/Flask) -->
     <url>
         <loc>https://tty503.com/saint-grail.html</loc>
         <lastmod>2026-06-25</lastmod>
@@ -97,6 +97,44 @@
         <image:image><image:loc>https://tty503.com/img/ayuda-consola-saint-grail.png</image:loc><image:title>Menú de comandos del script saint_grail.sh para control del orquestador.</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/ejecucion-status-orquestador.png</image:loc><image:title>Vista de consola con estado de API, presupuesto de tokens y ciclo de trabajo.</image:title></image:image>
         <image:image><image:loc>https://tty503.com/img/arquitectura-componentes-resumen.png</image:loc><image:title>Resumen detallado de la arquitectura de la API, frontend, dashboard y utilidades del sistema.</image:title></image:image>
+    </url>
+
+    <!-- SAINT GRAIL: De Python a Go, Resultados Concretos y el Futuro del Bug Hunting Autónomo (NUEVO) -->
+    <url>
+        <loc>https://tty503.com/saint-grail-go.html</loc>
+        <lastmod>2026-07-28</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+        <image:image>
+            <image:loc>https://tty503.com/img/saint_grail_horizontal_workflow.jpg</image:loc>
+            <image:title>Dashboard principal mostrando fases y estado global (versión Go).</image:title>
+            <image:caption>El dashboard actualizado con datos en tiempo real desde la nueva API en Go.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://tty503.com/img/saint_grail_cli_status.jpg</image:loc>
+            <image:title>Consola CLI mostrando estado de API y flujo de trabajo.</image:title>
+            <image:caption>El nuevo CLI en Go muestra en tiempo real el estado del agente y el presupuesto de tokens.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://tty503.com/img/fuzztoolkit_poc_test_tmp.jpg</image:loc>
+            <image:title>Ejecución de PoC y verificación en /tmp.</image:title>
+            <image:caption>Ejecución del PoC en terminal y verificación del archivo generado en /tmp.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://tty503.com/img/saint_grail_browser_poc_runner.jpg</image:loc>
+            <image:title>Motor de PoC en el navegador.</image:title>
+            <image:caption>El motor de ejecución de PoCs en el navegador, mostrando el progreso en tiempo real.</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://tty503.com/img/saint_grail_jerarquico_fase3.jpg</image:loc>
+            <image:title>Vista jerárquica del grafo y ficha técnica de fase.</image:title>
+            <image:caption>Disposición jerárquica del grafo con fases, vectores y brechas. Detalle de la FASE_3 (UAF Entry).</image:caption>
+        </image:image>
+        <image:image>
+            <image:loc>https://tty503.com/img/saint_grail_force_graph_v05.jpg</image:loc>
+            <image:title>Grafo de red interactivo y mapeo MITRE.</image:title>
+            <image:caption>Layout de fuerza mostrando nodos interconectados. Inspección del nodo V05 con técnica MITRE ATT&amp;CK asociada.</image:caption>
+        </image:image>
     </url>
 
     <!-- Laboratorio de Exploit Development -->
@@ -359,7 +397,7 @@
     </url>
     <url>
         <loc>https://tty503.com/#articles</loc>
-        <lastmod>2026-06-25</lastmod>
+        <lastmod>2026-07-28</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.7</priority>
     </url>
