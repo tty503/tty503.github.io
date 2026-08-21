@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!-- ==================== SEO CORE ==================== -->
+    <title>Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA | tty503</title>
+    <meta name="description" content="Arquitectura y método del sistema que automatiza el descubrimiento y validación de vulnerabilidades con modelos locales de IA: fuzzing con libFuzzer/AFL++, triage ASAN/valgrind, verificación CVE y política RCE-first. Inventario completo de hallazgos LOW en 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.">
+    <meta name="keywords" content="Sherlock, bug hunting autónomo, IA local, Ollama, Llama 3.2, modelos locales, fuzzing, libFuzzer, AFL++, AddressSanitizer, valgrind, gdb, triage automático, CWE-125, CWE-369, CWE-400, CWE-401, CWE-457, 7-Zip, FFmpeg, libwebp, PCRE2, libarchive, vulnerabilidades LOW, DoS, heap OOB read, memory leak, uninitialized memory, divulgación responsable, Christian Márquez, tty503">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://tty503.com/sherlock-caza-autonoma-ia-local.html">
+    <meta name="theme-color" content="#050505">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA | tty503">
+    <meta property="og:description" content="Cómo un orquestador autónomo con modelos locales de 3B parámetros encuentra, valida y documenta vulnerabilidades reales en software open source. Siete hallazgos LOW confirmados en agosto de 2026.">
+    <meta property="og:url" content="https://tty503.com/sherlock-caza-autonoma-ia-local.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Terminal con evidencia de timeout reproducible durante una sesión de fuzzing automatizado">
+    <meta property="article:published_time" content="2026-08-21">
+    <meta property="article:modified_time" content="2026-08-21">
+    <meta property="article:author" content="Christian Márquez">
+    <meta property="article:tag" content="Bug Hunting">
+    <meta property="article:tag" content="Inteligencia Artificial Local">
+    <meta property="article:tag" content="Fuzzing">
+    <meta property="article:tag" content="Vulnerability Research">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA">
+    <meta name="twitter:description" content="Orquestador autónomo + modelos locales 3B + libFuzzer/AFL++ + ASAN/valgrind = siete vulnerabilidades LOW confirmadas en un mes. Arquitectura, método y resultados.">
+    <meta name="twitter:image" content="https://tty503.com/img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png">
+    <meta name="twitter:image:alt" content="Evidencia de fuzzing automatizado con timeout reproducible">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #030303;
+            --bg-surface: #0a0a0a;
+            --bg-card: #111111;
+            --border-subtle: #222222;
+            --border-hover: #444444;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --text-muted: #666666;
+            --accent: #ffffff;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --syntax-inst: #f07178;
+            --syntax-reg: #82aaff;
+            --syntax-val: #f78c6c;
+            --syntax-func: #c3e88d;
+            --syntax-comment: #546e7a;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
+        }
+        .navbar {
+            position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth);
+        }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+        .toc-container {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; margin: 2rem 0; overflow: hidden;
+        }
+        .toc-summary {
+            padding: 1.2rem 1.5rem; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; list-style: none;
+            user-select: none; transition: background 0.3s;
+        }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .section-title:first-of-type { margin-top: 0; border-top: none; }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
+            padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; font-size: 0.85rem;
+            line-height: 1.7; color: var(--text-secondary); position: relative;
+        }
+        .code-block code { font-family: 'JetBrains Mono', monospace; }
+        .code-block .inst { color: var(--syntax-inst); }
+        .code-block .reg { color: var(--syntax-reg); }
+        .code-block .val { color: var(--syntax-val); }
+        .code-block .func { color: var(--syntax-func); }
+        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); }
+        .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); }
+        .callout-danger .callout-title { color: var(--accent-red); }
+        .callout-success { border-left-color: var(--accent-green); }
+        .callout-success .callout-title { color: var(--accent-green); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+        .diagram-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow-x: auto; background: var(--bg-card); }
+        .diagram-container svg { display: block; min-width: 700px; width: 100%; height: auto; }
+        .cta-closure {
+            background: var(--bg-card); border: 1px solid var(--border-subtle);
+            border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center;
+        }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem;
+            border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none;
+            transition: var(--transition-smooth); border: 1px solid var(--border-subtle);
+            color: var(--text-secondary); background: transparent;
+        }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .cta-btn.primary:hover { background: rgba(96, 165, 250, 0.05); border-color: var(--accent-blue); }
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; }
+            .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; }
+            .code-block { padding: 1rem; font-size: 0.75rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; }
+            .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
+            .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; }
+            .toc-content { padding: 0 1rem 1rem; }
+            .toc-summary { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_vuln_research</span></a>
+            <a href="https://tty503.com" class="nav-back mono">← Volver al portafolio</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Bug Hunting</span>
+                <span class="article-tag">IA Local</span>
+                <span class="article-tag">Fuzzing</span>
+                <span class="article-tag">Vulnerability Research</span>
+                <span>Agosto 2026</span>
+                <span>~22 min de lectura</span>
+            </div>
+            <h1 class="article-title">Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA</h1>
+            <p class="article-subtitle">
+                Después de construir <a href="saint-grail.html">SAINT GRAIL</a>, la plataforma que orquesta investigación ofensiva asistida por IA, me hice una pregunta incómoda: ¿podría un sistema autónomo encontrar vulnerabilidades reales sin intervención humana constante? Este artículo documenta la respuesta: Sherlock, un pipeline de caza que combina un orquestador con agentes especializados, modelos locales de 3B parámetros servidos on-premise, y una batería de validación estricta (libFuzzer, AFL++, ASAN, valgrind, gdb). En su primer mes de operación continua confirmó <strong>siete vulnerabilidades LOW en cinco objetivos open source</strong>: 7-Zip, FFmpeg (×3), libwebp, PCRE2 y libarchive. Aquí está la arquitectura, el método y las lecciones.
+            </p>
+        </header>
+
+        <!-- ToC -->
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice_de_la_investigación</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s00">Resumen de Inteligencia</a></li>
+                    <li><a href="#s01">De SAINT GRAIL a Sherlock: Por Qué un Cazador Autónomo</a></li>
+                    <li><a href="#s02">Arquitectura del Sistema</a></li>
+                    <li><a href="#s03">Modelos Locales: Pequeños, Especializados, Siempre Despiertos</a></li>
+                    <li><a href="#s04">El Ciclo de Vida de un Hallazgo</a></li>
+                    <li><a href="#s05">Toolchain de Validación: Dos Herramientas o No Es Real</a></li>
+                    <li><a href="#s06">Política de Severidad Honesta: Por Qué Publicamos los LOW</a></li>
+                    <li><a href="#s07">La Cosecha de Agosto: Inventario de Hallazgos</a></li>
+                    <li><a href="#s08">Divulgación Responsable: Qué Se Publica y Qué No</a></li>
+                    <li><a href="#s09">Lecciones Operando la Malla IA</a></li>
+                    <li><a href="#s10">Conclusión</a></li>
+                </ol>
+            </div>
+        </details>
+
+        <!-- 00. RESUMEN -->
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen de Inteligencia</h2>
+        <p>
+            <strong>Sherlock</strong> es un sistema de descubrimiento y validación de vulnerabilidades que opera de forma continua sobre objetivos open source seleccionados por su superficie de ataque: parsers de archivos, demuxers multimedia, motores de expresiones regulares y librerías de compresión. La tesis es simple: <strong>la mayor parte del trabajo de bug hunting es repetible</strong> —construir harnesses, lanzar campañas de fuzzing, hacer triage de crashes, verificar reproducibilidad, descartar duplicados— y todo lo repetible se puede automatizar con agentes de IA bien dirigidos.
+        </p>
+        <p>
+            Lo que la IA no sustituye es el juicio: decidir si un crash importa, cuál es su causa raíz, si tiene arreglo upstream y qué vale la pena madurar. Por eso el sistema separa <strong>músculo</strong> (ejecución masiva, correlación de logs, redacción de fichas) de <strong>criterio</strong> (políticas de severidad, verificación CVE, decisiones de escalada). El resultado del primer mes: siete hallazgos LOW confirmados y documentados, tres de ellos aún sin fix upstream al momento de escribir este artículo, y cero falsos positivos llegaron a la fase de reporte.
+        </p>
+
+        <div class="callout">
+            <div class="callout-title mono">Serie completa de hallazgos</div>
+            <p>Este artículo es el centro de la serie. Cada hallazgo tiene su propio análisis técnico con evidencias, fragmentos de PoC y diagramas: <a href="7zip-isfolderencrypted-oob-read.html">7-Zip IsFolderEncrypted</a>, <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">FFmpeg VPK/VQF/Smacker</a>, <a href="libwebp-vp8l-lossless-decode-dos.html">libwebp VP8L</a>, <a href="pcre2-jit-compile-hang-recursion.html">PCRE2 JIT</a> y <a href="libarchive-cab-lzx-uninitialized-memory.html">libarchive CAB/LZX</a>.</p>
+        </div>
+
+        <!-- 01. POR QUE -->
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> De SAINT GRAIL a Sherlock: Por Qué un Cazador Autónomo</h2>
+        <p>
+            <a href="saint-grail.html">SAINT GRAIL</a> nació como plataforma de investigación asistida: un humano dirige, la IA documenta, visualiza y ejecuta PoCs. Su migración a Go (<a href="saint-grail-go.html">ver resultados</a>) demostró que el enfoque funcionaba para investigación dirigida —los PoCs de TOCTOU en Chromium y CRC bypass en 7-Zip salieron de ese ciclo—. Pero asistida significa que el cuello de botella soy yo: entre sesiones, entre campañas, entre ideas.
+        </p>
+        <p>
+            Sherlock invierte el modelo. El sistema propone objetivos según criterios públicos (superficie de parsers, densidad histórica de CVEs, actividad upstream), construye sus propios harnesses de fuzzing, ejecuta campañas largas mientras la máquina no hace nada más, y solo escala a atención humana cuando algo supera el filtro de validación. La diferencia práctica es brutal: donde antes había <strong>sesiones de caza</strong> de unas horas, ahora hay <strong>presencia de caza</strong> permanente. Los hallazgos no llegan cuando busco; llegan cuando ocurren.
+        </p>
+        <p>
+            Hay una segunda motivación, menos obvia: <strong>formar criterio de severidad honesto</strong>. La industria del bug bounty está llena de inflación —un hang se reporta como DoS crítico, un leak teórico como RCE—. Decidí que Sherlock publicaría con severidad estricta: si es un DoS limpio, es LOW; si no hay primitiva estable hacia control de flujo, no es HIGH aunque el crash sea espectacular. Esta serie es también un ejercicio de calibración pública.
+        </p>
+
+        <!-- 02. ARQUITECTURA -->
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Arquitectura del Sistema</h2>
+        <p>
+            La arquitectura tiene cuatro capas: <strong>objetivos</strong> (qué cazar), <strong>generación</strong> (cómo meter inputs), <strong>validación</strong> (qué es real), y <strong>memoria</strong> (qué se aprende). Todo corre en hardware propio; ningún byte de los objetivos ni de los crashes sale de la máquina salvo en forma de reportes ya depurados.
+        </p>
+
+        <div class="diagram-container">
+        <svg viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de la arquitectura de Sherlock: objetivos, generación, validación y memoria">
+            <defs>
+                <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/>
+                </marker>
+            </defs>
+            <style>
+                .box { fill:#111111; stroke:#333333; rx:8; }
+                .lbl { fill:#f5f5f5; font:600 13px 'JetBrains Mono',monospace; }
+                .sub { fill:#888888; font:11px 'JetBrains Mono',monospace; }
+                .flow { stroke:#60a5fa; stroke-width:1.5; fill:none; marker-end:url(#arr); }
+                .grp  { fill:none; stroke:#222222; stroke-dasharray:4 4; }
+                .gtxt { fill:#666666; font:600 10px 'JetBrains Mono',monospace; letter-spacing:1px; }
+                .hi   { stroke:#4ade80; }
+            </style>
+            <rect x="20" y="20" width="860" height="380" class="grp"/>
+            <text x="32" y="40" class="gtxt">PIPELINE DE CAZA AUTÓNOMA</text>
+
+            <rect x="45" y="70" width="180" height="64" rx="8" class="box hi"/>
+            <text x="135" y="96" text-anchor="middle" class="lbl">SELECCIÓN OBJETIVO</text>
+            <text x="135" y="114" text-anchor="middle" class="sub">parsers · demuxers · regex · zip</text>
+
+            <rect x="270" y="70" width="180" height="64" rx="8" class="box"/>
+            <text x="360" y="96" text-anchor="middle" class="lbl">HARNESS BUILDER</text>
+            <text x="360" y="114" text-anchor="middle" class="sub">agentes generan drivers libFuzzer/AFL++</text>
+
+            <rect x="495" y="70" width="180" height="64" rx="8" class="box"/>
+            <text x="585" y="96" text-anchor="middle" class="lbl">CAMPAÑA FUZZING</text>
+            <text x="585" y="114" text-anchor="middle" class="sub">instancias paralelas + corpus</text>
+
+            <rect x="720" y="70" width="140" height="64" rx="8" class="box"/>
+            <text x="790" y="96" text-anchor="middle" class="lbl">SEÑALES</text>
+            <text x="790" y="114" text-anchor="middle" class="sub">crash · hang · leak · slow-unit</text>
+
+            <rect x="270" y="190" width="180" height="72" rx="8" class="box"/>
+            <text x="360" y="216" text-anchor="middle" class="lbl">TRIAGE AUTOMÁTICO</text>
+            <text x="360" y="234" text-anchor="middle" class="sub">ASAN/UBSAN · gdb bt</text>
+            <text x="360" y="249" text-anchor="middle" class="sub">clasificación CWE tentativa</text>
+
+            <rect x="495" y="190" width="180" height="72" rx="8" class="box hi"/>
+            <text x="585" y="216" text-anchor="middle" class="lbl">VALIDACIÓN CRUZADA</text>
+            <text x="585" y="234" text-anchor="middle" class="sub">≥2 tools independientes</text>
+            <text x="585" y="249" text-anchor="middle" class="sub">valgrind · build producción</text>
+
+            <rect x="720" y="190" width="140" height="72" rx="8" class="box"/>
+            <text x="790" y="216" text-anchor="middle" class="lbl">CVE-CHECK</text>
+            <text x="790" y="234" text-anchor="middle" class="sub">git diff upstream</text>
+            <text x="790" y="249" text-anchor="middle" class="sub">NVD/GHSA lookup</text>
+
+            <rect x="270" y="310" width="180" height="64" rx="8" class="box"/>
+            <text x="360" y="336" text-anchor="middle" class="lbl">FICHA + PoC</text>
+            <text x="360" y="354" text-anchor="middle" class="sub">REPRO.md · generador · hexdump</text>
+
+            <rect x="495" y="310" width="180" height="64" rx="8" class="box hi"/>
+            <text x="585" y="336" text-anchor="middle" class="lbl">DECISIÓN HUMANA</text>
+            <text x="585" y="354" text-anchor="middle" class="sub">escalada · reporte · publicación</text>
+
+            <rect x="720" y="310" width="140" height="64" rx="8" class="box"/>
+            <text x="790" y="336" text-anchor="middle" class="lbl">MEMORIA</text>
+            <text x="790" y="354" text-anchor="middle" class="sub">lecciones → patrones</text>
+
+            <path class="flow" d="M225 102 L268 102"/>
+            <path class="flow" d="M450 102 L493 102"/>
+            <path class="flow" d="M675 102 L718 102"/>
+            <path class="flow" d="M790 134 L790 165 Q790 190 700 205 L452 224"/>
+            <path class="flow" d="M450 226 L493 226"/>
+            <path class="flow" d="M675 226 L718 226"/>
+            <path class="flow" d="M790 262 L790 285 Q790 305 700 315 L452 340"/>
+            <path class="flow" d="M450 342 L493 342"/>
+            <path class="flow" d="M675 342 L718 342"/>
+            <path class="flow" d="M135 134 L135 355 Q135 380 240 372 L268 350" />
+            <text x="150" y="392" class="sub">feedback: corpus nuevo, objetivo refinado, harness corregido</text>
+        </svg>
+        </div>
+        <div class="image-caption mono" style="margin-top:-1.5rem; margin-bottom:2rem;">Figura 1 — Pipeline completo. Las cajas con borde verde son puntos donde el criterio pesa más que el músculo. El bucle inferior devuelve aprendizaje al objetivo: cada hallazgo afina la siguiente campaña.</div>
+
+        <p>
+            Tres decisiones de diseño explican la mayoría del rendimiento:
+        </p>
+        <ul>
+            <li><strong>Harnesses generados por agentes con revisión estructural:</strong> los workers escriben drivers de libFuzzer leyendo la API pública del objetivo; un paso de verificación comprueba que el driver compila contra las versiones objetivo y que el corpus semilla ejercita rutas reales (cobertura medida, no supuesta).</li>
+            <li><strong>Señales amplias, validación estrecha:</strong> la campaña captura cualquier anomalía (crash, hang, leak, slow-unit); el triage solo promueve lo que reproduce con dos herramientas independientes. Todo lo demás vuelve al corpus como ruido etiquetado.</li>
+            <li><strong>CVE-check antes de celebrar:</strong> cada candidato pasa por diffing contra upstream y búsqueda en NVD/GHSA. En un mes evitó celebrar al menos tres "descubrimientos" que eran CVEs conocidos o fixes recientes —el sistema los reclasifica como REFERENCE y aprende el patrón.</li>
+        </ul>
+
+        <!-- 03. MODELOS LOCALES -->
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Modelos Locales: Pequeños, Especializados, Siempre Despiertos</h2>
+        <p>
+          El corazón generativo son <strong>modelos locales servidos on-premise con Ollama</strong>: derivados afinados de <strong>Llama 3.2 3B</strong> con prompts de sistema estrictos por rol —un worker genera harnesses, otro redacta fichas de hallazgo en formato rígido, otro resume logs de campañas—. Contexto de 4096 tokens, temperatura baja (0.25) y muestreo conservador: en esta tarea no queremos creatividad, queremos cumplimiento de formato y fidelidad al input.
+        </p>
+        <div class="code-block mono">
+<span class="comment"># Perfil de un worker local (Modelfile resumido)</span>
+FROM llama3.2:3b
+PARAMETER temperature <span class="val">0.25</span>
+PARAMETER num_ctx <span class="val">4096</span>
+SYSTEM <span class="val">"""
+Eres un worker de triage. Recibes un log de crash.
+Devuelve SOLO JSON válido con: cwe_suspect, frame_sospechoso,
+tool_origen, reproducible_si/no, siguiente_comando.
+Prohibido inventar símbolos que no estén en el log.
+"""</span></div>
+        <p>
+            ¿Por qué 3B y no un modelo gigante? Tres razones. Primero, <strong>latencia y coste</strong>: un mes de campaña genera miles de eventos; clasificarlos con un modelo enorme sería caro y lento, y la tarea (extraer campos de un log sin inventar nada) no necesita capacidad de razonamiento profunda. Segundo, <strong>determinismo operativo</strong>: con keep-alive infinito y flash attention, los workers responden en milisegundos y nunca duermen. Tercero, <strong>privacidad</strong>: los crashes contienen mapas de memoria de software de terceros; no hay motivo para enviarlos a nadie.
+        </p>
+        <p>
+            Para las pocas tareas que sí requieren músculo —diseñar una estrategia de grooming de heap, analizar un diff complejo— el orquestador escala a un modelo externo potente (DeepSeek, ya integrado públicamente en <a href="saint-grail.html">SAINT GRAIL</a>), pero con datos mínimos y solo bajo decisión explícita. La regla es <strong>lo local por defecto, lo remoto por excepción</strong>.
+        </p>
+
+        <div class="callout-success">
+            <div class="callout-title mono">Lección contraintuitiva</div>
+            <p>Los modelos pequeños con roles estrechos y formato obligado fallan menos que uno grande con libertad total. Cuando la salida correcta es "JSON con cinco campos", la inteligencia general sobra y la disciplina falta. Afinar el prompt vale más que agrandar el modelo.</p>
+        </div>
+
+        <!-- 04. CICLO DE VIDA -->
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> El Ciclo de Vida de un Hallazgo</h2>
+        <p>
+            Cada candidato atraviesa estados explícitos. Nada salta pasos: un crash que no puede pasar de LEAD a VALIDANDO muere en silencio y alimenta estadísticas, no reportes.
+        </p>
+        <div class="diagram-container">
+        <svg viewBox="0 0 900 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de estados del ciclo de vida de un hallazgo">
+            <defs>
+                <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/>
+                </marker>
+            </defs>
+            <style>
+                .st { fill:#111111; stroke:#444444; }
+                .stg { fill:#0d1a0d; stroke:#4ade80; }
+                .str { fill:#1a0d0d; stroke:#ef4444; }
+                .sty { fill:#1a1608; stroke:#f59e0b; }
+                .sl { fill:#f5f5f5; font:600 12px 'JetBrains Mono',monospace; }
+                .fl2 { stroke:#60a5fa; stroke-width:1.5; fill:none; marker-end:url(#arr2); }
+                .note { fill:#777777; font:10px 'JetBrains Mono',monospace; }
+            </style>
+            <rect x="30" y="80" width="120" height="46" rx="8" class="sty"/>
+            <text x="90" y="107" text-anchor="middle" class="sl">LEAD</text>
+            <rect x="195" y="80" width="130" height="46" rx="8" class="st"/>
+            <text x="260" y="107" text-anchor="middle" class="sl">VALIDANDO</text>
+            <rect x="370" y="80" width="130" height="46" rx="8" class="stg"/>
+            <text x="435" y="107" text-anchor="middle" class="sl">CONFIRMED</text>
+            <rect x="545" y="20" width="150" height="42" rx="8" class="str"/>
+            <text x="620" y="45" text-anchor="middle" class="sl">DESCARTADO</text>
+            <rect x="545" y="82" width="150" height="42" rx="8" class="str"/>
+            <text x="620" y="107" text-anchor="middle" class="sl">NOT_A_VULN</text>
+            <rect x="545" y="144" width="150" height="42" rx="8" class="st"/>
+            <text x="620" y="169" text-anchor="middle" class="sl">REFERENCE (dup)</text>
+            <rect x="740" y="80" width="130" height="46" rx="8" class="stg"/>
+            <text x="805" y="99" text-anchor="middle" class="sl">REPORTADO /</text>
+            <text x="805" y="115" text-anchor="middle" class="sl">PUBLICADO</text>
+            <path class="fl2" d="M150 103 L193 103"/>
+            <path class="fl2" d="M325 103 L368 103"/>
+            <path class="fl2" d="M500 95 Q522 41 543 41"/>
+            <path class="fl2" d="M500 103 L543 103"/>
+            <path class="fl2" d="M500 111 Q522 165 543 165"/>
+            <path class="fl2" d="M500 103 L738 103" transform="translate(0,-14)"/>
+            <text x="618" y="76" text-anchor="middle" class="note">solo con fix upstream ausente y severidad honesta</text>
+            <text x="90" y="152" text-anchor="middle" class="note">crash/hang/leak nuevo</text>
+            <text x="260" y="152" text-anchor="middle" class="note">repro ≥2 tools</text>
+            <text x="435" y="152" text-anchor="middle" class="note">causa raíz + ficha</text>
+        </svg>
+        </div>
+        <div class="image-caption mono" style="margin-top:-1.5rem; margin-bottom:2rem;">Figura 2 — Máquina de estados. La ruta verde exige reproducibilidad cruzada, ficha completa y verificación de novedad. REFERENCE captura los duplicados: no son fracasos, son entrenamiento del filtro.</div>
+
+        <!-- 05. TOOLCHAIN -->
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Toolchain de Validación: Dos Herramientas o No Es Real</h2>
+        <p>
+            La regla de oro del sistema: <strong>ningún hallazgo se declara CONFIRMED sin reproducirse con al menos dos instrumentos independientes</strong>. Un fuzzer que dice timeout no basta —hay que verlo colgado desde fuera (<span class="mono">timeout</span> de shell), ver el stack con gdb, o detectarlo con sanitizadores distintos. Así se eliminaron todos los falsos positivos del primer mes:
+        </p>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Señal</th><th>Instrumento primario</th><th>Validador independiente</th><th>Ejemplo real</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Crash de memoria</strong></td>
+                        <td>Build ASAN (heap-buffer-overflow, FPE)</td>
+                        <td>valgrind memcheck + stack en gdb</td>
+                        <td><a href="7zip-isfolderencrypted-oob-read.html">OOB read en 7-Zip</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hang / CPU burn</strong></td>
+                        <td>libFuzzer <span class="mono">-timeout=N</span></td>
+                        <td><span class="mono">timeout</span> POSIX (exit 124) + gdb attach</td>
+                        <td><a href="libwebp-vp8l-lossless-decode-dos.html">VP8L en libwebp</a>, <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">Smacker en FFmpeg</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fuga de memoria</strong></td>
+                        <td>LeakSanitizer</td>
+                        <td>valgrind --leak-check=full</td>
+                        <td><a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">add_metadata en FFmpeg VQF</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Memoria no inicializada</strong></td>
+                        <td>A/B contra build parcheada upstream</td>
+                        <td>Divergencia de exit code con mismo input</td>
+                        <td><a href="libarchive-cab-lzx-uninitialized-memory.html">history guard CAB/LZX</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bucle de compilación</strong></td>
+                        <td>Fuzzer JIT con timeout</td>
+                        <td>Control sin JIT termina en 0 ms → aísla la fase</td>
+                        <td><a href="pcre2-jit-compile-hang-recursion.html">get_framesize en PCRE2</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            Completan la caja de herramientas el <strong>patch-diffing sistemático</strong> (<span class="mono">git diff</span> entre versiones objetivo para saber qué cambió y qué no), la <strong>consulta inversa de advisories</strong> (GHSA/NVD) para evitar duplicados, y builds gemelas <strong>ASAN + producción</strong> de cada objetivo: la primera para diagnosticar, la segunda para demostrar que el bug afecta al binario que usa gente real, no solo al instrumentado.
+        </p>
+
+        <!-- 06. POLITICA SEVERIDAD -->
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> Política de Severidad Honesta: Por Qué Publicamos los LOW</h2>
+        <p>
+            La política interna es <strong>RCE-first</strong>: HIGH exige ejecución de código o primitiva de escritura estable hacia control de PC; MEDIUM exige corrupción de metadatos del allocator o lectura cruzada explotable; todo lo demás —hangs, leaks, FPE limpios, lecturas de 1 byte fuera de límites— es LOW y se trata como tal. Bajo esa regla, seis de los siete hallazgos del mes son LOW, y así se publican.
+        </p>
+        <p>
+            ¿Por qué invertir tiempo en publicar LOWs? Porque el valor de un LOW honesto supera su puntuación: <strong>documentan clases enteras de error</strong> (validación de dimensiones ausente, error path sin free, bucle sin tope derivable del tamaño del archivo) que aparecen una y otra vez en software real, y porque el DoS barato sigue siendo munición de denegación de servicio contra servicios que parsean archivos de usuarios —proxies de medios, antivirus de correo, plataformas que aceptan uploads—. Un hang reproducible con 34 bytes merece ser conocido.
+        </p>
+        <div class="callout-warning">
+            <div class="callout-title mono">Calibración pública</div>
+            <p>Cada ficha de esta serie declara su severidad, su estado de fix upstream y su clase CWE. Cuando el fix llega, se actualiza. Cuando el hallazgo resulta duplicado de un advisory reciente, se marca REFERENCE con la ventana de detección —como ocurrió con un caso de libarchive detectado a siete días de su fix upstream—.</p>
+        </div>
+
+        <!-- 07. COSECHA -->
+        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> La Cosecha de Agosto: Inventario de Hallazgos</h2>
+        <p>
+            Siete hallazgos confirmados, cinco objetivos, seis artículos técnicos con evidencias completas. Todos reproducibles, todos con ficha, generador de PoC y análisis de causa raíz:
+        </p>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Objetivo</th><th>Vulnerabilidad</th><th>CWE</th><th>Estado fix</th><th>Análisis</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>7-Zip 26.00–26.02</strong></td>
+                        <td>Heap OOB read en <span class="mono">IsFolderEncrypted</span> por re-parse divergente de CodersData</td>
+                        <td>CWE-125</td>
+                        <td>Sin fix / sin CVE</td>
+                        <td><a href="7zip-isfolderencrypted-oob-read.html">Artículo →</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>FFmpeg 7.1.1</strong> (demuxer VPK)</td>
+                        <td>División por cero → SIGFPE determinista</td>
+                        <td>CWE-369</td>
+                        <td>Parcheado en 8.1.2</td>
+                        <td rowspan="3"><a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">Artículo →</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>FFmpeg 7.1.1</strong> (demuxer VQF)</td>
+                        <td>Memory leak en error path de <span class="mono">add_metadata</span>, escala hasta ~1 GB</td>
+                        <td>CWE-401</td>
+                        <td>Sin fix</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FFmpeg 7.1.1</strong> (demuxer Smacker)</td>
+                        <td>Bucle de 13.5M frames declarados en archivo de 105 B</td>
+                        <td>CWE-400</td>
+                        <td>Sin fix</td>
+                    </tr>
+                    <tr>
+                        <td><strong>libwebp 1.4.0</strong></td>
+                        <td>Decode VP8L lossless sin check de área máxima → CPU burn</td>
+                        <td>CWE-400</td>
+                        <td>Verificación upstream pendiente</td>
+                        <td><a href="libwebp-vp8l-lossless-decode-dos.html">Artículo →</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>PCRE2 10.48</strong></td>
+                        <td>Compilación JIT no termina con recursión dentro de negative lookahead</td>
+                        <td>CWE-400</td>
+                        <td>Verificación upstream pendiente</td>
+                        <td><a href="pcre2-jit-compile-hang-recursion.html">Artículo →</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>libarchive 3.8.9</strong></td>
+                        <td>Lectura de heap no inicializada en history guard del path CAB/LZX</td>
+                        <td>CWE-457</td>
+                        <td>Fix upstream reciente (ventana 7 días)</td>
+                        <td><a href="libarchive-cab-lzx-uninitialized-memory.html">Artículo →</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            Además del inventario público, el sistema acumula leads activos en estados tempranos (un binder expuesto en un stack móvil, un caso BLE de enumeración GATT sin emparejamiento en entorno controlado, una escalada write-primitive en curso sobre FreeType). Esos no se publican hasta validarlos —y algunos quizá nunca lo merezcan.
+        </p>
+
+        <!-- 08. DIVULGACION -->
+        <h2 class="section-title mono" id="s08"><span style="color: var(--text-muted);">08.</span> Divulgación Responsable: Qué Se Publica y Qué No</h2>
+        <p>
+            Publicar hallazgos encontrados por un sistema autónomo obliga a ser más estricto que nunca con qué se cuenta. La política editorial de esta serie:
+        </p>
+        <ul>
+            <li><strong>Mecanismo siempre, arma nunca:</strong> cada artículo explica la causa raíz con el detalle suficiente para que un mantenedor la entienda y la arregle, pero los PoCs completos y generadores listos para ejecutar se reservan para issues privadas a mantenedores mientras no exista fix.</li>
+            <li><strong>Graduación según estado del fix:</strong> el caso de FFmpeg VPK (parcheado en 8.1.2) permite mostrar hexdump y evidencia completa; los casos sin fix describen estructura y comportamiento sin servir el archivo malicioso masticado.</li>
+            <li><strong>Evidencia redactada:</strong> las capturas de terminal de la serie provienen de logs reales de validación, regenerados con rutas de build anonimizadas. Nada de infraestructura personal, nombres internos ni tooling privado aparece en ninguna imagen.</li>
+            <li><strong>Nada de terceros:</strong> ningún hallazgo contra servicios ajenos, dispositivos identificables o infraestructura real se publica aquí; eso, si llega algún día, va por canales de coordinación correspondientes.</li>
+        </ul>
+
+        <div class="callout-danger">
+            <div class="callout-title mono">La línea</div>
+            <p>Un sistema autónomo que caza bugs puede convertirse en fábrica de exploits si alguien le quita la ética del bucle. La decisión de publicar, reportar o archivar es y seguirá siendo humana. La IA propone; el criterio dispone.</p>
+        </div>
+
+        <!-- 09. LECCIONES -->
+        <h2 class="section-title mono" id="s09"><span style="color: var(--text-muted);">09.</span> Lecciones Operando la Malla IA</h2>
+        <p>
+            Un mes de operación continua deja aprendizajes que no aparecen en los papers:
+        </p>
+        <ul>
+            <li><strong>El dedupe es el producto.</strong> De cada diez señales interesantes, seis son duplicados de advisories recientes y dos son falsos positivos del harness. El sistema que mejor filtra gana, no el que más encuentra.</li>
+            <li><strong>Los timeouts enseñan más que los crashes.</strong> Los SIGFPE y OOB reads vienen con stack claro; los hangs obligan a entender qué fase se cuelga (¿matching runtime o compilación JIT?, ¿decodificación o indexación?) —y ahí vive el insight interesante, como muestran los casos de <a href="pcre2-jit-compile-hang-recursion.html">PCRE2</a> y <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">Smacker</a>.</li>
+            <li><strong>La fecha del fix upstream cambia todo.</strong> Distinguir 0-day de dup-race exige leer diffs con fecha, no solo buscar el texto del advisory. Una divergencia detectada a siete días del fix es otra historia que una detectada a siete meses.</li>
+            <li><strong>Formato rígido de salida = fiabilidad medible.</strong> Exigir JSON con campos fijos a los workers permitió medir tasas de error y corregir prompts como quien corrige tests, sin drama.</li>
+            <li><strong>El hardware que sobra por la noche es un activo.</strong> Las campañas aprovechan horas valle; el coste marginal de una noche más de fuzzing es cero y los hallazgos no entienden de horarios.</li>
+        </ul>
+
+        <!-- 10. CONCLUSION -->
+        <h2 class="section-title mono" id="s10"><span style="color: var(--text-muted);">10.</span> Conclusión</h2>
+        <p>
+            Sherlock demuestra que una operación de vulnerability research sostenida no requiere un equipo ni un presupuesto cloud: requiere <strong>disciplina de validación</strong>, modelos locales baratos bien dirigidos y una política de severidad que no mienta. Los siete LOW de este mes no van a salir en titulares, y precisamente por eso importan: son la base estadística honesta sobre la que construir la búsqueda de los MEDIUM y HIGH que sí cambian risk assessments.
+        </p>
+        <p>
+            La próxima iteración del sistema apunta a tres frentes: escalada automática de leads con hipótesis de groom de heap, integración del grafo de conocimiento de SAINT GRAIL para correlacionar hallazgos entre objetivos, y campañas dirigidas por cobertura diferencial entre versiones. La cosecha seguirá siendo pública, con severidad honesta y sin armas servidas en bandeja.
+        </p>
+
+        <!-- CTA -->
+        <div class="cta-closure">
+            <h3 class="mono">/Explora los hallazgos de la serie</h3>
+            <p>Cada vulnerabilidad tiene su análisis técnico completo: causa raíz, evidencia reproducible, fragmentos de PoC y diagramas del mecanismo.</p>
+            <div class="cta-closure-links">
+                <a href="7zip-isfolderencrypted-oob-read.html" class="cta-btn primary mono">7-Zip: OOB Read →</a>
+                <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html" class="cta-btn mono">FFmpeg: VPK · VQF · Smacker →</a>
+                <a href="libwebp-vp8l-lossless-decode-dos.html" class="cta-btn mono">libwebp: VP8L DoS →</a>
+                <a href="pcre2-jit-compile-hang-recursion.html" class="cta-btn mono">PCRE2: JIT Hang →</a>
+                <a href="libarchive-cab-lzx-uninitialized-memory.html" class="cta-btn mono">libarchive: Uninit Read →</a>
+            </div>
+            <div class="cta-closure-links" style="margin-top:1rem;">
+                <a href="saint-grail.html" class="cta-btn mono">SAINT GRAIL: La Plataforma →</a>
+                <a href="saint-grail-go.html" class="cta-btn mono">SAINT GRAIL Go: Resultados →</a>
+            </div>
+        </div>
+
+        <!-- Referencias -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">11.</span> Referencias</h2>
+        <ul>
+            <li><a href="https://llvm.org/docs/LibFuzzer.html" target="_blank" rel="noopener noreferrer">libFuzzer — A library for coverage-guided fuzz testing</a></li>
+            <li><a href="https://github.com/google/AFL" target="_blank" rel="noopener noreferrer">American Fuzzy Lop (AFL++)</a></li>
+            <li><a href="https://github.com/google/sanitizers" target="_blank" rel="noopener noreferrer">AddressSanitizer, LeakSanitizer y familia (Google/sanitizers)</a></li>
+            <li><a href="https://www.valgrind.org/docs/manual/mc-manual.html" target="_blank" rel="noopener noreferrer">Valgrind Memcheck — manual de referencia</a></li>
+            <li><a href="https://ollama.com/" target="_blank" rel="noopener noreferrer">Ollama — runtime de modelos locales</a></li>
+            <li><a href="https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/" target="_blank" rel="noopener noreferrer">Meta AI — Llama 3.2 (modelos edge 3B)</a></li>
+            <li><a href="https://cwe.mitre.org/" target="_blank" rel="noopener noreferrer">MITRE — Common Weakness Enumeration (CWE)</a></li>
+            <li><a href="https://nvd.nist.gov/" target="_blank" rel="noopener noreferrer">NIST National Vulnerability Database</a></li>
+            <li><a href="saint-grail.html">SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA (tty503.com)</a></li>
+            <li><a href="saint-grail-go.html">SAINT GRAIL: De Python a Go, Resultados Concretos y el Futuro del Bug Hunting Autónomo (tty503.com)</a></li>
+            <li><a href="arte-de-la-paciencia-sudo-cache.html">El Arte de la Paciencia: Abusando del Caché de Sudo (tty503.com)</a></li>
+        </ul>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Vulnerability Research con IA Local — Serie Sherlock.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
+        });
+    </script>
+
+    <!-- ==================== SCHEMA JSON-LD ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA",
+      "description": "Arquitectura y método del sistema que automatiza el descubrimiento y validación de vulnerabilidades con modelos locales de IA: fuzzing con libFuzzer/AFL++, triage ASAN/valgrind, verificación CVE y política RCE-first. Inventario de hallazgos LOW en 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2026-08-21",
+      "dateModified": "2026-08-21",
+      "mainEntityOfPage": "https://tty503.com/sherlock-caza-autonoma-ia-local.html",
+      "image": "https://tty503.com/img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png",
+      "keywords": ["bug hunting autónomo", "IA local", "Ollama", "Llama 3.2", "fuzzing", "libFuzzer", "AFL++", "ASAN", "valgrind", "vulnerabilidades LOW", "7-Zip", "FFmpeg", "libwebp", "PCRE2", "libarchive"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "3200",
+      "timeRequired": "PT22M",
+      "about": [
+        { "@type": "Thing", "name": "Bug Hunting Autónomo" },
+        { "@type": "Thing", "name": "Modelos Locales de IA" },
+        { "@type": "Thing", "name": "Fuzzing" },
+        { "@type": "Thing", "name": "Divulgación Responsable" }
+      ]
+    }
+    </script>
+</body>
+</html>

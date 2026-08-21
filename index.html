@@ -738,6 +738,51 @@
                         </a>
                     </div>
                 </details>
+                <!-- Clúster A2: Vulnerability Research & Bug Bounty -->
+                <details class="theme-group reveal" open>
+                    <summary class="theme-summary mono">
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Vulnerability Research & Bug Bounty — Serie Sherlock</h3>
+                        <span class="toggle-icon">+</span>
+                    </summary>
+                    <div class="theme-content">
+                        <a href="sherlock-caza-autonoma-ia-local.html" class="article-link local-article">
+                            <span class="article-date mono">Ago 2026 · ~20 min de lectura</span>
+                            <h3 class="article-title">Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA — Siete Hallazgos en un Mes <span class="local-badge">SERIE</span></h3>
+                            <p class="article-desc">Centro de la serie: arquitectura del sistema de caza autónomo sobre hardware local, metodología de triage y validación doble, política de divulgación graduada e índice de los siete hallazgos confirmados contra 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="7zip-isfolderencrypted-oob-read.html" class="article-link local-article">
+                            <span class="article-date mono">Ago 2026 · ~18 min de lectura</span>
+                            <h3 class="article-title">7-Zip: Heap Out-of-Bounds Read en IsFolderEncrypted por Re-parse Divergente de CodersData <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes en 7-Zip 26.00–26.02. Desync byte a byte, diagrama dual-parser, PoC estructural y evidencia ASAN + valgrind en x86/x64.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html" class="article-link local-article">
+                            <span class="article-date mono">Ago 2026 · ~16 min de lectura</span>
+                            <h3 class="article-title">FFmpeg: Tres Demuxers, Un Mismo Pecado — SIGFPE en VPK, Memory Leak en VQF y Hang en Smacker <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Tres bugs de DoS hallados por fuzzing autónomo: división por cero con 21 bytes (CWE-369, parcheada en 8.1.2), leak escalable hasta ~677 MB por archivo (CWE-401) y bucle de 13,5M frames con un input de 105 bytes (CWE-400). Tabla comparativa y descarte de hipótesis.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="libwebp-vp8l-lossless-decode-dos.html" class="article-link local-article">
+                            <span class="article-date mono">Ago 2026 · ~12 min de lectura</span>
+                            <h3 class="article-title">libwebp: DoS por Área de Imagen No Validada en el Decoder Lossless VP8L <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Un WebP lossless de 34 bytes declara hasta 16384×16384 píxeles sin comprobar MAX_IMAGE_AREA, justo el guardia que el path lossy sí aplica. Análisis de la asimetría entre motores, amplificación 34 B → 256M píxeles y evidencia reproducible.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="pcre2-jit-compile-hang-recursion.html" class="article-link local-article">
+                            <span class="article-date mono">Ago 2026 · ~13 min de lectura</span>
+                            <h3 class="article-title">PCRE2: Hang en la Compilación JIT por Recursión (?0) dentro de un Negative Lookahead <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">El intérprete compila el patrón en 0 ms; pcre2_jit_compile se cuelga eternamente en get_framesize. Diagnóstico diferencial JIT vs intérprete para demostrar que el bug vive en la compilación, no en el matching. Crítico para WAFs y filtros de regex externas.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="libarchive-cab-lzx-uninitialized-memory.html" class="article-link local-article">
+                            <span class="article-date mono">Ago 2026 · ~11 min de lectura</span>
+                            <h3 class="article-title">libarchive: Uninitialized Heap Read en CAB/LZX Cazado con Patch-Diffing <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y la clasificación honesta de una carrera perdida (DUP-RACE).</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                    </div>
+                </details>
                 <!-- Clúster B: Threat Intelligence & Fraud Investigations -->
                 <details class="theme-group reveal">
                     <summary class="theme-summary mono">

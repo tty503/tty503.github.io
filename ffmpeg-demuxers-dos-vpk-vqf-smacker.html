@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!-- ==================== SEO CORE ==================== -->
+    <title>FFmpeg: DoS en Demuxers VPK, VQF y Smacker (SIGFPE, Leak y Hang) | tty503</title>
+    <meta name="description" content="Tres vulnerabilidades de denegación de servicio en demuxers de FFmpeg halladas por fuzzing autónomo: división por cero en VPK (CWE-369, parcheada en 8.1.2), memory leak escalable en VQF (CWE-401) y bucle infinito en Smacker (CWE-400), ambas aún sin parche. Análisis técnico con evidencia ASAN, LeakSanitizer, valgrind y gdb.">
+    <meta name="keywords" content="FFmpeg vulnerabilidad, demuxer VPK, demuxer VQF, Smacker, CWE-369, CWE-401, CWE-400, divide by zero SIGFPE, memory leak, infinite loop DoS, vpk.c vqf.c smacker.c, fuzzing, libFuzzer, AddressSanitizer, LeakSanitizer, valgrind, bug hunting IA, Christian Márquez, tty503">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://tty503.com/ffmpeg-demuxers-dos-vpk-vqf-smacker.html">
+    <meta name="theme-color" content="#050505">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="FFmpeg: DoS en Demuxers VPK, VQF y Smacker | tty503">
+    <meta property="og:description" content="Un mismo pecado, tres castigos: SIGFPE en VPK (parcheada), leak escalable en VQF y hang de CPU en Smacker (sin parche). Análisis completo con evidencia triple.">
+    <meta property="og:url" content="https://tty503.com/ffmpeg-demuxers-dos-vpk-vqf-smacker.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/ffmpeg-vpk-demuxer-sigfpe-divide-by-zero-asan-evidencia.png">
+    <meta property="og:image:alt" content="Reporte de AddressSanitizer mostrando FPE (divide by zero) en vpk_read_packet">
+    <meta property="article:published_time" content="2026-08-21">
+    <meta property="article:modified_time" content="2026-08-21">
+    <meta property="article:tag" content="Vulnerabilidad">
+    <meta property="article:tag" content="Denegación de Servicio">
+    <meta property="article:tag" content="FFmpeg">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="FFmpeg: DoS en Demuxers VPK, VQF y Smacker (SIGFPE, Leak, Hang)">
+    <meta name="twitter:description" content="Tres bugs de DoS en FFmpeg encontrados por fuzzing autónomo: división por cero, leak de memoria escalable y bucle de 13,5M frames. Uno parcheado, dos abiertos.">
+    <meta name="twitter:image" content="https://tty503.com/img/ffmpeg-smacker-readheader-frames-loop-timeout-evidencia.png">
+    <meta name="twitter:image:alt" content="Timeout de libFuzzer sobre un archivo Smacker malformado">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #030303; --bg-surface: #0a0a0a; --bg-card: #111111;
+            --border-subtle: #222222; --border-hover: #444444;
+            --text-primary: #f5f5f5; --text-secondary: #a3a3a3; --text-muted: #666666;
+            --accent: #ffffff; --accent-green: #4ade80; --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b; --accent-red: #ef4444;
+            --syntax-inst: #f07178; --syntax-reg: #82aaff; --syntax-val: #f78c6c;
+            --syntax-func: #c3e88d; --syntax-comment: #546e7a;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.05; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); }
+        .navbar { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth); }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+        .toc-container { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; margin: 2rem 0; overflow: hidden; }
+        .toc-summary { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .code-block { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); position: relative; }
+        .code-block code { font-family: 'JetBrains Mono', monospace; }
+        .code-block .inst { color: var(--syntax-inst); } .code-block .reg { color: var(--syntax-reg); }
+        .code-block .val { color: var(--syntax-val); } .code-block .func { color: var(--syntax-func); }
+        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); } .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); } .callout-danger .callout-title { color: var(--accent-red); }
+        .callout-success { border-left-color: var(--accent-green); } .callout-success .callout-title { color: var(--accent-green); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+        .diagram-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow-x: auto; background: var(--bg-card); }
+        .diagram-container svg { display: block; min-width: 760px; width: 100%; height: auto; }
+        .cta-closure { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center; }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem; border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: var(--transition-smooth); border: 1px solid var(--border-subtle); color: var(--text-secondary); background: transparent; }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; } .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; } .code-block { padding: 1rem; font-size: 0.75rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; } .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; } .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; } .toc-content { padding: 0 1rem 1rem; } .toc-summary { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_vuln_research</span></a>
+            <a href="sherlock-caza-autonoma-ia-local.html" class="nav-back mono">← Serie Sherlock</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Vulnerability Research</span>
+                <span class="article-tag">CWE-369 · 401 · 400</span>
+                <span class="article-tag">Denegación de Servicio</span>
+                <span class="article-tag">FFmpeg</span>
+                <span>Agosto 2026</span>
+                <span>~16 min de lectura</span>
+            </div>
+            <h1 class="article-title">FFmpeg: Tres Demuxers, Un Mismo Pecado — SIGFPE en VPK, Memory Leak en VQF y Hang en Smacker</h1>
+            <p class="article-subtitle">
+                Tamaños absurdos que nadie valida. Contadores que nadie contrasta con el tamaño real del archivo. Memoria que se pide y nunca se devuelve. Este artículo agrupa tres hallazgos del sistema autónomo <a href="sherlock-caza-autonoma-ia-local.html">Sherlock</a> contra demuxers de FFmpeg —<strong>VPK</strong> (división por cero, CWE-369), <strong>VQF</strong> (leak escalable, CWE-401) y <strong>Smacker</strong> (bucle sin techo, CWE-400)— porque los tres comparten la misma lección: <em>el header del contenedor se parsea antes de validarse</em>. Uno ya tiene parche en 8.1.2; los otros dos siguen abiertos.
+            </p>
+        </header>
+
+        <!-- ToC -->
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice_del_análisis</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s00">Resumen Técnico</a></li>
+                    <li><a href="#s01">Por Qué los Demuxers Son una Mina</a></li>
+                    <li><a href="#s02">El Patrón Común: Parsear Antes de Validar</a></li>
+                    <li><a href="#s03">VPK — División por Cero (CWE-369) · Parcheada</a></li>
+                    <li><a href="#s04">VQF — Memory Leak Escalable (CWE-401) · Sin Parche</a></li>
+                    <li><a href="#s05">Smacker — Bucle de 13,5 Millones de Frames (CWE-400) · Sin Parche</a></li>
+                    <li><a href="#s06">Metodología: Dos Herramientas y Ocho Hipótesis Alternativas</a></li>
+                    <li><a href="#s07">Impacto Realista y Mitigación</a></li>
+                    <li><a href="#s08">Conclusión</a></li>
+                </ol>
+            </div>
+        </details>
+
+        <!-- 00 RESUMEN -->
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen Técnico</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>#</th><th>Demuxer</th><th>Bug</th><th>CWE</th><th>PoC</th><th>Efecto</th><th>Estado fix</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">A</td><td class="mono">libavformat/vpk.c</td>
+                        <td>División por cero en <span class="mono">vpk_read_packet</span> (<span class="mono">vpk.c:89</span>)</td>
+                        <td>CWE-369</td><td class="mono">21 B</td>
+                        <td>SIGFPE → crash determinista del proceso (repro 3/3)</td>
+                        <td><strong style="color:var(--accent-green);">Parcheada en 8.1.2</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="mono">B</td><td class="mono">libavformat/vqf.c</td>
+                        <td><span class="mono">av_malloc(tag_len)</span> sin <span class="mono">av_free</span> en error path (<span class="mono">vqf.c:64</span>)</td>
+                        <td>CWE-401</td><td class="mono">13 B</td>
+                        <td>Leak que escala con <span class="mono">tag_len</span>: medido hasta ~677 MB por archivo</td>
+                        <td><strong style="color:var(--accent-red);">Sin parche en 8.1.2</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="mono">C</td><td class="mono">libavformat/smacker.c</td>
+                        <td>Bucle <span class="mono">for(i&lt;frames)</span> sin validar contra tamaño del archivo (<span class="mono">smacker.c:225</span>)</td>
+                        <td>CWE-400</td><td class="mono">105 B</td>
+                        <td>Hang de CPU procesando 13.565.951 frames lógicos (timeout 3/3)</td>
+                        <td><strong style="color:var(--accent-red);">Sin parche en 8.1.2</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            Las tres pruebas se validaron con la regla de las dos herramientas (sanitizer + confirmador independiente) y descarte sistemático de hipótesis alternativas. Todas afectaban la rama 7.1.1 al momento del hallazgo; el fix de VPK llegó después en 8.1.2.
+        </p>
+
+        <!-- 01 CONTEXTO -->
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> Por Qué los Demuxers son una Mina</h2>
+        <p>
+            FFmpeg es el traductor universal de medios: servidores de streaming, pipelines de transcodificación, generadores de miniaturas, analizadores forenses, bots de Telegram y Discord —todos terminan confiando sus entradas a <span class="mono">libavformat</span>. Y el primer contacto con cualquier archivo es siempre el mismo: el <strong>demuxer</strong>, que lee el header del contenedor y decide qué hacer con el resto.
+        </p>
+        <p>
+            Ese primer contacto es crítico porque ocurre <em>antes</em> de cualquier decodificación costosa y <em>antes</em> de que el sistema tenga motivos para desconfiar. Formatos exóticos como VPK (paquetes de sonido de videojuegos), VQF (audio TwinVQ de los 90) o Smacker (vídeo FMV de juegos DOS) tienen parsers menos transitados que MP4 o MKV, y menos tránsito suele significar menos ojos. El fuzzing autónomo no distingue formatos fashion de formatos olvidados: los barre todos con la misma vara.
+        </p>
+
+        <!-- 02 PATRON COMUN -->
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> El Patrón Común: Parsear Antes de Validar</h2>
+        <p>
+          Los tres bugs pertenecen a clases distintas (aritmética, gestión de recursos, complejidad algorítmica) pero nacen de la misma decisión de diseño: <strong>confiar en campos del header controlados por el atacante sin contrastarlos ni entre sí ni contra el tamaño real del input</strong>.
+        </p>
+        <div class="diagram-container">
+        <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama: un header malformado entra al demuxer y se ramifica en tres fallos distintos según el campo confiado">
+            <defs>
+                <marker id="arrW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a3a3a3"/></marker>
+                <marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ef4444"/></marker>
+                <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#f59e0b"/></marker>
+                <marker id="arrO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#fb923c"/></marker>
+            </defs>
+            <style>
+                .box { fill:#181818; stroke:#333333; rx:6; }
+                .boxr { fill:#1c1010; stroke:#ef4444; }
+                .boxa { fill:#1a1508; stroke:#f59e0b; }
+                .boxo { fill:#190f08; stroke:#fb923c; }
+                .t1 { fill:#f5f5f5; font:600 12px 'JetBrains Mono',monospace; }
+                .t2 { fill:#888888; font:10px 'JetBrains Mono',monospace; }
+                .lbl { fill:#666666; font:11px 'JetBrains Mono',monospace; }
+                .flow { stroke:#a3a3a3; stroke-width:1.5; fill:none; }
+            </style>
+            <!-- entrada -->
+            <rect x="330" y="24" width="240" height="52" rx="6" class="box"/>
+            <text x="450" y="46" text-anchor="middle" class="t1">input malformado</text>
+            <text x="450" y="64" text-anchor="middle" class="t2">21 B · 13 B · 105 B — solo headers</text>
+            <!-- flechas hacia los tres demuxers -->
+            <path class="flow" d="M370 76 Q300 120 220 150" marker-end="url(#arrW)"/>
+            <path class="flow" d="M450 76 L450 150" marker-end="url(#arrW)"/>
+            <path class="flow" d="M530 76 Q600 120 680 150" marker-end="url(#arrW)"/>
+            <!-- VPK -->
+            <rect x="90" y="152" width="230" height="86" rx="6" class="boxr"/>
+            <text x="205" y="176" text-anchor="middle" class="t1">VPK · vpk.c:89</text>
+            <text x="205" y="196" text-anchor="middle" class="t2">nb_channels = 0 confiado</text>
+            <text x="205" y="214" text-anchor="middle" class="t2">last_block_size / nb_channels</text>
+            <text x="205" y="230" text-anchor="middle" class="t2">→ IDIV → SIGFPE (crash)</text>
+            <path d="M205 238 L205 268" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#arrR)"/>
+            <rect x="110" y="270" width="190" height="34" rx="17" fill="none" stroke="#ef4444"/>
+            <text x="205" y="292" text-anchor="middle" class="t1" fill="#ef4444">CRASH · CWE-369</text>
+            <!-- VQF -->
+            <rect x="335" y="152" width="230" height="86" rx="6" class="boxa"/>
+            <text x="450" y="176" text-anchor="middle" class="t1">VQF · vqf.c:64</text>
+            <text x="450" y="196" text-anchor="middle" class="t2">tag_len confiado → av_malloc</text>
+            <text x="450" y="214" text-anchor="middle" class="t2">error path sin av_free</text>
+            <text x="450" y="230" text-anchor="middle" class="t2">→ leak escala hasta ~677 MB</text>
+            <path d="M450 238 L450 268" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#arrA)"/>
+            <rect x="352" y="270" width="196" height="34" rx="17" fill="none" stroke="#f59e0b"/>
+            <text x="450" y="292" text-anchor="middle" class="t1" fill="#f59e0b">LEAK · CWE-401</text>
+            <!-- SMK -->
+            <rect x="580" y="152" width="230" height="86" rx="6" class="boxo"/>
+            <text x="695" y="176" text-anchor="middle" class="t1">SMK2 · smacker.c:225</text>
+            <text x="695" y="196" text-anchor="middle" class="t2">frames = 13565951 confiado</text>
+            <text x="695" y="214" text-anchor="middle" class="t2">for(i &lt; frames) sin techo</text>
+            <text x="695" y="230" text-anchor="middle" class="t2">vs 105 B reales de archivo</text>
+            <path d="M695 238 L695 268" stroke="#fb923c" stroke-width="1.5" fill="none" marker-end="url(#arrO)"/>
+            <rect x="607" y="270" width="176" height="34" rx="17" fill="none" stroke="#fb923c"/>
+            <text x="695" y="292" text-anchor="middle" class="t1" fill="#fb923c">HANG · CWE-400</text>
+            <!-- nota pie -->
+            <text x="450" y="350" text-anchor="middle" class="lbl">Tres clases de bug, una misma causa raíz: el header se parsea antes de validarse.</text>
+        </svg>
+        </div>
+        <div class="image-caption mono" style="margin-top:-1.5rem; margin-bottom:2rem;">Figura 1 — La familia al completo: un input minúsculo entra al demuxer; cada parser convierte su campo no validado en un modo de fallo distinto.</div>
+
+        <!-- 03 VPK -->
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> VPK — División por Cero (CWE-369) · Parcheada</h2>
+        <p>
+            El formato VPK guarda audio por bloques. Al leer un paquete, el demuxer calcula el tamaño del último bloque dividiendo entre el número de canales declarado en el header. Si ese número llega a cero —y nada en el código lo impide— la instrucción de división entera de x86 (<span class="mono">IDIV</span>) lanza una excepción aritmética que mata el proceso:
+        </p>
+        <div class="code-block mono">
+<span class="comment">// libavformat/vpk.c:89 (rama vulnerable)</span>
+<span class="reg">size</span> = last_block_size / par-&gt;ch_layout.<span class="reg">nb_channels</span>;   <span class="comment">// nb_channels == 0 → SIGFPE</span>
+
+<span class="comment"># Fix aplicado upstream en 8.1.2:</span>
+<span class="inst">if</span> (par-&gt;ch_layout.<span class="reg">nb_channels</span> &lt;= <span class="val">0</span>)
+    <span class="inst">return</span> AVERROR_INVALIDDATA;</div>
+        <p>
+            El PoC completo cabe en lo que tarda en parpadear un cursor: <strong>21 bytes</strong> con el magic <span class="mono">VPK</span> y <span class="mono">nb_channels=0</span>. Como este caso sí está parcheado en la versión estable actual, aquí va el volcado íntegro capturado durante la validación:
+        </p>
+        <div class="code-block mono">
+<span class="comment"># poc_vpk_fpe.bin (21 bytes)</span>
+<span class="val">204b 5056 f872 b900 01ff 72f8 5650 4b29 2a20 5320 53</span></div>
+        <div class="image-container">
+            <img src="img/ffmpeg-vpk-demuxer-sigfpe-divide-by-zero-asan-evidencia.png" alt="Terminal mostrando el reporte de AddressSanitizer: FPE on unknown address en vpk_read_packet, libavformat/vpk.c:89" loading="lazy">
+            <div class="image-caption mono">Evidencia A — ASAN: «FPE on unknown address» en vpk_read_packet (libavformat/vpk.c:89:46). Reproducido 3/3 ejecuciones consecutivas; gdb confirmó el divisor exacto.</div>
+        </div>
+        <div class="code-block mono">
+<span class="comment"># Confirmación independiente con gdb (build instrumentada)</span>
+$ gdb -batch -ex run --args fuzz_target -runs=<span class="val">1</span> poc_vpk_fpe.bin
+Program received signal SIGFPE, Arithmetic exception.
+<span class="func">vpk_read_packet</span> (...) at libavformat/vpk.c:<span class="val">89</span>
+<span class="val">89</span>:    size = last_block_size / par-&gt;ch_layout.<span class="reg">nb_channels</span>;
+(gdb) p par-&gt;ch_layout.<span class="reg">nb_channels</span>
+$<span class="val">1</span> = <span class="val">0</span></div>
+
+        <!-- 04 VQF -->
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> VQF — Memory Leak Escalable (CWE-401) · Sin Parche</h2>
+        <p>
+            Los metadatos del formato VQF usan etiquetas longitud-valor donde la longitud (<span class="mono">tag_len</span>) viene en el propio header. El helper <span class="mono">add_metadata</span> reserva esa cantidad con <span class="mono">av_malloc</span> y, si la lectura posterior falla —algo trivial de forzar declarando un <span class="mono">tag_len</span> mayor que el archivo—, devuelve error <strong>sin liberar el buffer</strong>:
+        </p>
+        <div class="code-block mono">
+<span class="comment">// libavformat/vqf.c:64 — camino del leak (esqueleto)</span>
+<span class="inst">static int</span> <span class="func">add_metadata</span>(...) {
+    ptr = <span class="func">av_malloc</span>(tag_len);              <span class="comment">// adquisición controlada por el header</span>
+    <span class="inst">if</span> (<span class="func">avio_read</span>(pb, ptr, len) != len)    <span class="comment">// falla si len &gt; bytes disponibles</span>
+        <span class="inst">return</span> AVERROR(EIO);               <span class="comment">// ← return SIN av_free(ptr) → CWE-401</span>
+}
+<span class="comment">// caller: vqf_read_header (vqf.c:173)</span></div>
+        <p>
+            Lo que convierte un leak mundano en un problema operativo es la <strong>escalabilidad</strong>: <span class="mono">tag_len</span> es un entero del header, así que cada archivo malformado puede ordenar reservas enormes antes de fallar. En las mediciones, metadata gigante produjo fugas medidas entre 285 MB y 677 MB por archivo —el techo teórico ronda el gigabyte—. Un servicio que procese archivos subidos por usuarios puede ser agotado de memoria con una cola modesta de archivos de trece bytes.
+        </p>
+        <div class="image-container">
+            <img src="img/ffmpeg-vqf-addmetadata-memory-leak-leaksanitizer-evidencia.png" alt="Terminal mostrando el reporte de LeakSanitizer: bloque asignado en av_malloc dentro de add_metadata vqf.c:64 sin liberar, con caller vqf_read_header vqf.c:173" loading="lazy">
+            <div class="image-caption mono">Evidencia B — LeakSanitizer: bloque originado en av_malloc de add_metadata (libavformat/vqf.c:64:11), caller vqf_read_header (vqf.c:173:19). Valgrind confirmó el mismo malloc-sin-free de forma independiente.</div>
+        </div>
+        <div class="callout-warning">
+            <div class="callout-title mono">Divulgación graduada</div>
+            <p>Este bug sigue abierto en 8.1.2. Publicamos el mecanismo completo y la evidencia, pero no el binario del PoC ni su receta byte a byte: basta la descripción para que el mantenedor reproduzca y corrija, y evitamos servir munición lista mientras no exista parche.</p>
+        </div>
+
+        <!-- 05 SMACKER -->
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Smacker — Bucle de 13,5 Millones de Frames (CWE-400) · Sin Parche</h2>
+        <p>
+            El demuxer Smacker lee el contador <span class="mono">frames</span> del header y reserva tablas iterando hasta ese valor. Existe un check —<span class="mono">frames &lt; 0xFFFFFF</span>— pensado precisamente para cortar valores absurdos, pero tiene una rendija aritmética: <strong>compara contra una constante, no contra el tamaño del archivo</strong>. Declarar 13.565.951 frames (menos de 16M) pasa el check sin despeinarse, y luego el parser intenta dar 13,5 millones de vueltas procesando tablas… alimentado por un archivo de <strong>105 bytes</strong>.
+        </p>
+        <div class="code-block mono">
+<span class="comment">// Header del PoC (poc_smk_hang.bin, 105 B)</span>
+magic   = <span class="val">SMK2</span>
+width   = <span class="val">0</span>
+height  = <span class="val">0xFE000000</span>
+frames  = <span class="val">13565951</span>      <span class="comment"># 13.5M &lt; 0xFFFFFF → el check existente NO aplica</span>
+fps     = <span class="val">0</span>
+
+<span class="comment">// libavformat/smacker.c:225</span>
+<span class="inst">for</span> (i = <span class="val">0</span>; i &lt; smk-&gt;<span class="reg">frames</span>; i++)   <span class="comment">// 13.5M iteraciones sobre 105 B de input</span>
+    ...                               <span class="comment">// → CPU al 100%, hang indefinido</span></div>
+        <p>
+            La regla de oro que falta aquí es simple: <em>ningún contador derivado del header puede superar proporcionalmente el tamaño del input</em>. Trece millones de frames exigen, como mínimo, trece millones de estructuras de tabla en algún sitio; si el archivo pesa 105 bytes, alguien miente.
+        </p>
+        <div class="image-container">
+            <img src="img/ffmpeg-smacker-readheader-frames-loop-timeout-evidencia.png" alt="Terminal mostrando el timeout de libFuzzer tras ejecutar el PoC Smacker: SUMMARY libFuzzer timeout, con stack de gdb apuntando a smacker_read_header smacker.c:225" loading="lazy">
+            <div class="image-caption mono">Evidencia C — libFuzzer: «SUMMARY: libFuzzer: timeout» con el PoC de 105 B (magic SMK2), reproducible 3/3. gdb situó el stack caliente en smacker_read_header (smacker.c:225).</div>
+        </div>
+
+        <!-- 06 METODOLOGIA -->
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> Metodología: Dos Herramientas y Ocho Hipótesis Alternativas</h2>
+        <p>
+            Cada hallazgo pasó por el mismo embudo antes de ganarse su ficha: reproducción determinista (3/3), doble herramienta de verificación y descarte explícito de explicaciones alternativas. Las hipótesis que el sistema evaluó y mató por cada caso:
+        </p>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Caso</th><th>Hipótesis alternativa</th><th>Prueba de descarte</th></tr></thead>
+                <tbody>
+                    <tr><td rowspan="3" class="mono">VPK</td><td>Falso positivo del fuzzer</td><td>Repro manual 3/3 + stack en gdb</td></tr>
+                    <tr><td>Comportamiento by design</td><td>Un VPK válido declara nb_channels ≥ 1; el header malformado lo fuerza a 0</td></tr>
+                    <tr><td>Artefacto de build instrumentada</td><td>SIGFPE es señal de hardware (IDIV), no del sanitizer</td></tr>
+                    <tr><td rowspan="3" class="mono">VQF</td><td>Ruido de LeakSanitizer</td><td>Valgrind detectó el mismo malloc sin free</td></tr>
+                    <tr><td>Solo ocurre con inputs raros del corpus</td><td>El error path se alcanza con cualquier tag_len &gt; tamaño disponible</td></tr>
+                    <tr><td>Leak acotado e irrelevante</td><td>Medición directa: 285–677 MB de fuga por archivo con tag_len grande</td></tr>
+                    <tr><td rowspan="2" class="mono">Smacker</td><td>El check de frames protege</td><td>13.5M &lt; 16M: el umbral existente no cubre este rango</td></tr>
+                    <tr><td>El loop termina pronto por EOF</td><td>Ninguna salida anticipada: timeout sostenido 3/3 con CPU saturada</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 07 IMPACTO -->
+        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> Impacto Realista y Mitigación</h2>
+        <p>
+            Ninguno de los tres es corrupción de memoria, pero los tres rompen la disponibilidad —la tercera pata de la tríada— y lo hacen con inputs ridículamente pequeños. El escenario común: servicios multiusuario que demuxan contenido externo (plataformas de vídeo bajo demanda con transcodificación automática, analizadores de malware que procesan muestras, bots que generan previsualizaciones). En todos ellos, un worker muerto por SIGFPE, un pool agotado por leaks acumulativos o un hilo colgado eternamente en un bucle se traducen en latencia para todos los usuarios.
+        </p>
+        <ul>
+            <li><strong>Mantenedores</strong>: replicar el fix de VPK (<code class="mono">nb_channels &lt;= 0 → invalid data</code>) como patrón; añadir liberación en todos los return intermedios de <span class="mono">add_metadata</span>; validar contadores de Smacker contra el tamaño real del stream, no contra constantes mágicas.</li>
+            <li><strong>Operadores</strong>: aislar el proceso de demuxing (un proceso por archivo, límites de memoria y tiempo duros, cgroups); los tres fallos mueren solos si el sandbox mata al worker sin contagio.</li>
+            <li><strong>Usuarios finales</strong>: riesgo bajo en reproductores de escritorio —el crash cuesta reiniciar el reproductor— pero relevante en cualquier servidor que acepte archivos de terceros.</li>
+        </ul>
+
+        <!-- 08 CONCLUSION -->
+        <h2 class="section-title mono" id="s08"><span style="color: var(--text-muted);">08.</span> Conclusión</h2>
+        <p>
+            Agrupar estos tres hallazgos en un solo artículo es deliberado: por separado parecen anécdotas de formatos exóticos; juntos dibujan una <strong>debilidad estructural del proceso de parseo de headers</strong> que se repite en demuxer tras demuxer. Es exactamente el tipo de patrón que un sistema de caza autónomo explora bien: no busca un bug, busca la forma en que una base de código piensa mal y la empuja hasta que se rompe en cada esquina posible.
+        </p>
+        <p>
+            Para quien audite parsers propios, las tres preguntas que estos casos obligan a hacerse: ¿qué campos del header uso en aritmética sin verificar? ¿qué reservo que pueda quedar huérfano en un error path? ¿qué bucle cuya duración depende del input carece de techo? Si alguna respuesta incomoda, hay un PoC de veintiún bytes esperando a ser escrito.
+        </p>
+
+        <!-- CTA -->
+        <div class="cta-closure">
+            <h3 class="mono">/Más hallazgos de la serie Sherlock</h3>
+            <p>Siete vulnerabilidades confirmadas en un mes de caza autónoma con modelos locales de IA. Todos los análisis con evidencia y diagramas.</p>
+            <div class="cta-closure-links">
+                <a href="sherlock-caza-autonoma-ia-local.html" class="cta-btn primary mono">← Centro de la serie</a>
+                <a href="7zip-isfolderencrypted-oob-read.html" class="cta-btn mono">7-Zip: Heap OOB Read →</a>
+                <a href="libwebp-vp8l-lossless-decode-dos.html" class="cta-btn mono">libwebp: VP8L DoS →</a>
+                <a href="pcre2-jit-compile-hang-recursion.html" class="cta-btn mono">PCRE2: JIT Hang →</a>
+                <a href="libarchive-cab-lzx-uninitialized-memory.html" class="cta-btn mono">libarchive: Uninit Read →</a>
+            </div>
+        </div>
+
+        <!-- Referencias -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Referencias</h2>
+        <ul>
+            <li><a href="https://www.ffmpeg.org/" target="_blank" rel="noopener noreferrer">FFmpeg — sitio oficial del proyecto</a></li>
+            <li><a href="https://cwe.mitre.org/data/definitions/369.html" target="_blank" rel="noopener noreferrer">MITRE CWE-369: Divide By Zero</a></li>
+            <li><a href="https://cwe.mitre.org/data/definitions/401.html" target="_blank" rel="noopener noreferrer">MITRE CWE-401: Missing Release of Memory after Effective Lifetime</a></li>
+            <li><a href="https://cwe.mitre.org/data/definitions/400.html" target="_blank" rel="noopener noreferrer">MITRE CWE-400: Uncontrolled Resource Consumption</a></li>
+            <li><a href="https://llvm.org/docs/LibFuzzer.html" target="_blank" rel="noopener noreferrer">libFuzzer — fuzzing dirigido por cobertura</a></li>
+            <li><a href="https://github.com/google/sanitizers" target="_blank" rel="noopener noreferrer">AddressSanitizer / LeakSanitizer</a></li>
+            <li><a href="https://www.valgrind.org/" target="_blank" rel="noopener noreferrer">Valgrind Memcheck</a></li>
+            <li><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA (tty503.com)</a></li>
+            <li><a href="saint-grail-go.html">SAINT GRAIL Go: CRC Bypass en 7-Zip 9.20–25.01 (tty503.com)</a></li>
+        </ul>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Vulnerability Research — Serie Sherlock.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
+        });
+    </script>
+
+    <!-- ==================== SCHEMA JSON-LD ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "FFmpeg: Tres Demuxers, Un Mismo Pecado — SIGFPE en VPK, Memory Leak en VQF y Hang en Smacker",
+      "description": "Tres vulnerabilidades DoS en demuxers de FFmpeg halladas por fuzzing autónomo: división por cero en VPK (CWE-369, parcheada en 8.1.2), leak de memoria escalable en VQF (CWE-401) y bucle masivo en Smacker (CWE-400), ambas sin parche. Evidencia ASAN, LeakSanitizer, valgrind y gdb.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2026-08-21",
+      "dateModified": "2026-08-21",
+      "mainEntityOfPage": "https://tty503.com/ffmpeg-demuxers-dos-vpk-vqf-smacker.html",
+      "image": "https://tty503.com/img/ffmpeg-vpk-demuxer-sigfpe-divide-by-zero-asan-evidencia.png",
+      "keywords": ["FFmpeg", "demuxer", "VPK", "VQF", "Smacker", "CWE-369", "CWE-401", "CWE-400", "denial of service", "SIGFPE", "memory leak", "hang", "fuzzing"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "2500",
+      "timeRequired": "PT16M",
+      "about": [
+        { "@type": "Thing", "name": "Vulnerability Research" },
+        { "@type": "Thing", "name": "Denegación de Servicio" },
+        { "@type": "Thing", "name": "FFmpeg libavformat" }
+      ]
+    }
+    </script>
+</body>
+</html>

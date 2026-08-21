@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://tty503.com/analystty.html">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="tty503">
-    <meta property="og:image" content="https://tty503.com/img/analyst0.jpg">
+    <meta property="og:image" content="https://tty503.com/img/analystty-pipeline-radare2-triage-pe.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Pipeline de automatización con Radare2 y volcado de módulos para triage de malware">
@@ -41,7 +41,7 @@
     <meta name="twitter:creator" content="@tty_503">
     <meta name="twitter:title" content="analystty: Automatiza el Triage de Malware PE con Python, Capstone y x64dbg">
     <meta name="twitter:description" content="Herramienta Python para triage de archivos PE: detección de TTPs, desensamblado con Capstone y breakpoints automáticos en x64dbg.">
-    <meta name="twitter:image" content="https://tty503.com/img/analyst0.jpg">
+    <meta name="twitter:image" content="https://tty503.com/img/analystty-pipeline-radare2-triage-pe.jpg">
     <meta name="twitter:image:alt" content="Pipeline de automatización de triage de malware">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -347,7 +347,7 @@
             <li><strong>Instrumentación:</strong> <span class="mono">medbg</span> traduce las direcciones y establece breakpoints en x64dbg justo antes de las llamadas críticas.</li>
         </ol>
         <div class="image-container">
-            <img src="img/analyst0.jpg" alt="Pipeline de automatización con Radare2 y volcado de módulos desempaquetados en memoria para triage de malware" loading="lazy">
+            <img src="img/analystty-pipeline-radare2-triage-pe.jpg" alt="Pipeline de automatización con Radare2 y volcado de módulos desempaquetados en memoria para triage de malware" loading="lazy">
             <div class="image-caption mono">Automatización del proceso de volcado (dump) de módulos desempaquetados en memoria usando scripts sobre Radare2 para triage de malware.</div>
         </div>
 
@@ -375,7 +375,7 @@
             Esto nos permite pasar de una lista plana de imports a un <strong>call graph</strong> simplificado, donde vemos que, por ejemplo, la función en <span class="mono">0x140001450</span> es la responsable de ejecutar comandos y evadir sandboxes. Esta capacidad de trazar la relación entre APIs sospechosas y las funciones que las invocan es lo que diferencia un análisis automatizado real de una simple enumeración de imports.
         </p>
         <div class="image-container">
-            <img src="img/analyst2.jpg" alt="Tablas de correlación de funciones y APIs: mapeo de direcciones de instrucciones a funciones API como Sleep y WinExec" loading="lazy">
+            <img src="img/analystty-correlacion-funciones-api-sospechosas.jpg" alt="Tablas de correlación de funciones y APIs: mapeo de direcciones de instrucciones a funciones API como Sleep y WinExec" loading="lazy">
             <div class="image-caption mono">Resultados del módulo de correlación: mapeo de direcciones de instrucciones (ADDR) a funciones API (NAME) como Sleep y WinExec dentro de sus respectivas funciones contenedoras (START).</div>
         </div>
 
@@ -396,7 +396,7 @@
             Con esto, la herramienta coloca breakpoints automáticamente justo en las instrucciones <span class="mono">call rax</span> o en los saltos a las APIs sospechosas, eliminando la necesidad de calcular offsets manualmente.
         </p>
         <div class="image-container">
-            <img src="img/analyst1.jpg" alt="Sesión de x64dbg con breakpoints automáticos establecidos tras la traducción de direcciones" loading="lazy">
+            <img src="img/analystty-x64dbg-breakpoints-automaticos.jpg" alt="Sesión de x64dbg con breakpoints automáticos establecidos tras la traducción de direcciones" loading="lazy">
             <div class="image-caption mono">Sesión de x64dbg instrumentada. Se observan los breakpoints establecidos automáticamente tras la traducción de direcciones, apuntando a instrucciones críticas del binario analizado.</div>
         </div>
 
@@ -419,7 +419,7 @@
             Este caso real está documentado en profundidad en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, donde además se cubren las técnicas de evasión que el dropper implementaba y cómo el pipeline de analystty permitió identificar sus capacidades en minutos en lugar de horas. Las <a href="myPracticalShellcodeC2.html">técnicas de inyección documentadas en el C2 Builder</a> comparten el mismo ADN que este dropper: API Hashing, inyección en memoria y persistencia en el registro de Windows.
         </p>
         <div class="image-container">
-            <img src="img/analyst3.jpg" alt="Validación manual de offsets calculados por analystty confirmando breakpoints en funciones maliciosas" loading="lazy">
+            <img src="img/analystty-validacion-offsets-breakpoints-x64dbg.jpg" alt="Validación manual de offsets calculados por analystty confirmando breakpoints en funciones maliciosas" loading="lazy">
             <div class="image-caption mono">Validación manual de los offsets calculados por la herramienta. Se confirma que los breakpoints apuntan correctamente a las funciones maliciosas en el espacio de memoria del proceso.</div>
         </div>
 
@@ -516,7 +516,7 @@
       "datePublished": "2024-10-01",
       "dateModified": "2025-11-30",
       "mainEntityOfPage": "https://tty503.com/analystty.html",
-      "image": "https://tty503.com/img/analyst0.jpg",
+      "image": "https://tty503.com/img/analystty-pipeline-radare2-triage-pe.jpg",
       "keywords": ["malware analysis", "PE triage", "Python", "Capstone", "x64dbg", "API Hashing", "TTPs", "MITRE ATT&CK", "reverse engineering", "pefile", "Radare2", "breakpoints automáticos"],
       "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
       "inLanguage": "es",

@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://tty503.com/myPracticalShellcodeC2.html">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="tty503">
-    <meta property="og:image" content="https://tty503.com/img/bugbuilder-2.png">
+    <meta property="og:image" content="https://tty503.com/img/bugbuilder-c2-cliente-conectado-activo.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="BugBuilder C2 activo con cliente conectado">
@@ -41,7 +41,7 @@
     <meta name="twitter:creator" content="@tty_503">
     <meta name="twitter:title" content="De winshellcode a BugBuilder: Compendio de Técnicas de Inyección y C2 en Windows">
     <meta name="twitter:description" content="Compendio de desarrollo de malware ofensivo: shellcode, inyección, evasión, persistencia y builder C2 en C#.">
-    <meta name="twitter:image" content="https://tty503.com/img/bugbuilder-2.png">
+    <meta name="twitter:image" content="https://tty503.com/img/bugbuilder-c2-cliente-conectado-activo.png">
     <meta name="twitter:image:alt" content="BugBuilder C2 activo">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -539,19 +539,19 @@
 
         <h3 class="subsection-title">Interfaz de Construcción (Builder)</h3>
         <div class="image-container">
-            <img src="img/bugbuilder-0.png" alt="Pestaña Builder de BugBuilder mostrando configuración de red, ofuscación y entrega del payload" loading="lazy">
+            <img src="img/bugbuilder-panel-c2-opciones-ofuscacion.png" alt="Pestaña Builder de BugBuilder mostrando configuración de red, ofuscación y entrega del payload" loading="lazy">
             <div class="image-caption mono">bugbuilder-0.png — Pestaña Builder. Se observa la configuración de red (Host, Puerto 3323), las opciones de Encode Traffic (Base64, XOR), Compress Traffic (Deflate, GZip, LZW, Huffman, RLE, LZMA) y Encrypt Traffic (AES, RSA). En la parte inferior, la sección Set Up Delivery permite asignar nombre al archivo ("Bug") y seleccionar un ícono de camuflaje. El botón "Build" inicia la generación del ejecutable malicioso utilizando el compilador interno CodeDOM.</div>
         </div>
 
         <h3 class="subsection-title">Panel de Control Vacío (Infected)</h3>
         <div class="image-container">
-            <img src="img/bugbuilder-1.png" alt="Pestaña Infected de BugBuilder sin conexiones, mostrando las columnas del grid" loading="lazy">
+            <img src="img/bugbuilder-grid-bots-conectados-infected.png" alt="Pestaña Infected de BugBuilder sin conexiones, mostrando las columnas del grid" loading="lazy">
             <div class="image-caption mono">bugbuilder-1.png — Pestaña Infected en estado inicial. La grilla está vacía, esperando conexiones entrantes. Las columnas definen la información que se extraerá de las víctimas: IP, Country, User@PC, Status, Operating System y Ping (ms). Esta vista representa el panel de Comando y Control (C2) antes de que el payload sea desplegado.</div>
         </div>
 
         <h3 class="subsection-title">Conexión Exitosa (C2 Activo)</h3>
         <div class="image-container">
-            <img src="img/bugbuilder-2.png" alt="BugBuilder en funcionamiento con un cliente conectado desde Venezuela" loading="lazy">
+            <img src="img/bugbuilder-c2-cliente-conectado-activo.png" alt="BugBuilder en funcionamiento con un cliente conectado desde Venezuela" loading="lazy">
             <div class="image-caption mono">bugbuilder-2.png — Prueba de concepto en funcionamiento. El servidor escucha en 0.0.0.0:3323. Se ha recibido una conexión de un cliente de prueba: IP 192.168.1.10, País Venezuela, Hostname DESKTOP-ABCDE, Sistema Operativo Windows 10, con un ping de 45 ms. En la ventana de fondo se aprecia la consola del cliente de pruebas (ClientTCPTest.exe) ejecutándose, simulando la máquina víctima. Esta captura valida la arquitectura completa del proyecto.</div>
         </div>
 
@@ -1070,7 +1070,7 @@
       "datePublished": "2026-05-22",
       "dateModified": "2026-05-22",
       "mainEntityOfPage": "https://tty503.com/myPracticalShellcodeC2.html",
-      "image": "https://tty503.com/img/bugbuilder-2.png",
+      "image": "https://tty503.com/img/bugbuilder-c2-cliente-conectado-activo.png",
       "keywords": ["shellcode", "WinExec", "ExitProcess", "kernel32", "dropper", "C2", "Malware Dev", "C#", ".NET", "TCP", "reverse engineering", "little-endian", "assembly", "Mingw-w64", "BugBuilder", "tty503", "inyeccion de codigo", "DLL injection", "APC injection", "thread hijacking", "API hooking", "XOR encryption", "persistencia", "Windows registry", "API hashing", "PEB", "TEB", "PE file structure", "Early Bird injection"],
       "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
       "inLanguage": "es",

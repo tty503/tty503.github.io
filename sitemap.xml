@@ -12,7 +12,7 @@
     <!-- ===================================================================== -->
     <url>
         <loc>https://tty503.com/</loc>
-        <lastmod>2026-07-28</lastmod>
+        <lastmod>2026-08-21</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
         <image:image>
@@ -35,27 +35,27 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
-        <image:image><image:loc>https://tty503.com/img/aboutme-0.jpg</image:loc><image:title>Barco navegando bajo la luna — El inicio del viaje técnico</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-1.jpg</image:loc><image:title>Texto pixelado retro reflexionando sobre decisiones y pensamientos</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-2.jpg</image:loc><image:title>Collage glitch con vela y código getHiddenObservers</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-3.jpg</image:loc><image:title>Editor hexadecimal distorsionado con fragmentos de código</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-4.jpg</image:loc><image:title>Lost Wormhole - Wrong House: póster distópico de casa en llamas</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-5.jpg</image:loc><image:title>Escritorio Windows retro con herramientas de reversing: Hopper, NASM, LordPE, CFF Explorer</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-6.jpg</image:loc><image:title>VS Code con estructura MITRE ATT&amp;CK, reglas Yara y código de descifrado en C</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-7.jpg</image:loc><image:title>Script gladiador.py usando Capstone para desensamblar malware</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-8.jpg</image:loc><image:title>BBS Seknet con hilos sobre syscalls Linux, PEB, evasión de firewall chino</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-9.jpg</image:loc><image:title>Ghidra CodeBrowser desensamblando strings1.exe con flags y MessageBox</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-10.jpg</image:loc><image:title>VirtualBox con OpenBSD, Ansible cookbooks en GitHub, ping exitoso</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-11.jpg</image:loc><image:title>Máquina virtual C2-Setup1 con agente de comando y control en Windows</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-12.jpg</image:loc><image:title>Meme sobre 3GB de RAM y máquina virtual Debian-INetSim en modo Low Memory</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-13.jpg</image:loc><image:title>Paisaje urbano con estatuas de mármol y montaña al fondo</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-14.jpg</image:loc><image:title>Perfil Kr0pl0its en foro de seguridad, registrado en 2016</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/aboutme-15.jpg</image:loc><image:title>Laboratorio de electrónica con osciloscopio, multímetro, fuentes y cables</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/c_bitwise_popcount_lookup_table.jpg</image:loc><image:title>Código C para conteo de bits con tabla de consulta</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/c_bitwise_bit_status_functions.jpg</image:loc><image:title>Funciones C para verificar estado de bits individuales</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/c_bitwise_byte_packing_serialization.jpg</image:loc><image:title>Algoritmo C para empaquetado de bytes</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/c_bitwise_byte_unpacking_deserialization.jpg</image:loc><image:title>Algoritmo C para desempaquetado de bytes</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/windows_x86_shellcode_debugging_environment.jpg</image:loc><image:title>Laboratorio forense con Windows Embedded 7, depurador y shellcode x86</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-barco-luna-inicio-viaje.jpg</image:loc><image:title>Barco navegando bajo la luna — El inicio del viaje técnico</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-texto-pixelado-reflexion.jpg</image:loc><image:title>Texto pixelado retro reflexionando sobre decisiones y pensamientos</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-collage-glitch-codigo.jpg</image:loc><image:title>Collage glitch con vela y código getHiddenObservers</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-editor-hexadecimal-distorsionado.jpg</image:loc><image:title>Editor hexadecimal distorsionado con fragmentos de código</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-poster-distopico-lost-wormhole.jpg</image:loc><image:title>Lost Wormhole - Wrong House: póster distópico de casa en llamas</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-escritorio-reversing-hopper-nasm.jpg</image:loc><image:title>Escritorio Windows retro con herramientas de reversing: Hopper, NASM, LordPE, CFF Explorer</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-vscode-mitre-attack-yara-descifrado.jpg</image:loc><image:title>VS Code con estructura MITRE ATT&amp;CK, reglas Yara y código de descifrado en C</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-capstone-desensamblando-malware.jpg</image:loc><image:title>Script gladiador.py usando Capstone para desensamblar malware</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-bbs-syscalls-linux-peb.jpg</image:loc><image:title>BBS Seknet con hilos sobre syscalls Linux, PEB, evasión de firewall chino</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-ghidra-desensamblando-binario.jpg</image:loc><image:title>Ghidra CodeBrowser desensamblando strings1.exe con flags y MessageBox</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-openbsd-ansible-virtualbox.jpg</image:loc><image:title>VirtualBox con OpenBSD, Ansible cookbooks en GitHub, ping exitoso</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-agente-c2-windows-laboratorio.jpg</image:loc><image:title>Máquina virtual C2-Setup1 con agente de comando y control en Windows</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-debian-inetsim-low-memory.jpg</image:loc><image:title>Meme sobre 3GB de RAM y máquina virtual Debian-INetSim en modo Low Memory</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-estatuas-marmol-montana.jpg</image:loc><image:title>Paisaje urbano con estatuas de mármol y montaña al fondo</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-perfil-foro-seguridad-2016.jpg</image:loc><image:title>Perfil Kr0pl0its en foro de seguridad, registrado en 2016</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/trayectoria-laboratorio-electronica-osciloscopio.jpg</image:loc><image:title>Laboratorio de electrónica con osciloscopio, multímetro, fuentes y cables</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/c-bitwise-popcount-tabla-lookup.jpg</image:loc><image:title>Código C para conteo de bits con tabla de consulta</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/c-bitwise-funciones-estado-bits.jpg</image:loc><image:title>Funciones C para verificar estado de bits individuales</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/c-bitwise-empaquetado-bytes-serializacion.jpg</image:loc><image:title>Algoritmo C para empaquetado de bytes</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/c-bitwise-desempaquetado-bytes-deserializacion.jpg</image:loc><image:title>Algoritmo C para desempaquetado de bytes</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/laboratorio-debug-shellcode-x86-windows.jpg</image:loc><image:title>Laboratorio forense con Windows Embedded 7, depurador y shellcode x86</image:title></image:image>
     </url>
 
     <!-- ===================================================================== -->
@@ -68,16 +68,8 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/plc-2.jpg</image:loc><image:title>Laboratorio de Ingeniería Inversa MC7 — Hexdump, Rizin y WinSPS-S7</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/photo_2025-03-26_15-01-30.jpg</image:loc><image:title>Entorno de Programación PG 2000 con Emulador de PLC S5</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/photo_2025-04-09_12-41-11.jpg</image:loc><image:title>Placa Base de PLC S7-1200 y Análisis Hexadecimal de Firmware .upd</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/Sin_título.webp</image:loc><image:title>Esquema de Escape de Sandbox — CVE-2020-15782 en PLC S7-1200/1500</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/Sin_título2.webp</image:loc><image:title>Flujo de Compilación — De Código Lógico a Bytecode MC7/MC7+</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/photo_2026-06-05_10-38-03.jpg</image:loc><image:title>Análisis con Rizin — Ingeniería Inversa de Archivo Binario MC7</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/photo_2025-03-27_18-22-46.jpg</image:loc><image:title>Desensamblado de Código PLC — Listado de Instrucciones de Bajo Nivel</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/photo_2025-03-31_12-16-20.jpg</image:loc><image:title>Estructura de Datos SDB — Memoria de PLC S7-300 y Bloque de Contraseñas</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/Estructura_Bloques_Siemens.png</image:loc><image:title>Diagrama de Bloques Organizacionales — OB, FC, FB en SIMATIC S7</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/1761986030277.jpeg</image:loc><image:title>Arquitectura de Memoria PLC — Jerarquía de Bloques y Sistema Operativo</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/plc-siemens-laboratorio-ingenieria-inversa-mc7-rizin.jpg</image:loc><image:title>Laboratorio de Ingeniería Inversa MC7 — Hexdump, Rizin y WinSPS-S7</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/siemens-s7-estructura-bloques-ob-fc-fb.png</image:loc><image:title>Diagrama de Bloques Organizacionales — OB, FC, FB en SIMATIC S7</image:title></image:image>
     </url>
 
     <!-- SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA (Python/Flask) -->
@@ -86,17 +78,17 @@
         <lastmod>2026-06-25</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/grafo-principal-interfaz.png</image:loc><image:title>Interfaz principal del grafo mostrando fases y detalles del nodo seleccionado.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/progreso-global-dashboard.png</image:loc><image:title>Vista general del progreso de fases y estado de integración de nodos.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/detalle-tecnico-nodo-v05.png</image:loc><image:title>Vista detallada del nodo V05 con información de auditoría y referencias MITRE.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/documentacion-api-endpoints.png</image:loc><image:title>Interfaz de documentación de la API con endpoints para gestión de datos.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/dashboard-flujo-hibrido.png</image:loc><image:title>Interfaz del flujo de trabajo con gestión de primitivas y ejecución.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/panel-validacion-integridad.png</image:loc><image:title>Panel de control para verificar y limpiar referencias de logs inexistentes.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/editor-datos-vectorial.png</image:loc><image:title>Editor para la creación rápida y gestión de vectores de ataque.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/interfaz-carga-descarga-json.png</image:loc><image:title>Panel para la gestión de archivos de configuración JSON.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/ayuda-consola-saint-grail.png</image:loc><image:title>Menú de comandos del script saint_grail.sh para control del orquestador.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/ejecucion-status-orquestador.png</image:loc><image:title>Vista de consola con estado de API, presupuesto de tokens y ciclo de trabajo.</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/arquitectura-componentes-resumen.png</image:loc><image:title>Resumen detallado de la arquitectura de la API, frontend, dashboard y utilidades del sistema.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-grafo-interfaz-principal-fases.png</image:loc><image:title>Interfaz principal del grafo mostrando fases y detalles del nodo seleccionado.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-progreso-global-fases-dashboard.png</image:loc><image:title>Vista general del progreso de fases y estado de integración de nodos.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-detalle-tecnico-nodo-mitre.png</image:loc><image:title>Vista detallada del nodo V05 con información de auditoría y referencias MITRE.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-documentacion-api-endpoints-rest.png</image:loc><image:title>Interfaz de documentación de la API con endpoints para gestión de datos.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-dashboard-flujo-hibrido-agentes.png</image:loc><image:title>Interfaz del flujo de trabajo con gestión de primitivas y ejecución.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-panel-validacion-integridad-referencias.png</image:loc><image:title>Panel de control para verificar y limpiar referencias de logs inexistentes.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-editor-vectores-ataque.png</image:loc><image:title>Editor para la creación rápida y gestión de vectores de ataque.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-gestion-configuracion-json.png</image:loc><image:title>Panel para la gestión de archivos de configuración JSON.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-consola-comandos-orquestador.png</image:loc><image:title>Menú de comandos del script saint_grail.sh para control del orquestador.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-status-orquestador-presupuesto-tokens.png</image:loc><image:title>Vista de consola con estado de API, presupuesto de tokens y ciclo de trabajo.</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/saint-grail-arquitectura-componentes-api-dashboard.png</image:loc><image:title>Resumen detallado de la arquitectura de la API, frontend, dashboard y utilidades del sistema.</image:title></image:image>
     </url>
 
     <!-- SAINT GRAIL: De Python a Go, Resultados Concretos y el Futuro del Bug Hunting Autónomo (NUEVO) -->
@@ -106,32 +98,32 @@
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
         <image:image>
-            <image:loc>https://tty503.com/img/saint_grail_horizontal_workflow.jpg</image:loc>
+            <image:loc>https://tty503.com/img/saint-grail-go-dashboard-workflow-tiempo-real.jpg</image:loc>
             <image:title>Dashboard principal mostrando fases y estado global (versión Go).</image:title>
             <image:caption>El dashboard actualizado con datos en tiempo real desde la nueva API en Go.</image:caption>
         </image:image>
         <image:image>
-            <image:loc>https://tty503.com/img/saint_grail_cli_status.jpg</image:loc>
+            <image:loc>https://tty503.com/img/saint-grail-go-cli-status-tiempo-real.jpg</image:loc>
             <image:title>Consola CLI mostrando estado de API y flujo de trabajo.</image:title>
             <image:caption>El nuevo CLI en Go muestra en tiempo real el estado del agente y el presupuesto de tokens.</image:caption>
         </image:image>
         <image:image>
-            <image:loc>https://tty503.com/img/fuzztoolkit_poc_test_tmp.jpg</image:loc>
+            <image:loc>https://tty503.com/img/saint-grail-go-poc-ejecucion-terminal-verificacion.jpg</image:loc>
             <image:title>Ejecución de PoC y verificación en /tmp.</image:title>
             <image:caption>Ejecución del PoC en terminal y verificación del archivo generado en /tmp.</image:caption>
         </image:image>
         <image:image>
-            <image:loc>https://tty503.com/img/saint_grail_browser_poc_runner.jpg</image:loc>
+            <image:loc>https://tty503.com/img/saint-grail-go-motor-ejecucion-poc-navegador.jpg</image:loc>
             <image:title>Motor de PoC en el navegador.</image:title>
             <image:caption>El motor de ejecución de PoCs en el navegador, mostrando el progreso en tiempo real.</image:caption>
         </image:image>
         <image:image>
-            <image:loc>https://tty503.com/img/saint_grail_jerarquico_fase3.jpg</image:loc>
+            <image:loc>https://tty503.com/img/saint-grail-go-vista-jerarquica-fases-grafo.jpg</image:loc>
             <image:title>Vista jerárquica del grafo y ficha técnica de fase.</image:title>
             <image:caption>Disposición jerárquica del grafo con fases, vectores y brechas. Detalle de la FASE_3 (UAF Entry).</image:caption>
         </image:image>
         <image:image>
-            <image:loc>https://tty503.com/img/saint_grail_force_graph_v05.jpg</image:loc>
+            <image:loc>https://tty503.com/img/saint-grail-go-grafo-fuerza-mapeo-mitre.jpg</image:loc>
             <image:title>Grafo de red interactivo y mapeo MITRE.</image:title>
             <image:caption>Layout de fuerza mostrando nodos interconectados. Inspección del nodo V05 con técnica MITRE ATT&amp;CK asociada.</image:caption>
         </image:image>
@@ -143,22 +135,22 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/windows-user-kernel-modes.png</image:loc><image:title>Diagrama de arquitectura de modos de operación en Windows</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/virtual-physical-memory-mapping.png</image:loc><image:title>Mapeo de memoria virtual a física entre procesos</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/windows-2000-architecture-core.png</image:loc><image:title>Arquitectura completa del sistema operativo Windows NT/2000</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/pci-device-objects-tree.png</image:loc><image:title>Árbol jerárquico de objetos de dispositivo PCI</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/pdo-fdo-device-objects.png</image:loc><image:title>Relación entre PDO y FDO en el Bus PCI</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/device-stack-filter-fdo-pdo.png</image:loc><image:title>Pila de dispositivos con filtro, FDO y PDO</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/proseware-gizmo-stack-details.png</image:loc><image:title>Detalle de la pila de Proseware Gizmo</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/umdf-kmdf-usb-stack.png</image:loc><image:title>Arquitectura híbrida UMDF y KMDF para dispositivo USB</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/arquitectura_dotnet_windows.png</image:loc><image:title>Diagrama de arquitectura .NET y Windows</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/configuracion_ip_estatica_win10.png</image:loc><image:title>Configuración de IP estática en Windows 10</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/inetsim_ejecucion_vms.png</image:loc><image:title>INetSim ejecutándose en las tres máquinas virtuales</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/fakedns_redireccion_win10.png</image:loc><image:title>fakedns redirigiendo tráfico en Windows 10</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/fakedns_inetsim_kali.png</image:loc><image:title>Redirección DNS vista desde Kali Linux</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/servidor_http_python_kali.png</image:loc><image:title>Servidor HTTP Python en Kali Linux</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/listado_directorio_navegador_host.png</image:loc><image:title>Listado de directorios del home de Kali expuesto vía HTTP</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/servidor_http_python_win10.png</image:loc><image:title>Servidor HTTP Python en Windows 10</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/windows-modos-usuario-kernel-arquitectura.png</image:loc><image:title>Diagrama de arquitectura de modos de operación en Windows</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/windows-mapeo-memoria-virtual-fisica-procesos.png</image:loc><image:title>Mapeo de memoria virtual a física entre procesos</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/windows-nt-arquitectura-nucleo-internals.png</image:loc><image:title>Arquitectura completa del sistema operativo Windows NT/2000</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/windows-kernel-arbol-dispositivos-pci.png</image:loc><image:title>Árbol jerárquico de objetos de dispositivo PCI</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/windows-kernel-relacion-pdo-fdo-bus-pci.png</image:loc><image:title>Relación entre PDO y FDO en el Bus PCI</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/windows-kernel-pila-dispositivos-filtro-fdo-pdo.png</image:loc><image:title>Pila de dispositivos con filtro, FDO y PDO</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/windows-kmdf-pila-proseware-gizmo.png</image:loc><image:title>Detalle de la pila de Proseware Gizmo</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/windows-drivers-umdf-kmdf-pila-usb.png</image:loc><image:title>Arquitectura híbrida UMDF y KMDF para dispositivo USB</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/exploit-lab-arquitectura-dotnet-windows.png</image:loc><image:title>Diagrama de arquitectura .NET y Windows</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/exploit-lab-ip-estatica-win10-laboratorio.png</image:loc><image:title>Configuración de IP estática en Windows 10</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/exploit-lab-inetsim-tres-maquinas-virtuales.png</image:loc><image:title>INetSim ejecutándose en las tres máquinas virtuales</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/exploit-lab-fakedns-redireccion-dns-win10.png</image:loc><image:title>fakedns redirigiendo tráfico en Windows 10</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/exploit-lab-fakedns-redireccion-kali-inetsim.png</image:loc><image:title>Redirección DNS vista desde Kali Linux</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/exploit-lab-servidor-http-python-kali.png</image:loc><image:title>Servidor HTTP Python en Kali Linux</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/exploit-lab-http-server-listado-directorio-host.png</image:loc><image:title>Listado de directorios del home de Kali expuesto vía HTTP</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/exploit-lab-servidor-http-python-win10.png</image:loc><image:title>Servidor HTTP Python en Windows 10</image:title></image:image>
     </url>
 
     <!-- Evasión Estática a Bajo Nivel: Mirai con Aritmética en ASM -->
@@ -167,16 +159,16 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/vt_malware_detection_before.jpg</image:loc><image:title>VirusTotal — 16/64 detecciones para muestra original de Mirai</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/vt_malware_detection_after.jpg</image:loc><image:title>VirusTotal — 0/65 detecciones tras ofuscación aritmética en ASM</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/evasion-mirai-flowchart.png</image:loc><image:title>Diagrama de flujo del proceso de evasión estática de Mirai</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/opcode-mutation-decision-tree.png</image:loc><image:title>Árbol de decisión para mutación de opcodes según tipo de instrucción</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/stub-denuvo-comparison.png</image:loc><image:title>Comparativa arquitectónica: Stub descifrador vs Denuvo DRM</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/vt-comparison-diagram.png</image:loc><image:title>Comparativa estructural del binario antes y después de la ofuscación</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/dga-mutant-delivery-sequence.png</image:loc><image:title>Arquitectura de entrega mutante con DGA en tres fases</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/mutant-binary-lifecycle.png</image:loc><image:title>Ciclo de vida de un binario mutante: generación a autodestrucción</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/dga-domain-flow.png</image:loc><image:title>Infraestructura DGA: rotación de dominios y dominios señuelo</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/defense-vs-evasion-context.png</image:loc><image:title>Ecosistema de detección vs evasión organizado por capas</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/mirai-virustotal-16-64-detecciones-antes-ofuscacion.jpg</image:loc><image:title>VirusTotal — 16/64 detecciones para muestra original de Mirai</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/mirai-virustotal-0-65-detecciones-despues-ofuscacion.jpg</image:loc><image:title>VirusTotal — 0/65 detecciones tras ofuscación aritmética en ASM</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/evasion-mirai-flujo-ofuscacion-estatica-polimorfismo.png</image:loc><image:title>Diagrama de flujo del proceso de evasión estática de Mirai</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/evasion-mirai-arbol-decision-mutacion-opcodes.png</image:loc><image:title>Árbol de decisión para mutación de opcodes según tipo de instrucción</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/evasion-mirai-stub-descifrador-comparativa-denuvo.png</image:loc><image:title>Comparativa arquitectónica: Stub descifrador vs Denuvo DRM</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/mirai-comparativa-estructural-binario-antes-despues.png</image:loc><image:title>Comparativa estructural del binario antes y después de la ofuscación</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/evasion-mirai-entrega-mutante-dga-tres-fases.png</image:loc><image:title>Arquitectura de entrega mutante con DGA en tres fases</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/evasion-mirai-ciclo-vida-binario-mutante.png</image:loc><image:title>Ciclo de vida de un binario mutante: generación a autodestrucción</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/evasion-mirai-dga-rotacion-dominios-senuelo.png</image:loc><image:title>Infraestructura DGA: rotación de dominios y dominios señuelo</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/evasion-mirai-defensa-vs-evasion-capas-deteccion.png</image:loc><image:title>Ecosistema de detección vs evasión organizado por capas</image:title></image:image>
     </url>
 
     <!-- Herramienta analystty -->
@@ -185,10 +177,10 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/analyst0.jpg</image:loc><image:title>Pipeline de Automatización con Radare2 — analystty</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/analyst1.jpg</image:loc><image:title>Sesión de x64dbg con Breakpoints Automáticos — analystty</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/analyst2.jpg</image:loc><image:title>Tablas de Correlación de Funciones y APIs — analystty</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/analyst3.jpg</image:loc><image:title>Validación de Offsets y Breakpoints — analystty</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/analystty-pipeline-radare2-triage-pe.jpg</image:loc><image:title>Pipeline de Automatización con Radare2 — analystty</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/analystty-x64dbg-breakpoints-automaticos.jpg</image:loc><image:title>Sesión de x64dbg con Breakpoints Automáticos — analystty</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/analystty-correlacion-funciones-api-sospechosas.jpg</image:loc><image:title>Tablas de Correlación de Funciones y APIs — analystty</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/analystty-validacion-offsets-breakpoints-x64dbg.jpg</image:loc><image:title>Validación de Offsets y Breakpoints — analystty</image:title></image:image>
     </url>
 
     <!-- Assembly para Ingeniería Inversa (RE) -->
@@ -205,9 +197,9 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/bugbuilder-0.png</image:loc><image:title>BugBuilder — Panel de Control C2 con opciones de ofuscación</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/bugbuilder-1.png</image:loc><image:title>BugBuilder — Pestaña Infected con grid de bots conectados</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/bugbuilder-2.png</image:loc><image:title>BugBuilder — C2 activo con cliente conectado desde Venezuela</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/bugbuilder-panel-c2-opciones-ofuscacion.png</image:loc><image:title>BugBuilder — Panel de Control C2 con opciones de ofuscación</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/bugbuilder-grid-bots-conectados-infected.png</image:loc><image:title>BugBuilder — Pestaña Infected con grid de bots conectados</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/bugbuilder-c2-cliente-conectado-activo.png</image:loc><image:title>BugBuilder — C2 activo con cliente conectado desde Venezuela</image:title></image:image>
     </url>
 
     <!-- PLC Siemens S5/S7 — Seguridad OT e Infraestructuras Críticas -->
@@ -216,16 +208,16 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/plc-0.jpg</image:loc><image:title>Tablero de Control Industrial — Riel DIN con Interruptor y Relés</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/plc-1.jpg</image:loc><image:title>Diagrama P&amp;ID de Estación de Proceso</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/plc-2.jpg</image:loc><image:title>Laboratorio de Ingeniería Inversa MC7 — Hexdump, Rizin y WinSPS-S7</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/plc-3.jpg</image:loc><image:title>Monitor CRT con Software SCADA Intellution FIX View</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/plc-4.jpg</image:loc><image:title>Entorno de Programación STEP5 para PLC Siemens S5</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/image_2025-03-18_17-30-41.png</image:loc><image:title>Diagrama de Tiempos — Flip-Flop S/R en PLC Siemens S5</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/image_2025-03-18_17-52-51.png</image:loc><image:title>Gráfica de Estados — Comportamiento del Pulsador y LED en S5</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/image_2025-04-03_11-44-03.png</image:loc><image:title>Formato de Puntero en STEP5 — Direccionamiento Indirecto</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/image_2025-04-03_11-45-55.png</image:loc><image:title>Formato de Puntero en STEP7 — Palabra de 16 bits</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/image_2025-04-03_14-00-15.png</image:loc><image:title>Formato de Puntero en STEP7 — Palabra Doble de 32 bits</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/plc-industrial-tablero-control-reles-riel-din.jpg</image:loc><image:title>Tablero de Control Industrial — Riel DIN con Interruptor y Relés</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/plc-estacion-proceso-diagrama-pid.jpg</image:loc><image:title>Diagrama P&amp;ID de Estación de Proceso</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/plc-siemens-laboratorio-ingenieria-inversa-mc7-rizin.jpg</image:loc><image:title>Laboratorio de Ingeniería Inversa MC7 — Hexdump, Rizin y WinSPS-S7</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/scada-intellution-fix-monitor-crt-industrial.jpg</image:loc><image:title>Monitor CRT con Software SCADA Intellution FIX View</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/step5-programacion-plc-siemens-s5-entorno.jpg</image:loc><image:title>Entorno de Programación STEP5 para PLC Siemens S5</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/step5-flipflop-sr-diagrama-tiempos.png</image:loc><image:title>Diagrama de Tiempos — Flip-Flop S/R en PLC Siemens S5</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/step5-pulsador-led-grafica-estados.png</image:loc><image:title>Gráfica de Estados — Comportamiento del Pulsador y LED en S5</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/step5-puntero-direccionamiento-indirecto.png</image:loc><image:title>Formato de Puntero en STEP5 — Direccionamiento Indirecto</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/step7-puntero-palabra-16-bits.png</image:loc><image:title>Formato de Puntero en STEP7 — Palabra de 16 bits</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/step7-puntero-doble-palabra-32-bits.png</image:loc><image:title>Formato de Puntero en STEP7 — Palabra Doble de 32 bits</image:title></image:image>
     </url>
 
     <!-- ===================================================================== -->
@@ -238,36 +230,36 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-0.jpeg</image:loc><image:title>Conversación de Scam de Inversión en Telegram</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-1.jpeg</image:loc><image:title>Análisis de Banner de Servidor — ESMTP Proxmox</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-2.jpeg</image:loc><image:title>Rastreo de Wallets de Criptomonedas — Blockchain Forensics</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-3.jpeg</image:loc><image:title>Listado de IoCs — Dominios Clonados</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-4.jpeg</image:loc><image:title>Sitio Fraudulento cmdxcapital.com — IP Geolocalizada</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-5.jpeg</image:loc><image:title>Vector de Ataque Inicial — Cuenta de Telegram</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-6.jpeg</image:loc><image:title>Flujo de Ejecución del Dropper — Punto de No Retorno en Ghidra</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-7.jpeg</image:loc><image:title>Técnica de API Hashing — Evasión de Detección Estática</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-8.jpeg</image:loc><image:title>Instalación Furtiva en AppData — Atributos OCULTO + SISTEMA</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-9.jpeg</image:loc><image:title>Payloads Desplegados — Binario de Nuitka</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-10.jpeg</image:loc><image:title>Diagrama de TTPs del Dropper</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-11.jpeg</image:loc><image:title>Script dump.sh — Automatización de Volcados con Radare2</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-12.jpeg</image:loc><image:title>Volcados Masivos y Archivo functions_to_dump.txt</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-13.jpeg</image:loc><image:title>Persistencia en Registro de Windows — Clave Run</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-14.jpeg</image:loc><image:title>Panel de Proxmox VE 9.0.3 — Entorno de Análisis Aislado</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-15.jpeg</image:loc><image:title>Correo de Phishing — Suplantación de Druni</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-16.jpeg</image:loc><image:title>Cabeceras de Autenticación de Correo — SPF, DKIM y DMARC</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-17.jpeg</image:loc><image:title>Listado de Artefactos Forenses</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-18.jpeg</image:loc><image:title>Script hreflon.htm — Redirección alojada en Google Cloud</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-19.jpeg</image:loc><image:title>Script file.ps1 — PowerShell Ofuscado</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-20.jpeg</image:loc><image:title>Suite NetSupport Manager — DLL Sideloading</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-21.jpeg</image:loc><image:title>Página Señuelo Coming Soon — gremorygame.net</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-22.jpeg</image:loc><image:title>Archivo authroot.stl — Lista de Certificados</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-23.jpeg</image:loc><image:title>Script Forense sc.py — Análisis Automatizado</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-24.jpeg</image:loc><image:title>Diagrama de Kill Chain Completa — NetSupport RAT</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-25.jpeg</image:loc><image:title>Gráfico de VirusTotal — Red de Estafa Piramidal Global</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-26.png</image:loc><image:title>Perfil falso del CEO de WTNBIT</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-27.jpeg</image:loc><image:title>Plataforma VCIMP falsa en indonesio</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-28.png</image:loc><image:title>Notas de análisis — Conexión ShinyHunters y Rekrute</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat-hunter-recollection-29.jpg</image:loc><image:title>Logotipo de Phemex suplantado</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-00-telegram-estafa-inversion.jpeg</image:loc><image:title>Conversación de Scam de Inversión en Telegram</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-01-banner-esmtp-proxmox.jpeg</image:loc><image:title>Análisis de Banner de Servidor — ESMTP Proxmox</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-02-rastreo-wallets-blockchain.jpeg</image:loc><image:title>Rastreo de Wallets de Criptomonedas — Blockchain Forensics</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-03-iocs-dominios-clonados.jpeg</image:loc><image:title>Listado de IoCs — Dominios Clonados</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-04-sitio-fraudulento-geolocalizado.jpeg</image:loc><image:title>Sitio Fraudulento cmdxcapital.com — IP Geolocalizada</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-05-vector-inicial-telegram.jpeg</image:loc><image:title>Vector de Ataque Inicial — Cuenta de Telegram</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-06-dropper-ghidra-punto-no-retorno.jpeg</image:loc><image:title>Flujo de Ejecución del Dropper — Punto de No Retorno en Ghidra</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-07-api-hashing-evasion-estatica.jpeg</image:loc><image:title>Técnica de API Hashing — Evasión de Detección Estática</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-08-instalacion-appdata-oculto-sistema.jpeg</image:loc><image:title>Instalación Furtiva en AppData — Atributos OCULTO + SISTEMA</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-09-payloads-binarios-nuitka.jpeg</image:loc><image:title>Payloads Desplegados — Binario de Nuitka</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-10-diagrama-ttps-dropper.jpeg</image:loc><image:title>Diagrama de TTPs del Dropper</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-11-script-dump-radare2-volcados.jpeg</image:loc><image:title>Script dump.sh — Automatización de Volcados con Radare2</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-12-volcados-masivos-funciones.jpeg</image:loc><image:title>Volcados Masivos y Archivo functions_to_dump.txt</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-13-registro-windows-clave-run-persistencia.jpeg</image:loc><image:title>Persistencia en Registro de Windows — Clave Run</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-14-proxmox-entorno-aislado-analisis.jpeg</image:loc><image:title>Panel de Proxmox VE 9.0.3 — Entorno de Análisis Aislado</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-15-phishing-suplantacion-druni.jpeg</image:loc><image:title>Correo de Phishing — Suplantación de Druni</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-16-spf-dkim-dmarc-autenticacion-correo.jpeg</image:loc><image:title>Cabeceras de Autenticación de Correo — SPF, DKIM y DMARC</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-17-artefactos-forenses-listado.jpeg</image:loc><image:title>Listado de Artefactos Forenses</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-18-google-cloud-redireccion-phishing.jpeg</image:loc><image:title>Script hreflon.htm — Redirección alojada en Google Cloud</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-19-powershell-ofuscado-file-ps1.jpeg</image:loc><image:title>Script file.ps1 — PowerShell Ofuscado</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-20-netsupport-manager-dll-sideloading.jpeg</image:loc><image:title>Suite NetSupport Manager — DLL Sideloading</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-21-pagina-senuelo-coming-soon.jpeg</image:loc><image:title>Página Señuelo Coming Soon — gremorygame.net</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-22-authroot-lista-certificados.jpeg</image:loc><image:title>Archivo authroot.stl — Lista de Certificados</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-23-script-forense-sc-py.jpeg</image:loc><image:title>Script Forense sc.py — Análisis Automatizado</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-24-kill-chain-netsupport-rat-diagrama.jpeg</image:loc><image:title>Diagrama de Kill Chain Completa — NetSupport RAT</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-25-virustotal-red-estafa-piramidal.jpeg</image:loc><image:title>Gráfico de VirusTotal — Red de Estafa Piramidal Global</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-26-perfil-falso-ceo-wtnbit.png</image:loc><image:title>Perfil falso del CEO de WTNBIT</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-27-plataforma-falsa-vcimp-indonesio.jpeg</image:loc><image:title>Plataforma VCIMP falsa en indonesio</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-28-notas-shinyhunters-rekrute.png</image:loc><image:title>Notas de análisis — Conexión ShinyHunters y Rekrute</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/threat-hunter-29-phemex-logotipo-suplantado.jpg</image:loc><image:title>Logotipo de Phemex suplantado</image:title></image:image>
     </url>
 
     <!-- Pig Butchering — Fake Crypto Exchange -->
@@ -276,11 +268,11 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-0.png</image:loc><image:title>Diagrama de Infraestructura — Red de Estafa Pig Butchering</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-1.png</image:loc><image:title>Flujo de Engaño — Las Cuatro Fases del Pig Butchering</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-2.png</image:loc><image:title>Secuencia de Conexión WebSocket Fraudulenta</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-3.png</image:loc><image:title>Componentes del Sistema de Chat Fraudulento</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/pig-butchering_cryptoScam-Facebook-4.png</image:loc><image:title>Mensaje de Engaño Inicial — Fase de Captación</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/pig-butchering-infraestructura-estafa-red-dominios.png</image:loc><image:title>Diagrama de Infraestructura — Red de Estafa Pig Butchering</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/pig-butchering-cuatro-fases-enganio-flujo.png</image:loc><image:title>Flujo de Engaño — Las Cuatro Fases del Pig Butchering</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/pig-butchering-websocket-conexion-fraudulenta-secuencia.png</image:loc><image:title>Secuencia de Conexión WebSocket Fraudulenta</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/pig-butchering-chat-componentes-sistema-fraude.png</image:loc><image:title>Componentes del Sistema de Chat Fraudulento</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/pig-butchering-mensaje-captacion-inicial-fase.png</image:loc><image:title>Mensaje de Engaño Inicial — Fase de Captación</image:title></image:image>
     </url>
 
     <!-- Operación FakeWealth — cmdxcapital -->
@@ -289,21 +281,21 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/topology_infrastructure_nodes_cmdx.png</image:loc><image:title>Mapa de Topología de Red — Campaña cmdxcapital</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/cmdxcapital_infrastructure_graph.png</image:loc><image:title>Grafo de Infraestructura — Campaña cmdxcapital</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/scam_cloned_template_history.jpg</image:loc><image:title>Historial de Plantillas Clonadas</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/sequence_laravel_production_crash.png</image:loc><image:title>Diagrama de Secuencia — Crash de Laravel</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/captcha_bypass_logic_flow.png</image:loc><image:title>Diagrama de Flujo — Bypass de Captcha</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/laravel_ignition_crash_cmdxcapital.jpg</image:loc><image:title>Interfaz Ignition Expuesta — cmdxcapital.com</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/swiftmailer_proc_open_stacktrace.jpg</image:loc><image:title>Stacktrace — SwiftMailer proc_open()</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/mysql_queries_leak_users_table.jpg</image:loc><image:title>Consultas SQL Expuestas — MySQL users</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/http_request_data_payload_leak.jpg</image:loc><image:title>Datos de Petición HTTP Expuestos</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/server_environment_variables_exposed.jpg</image:loc><image:title>Variables de Entorno del Servidor Expuestas</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/automation_poc_terminal_output.jpg</image:loc><image:title>Salida de Terminal — Script PoC Automatizado</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/cmdxcapital_btc_wallet_tracking.jpg</image:loc><image:title>Monitoreo de Wallet Bitcoin — cmdxcapital</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/blockchain_ledger_capital_trace.png</image:loc><image:title>Diagrama de Flujo — Lavado de Activos en Blockchain</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/companies_house_uk_spoofing.jpg</image:loc><image:title>Registro de Companies House UK — Empresa Disuelta</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/threat_actor_relationship_graph.png</image:loc><image:title>Grafo de Relaciones — Actores e Infraestructura On-Chain</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/cmdxcapital-topologia-red-mapa-nodos.png</image:loc><image:title>Mapa de Topología de Red — Campaña cmdxcapital</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/cmdxcapital-grafo-infraestructura-cloudflare.png</image:loc><image:title>Grafo de Infraestructura — Campaña cmdxcapital</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/fraude-plantillas-clonadas-historial-web.jpg</image:loc><image:title>Historial de Plantillas Clonadas</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/laravel-crash-produccion-diagrama-secuencia.png</image:loc><image:title>Diagrama de Secuencia — Crash de Laravel</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/cmdxcapital-bypass-captcha-flujo-logico.png</image:loc><image:title>Diagrama de Flujo — Bypass de Captcha</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/laravel-ignition-appdebug-crash-produccion.jpg</image:loc><image:title>Interfaz Ignition Expuesta — cmdxcapital.com</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/swiftmailer-proc-open-stacktrace-laravel.jpg</image:loc><image:title>Stacktrace — SwiftMailer proc_open()</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/laravel-debug-mysql-consultas-sql-expuestas.jpg</image:loc><image:title>Consultas SQL Expuestas — MySQL users</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/laravel-debug-request-datos-expuestos.jpg</image:loc><image:title>Datos de Petición HTTP Expuestos</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/laravel-debug-variables-entorno-servidor-expuestas.jpg</image:loc><image:title>Variables de Entorno del Servidor Expuestas</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/cmdxcapital-poc-automatizacion-terminal.jpg</image:loc><image:title>Salida de Terminal — Script PoC Automatizado</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/cmdxcapital-wallet-bitcoin-monitoreo-blockchain.jpg</image:loc><image:title>Monitoreo de Wallet Bitcoin — cmdxcapital</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/fraude-blockchain-flujo-lavado-activos.png</image:loc><image:title>Diagrama de Flujo — Lavado de Activos en Blockchain</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/companies-house-suplantacion-empresa-disuelta.jpg</image:loc><image:title>Registro de Companies House UK — Empresa Disuelta</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/cmdxcapital-grafo-relaciones-actores-amenaza.png</image:loc><image:title>Grafo de Relaciones — Actores e Infraestructura On-Chain</image:title></image:image>
     </url>
 
     <!-- Operaciones General JP y SilentWarn -->
@@ -312,10 +304,10 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/phishing_traffic_redirection_infrastructure_graph.jpg</image:loc><image:title>Grafo de Infraestructura — Redirección de Phishing General JP</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/phishing_kit_exfiltrated_logins_ledger.png</image:loc><image:title>Bitácora de Credenciales Robadas — Kit General JP</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/meta_phishing_email_intellectual_property_lure.jpg</image:loc><image:title>Correo de Phishing — Suplantación de Meta for Business</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/php_backend_phishing_telemetry_script.jpg</image:loc><image:title>Backend PHP — Exfiltración a Telegram del Kit General JP</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/phishing-general-jp-redireccion-infraestructura-grafo.jpg</image:loc><image:title>Grafo de Infraestructura — Redirección de Phishing General JP</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/phishing-general-jp-bitacora-credenciales-robadas.png</image:loc><image:title>Bitácora de Credenciales Robadas — Kit General JP</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/phishing-meta-business-correo-senuelo.jpg</image:loc><image:title>Correo de Phishing — Suplantación de Meta for Business</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/phishing-kit-php-exfiltracion-telegram-backend.jpg</image:loc><image:title>Backend PHP — Exfiltración a Telegram del Kit General JP</image:title></image:image>
     </url>
 
     <!-- ===================================================================== -->
@@ -328,7 +320,7 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
-        <image:image><image:loc>https://tty503.com/img/infraestructura-tunel-ofuscado.png</image:loc><image:title>Diagrama de Infraestructura — Túnel WireGuard Ofuscado con udp2raw y Proxy Residencial</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/tunel-ofuscado-wireguard-udp2raw-proxy-arquitectura.png</image:loc><image:title>Diagrama de Infraestructura — Túnel WireGuard Ofuscado con udp2raw y Proxy Residencial</image:title></image:image>
     </url>
 
     <!-- Laboratorio SOC/Honeypot -->
@@ -337,9 +329,9 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
-        <image:image><image:loc>https://tty503.com/img/infra-soc.png</image:loc><image:title>Diagrama de Arquitectura Lógica — Laboratorio SOC/Honeypot</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/infra-soc-2.jpeg</image:loc><image:title>Monitoreo en Tiempo Real — Alerta de Zabbix</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/infra-soc-3.jpeg</image:loc><image:title>Diagrama de Arquitectura de Bloques — Borrador Preliminar</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/laboratorio-soc-honeypot-arquitectura-logica.png</image:loc><image:title>Diagrama de Arquitectura Lógica — Laboratorio SOC/Honeypot</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/laboratorio-soc-zabbix-alerta-monitoreo-tiempo-real.jpeg</image:loc><image:title>Monitoreo en Tiempo Real — Alerta de Zabbix</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/laboratorio-soc-arquitectura-bloques-borrador.jpeg</image:loc><image:title>Diagrama de Arquitectura de Bloques — Borrador Preliminar</image:title></image:image>
     </url>
 
     <!-- ===================================================================== -->
@@ -352,14 +344,14 @@
         <lastmod>2026-06-05</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
-        <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-01-data-leak.png</image:loc><image:title>Extracción de Registros — Script de Enumeración IDOR</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-02-auth-basic-error.png</image:loc><image:title>Error de Autenticación — Excepción Interna Expuesta</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-03-media-type-mismatch.png</image:loc><image:title>Error de Media Type — Excepción de Formato Expuesta</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-04-http-headers.png</image:loc><image:title>Encabezados HTTP Interceptados</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-06-jwt-signature.png</image:loc><image:title>Validación JWT — Firma y Librería Expuesta</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-07-successful-data.png</image:loc><image:title>Respuesta Exitosa — Datos de Producto Financiero</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-08-verification-error.png</image:loc><image:title>Intento de Evasión — Validación de Token Fallida</image:title></image:image>
-        <image:image><image:loc>https://tty503.com/img/web-api-pentest2024-10-idor-enumeration.png</image:loc><image:title>Script de Enumeración IDOR — Iteración Secuencial</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/webapi-idor-extraccion-registros-enumeracion.png</image:loc><image:title>Extracción de Registros — Script de Enumeración IDOR</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/webapi-error-autenticacion-excepcion-interna.png</image:loc><image:title>Error de Autenticación — Excepción Interna Expuesta</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/webapi-error-media-type-excepcion-formato.png</image:loc><image:title>Error de Media Type — Excepción de Formato Expuesta</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/webapi-cabeceras-http-interceptadas-proxy.png</image:loc><image:title>Encabezados HTTP Interceptados</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/webapi-jwt-firma-validacion-libreria.png</image:loc><image:title>Validación JWT — Firma y Librería Expuesta</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/webapi-respuesta-datos-producto-financiero.png</image:loc><image:title>Respuesta Exitosa — Datos de Producto Financiero</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/webapi-token-invalido-validacion-fallida.png</image:loc><image:title>Intento de Evasión — Validación de Token Fallida</image:title></image:image>
+        <image:image><image:loc>https://tty503.com/img/webapi-idor-script-enumeracion-secuencial-iteracion.png</image:loc><image:title>Script de Enumeración IDOR — Iteración Secuencial</image:title></image:image>
     </url>
 
     <!-- ===================================================================== -->
@@ -402,4 +394,68 @@
         <priority>0.7</priority>
     </url>
 
+    <!-- ===================================================================== -->
+    <!-- SERIE SHERLOCK: Caza autónoma con IA local (Ago 2026)                -->
+    <!-- ===================================================================== -->
+    <url>
+        <loc>https://tty503.com/sherlock-caza-autonoma-ia-local.html</loc>
+        <lastmod>2026-08-21</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://tty503.com/7zip-isfolderencrypted-oob-read.html</loc>
+        <lastmod>2026-08-21</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <image:image>
+            <image:loc>https://tty503.com/img/7zip-isfolderencrypted-oob-read-asan-evidencia.png</image:loc>
+            <image:title>7-Zip: Heap OOB Read en IsFolderEncrypted (CWE-125)</image:title>
+            <image:caption>Evidencia ASAN del heap-buffer-overflow en el re-parse divergente de CodersData.</image:caption>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://tty503.com/ffmpeg-demuxers-dos-vpk-vqf-smacker.html</loc>
+        <lastmod>2026-08-21</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <image:image>
+            <image:loc>https://tty503.com/img/ffmpeg-vpk-demuxer-sigfpe-divide-by-zero-asan-evidencia.png</image:loc>
+            <image:title>FFmpeg: DoS en demuxers VPK, VQF y Smacker</image:title>
+            <image:caption>Evidencia del SIGFPE por división entre cero en vpk_read_packet.</image:caption>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://tty503.com/libwebp-vp8l-lossless-decode-dos.html</loc>
+        <lastmod>2026-08-21</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <image:image>
+            <image:loc>https://tty503.com/img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png</image:loc>
+            <image:title>libwebp VP8L: DoS por área de imagen no validada (CWE-400)</image:title>
+            <image:caption>Timeout de libFuzzer decodificando un WebP lossless de 34 bytes.</image:caption>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://tty503.com/pcre2-jit-compile-hang-recursion.html</loc>
+        <lastmod>2026-08-21</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <image:image>
+            <image:loc>https://tty503.com/img/pcre2-jit-compile-hang-timeout-getframesize-evidencia.png</image:loc>
+            <image:title>PCRE2: hang en pcre2_jit_compile con (?0) en negative lookahead</image:title>
+            <image:caption>Timeout del harness JIT con stack en get_framesize.</image:caption>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://tty503.com/libarchive-cab-lzx-uninitialized-memory.html</loc>
+        <lastmod>2026-08-21</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <image:image>
+            <image:loc>https://tty503.com/img/libarchive-cab-lzx-uninit-read-ab-evidencia.png</image:loc>
+            <image:title>libarchive: uninitialized heap read en CAB/LZX (CWE-457)</image:title>
+            <image:caption>Comparación A/B entre bsdtar vulnerable y parcheado sobre el mismo CAB.</image:caption>
+        </image:image>
+    </url>
 </urlset>

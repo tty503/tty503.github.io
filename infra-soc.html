@@ -12,14 +12,25 @@
     <meta name="keywords" content="laboratorio SOC, honeypot, T-Pot, Proxmox, OPNsense, Tailscale, Podman, Terraform, Ansible, Wazuh, Zabbix, Prometheus, Grafana, Blue Team, Threat Intelligence, DevSecOps, infraestructura como código">
     <meta name="author" content="Christian Márquez">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://tty503.com/infra-soc">
+    <link rel="canonical" href="https://tty503.com/infra-soc.html">
     <meta name="theme-color" content="#050505">
     
     <meta property="og:title" content="Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización | tty503">
     <meta property="og:description" content="Documentación completa de un laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, y stack de monitoreo con alertas en tiempo real vía Telegram.">
-    <meta property="og:url" content="https://tty503.com/infra-soc">
+    <meta property="og:url" content="https://tty503.com/infra-soc.html">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="tty503 Portfolio">
+    <meta property="og:image" content="https://tty503.com/hat.png">
+    <meta property="og:image:alt" content="tty503 — Laboratorio SOC/Honeypot">
+    <meta property="article:modified_time" content="2025">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización | tty503">
+    <meta name="twitter:description" content="Laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless y stack de monitoreo Wazuh/Zabbix/Prometheus/Grafana.">
+    <meta name="twitter:image" content="https://tty503.com/hat.png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -134,6 +145,22 @@
             .social-links { gap: 1rem; }
         }
     </style>
+    <!-- ==================== SCHEMA JSON-LD ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización",
+      "description": "Documentación completa de la arquitectura de un laboratorio Blue Team/SOC con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y monitoreo en tiempo real con Wazuh, Zabbix, Prometheus y Grafana.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "dateModified": "2025",
+      "mainEntityOfPage": "https://tty503.com/infra-soc.html",
+      "image": "https://tty503.com/hat.png",
+      "keywords": ["laboratorio SOC", "honeypot", "T-Pot", "Proxmox", "OPNsense", "Wazuh", "Blue Team"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es"
+    }
+    </script>
 </head>
 <body>
     <div class="noise-overlay"></div>
@@ -272,7 +299,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/infra-soc.png" alt="Diagrama de arquitectura lógica del laboratorio SOC/Honeypot" loading="lazy">
+            <img src="img/laboratorio-soc-honeypot-arquitectura-logica.png" alt="Diagrama de arquitectura lógica del laboratorio SOC/Honeypot" loading="lazy">
             <div class="image-caption mono">infra-soc.png — Diagrama de arquitectura lógica detallado: Proxmox VE con OPNsense, T-Pot y Proxy Server; VPS SOC/NOC con Wazuh, Zabbix, Prometheus y Grafana; VPS Honeypot Core con Podman rootless y Tailscale Sidecar; VM Home como centro de control con IaC; y flujo de alertas vía Telegram Bot API.</div>
         </div>
 
@@ -323,7 +350,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/infra-soc-2.jpeg" alt="Monitoreo en tiempo real: alerta de Zabbix por Apache caído y recuperación" loading="lazy">
+            <img src="img/laboratorio-soc-zabbix-alerta-monitoreo-tiempo-real.jpeg" alt="Monitoreo en tiempo real: alerta de Zabbix por Apache caído y recuperación" loading="lazy">
             <div class="image-caption mono">infra-soc-2.jpeg — Validación en vivo del laboratorio. Panel de Zabbix mostrando métricas de memoria y escritura en disco. Terminal con systemctl status apache2 confirmando el servicio activo. Chat de Telegram recibiendo la alerta: "Apache: Service is down" y su resolución en 1 minuto. Gráfico de tráfico en interfaz tailscale0 entre 10-35 Kbps.</div>
         </div>
 
@@ -429,7 +456,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/infra-soc-3.jpeg" alt="Diagrama de arquitectura de bloques del laboratorio" loading="lazy">
+            <img src="img/laboratorio-soc-arquitectura-bloques-borrador.jpeg" alt="Diagrama de arquitectura de bloques del laboratorio" loading="lazy">
             <div class="image-caption mono">infra-soc-3.jpeg — Diagrama de arquitectura de bloques (borrador de alto nivel). Muestra la relación directa entre Home y las VPS a través de Tailscale como tejido conector. Proxmox encapsula las tres VMs (Proxy, T-Pot, OPNsense) en el segmento 192.168.x.x. Los nombres de servidores SOC y Honeypot están censurados con marcas rojas por seguridad.</div>
         </div>
 
