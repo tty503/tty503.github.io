@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="hat.png">
+    <link rel="apple-touch-icon" href="hat.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!-- ==================== SEO CORE ==================== -->
+    <title>libwebp: DoS por Área No Validada en el Decoder Lossless VP8L (CWE-400) | tty503</title>
+    <meta name="description" content="Un WebP lossless de 34 bytes declara dimensiones enormes que el decoder VP8L acepta sin comprobar MAX_IMAGE_AREA: decode eterno y saturación de CPU. Análisis del desajuste entre paths lossy/lossless, evidencia con libFuzzer y mitigación.">
+    <meta name="keywords" content="libwebp vulnerabilidad, VP8L, decoder lossless, CWE-400, denegación de servicio, MAX_IMAGE_AREA, webp_dec.c, vp8l_dec.c, ReadImageInfo, timeout libFuzzer, fuzzing IA, bug hunting autónomo, Christian Márquez, tty503">
+    <meta name="author" content="Christian Márquez">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://tty503.com/libwebp-vp8l-lossless-decode-dos.html">
+    <meta name="theme-color" content="#050505">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="libwebp: DoS por Área No Validada en el Decoder Lossless VP8L | tty503">
+    <meta property="og:description" content="34 bytes bastan: el decoder lossless acepta hasta 16384×16384 píxeles sin mirar el área total mientras el path lossy sí la comprueba. Análisis completo con evidencia.">
+    <meta property="og:url" content="https://tty503.com/libwebp-vp8l-lossless-decode-dos.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="tty503">
+    <meta property="og:image" content="https://tty503.com/img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png">
+    <meta property="og:image:alt" content="Terminal mostrando timeout de libFuzzer al decodificar un WebP lossless malformado de 34 bytes">
+    <meta property="article:published_time" content="2026-08-21">
+    <meta property="article:modified_time" content="2026-08-21">
+    <meta property="article:tag" content="Vulnerabilidad">
+    <meta property="article:tag" content="Denegación de Servicio">
+    <meta property="article:tag" content="libwebp">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tty_503">
+    <meta name="twitter:creator" content="@tty_503">
+    <meta name="twitter:title" content="libwebp VP8L: DoS por área de imagen no validada (CWE-400)">
+    <meta name="twitter:description" content="El path lossy valida MAX_IMAGE_AREA; el lossless no. Un WebP de 34 B fuerza decodes de millones de píxeles. Análisis y evidencia reproducible.">
+    <meta name="twitter:image" content="https://tty503.com/img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png">
+    <meta name="twitter:image:alt" content="Evidencia del timeout en el decode lossless de libwebp">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #030303; --bg-surface: #0a0a0a; --bg-card: #111111;
+            --border-subtle: #222222; --border-hover: #444444;
+            --text-primary: #f5f5f5; --text-secondary: #a3a3a3; --text-muted: #666666;
+            --accent: #ffffff; --accent-green: #4ade80; --accent-blue: #60a5fa;
+            --accent-amber: #f59e0b; --accent-red: #ef4444;
+            --syntax-inst: #f07178; --syntax-reg: #82aaff; --syntax-val: #f78c6c;
+            --syntax-func: #c3e88d; --syntax-comment: #546e7a;
+            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .noise-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.05; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); }
+        .navbar { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth); }
+        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-back:hover { color: var(--accent); }
+        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
+        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
+        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
+        .toc-container { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; margin: 2rem 0; overflow: hidden; }
+        .toc-summary { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; }
+        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
+        .toc-summary::-webkit-details-marker { display: none; }
+        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
+        .toc-content { padding: 0 1.5rem 1.2rem; }
+        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
+        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
+        .toc-content ol li a:hover { color: var(--accent-blue); }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
+        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
+        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        .code-block { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); position: relative; }
+        .code-block code { font-family: 'JetBrains Mono', monospace; }
+        .code-block .inst { color: var(--syntax-inst); } .code-block .reg { color: var(--syntax-reg); }
+        .code-block .val { color: var(--syntax-val); } .code-block .func { color: var(--syntax-func); }
+        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
+        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
+        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
+        li { margin-bottom: 0.5rem; }
+        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
+        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
+        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
+        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
+        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .callout p { margin-bottom: 0; font-size: 0.95rem; }
+        .callout-warning { border-left-color: var(--accent-amber); } .callout-warning .callout-title { color: var(--accent-amber); }
+        .callout-danger { border-left-color: var(--accent-red); } .callout-danger .callout-title { color: var(--accent-red); }
+        .callout-success { border-left-color: var(--accent-green); } .callout-success .callout-title { color: var(--accent-green); }
+        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
+        a:hover { color: var(--accent); }
+        .diagram-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow-x: auto; background: var(--bg-card); }
+        .diagram-container svg { display: block; min-width: 720px; width: 100%; height: auto; }
+        .cta-closure { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center; }
+        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
+        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
+        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem; border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: var(--transition-smooth); border: 1px solid var(--border-subtle); color: var(--text-secondary); background: transparent; }
+        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
+        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
+        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
+        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
+        .social-links a:hover { color: var(--text-primary); }
+        .copyright { color: var(--text-muted); font-size: 0.8rem; }
+        @media (max-width: 600px) {
+            .article-container { padding: 6rem 1rem 3rem; } .article-title { font-size: 1.6rem; }
+            .section-title { font-size: 1.25rem; } .code-block { padding: 1rem; font-size: 0.75rem; }
+            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; } .social-links { gap: 1rem; }
+            .cta-closure { padding: 1.5rem 1rem; } .cta-closure-links { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; justify-content: center; } .toc-content { padding: 0 1rem 1rem; } .toc-summary { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_vuln_research</span></a>
+            <a href="sherlock-caza-autonoma-ia-local.html" class="nav-back mono">← Serie Sherlock</a>
+        </div>
+    </nav>
+
+    <article class="article-container">
+        <header class="article-header">
+            <div class="article-meta mono">
+                <span class="article-tag">Vulnerability Research</span>
+                <span class="article-tag">CWE-400</span>
+                <span class="article-tag">Denegación de Servicio</span>
+                <span class="article-tag">libwebp</span>
+                <span>Agosto 2026</span>
+                <span>~12 min de lectura</span>
+            </div>
+            <h1 class="article-title">libwebp: DoS por Área de Imagen No Validada en el Decoder Lossless VP8L</h1>
+            <p class="article-subtitle">
+                Treinta y cuatro bytes. Eso basta para que un servidor de imágenes se pase segundos —o minutos— decodificando una foto que no existe. El decoder lossless de libwebp acepta declaraciones de hasta <strong>16384×16384 píxeles sin comprobar el área total</strong>, justo el control que su hermano lossy sí aplica. Hallazgo del sistema autónomo <a href="sherlock-caza-autonoma-ia-local.html">Sherlock</a>: un estudio de lo que ocurre cuando dos caminos de código que deberían ser gemelos no comparten las mismas reglas.
+            </p>
+        </header>
+
+        <!-- ToC -->
+        <details class="toc-container" open>
+            <summary class="toc-summary mono">
+                <span class="toc-title">/índice_del_análisis</span>
+                <span class="toc-toggle">+</span>
+            </summary>
+            <div class="toc-content">
+                <ol>
+                    <li><a href="#s00">Resumen Técnico</a></li>
+                    <li><a href="#s01">Contexto: libwebp Está en Todas Partes</a></li>
+                    <li><a href="#s02">La Asimetría Lossy vs Lossless</a></li>
+                    <li><a href="#s03">Anatomía: La Cadena Que Nadie Frena</a></li>
+                    <li><a href="#s04">El PoC de 34 Bytes</a></li>
+                    <li><a href="#s05">Evidencia de Validación</a></li>
+                    <li><a href="#s06">Acotación: Por Qué es LOW</a></li>
+                    <li><a href="#s07">Impacto Realista y Mitigación</a></li>
+                    <li><a href="#s08">Conclusión</a></li>
+                </ol>
+            </div>
+        </details>
+
+        <!-- 00 RESUMEN -->
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen Técnico</h2>
+        <div class="table-wrapper">
+            <table>
+                <tbody>
+                    <tr><th>Objetivo</th><td>libwebp 1.4.0 — decoder lossless <strong>VP8L</strong> (<span class="mono">vp8l_dec.c</span>)</td></tr>
+                    <tr><th>Vulnerabilidad</th><td>Ausencia de validación de área de imagen (<span class="mono">width × height</span>) antes de asignar buffers y procesar filas</td></tr>
+                    <tr><th>CWE</th><td>CWE-400 (Uncontrolled Resource Consumption) · VRT: recurso/CPU</td></tr>
+                    <tr><th>Severidad</th><td><strong>LOW</strong> — consumo de CPU, sin corrupción de memoria</td></tr>
+                    <tr><th>Disparador</th><td>WebP lossless de <strong>34 bytes</strong> declarando dimensiones gigantes (≤16384×16384)</td></tr>
+                    <tr><th>Efecto</th><td>Decode con coste ∝ área declarada → timeout reproducible 3/3 con límite de 3 s</td></tr>
+                    <tr><th>Causa raíz</th><td><span class="mono">ReadImageInfo</span> (<span class="mono">VP8LDecodeImage</span>, vp8l_dec.c:1764) no consulta <span class="mono">MAX_IMAGE_AREA</span>; el path lossy sí lo hace</td></tr>
+                    <tr><th>Validación</th><td>Doble herramienta: libFuzzer (timeout instrumentado) + <span class="mono">timeout</span> de shell como control independiente (exit 124)</td></tr>
+                    <tr><th>Estado fix upstream</th><td>Sin parche conocido al cierre — divulgación graduada: mecanismo completo, receta byte a byte reservada</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 01 CONTEXTO -->
+        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> Contexto: libwebp Está en Todas Partes</h2>
+        <p>
+            Cada navegador, cada CDN moderna, cada servicio de optimización de imágenes y cada app móvil que muestra fotos pasa por libwebp en algún momento. Su modo <strong>lossless</strong> (chunk <span class="mono">VP8L</span>) promete compresión sin pérdida rivalizando con PNG, y es precisamente el modo elegido para capturas, iconos y gráficos.
+        </p>
+        <p>
+            La historia reciente de la biblioteca —CVE-2023-4863 y su eco en libvpx— demostró hasta qué punto el ecosistema entero hereda sus bugs. Este hallazgo es más modesto en impacto pero igual de revelador sobre el proceso: <em>la memoria de los CVEs pasados no garantiza que todos los caminos del código hayan aprendido la misma lección</em>.
+        </p>
+
+        <!-- 02 ASIMETRIA -->
+        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> La Asimetría Lossy vs Lossless</h2>
+        <p>
+            El formato WebP tiene dos motores de decodificación: el predictivo con pérdida (<span class="mono">VP8</span>, heredado de WebM) y el entrópico sin pérdida (<span class="mono">VP8L</span>). Ambos terminan entregando píxeles al mismo cliente, pero nacieron de linajes distintos y eso se nota en sus defensas: el path lossy comprueba que el producto <span class="mono">width × height</span> no supere el límite razonable de la biblioteca (<span class="mono">MAX_IMAGE_AREA</span>) antes de comprometerse; el lossless lee anchura y altura del header y arranca sin preguntar cuántos píxeles implica esa multiplicación.
+        </p>
+        <div class="diagram-container">
+        <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparativa: el path lossy valida el área de imagen antes de decodificar, el path lossless VP8L no lo hace y procede con dimensiones gigantes">
+            <defs>
+                <marker id="arrW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a3a3a3"/></marker>
+                <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4ade80"/></marker>
+                <marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ef4444"/></marker>
+            </defs>
+            <style>
+                .ttl { fill:#f5f5f5; font:600 13px 'JetBrains Mono',monospace; }
+                .sub { fill:#888888; font:11px 'Inter',sans-serif; }
+                .boxg { fill:#0d1a0d; stroke:#4ade80; stroke-dasharray:3 2; }
+                .boxr { fill:#1c1010; stroke:#ef4444; stroke-dasharray:3 2; }
+                .cell { fill:#181818; stroke:#333333; }
+                .btxt { fill:#e5e5e5; font:600 11px 'JetBrains Mono',monospace; }
+                .gtxt { fill:#4ade80; font:600 11px 'JetBrains Mono',monospace; }
+                .rtxt { fill:#ef4444; font:600 11px 'JetBrains Mono',monospace; }
+            </style>
+            <!-- entrada común -->
+            <rect x="340" y="18" width="220" height="46" rx="6" class="cell"/>
+            <text x="450" y="38" text-anchor="middle" class="btxt">header WebP</text>
+            <text x="450" y="54" text-anchor="middle" class="sub">width=16000 · height=16000 (34 B)</text>
+            <path d="M420 64 Q330 96 250 122" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#arrW)"/>
+            <path d="M480 64 Q570 96 650 122" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#arrW)"/>
+            <!-- camino lossy -->
+            <rect x="90" y="124" width="320" height="70" rx="6" class="boxg"/>
+            <text x="250" y="148" text-anchor="middle" class="gtxt">✓ PATH LOSSY (VP8)</text>
+            <text x="250" y="168" text-anchor="middle" class="sub">if (width * height &gt; MAX_IMAGE_AREA)</text>
+            <text x="250" y="184" text-anchor="middle" class="sub">→ rechazo temprano · coste O(1)</text>
+            <path d="M250 194 L250 224" stroke="#4ade80" stroke-width="1.5" fill="none" marker-end="url(#arrG)"/>
+            <text x="250" y="248" text-anchor="middle" class="gtxt">error limpio, proceso sano</text>
+            <!-- camino lossless -->
+            <rect x="490" y="124" width="320" height="70" rx="6" class="boxr"/>
+            <text x="650" y="148" text-anchor="middle" class="rtxt">✗ PATH LOSSLESS (VP8L)</text>
+            <text x="650" y="168" text-anchor="middle" class="sub">ReadImageInfo: dims ≤ 16384 c/u → OK</text>
+            <text x="650" y="184" text-anchor="middle" class="sub">ningún check de area · coste O(área)</text>
+            <path d="M650 194 L650 224" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#arrR)"/>
+            <text x="650" y="248" text-anchor="middle" class="rtxt">DecodeImageData → ProcessRows → EmitRows</text>
+            <!-- consecuencia -->
+            <rect x="490" y="266" width="320" height="52" rx="6" class="boxr"/>
+            <text x="650" y="288" text-anchor="middle" class="rtxt">256M píxeles fantasma · CPU 100%</text>
+            <text x="650" y="306" text-anchor="middle" class="sub">timeout &gt; 3 s reproducible 3/3</text>
+            <text x="250" y="300" text-anchor="middle" class="sub">256M píxeles nunca se procesan:</text>
+            <text x="250" y="316" text-anchor="middle" class="sub">el check existe y funciona.</text>
+        </svg>
+        </div>
+        <div class="image-caption mono" style="margin-top:-1.5rem; margin-bottom:2rem;">Figura 1 — Mismo header mentiroso, dos destinos. A la izquierda, el path con pérdida rechaza en tiempo constante. A la derecha, el lossless convierte 34 bytes en millones de operaciones de emisión de filas.</div>
+
+        <!-- 03 ANATOMIA -->
+        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Anatomía: La Cadena que Nadie Frena</h2>
+        <p>
+          El recorrido desde la API pública hasta el bucle caro deja ver exactamente dónde se coló el agujero:
+        </p>
+        <div class="code-block mono"><span class="comment"># Cadena de llamadas observada en el stack del hang</span>
+LLVMFuzzerTestOneInput   (fuzz_webp_decode.c:<span class="val">9</span>)
+  → <span class="func">Decode</span>               (webp_dec.c:<span class="val">631</span>)
+    → <span class="func">DecodeInto</span>         (webp_dec.c:<span class="val">511</span>)
+      → <span class="func">VP8LDecodeImage</span>   (vp8l_dec.c:<span class="val">1764</span>)
+        → ReadImageInfo   <span class="comment"># acepta width×height ≤ 16384² SIN check de área ← aquí falta el guardia</span>
+        → <span class="func">DecodeImageData</span> (vp8l_dec.c:<span class="val">1206</span>)
+          → <span class="func">ProcessRows</span>   (vp8l_dec.c:<span class="val">837</span>)
+            → <span class="func">EmitRows</span>     (vp8l_dec.c:<span class="val">654</span>)
+              → ConvertBGRAToRGBA_SSE2 (lossless_sse2.c)   <span class="comment"># tiempo ∝ píxeles declarados</span></div>
+        <p>
+            El check ausente tiene forma trivialmente conocida —el mismo patrón que su gemelo lossy ya aplica—:
+        </p>
+        <div class="code-block mono"><span class="comment">// Guardia esperada en el path VP8L (presente en el path lossy):</span>
+<span class="inst">if</span> ((uint64_t)width * height &gt; MAX_IMAGE_AREA)
+    <span class="inst">return</span> VP8_STATUS_OUT_OF_MEMORY;</div>
+        <p>
+            Nótese el detalle de buen artesano que importa al corregir: la multiplicación debe hacerse en aritmética de 64 bits o con comprobación previa, porque <span class="mono">16384 × 16384 = 268.435.456</span> cabe justo en 32 bits —pero variantes con dimensiones máximas distintas podrían desbordar la propia comprobación. Los fixes apresurados que multiplican en 32 bits crean la siguiente generación de bugs.
+        </p>
+
+        <!-- 04 POC -->
+        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> El PoC de 34 Bytes</h2>
+        <p>
+            El archivo trampa sigue la anatomía mínima de un WebP lossless: cabecera RIFF con el chunk <span class="mono">VP8L</span>, y dentro de él, el bit de firma lossless seguido de los campos de anchura, altura y versión codificados en la tabla de bits inicial. Lo único que importa es la pareja dimensional: valores cercanos al tope permitido por el formato, cuya multiplicación produce cientos de millones de píxeles «virtuales» que el decoder intentará materializar fila a fila.
+        </p>
+        <div class="code-block mono"><span class="comment"># Estructura conceptual (receta completa reservada hasta parche upstream)</span>
+RIFF....            <span class="comment"># contenedor estándar</span>
+  VP8L....          <span class="comment"># chunk lossless</span>
+    firma 0x2f      <span class="comment"># bit de formato lossless</span>
+    width-1  = <span class="val">14 bits</span>  <span class="comment"># valor alto declarado</span>
+    height-1 = <span class="val">14 bits</span>  <span class="comment"># valor alto declarado</span>
+    alpha/version...<span class="comment"># resto del mini-header</span>
+<span class="comment"># Total: 34 bytes. Coste de decode declarado: ~256M píxeles.</span></div>
+        <div class="callout-warning">
+            <div class="callout-title mono">Divulgación graduada</div>
+            <p>Al publicar este análisis no conocemos parche upstream aplicado. Publicamos el mecanismo, la cadena de llamadas y la estructura del archivo, pero no el binario ni el volcado hexadecimal completo: suficiente para reproducir, auditar y corregir, sin servir el disparador listo para usar.</p>
+        </div>
+
+        <!-- 05 EVIDENCIA -->
+        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Evidencia de Validación</h2>
+        <p>
+            Para un DoS temporal, la doble herramienta toma otra forma: el fuzzer instrumentado detecta el exceso de tiempo, y un control sin instrumentación —el clásico <span class="mono">timeout(1)</span> de shell— confirma que el hang pertenece al decode real, no al harness.
+        </p>
+        <div class="image-container">
+            <img src="img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png" alt="Terminal mostrando libFuzzer reportando timeout tras 3 segundos al decodificar el WebP lossless de 34 bytes" loading="lazy">
+            <div class="image-caption mono">Evidencia A — libFuzzer: «ERROR: libFuzzer: timeout after 3 seconds» sobre el PoC de 34 B. Reproducido 3/3 ejecuciones.</div>
+        </div>
+        <div class="image-container">
+            <img src="img/libwebp-vp8l-decodeimage-stack-hang.png" alt="Stack de gdb detenido en la cadena DecodeImageData, ProcessRows y EmitRows del decoder VP8L durante el hang" loading="lazy">
+            <div class="image-caption mono">Evidencia B — Stack del hang capturado con gdb: DecodeImageData (vp8l_dec.c:1206) → ProcessRows (:837) → EmitRows (:654) → conversión SSE2. El bucle de emisión de filas es el consumidor de CPU.</div>
+        </div>
+        <div class="code-block mono"><span class="comment"># Tool B — control independiente sin instrumentación</span>
+$ timeout <span class="val">3</span> ./fuzz_webp_decode -runs=<span class="val">1</span> poc_34b.webp ; echo rc=$?
+rc=<span class="val">124</span>   <span class="comment"># 124 = killed by timeout: el decode no termina solo</span>
+
+<span class="comment"># Contraste con una imagen legítima equivalente (sanity check)</span>
+$ timeout <span class="val">3</span> ./fuzz_webp_decode -runs=<span class="val">1</span> foto_normal.webp ; echo rc=$?
+Executed <span class="val">1</span> inputs... rc=<span class="val">0</span>   <span class="comment"># decode correcto en milisegundos</span></div>
+
+        <!-- 06 ACOTACION -->
+        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> Acotación: Por Qué es LOW</h2>
+        <ul>
+            <li><strong>Sin corrupción de memoria</strong>: buffers se asignan correctamente según las dimensiones; el problema es cuánto tarda el trabajo declarado, no que escriba donde no debe.</li>
+            <li><strong>Límite estructural del formato</strong>: 16384×16384 acota el peor caso (~268M píxeles); no hay crecimiento indefinido como en un bucle infinito puro.</li>
+            <li><strong>Requiere contexto de servicio</strong>: un reproductor local pierde unos segundos; el daño serio exige un servicio que decode imágenes de terceros sin límites propios.</li>
+        </ul>
+        <div class="callout-success">
+            <div class="callout-title mono">El valor del hallazgo</div>
+            <p>Más allá del impacto individual, este caso entrega al sistema una firma reutilizable: «comparar defensas entre paths gemelos». Donde dos implementaciones resuelven el mismo problema, cualquier control presente en una y ausente en la otra es candidato automático a hallazgo. Esa heurística ya está alimentando nuevas campañas de análisis.</p>
+        </div>
+
+        <!-- 07 IMPACTO -->
+        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> Impacto Realista y Mitigación</h2>
+        <p>
+            El escenario de explotación natural es cualquier servicio que decodifique WebP subido por usuarios: plataformas que generan miniaturas, antivirus y DLP que reconstruyen imágenes para analizarlas, apps de mensajería que preprocesan stickers. Con concurrencia, cada archivo de 34 bytes ocupa un worker durante segundos; una cola pequeña de ellos degrada el servicio entero.
+        </p>
+        <ul>
+            <li><strong>Mantenedores</strong>: replicar el guardia de <span class="mono">MAX_IMAGE_AREA</span> del path lossy en <span class="mono">ReadImageInfo</span>, con multiplicación segura en 64 bits.</li>
+            <li><strong>Operadores</strong>: imponer límites en la capa de servicio —dimensiones máximas verificadas sobre el header antes de llamar a la librería, presupuesto de CPU por archivo, workers aislados con reinicio automático.</li>
+            <li><strong>Usuarios finales</strong>: riesgo prácticamente nulo en navegadores modernos, que ya limitan dimensiones antes de invocar al decoder.</li>
+        </ul>
+
+        <!-- 08 CONCLUSION -->
+        <h2 class="section-title mono" id="s08"><span style="color: var(--text-muted);">08.</span> Conclusión</h2>
+        <p>
+            Los sistemas grandes no fallan por ignorancia global sino por inconsistencia local: alguien aprendió la lección del área máxima en un camino del código y nadie la llevó al otro. Treinta y cuatro bytes son suficientes para notar la diferencia. La próxima vez que audites un parser con múltiples modos, compara sus modos entre sí —la lista de controles que uno tiene y el otro no suele leerse como una lista de hallazgos pendientes.
+        </p>
+
+        <!-- CTA -->
+        <div class="cta-closure">
+            <h3 class="mono">/Más hallazgos de la serie Sherlock</h3>
+            <p>Siete vulnerabilidades confirmadas en un mes de caza autónoma con modelos locales de IA. Todos los análisis con evidencia y diagramas.</p>
+            <div class="cta-closure-links">
+                <a href="sherlock-caza-autonoma-ia-local.html" class="cta-btn primary mono">← Centro de la serie</a>
+                <a href="7zip-isfolderencrypted-oob-read.html" class="cta-btn mono">7-Zip: Heap OOB Read →</a>
+                <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html" class="cta-btn mono">FFmpeg: VPK · VQF · Smacker →</a>
+                <a href="pcre2-jit-compile-hang-recursion.html" class="cta-btn mono">PCRE2: JIT Hang →</a>
+                <a href="libarchive-cab-lzx-uninitialized-memory.html" class="cta-btn mono">libarchive: Uninit Read →</a>
+            </div>
+        </div>
+
+        <!-- Referencias -->
+        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Referencias</h2>
+        <ul>
+            <li><a href="https://developers.google.com/speed/webp/docs/webp_lossless_bitstream_specification" target="_blank" rel="noopener noreferrer">Especificación del bitstream WebP Lossless (formato VP8L)</a></li>
+            <li><a href="https://developers.google.com/speed/webp" target="_blank" rel="noopener noreferrer">WebP — sitio oficial del proyecto</a></li>
+            <li><a href="https://cwe.mitre.org/data/definitions/400.html" target="_blank" rel="noopener noreferrer">MITRE CWE-400: Uncontrolled Resource Consumption</a></li>
+            <li><a href="https://llvm.org/docs/LibFuzzer.html" target="_blank" rel="noopener noreferrer">libFuzzer — timeouts y slow units</a></li>
+            <li><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA (tty503.com)</a></li>
+            <li><a href="saint-grail-go.html">SAINT GRAIL Go: CRC Bypass en 7-Zip 9.20–25.01 (tty503.com)</a></li>
+        </ul>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links mono">
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
+                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
+                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
+                <a href="https://tty503.com">tty503.com</a>
+            </div>
+            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Vulnerability Research — Serie Sherlock.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
+            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
+        });
+    </script>
+
+    <!-- ==================== SCHEMA JSON-LD ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "libwebp: DoS por Área de Imagen No Validada en el Decoder Lossless VP8L",
+      "description": "El decoder lossless VP8L de libwebp acepta hasta 16384×16384 píxeles sin comprobar MAX_IMAGE_AREA, a diferencia del path lossy. Un WebP de 34 bytes fuerza decodes de millones de píxeles y satura CPU. Mecanismo, evidencia libFuzzer/gdb y mitigación.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "datePublished": "2026-08-21",
+      "dateModified": "2026-08-21",
+      "mainEntityOfPage": "https://tty503.com/libwebp-vp8l-lossless-decode-dos.html",
+      "image": "https://tty503.com/img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png",
+      "keywords": ["libwebp", "VP8L", "lossless", "CWE-400", "denial of service", "MAX_IMAGE_AREA", "timeout", "fuzzing", "bug hunting"],
+      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
+      "inLanguage": "es",
+      "wordCount": "1900",
+      "timeRequired": "PT12M",
+      "about": [
+        { "@type": "Thing", "name": "Vulnerability Research" },
+        { "@type": "Thing", "name": "Denegación de Servicio" },
+        { "@type": "Thing", "name": "Formato WebP" }
+      ]
+    }
+    </script>
+</body>
+</html>

@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://tty503.com/plc.html">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="tty503">
-    <meta property="og:image" content="https://tty503.com/img/plc-2.jpg">
+    <meta property="og:image" content="https://tty503.com/img/plc-siemens-laboratorio-ingenieria-inversa-mc7-rizin.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Laboratorio de ingeniería inversa MC7 con hexdump, rizin y WinSPS-S7">
@@ -40,7 +40,7 @@
     <meta name="twitter:creator" content="@tty_503">
     <meta name="twitter:title" content="Ingeniería Inversa en PLC Siemens S5/S7 — Investigación Completa">
     <meta name="twitter:description" content="Análisis profundo de la arquitectura de autómatas Siemens, hallazgos en infraestructuras venezolanas y la ausencia crítica de logs.">
-    <meta name="twitter:image" content="https://tty503.com/img/plc-2.jpg">
+    <meta name="twitter:image" content="https://tty503.com/img/plc-siemens-laboratorio-ingenieria-inversa-mc7-rizin.jpg">
     <meta name="twitter:image:alt" content="Laboratorio de reversing MC7">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -272,7 +272,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/plc-0.jpg" alt="Interior de tablero eléctrico industrial con interruptor termomagnético, relés y contactor" loading="lazy">
+            <img src="img/plc-industrial-tablero-control-reles-riel-din.jpg" alt="Interior de tablero eléctrico industrial con interruptor termomagnético, relés y contactor" loading="lazy">
             <div class="image-caption mono">plc-0.jpg — Tablero de control: riel DIN con interruptor Merlin Gerin Multi 9, relés de interfaz Finder 55.33 sobre zócalos azules, contactor Siemens 3TF42 y bloques de terminales. La capa física sobre la que corre el código AWL.</div>
         </div>
 
@@ -355,7 +355,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/plc-4.jpg" alt="Software de programación STEP5 para PLC Siemens S5 mostrando bloques OB1, PB25, FB1, FB2 en AWL" loading="lazy">
+            <img src="img/step5-programacion-plc-siemens-s5-entorno.jpg" alt="Software de programación STEP5 para PLC Siemens S5 mostrando bloques OB1, PB25, FB1, FB2 en AWL" loading="lazy">
             <div class="image-caption mono">plc-4.jpg — Entorno de programación STEP5 con los bloques OB1, PB25, FB1 y FB2 abiertos. Se aprecian instrucciones en alemán (U E 2.0 para Und Eingang) y operaciones aritméticas directas sobre bytes de memoria (INC, DEC sobre MB0). Programación legacy, puramente textual y orientada a registros.</div>
         </div>
 
@@ -517,12 +517,12 @@
         </p>
 
         <div class="image-container">
-            <img src="img/image_2025-03-18_17-30-41.png" alt="Diagrama de tiempos del flip-flop S/R" loading="lazy">
+            <img src="img/step5-flipflop-sr-diagrama-tiempos.png" alt="Diagrama de tiempos del flip-flop S/R" loading="lazy">
             <div class="image-caption mono">Diagrama de tiempos: secuencia de muestreo para detección de flancos en S5</div>
         </div>
 
         <div class="image-container">
-            <img src="img/image_2025-03-18_17-52-51.png" alt="Gráfica de estados del pulsador" loading="lazy">
+            <img src="img/step5-pulsador-led-grafica-estados.png" alt="Gráfica de estados del pulsador" loading="lazy">
             <div class="image-caption mono">Gráfica de estados: comportamiento del pulsador y LED durante el ciclo</div>
         </div>
 
@@ -697,17 +697,17 @@
         <p>En S5 el puntero para la operación indizada de elaboración ocupa una palabra. En S7 los punteros pueden tener dos formatos: <strong>palabra y palabra doble</strong>.</p>
 
         <div class="image-container">
-            <img src="img/image_2025-04-03_11-44-03.png" alt="Formato de puntero en S5" loading="lazy">
+            <img src="img/step5-puntero-direccionamiento-indirecto.png" alt="Formato de puntero en S5" loading="lazy">
             <div class="image-caption mono">Formato del puntero en STEP5: ocupa una palabra (16 bits)</div>
         </div>
 
         <div class="image-container">
-            <img src="img/image_2025-04-03_11-45-55.png" alt="Formato de puntero en S7 - palabra" loading="lazy">
+            <img src="img/step7-puntero-palabra-16-bits.png" alt="Formato de puntero en S7 - palabra" loading="lazy">
             <div class="image-caption mono">Formato del puntero en STEP7: palabra (16 bits)</div>
         </div>
 
         <div class="image-container">
-            <img src="img/image_2025-04-03_14-00-15.png" alt="Formato de puntero en S7 - palabra doble" loading="lazy">
+            <img src="img/step7-puntero-doble-palabra-32-bits.png" alt="Formato de puntero en S7 - palabra doble" loading="lazy">
             <div class="image-caption mono">Formato del puntero en STEP7: palabra doble (32 bits)</div>
         </div>
 
@@ -792,7 +792,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/plc-1.jpg" alt="Diagrama P&ID de una estación de proceso con tanque, serpentín e instrumentación ISA" loading="lazy">
+            <img src="img/plc-estacion-proceso-diagrama-pid.jpg" alt="Diagrama P&ID de una estación de proceso con tanque, serpentín e instrumentación ISA" loading="lazy">
             <div class="image-caption mono">plc-1.jpg — P&ID de "ESTACION 3": tanque con serpentín de calentamiento, líneas de aire y agua, válvulas solenoides (03SV01, 03SV02A), transmisores de nivel y temperatura (LIT02, TE03). Cajetín de revisiones fechado entre 1996 y 1997. Este es el tipo de documento que aparece en las tesis universitarias y que revela la anatomía completa del proceso físico.</div>
         </div>
 
@@ -859,7 +859,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/plc-2.jpg" alt="Entorno de ingeniería inversa con hexdump, rizin y WinSPS-S7 mostrando código AWL" loading="lazy">
+            <img src="img/plc-siemens-laboratorio-ingenieria-inversa-mc7-rizin.jpg" alt="Entorno de ingeniería inversa con hexdump, rizin y WinSPS-S7 mostrando código AWL" loading="lazy">
             <div class="image-caption mono">plc-2.jpg — Laboratorio de reversing MC7. Superior izquierda: volcado hexadecimal del archivo .wld (cat test.wld | hexdump -C). Superior derecha: herramienta rizin analizando direcciones de entrada (I 124.0) y salida (Q 124.0). Ventana inferior: WinSPS-S7 V6 con el bloque FC23 en AWL, mostrando la lógica U E 124.0 → = A 124.0. El objetivo es correlacionar el binario puro con las instrucciones de control.</div>
         </div>
 
@@ -936,7 +936,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/plc-3.jpg" alt="Monitor CRT mostrando software SCADA Intellution FIX View con pérdida de comunicación" loading="lazy">
+            <img src="img/scada-intellution-fix-monitor-crt-industrial.jpg" alt="Monitor CRT mostrando software SCADA Intellution FIX View con pérdida de comunicación" loading="lazy">
             <div class="image-caption mono">plc-3.jpg — Pantalla HMI/SCADA ejecutando Intellution FIX View (modo demo) en un monitor CRT. Representa la "ESTACION 4" con tanque vertical y serpentín. Los campos muestran "???? °C", "??? Bar" y un indicador "COMM", señal de que el software ha perdido la comunicación con el PLC o los instrumentos de campo. Esta es la cara visible de un sistema que no deja rastro de lo que ocurrió.</div>
         </div>
 
@@ -1193,7 +1193,7 @@
       "datePublished": "2025-10-15",
       "dateModified": "2026-04-15",
       "mainEntityOfPage": "https://tty503.com/plc.html",
-      "image": "https://tty503.com/img/plc-2.jpg",
+      "image": "https://tty503.com/img/plc-siemens-laboratorio-ingenieria-inversa-mc7-rizin.jpg",
       "keywords": ["PLC Siemens", "S5", "S7", "STEP5", "STEP7", "AWL", "MC7", "ingeniería inversa", "seguridad OT", "automatización industrial", "Modbus", "OPC", "Havex", "Venalum", "CorpoElec", "Modicon Quantum", "shellcode PLC", "fuzzing ICS", "forensic readiness", "ausencia de logs", "infraestructura crítica", "Venezuela"],
       "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
       "inLanguage": "es",

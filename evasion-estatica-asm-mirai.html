@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://tty503.com/evasion-estatica-asm-mirai.html">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="tty503">
-    <meta property="og:image" content="https://tty503.com/img/vt_malware_detection_after.jpg">
+    <meta property="og:image" content="https://tty503.com/img/mirai-virustotal-0-65-detecciones-despues-ofuscacion.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="VirusTotal mostrando 0 detecciones para el binario de Mirai modificado">
@@ -41,7 +41,7 @@
     <meta name="twitter:creator" content="@tty_503">
     <meta name="twitter:title" content="Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM">
     <meta name="twitter:description" content="Polimorfismo manual en ASM contra Mirai. De 16/64 a 0/65 en VT sin packers, solo aritmética. Análisis de arquitectura DGA.">
-    <meta name="twitter:image" content="https://tty503.com/img/vt_malware_detection_after.jpg">
+    <meta name="twitter:image" content="https://tty503.com/img/mirai-virustotal-0-65-detecciones-despues-ofuscacion.jpg">
     <meta name="twitter:image:alt" content="0 detecciones en VirusTotal para muestra de Mirai ofuscada">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -229,7 +229,7 @@
 
         <!-- DIAGRAMA 1: FLUJO PRINCIPAL -->
         <div class="image-container">
-            <img src="img/evasion-mirai-flowchart.png" alt="Diagrama de flujo del proceso de evasión estática: de la muestra original de Mirai al binario indetectable" loading="lazy">
+            <img src="img/evasion-mirai-flujo-ofuscacion-estatica-polimorfismo.png" alt="Diagrama de flujo del proceso de evasión estática: de la muestra original de Mirai al binario indetectable" loading="lazy">
             <div class="image-caption mono">evasion-mirai-flowchart.png — Flujo completo del proceso de ofuscación. Desde la muestra original detectada por 16/64 motores hasta el binario modificado con 0/65 detecciones, pasando por la extracción de opcodes, generación de claves dinámicas, compilación del stub en NASM y parcheo hexadecimal.</div>
         </div>
 
@@ -250,7 +250,7 @@
 
         <!-- IMAGEN: ANTES -->
         <div class="image-container">
-            <img src="img/vt_malware_detection_before.jpg" alt="16/64 detecciones en VirusTotal para la muestra original de Mirai" loading="lazy">
+            <img src="img/mirai-virustotal-16-64-detecciones-antes-ofuscacion.jpg" alt="16/64 detecciones en VirusTotal para la muestra original de Mirai" loading="lazy">
             <div class="image-caption mono">preview-1.jpg — Estado inicial en VirusTotal. La muestra es detectada como trojan.mirai/gafgyt por 16 proveedores, incluyendo Avast, Kaspersky, Microsoft, Google y Fortinet.</div>
         </div>
 
@@ -265,7 +265,7 @@
 
         <!-- DIAGRAMA 6: ÁRBOL DE DECISIÓN -->
         <div class="image-container">
-            <img src="img/opcode-mutation-decision-tree.png" alt="Árbol de decisión para la estrategia de mutación de opcodes según el tipo de instrucción" loading="lazy">
+            <img src="img/evasion-mirai-arbol-decision-mutacion-opcodes.png" alt="Árbol de decisión para la estrategia de mutación de opcodes según el tipo de instrucción" loading="lazy">
             <div class="image-caption mono">opcode-mutation-decision-tree.png — Árbol de decisión completo para la mutación de opcodes. La estrategia varía según el tipo de instrucción: asignaciones a cero (MOV→XOR), cargas de constantes (descomposición aritmética), operaciones aritméticas (descomposición en múltiples instrucciones) o instrucciones no críticas (NOPs aleatorios). Cada rama incluye la verificación de alineación de bytes.</div>
         </div>
 
@@ -388,7 +388,7 @@
 
         <!-- DIAGRAMA 3: COMPARATIVA STUB VS DENUVO -->
         <div class="image-container">
-            <img src="img/stub-denuvo-comparison.png" alt="Diagrama de componentes comparando el stub descifrador con el DRM Denuvo" loading="lazy">
+            <img src="img/evasion-mirai-stub-descifrador-comparativa-denuvo.png" alt="Diagrama de componentes comparando el stub descifrador con el DRM Denuvo" loading="lazy">
             <div class="image-caption mono">stub-denuvo-comparison.png — Comparativa arquitectónica entre el stub descifrador desarrollado en esta investigación y el DRM Denuvo. Ambos comparten el principio de eliminar bytes críticos del binario (opcodes vs stolen constants), almacenarlos de forma protegida (claves A,B,C,D vs license file) y recuperarlos en tiempo de ejecución mediante descifrado aritmético (loop XOR+ADD+SUB vs VM handlers con MBA).</div>
         </div>
 
@@ -403,13 +403,13 @@
 
         <!-- IMAGEN: DESPUÉS -->
         <div class="image-container">
-            <img src="img/vt_malware_detection_after.jpg" alt="0/65 detecciones en VirusTotal para el binario de Mirai modificado" loading="lazy">
+            <img src="img/mirai-virustotal-0-65-detecciones-despues-ofuscacion.jpg" alt="0/65 detecciones en VirusTotal para el binario de Mirai modificado" loading="lazy">
             <div class="image-caption mono">preview-2.jpg — El clímax del artículo. Tasa de detección reducida a 0/65. Todos los campos de actividad maliciosa figuran como "NOT FOUND": Detections, Mitre Signatures, IDS Rules, Sigma Rules, Dropped Files y Network Communications.</div>
         </div>
 
         <!-- DIAGRAMA 8: COMPARATIVA VT -->
         <div class="image-container">
-            <img src="img/vt-comparison-diagram.png" alt="Diagrama comparativo del antes y después en VirusTotal y cambios estructurales del binario" loading="lazy">
+            <img src="img/mirai-comparativa-estructural-binario-antes-despues.png" alt="Diagrama comparativo del antes y después en VirusTotal y cambios estructurales del binario" loading="lazy">
             <div class="image-caption mono">vt-comparison-diagram.png — Comparativa estructural del binario antes y después de la ofuscación. El hash SHA256 cambia completamente, la sección .text contiene opcodes mutados que ciegan las firmas YARA, los strings del C2 quedan ofuscados con XOR, y la entropía se mantiene normal (sin packer). El resultado final: de 16/64 a 0/65 detecciones.</div>
         </div>
 
@@ -421,7 +421,7 @@
 
         <!-- DIAGRAMA 2: SECUENCIA DGA -->
         <div class="image-container">
-            <img src="img/dga-mutant-delivery-sequence.png" alt="Diagrama de secuencia de la arquitectura de entrega mutante con DGA" loading="lazy">
+            <img src="img/evasion-mirai-entrega-mutante-dga-tres-fases.png" alt="Diagrama de secuencia de la arquitectura de entrega mutante con DGA" loading="lazy">
             <div class="image-caption mono">dga-mutant-delivery-sequence.png — Arquitectura completa de entrega mutante en tres fases. Fase 1 (Preparación): la fábrica genera binarios con claves únicas y el algoritmo DGA calcula y registra dominios. Fase 2 (Entrega): la víctima descarga el binario vía dominio DGA, ejecuta el stub descifrador, solicita token de sesión al C2 y ejecuta el payload. Fase 3 (Rotación): desregistro de dominios antiguos, apagado de listeners y despliegue de nueva infraestructura para el siguiente ciclo.</div>
         </div>
 
@@ -438,13 +438,13 @@
 
         <!-- DIAGRAMA 4: CICLO DE VIDA -->
         <div class="image-container">
-            <img src="img/mutant-binary-lifecycle.png" alt="Diagrama de estados del ciclo de vida de un binario mutante" loading="lazy">
+            <img src="img/evasion-mirai-ciclo-vida-binario-mutante.png" alt="Diagrama de estados del ciclo de vida de un binario mutante" loading="lazy">
             <div class="image-caption mono">mutant-binary-lifecycle.png — Ciclo de vida completo de un binario mutante. Desde la generación con claves únicas (T1027), pasando por la distribución vía dominio DGA activo, la descarga por la víctima, la ejecución con validación Denuvo-like (el payload no se ejecuta sin token del C2), hasta la expiración y autodestrucción cuando el TTL se cumple o el dominio es desregistrado.</div>
         </div>
 
         <!-- DIAGRAMA 7: FLUJO DE DOMINIOS DGA -->
         <div class="image-container">
-            <img src="img/dga-domain-flow.png" alt="Diagrama de infraestructura DGA mostrando la rotación de dominios" loading="lazy">
+            <img src="img/evasion-mirai-dga-rotacion-dominios-senuelo.png" alt="Diagrama de infraestructura DGA mostrando la rotación de dominios" loading="lazy">
             <div class="image-caption mono">dga-domain-flow.png — Infraestructura de rotación de dominios DGA. Una semilla (fecha + nonce + clave simétrica) alimenta el algoritmo generador que produce 30+ dominios diarios. Solo 3-5 se registran efectivamente y apuntan a IPs C2 activas. Los 25+ dominios restantes actúan como señuelo para generar ruido DNS y dificultar la ingeniería inversa del algoritmo.</div>
         </div>
 
@@ -468,7 +468,7 @@
 
         <!-- DIAGRAMA 5: DEFENSA VS EVASIÓN -->
         <div class="image-container">
-            <img src="img/defense-vs-evasion-context.png" alt="Diagrama de contexto del ecosistema de detección versus evasión por capas" loading="lazy">
+            <img src="img/evasion-mirai-defensa-vs-evasion-capas-deteccion.png" alt="Diagrama de contexto del ecosistema de detección versus evasión por capas" loading="lazy">
             <div class="image-caption mono">defense-vs-evasion-context.png — Ecosistema completo de detección vs evasión organizado por capas. En la capa de red: DNS sinkholing, IDS/IPS y firewalls. En la capa de endpoint: AV/EDR estático (EVADIDO: VT 0/65), sandbox dinámico (PARCIAL: requiere token del C2) y escaneo de memoria (DETECTABLE: post-descifrado). Las técnicas de evasión se dividen en ofuscación aritmética, DGA + infraestructura efímera y validación Denuvo-like.</div>
         </div>
 
@@ -532,7 +532,7 @@
       "datePublished": "2026-05-28",
       "dateModified": "2026-06-01",
       "mainEntityOfPage": "https://tty503.com/evasion-estatica-asm-mirai.html",
-      "image": "https://tty503.com/img/vt_malware_detection_after.jpg",
+      "image": "https://tty503.com/img/mirai-virustotal-0-65-detecciones-despues-ofuscacion.jpg",
       "keywords": ["evasión de malware", "Mirai", "ASM", "polimorfismo", "ofuscación aritmética", "YARA evasion", "VirusTotal", "Red Team", "Reverse Engineering", "DGA", "MITRE ATT&CK", "T1027", "Denuvo", "MBA"],
       "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
       "inLanguage": "es",

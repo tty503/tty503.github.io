@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://tty503.com/fakewealth-cmdxcapital.html">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="tty503">
-    <meta property="og:image" content="https://tty503.com/img/laravel_ignition_crash_cmdxcapital.jpg">
+    <meta property="og:image" content="https://tty503.com/img/laravel-ignition-appdebug-crash-produccion.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Interfaz Ignition de Laravel expuesta en producción en cmdxcapital.com">
@@ -40,7 +40,7 @@
     <meta name="twitter:creator" content="@tty_503">
     <meta name="twitter:title" content="Caso cmdxcapital: Fuga de Datos en Laravel por appDebug Activo">
     <meta name="twitter:description" content="Debug mode de Laravel en producción expuso SQL, tokens y rutas. 10 dominios, smurfing Bitcoin y suplantación UK.">
-    <meta name="twitter:image" content="https://tty503.com/img/laravel_ignition_crash_cmdxcapital.jpg">
+    <meta name="twitter:image" content="https://tty503.com/img/laravel-ignition-appdebug-crash-produccion.jpg">
     <meta name="twitter:image:alt" content="Ignition de Laravel expuesto en cmdxcapital.com">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -278,12 +278,12 @@
         </p>
 
         <div class="image-container">
-            <img src="img/topology_infrastructure_nodes_cmdx.png" alt="Mapa de topología de red de la campaña cmdxcapital" loading="lazy">
+            <img src="img/cmdxcapital-topologia-red-mapa-nodos.png" alt="Mapa de topología de red de la campaña cmdxcapital" loading="lazy">
             <div class="image-caption mono">topology_infrastructure_nodes_cmdx.png — Mapa de topología que correlaciona los dominios principales y satélites. El servidor origen en cPanel (198.251.89.82, Frantech/BuyVM) se oculta tras proxies inversos de Cloudflare. Los subdominios de correo se enlazan con Google Cloud Workspace.</div>
         </div>
 
         <div class="image-container">
-            <img src="img/cmdxcapital_infrastructure_graph.png" alt="Grafo de infraestructura de la campaña cmdxcapital" loading="lazy">
+            <img src="img/cmdxcapital-grafo-infraestructura-cloudflare.png" alt="Grafo de infraestructura de la campaña cmdxcapital" loading="lazy">
             <div class="image-caption mono">cmdxcapital_infrastructure_graph.png — Grafo técnico que asocia todos los vectores de la amenaza: rangos DNS y CDN, host de origen, y firmas criptográficas de los artefactos de la campaña.</div>
         </div>
 
@@ -303,7 +303,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/scam_cloned_template_history.jpg" alt="Historial de plantillas clonadas de CMDX Capital" loading="lazy">
+            <img src="img/fraude-plantillas-clonadas-historial-web.jpg" alt="Historial de plantillas clonadas de CMDX Capital" loading="lazy">
             <div class="image-caption mono">scam_cloned_template_history.jpg — Reportes en foros financieros que evidencian la reutilización de estructuras visuales de plataformas previas de estafa (como Bremby), operando bajo el mismo número de registro de Companies House antes de migrar a CMDX Capital.</div>
         </div>
 
@@ -324,7 +324,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/laravel_ignition_crash_cmdxcapital.jpg" alt="Interfaz Ignition de Laravel expuesta en cmdxcapital.com" loading="lazy">
+            <img src="img/laravel-ignition-appdebug-crash-produccion.jpg" alt="Interfaz Ignition de Laravel expuesta en cmdxcapital.com" loading="lazy">
             <div class="image-caption mono">laravel_ignition_crash_cmdxcapital.jpg — Interfaz Ignition expuesta en producción en cmdxcapital.com/register. APP_DEBUG=true en un servidor con APP_ENV=production.</div>
         </div>
 
@@ -333,7 +333,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/sequence_laravel_production_crash.png" alt="Diagrama de secuencia del crash de Laravel en producción" loading="lazy">
+            <img src="img/laravel-crash-produccion-diagrama-secuencia.png" alt="Diagrama de secuencia del crash de Laravel en producción" loading="lazy">
             <div class="image-caption mono">sequence_laravel_production_crash.png — Diagrama de secuencia forense: POST /register, inserción en MySQL y colapso del framework al invocar proc_open() mediante SwiftMailer.</div>
         </div>
 
@@ -342,7 +342,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/swiftmailer_proc_open_stacktrace.jpg" alt="Stacktrace de SwiftMailer mostrando la llamada a proc_open()" loading="lazy">
+            <img src="img/swiftmailer-proc-open-stacktrace-laravel.jpg" alt="Stacktrace de SwiftMailer mostrando la llamada a proc_open()" loading="lazy">
             <div class="image-caption mono">swiftmailer_proc_open_stacktrace.jpg — Stacktrace forense: Swift_Transport_StreamBuffer (línea 291) intentó invocar proc_open(). El servidor devolvió error fatal por restricciones de hardening en php.ini.</div>
         </div>
 
@@ -352,17 +352,17 @@
         </p>
 
         <div class="image-container">
-            <img src="img/mysql_queries_leak_users_table.jpg" alt="Consultas SQL expuestas por el debug mode" loading="lazy">
+            <img src="img/laravel-debug-mysql-consultas-sql-expuestas.jpg" alt="Consultas SQL expuestas por el debug mode" loading="lazy">
             <div class="image-caption mono">mysql_queries_leak_users_table.jpg — Consultas SQL enviadas a MySQL. Revela el orden de inserción: INSERT en users seguido de creación de cuenta en crypto_accounts.</div>
         </div>
 
         <div class="image-container">
-            <img src="img/http_request_data_payload_leak.jpg" alt="Datos de la petición HTTP expuestos" loading="lazy">
+            <img src="img/laravel-debug-request-datos-expuestos.jpg" alt="Datos de la petición HTTP expuestos" loading="lazy">
             <div class="image-caption mono">http_request_data_payload_leak.jpg — Datos persistidos en request_data. Expone parámetros HTTP POST, tokens de sesión e intentos de inyección SQL en el campo email.</div>
         </div>
 
         <div class="image-container">
-            <img src="img/server_environment_variables_exposed.jpg" alt="Variables de entorno del servidor expuestas" loading="lazy">
+            <img src="img/laravel-debug-variables-entorno-servidor-expuestas.jpg" alt="Variables de entorno del servidor expuestas" loading="lazy">
             <div class="image-caption mono">server_environment_variables_exposed.jpg — Variables de entorno: ruta raíz del hosting y versiones de Laravel 8.83.25 sobre PHP 8.3.15.</div>
         </div>
 
@@ -384,7 +384,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/captcha_bypass_logic_flow.png" alt="Diagrama de flujo del bypass de captcha" loading="lazy">
+            <img src="img/cmdxcapital-bypass-captcha-flujo-logico.png" alt="Diagrama de flujo del bypass de captcha" loading="lazy">
             <div class="image-caption mono">captcha_bypass_logic_flow.png — Diagrama del fallo de diseño: el script extrae el valor estático de captcha_confirmation y lo replica en la petición POST.</div>
         </div>
 
@@ -393,7 +393,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/automation_poc_terminal_output.jpg" alt="Salida de terminal del script PoC automatizado" loading="lazy">
+            <img src="img/cmdxcapital-poc-automatizacion-terminal.jpg" alt="Salida de terminal del script PoC automatizado" loading="lazy">
             <div class="image-caption mono">automation_poc_terminal_output.jpg — Ejecución del script PoC. Fase 1: extracción del token CSRF y evasión del captcha. Fase 2: POST automatizado, respuesta HTTP 500, captura del stacktrace con proc_open(), ruta absoluta del host y consulta SQL cruda.</div>
         </div>
 
@@ -409,12 +409,12 @@
         </div>
 
         <div class="image-container">
-            <img src="img/cmdxcapital_btc_wallet_tracking.jpg" alt="Monitoreo de la wallet Bitcoin de cmdxcapital" loading="lazy">
+            <img src="img/cmdxcapital-wallet-bitcoin-monitoreo-blockchain.jpg" alt="Monitoreo de la wallet Bitcoin de cmdxcapital" loading="lazy">
             <div class="image-caption mono">cmdxcapital_btc_wallet_tracking.jpg — Análisis On-Chain: cambio a formato Bech32 nativo sin transacciones previas. Técnica de rotación limpia para segmentar el rastreo de fondos.</div>
         </div>
 
         <div class="image-container">
-            <img src="img/blockchain_ledger_capital_trace.png" alt="Diagrama de flujo de lavado de activos en blockchain" loading="lazy">
+            <img src="img/fraude-blockchain-flujo-lavado-activos.png" alt="Diagrama de flujo de lavado de activos en blockchain" loading="lazy">
             <div class="image-caption mono">blockchain_ledger_capital_trace.png — Flujo de lavado: Smurfing/Peeling sobre USDT en TRC20 vs. acumulación estática en la nueva dirección Bech32 de Bitcoin.</div>
         </div>
 
@@ -424,7 +424,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/companies_house_uk_spoofing.jpg" alt="Registro de Companies House UK de la empresa disuelta" loading="lazy">
+            <img src="img/companies-house-suplantacion-empresa-disuelta.jpg" alt="Registro de Companies House UK de la empresa disuelta" loading="lazy">
             <div class="image-caption mono">companies_house_uk_spoofing.jpg — Contraste contra el portal gubernamental del Reino Unido. La corporación 13699699 fue disuelta en 2023, validando la técnica de usurpación de marcas inactivas.</div>
         </div>
 
@@ -435,7 +435,7 @@
         </p>
 
         <div class="image-container">
-            <img src="img/threat_actor_relationship_graph.png" alt="Grafo de relaciones entre actores e infraestructura" loading="lazy">
+            <img src="img/cmdxcapital-grafo-relaciones-actores-amenaza.png" alt="Grafo de relaciones entre actores e infraestructura" loading="lazy">
             <div class="image-caption mono">threat_actor_relationship_graph.png — Grafo de relaciones: identidades de Telegram (Juan Gómez, Jesus), grupos de captación y carteras Bitcoin/USDT que recibieron fondos de las víctimas.</div>
         </div>
 
@@ -523,7 +523,7 @@
       "datePublished": "2025-10-15",
       "dateModified": "2026-05-22",
       "mainEntityOfPage": "https://tty503.com/fakewealth-cmdxcapital.html",
-      "image": "https://tty503.com/img/laravel_ignition_crash_cmdxcapital.jpg",
+      "image": "https://tty503.com/img/laravel-ignition-appdebug-crash-produccion.jpg",
       "keywords": ["cmdxcapital", "threat intelligence", "OSINT", "blockchain forensics", "laravel debug", "proc_open", "bitcoin wallet", "companies house spoofing", "fake trading", "crypto scam", "IoCs", "Bremby", "appDebug true", "smurfing", "Bech32", "Cloudflare", "HYIP"],
       "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
       "inLanguage": "es",
