@@ -27,7 +27,7 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="BugBuilder C2 activo con cliente conectado">
     <meta property="article:published_time" content="2026-05-22">
-    <meta property="article:modified_time" content="2026-05-22">
+    <meta property="article:modified_time" content="2026-08-21">
     <meta property="article:author" content="Christian Márquez">
     <meta property="article:tag" content="Malware Development">
     <meta property="article:tag" content="Shellcode">
@@ -247,6 +247,7 @@
             </summary>
             <div class="toc-content">
                 <ol>
+                    <li><a href="#s00">Resumen Técnico</a></li>
                     <li><a href="#s01">Fase 1: Shellcode Artesanal</a></li>
                     <li><a href="#s02">Resolución Dinámica de la API</a></li>
                     <li><a href="#s03">El Arte del Despliegue</a></li>
@@ -281,6 +282,21 @@
                 </ol>
             </div>
         </details>
+
+        <!-- ==================== SECCIÓN 0: RESUMEN ==================== -->
+        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen Técnico</h2>
+        <div class="table-wrapper">
+            <table>
+                <tbody>
+                    <tr><th>Alcance</th><td>Evolución completa en malware dev para Windows: del dropper artesanal a un framework C2 con builder, más un compendio de 31 técnicas de inyección, evasión y persistencia</td></tr>
+                    <tr><th>Fase 1</th><td>Shellcode artesanal en C/Assembly (<span class="mono">WinExec</span>/<span class="mono">ExitProcess</span>), resolución dinámica de la API vía PEB y stub criptográfico NASM con XOR mutado</td></tr>
+                    <tr><th>Fase 2</th><td>BugBuilder: builder en C#/.NET (Roslyn/CodeDOM) con protocolo TCP propio y panel de control para bots conectados</td></tr>
+                    <tr><th>Compendio</th><td>Inyección clásica y DLL, APC/Early Bird, thread hijacking, fibers, SetWindowsHookEx, NtCreateThreadEx, memory sections, API hashing, KernelCallbackTable, RWX hunting y persistencia en registro</td></tr>
+                    <tr><th>Stack</th><td>C (Mingw-w64) · NASM · C#/.NET (WinForms) · Python para tooling auxiliar</td></tr>
+                    <tr><th>Naturaleza</th><td>Documentación técnica con fines académicos y de investigación ofensiva — sin distribución de artefactos</td></tr>
+                </tbody>
+            </table>
+        </div>
 
         <!-- ==================== SECCIÓN 1: FUNDAMENTOS ==================== -->
         <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> Fase 1: El Arte de la Shellcode Artesanal (hace 3 años)</h2>
@@ -1068,7 +1084,7 @@
       "description": "Compendio extenso de desarrollo de malware ofensivo para Windows: shellcode artesanal en C/Assembly, inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, cifrado XOR, API hashing, persistencia en registro y evolución a un builder con panel C2 en C#.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
       "datePublished": "2026-05-22",
-      "dateModified": "2026-05-22",
+      "dateModified": "2026-08-21",
       "mainEntityOfPage": "https://tty503.com/myPracticalShellcodeC2.html",
       "image": "https://tty503.com/img/bugbuilder-c2-cliente-conectado-activo.png",
       "keywords": ["shellcode", "WinExec", "ExitProcess", "kernel32", "dropper", "C2", "Malware Dev", "C#", ".NET", "TCP", "reverse engineering", "little-endian", "assembly", "Mingw-w64", "BugBuilder", "tty503", "inyeccion de codigo", "DLL injection", "APC injection", "thread hijacking", "API hooking", "XOR encryption", "persistencia", "Windows registry", "API hashing", "PEB", "TEB", "PE file structure", "Early Bird injection"],
