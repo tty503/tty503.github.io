@@ -395,6 +395,46 @@
     </url>
 
     <!-- ===================================================================== -->
+    <!-- SERIE CAZA AUTÓNOMA E2E: 5 cadenas RCE (Sep 2026)                    -->
+    <!-- ===================================================================== -->
+    <url>
+        <loc>https://tty503.com/caza-autonoma-e2e-serie.html</loc>
+        <lastmod>2026-09-02</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://tty503.com/cadena-portal-cautivo-rce.html</loc>
+        <lastmod>2026-09-02</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://tty503.com/fw-host-header-rce.html</loc>
+        <lastmod>2026-09-02</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html</loc>
+        <lastmod>2026-09-02</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://tty503.com/autopsia-streaming-http-minimo.html</loc>
+        <lastmod>2026-09-02</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://tty503.com/suite-paneles-tunel-spooler.html</loc>
+        <lastmod>2026-09-02</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- ===================================================================== -->
     <!-- SERIE SHERLOCK: Caza autónoma con IA local (Ago 2026)                -->
     <!-- ===================================================================== -->
     <url>

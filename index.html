@@ -741,10 +741,46 @@
                 <!-- Clúster A2: Vulnerability Research & Bug Bounty -->
                 <details class="theme-group reveal" open>
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Vulnerability Research & Bug Bounty — Serie Sherlock</h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Vulnerability Research & Bug Bounty — Caza autónoma E2E + Serie Sherlock</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
+                        <a href="caza-autonoma-e2e-serie.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~25 min de lectura</span>
+                            <h3 class="article-title">Caza Autónoma E2E con IA Local: 5 Cadenas RCE Reales, Divulgación Completa <span class="local-badge">SERIE</span></h3>
+                            <p class="article-desc">Cinco cadenas de ejecución de código verificadas extremo a extremo: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y la suite el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, PoC y evidencia, publicados como divulgación responsable.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="cadena-portal-cautivo-rce.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~18 min de lectura</span>
+                            <h3 class="article-title">el daemon de portal cautivo: RCE via EAP-Identity → conup (CWE-78) <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Un payload en el EAP-Response/Identity pre-auth viaja sin sanitizar por la cadena EAP→RADIUS→env→script y acaba en un eval. RCE root o low-priv según el deployment. Validación E2E con ASAN+gdb.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="fw-host-header-rce.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~17 min de lectura</span>
+                            <h3 class="article-title">el daemon de autenticacion y redireccion: RCE root via cabecera Host (CWE-78) <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Un request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh,-c) que construye iptables. Reverse shell root verificada. Sink en fw_iptables.c:596 → util.c:96.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="http-el conversor de fecha a timestamp-stackoverflow.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~16 min de lectura</span>
+                            <h3 class="article-title">el servidor HTTP embebido: Stack Overflow en el conversor de fecha a timestamp (CWE-121) <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="autopsia-streaming-http-minimo.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~12 min de lectura</span>
+                            <h3 class="article-title">Análisis: la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Dos primitivas reales: OOB read en el decoder AMF3 de la biblioteca cliente del protocolo de streaming y command injection en el gestor de credenciales de el servidor HTTP minimo. La lección de cuándo una primitiva alcanza impacto real.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="suite-paneles-tunel-spooler.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~20 min de lectura</span>
+                            <h3 class="article-title">Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion, y el bypass de confianza X-SSL-Client-* con su alcance real (requiere 3 prerequisitos no por defecto).</p>
+                            <span class="article-arrow">→</span>
+                        </a>
                         <a href="sherlock-caza-autonoma-ia-local.html" class="article-link local-article">
                             <span class="article-date mono">Ago 2026 · ~20 min de lectura</span>
                             <h3 class="article-title">Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA — Siete Hallazgos en un Mes <span class="local-badge">SERIE</span></h3>
