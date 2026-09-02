@@ -741,10 +741,46 @@
                 <!-- Clúster A2: Vulnerability Research & Bug Bounty -->
                 <details class="theme-group reveal" open>
                     <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Vulnerability Research & Bug Bounty — Serie Sherlock</h3>
+                        <h3 class="theme-title"><span class="theme-icon">/</span> Vulnerability Research & Bug Bounty — Caza autónoma E2E + Serie Sherlock</h3>
                         <span class="toggle-icon">+</span>
                     </summary>
                     <div class="theme-content">
+                        <a href="caza-autonoma-e2e-serie.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~25 min de lectura</span>
+                            <h3 class="article-title">Caza Autónoma E2E con IA Local: 5 Cadenas RCE Reales, Divulgación Completa <span class="local-badge">SERIE</span></h3>
+                            <p class="article-desc">Cinco cadenas de ejecución de código verificadas extremo a extremo: CoovaChilli, wifidog, libuhttpd, librtmp+mini_httpd y la suite Webmin/Usermin/accel-ppp/CUPS. Pipeline, sinks línea a línea, PoC y evidencia, publicados como divulgación responsable.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="coovachilli-eap-identity-rce.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~18 min de lectura</span>
+                            <h3 class="article-title">CoovaChilli: RCE via EAP-Identity → conup (CWE-78) <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Un payload en el EAP-Response/Identity pre-auth viaja sin sanitizar por la cadena EAP→RADIUS→env→script y acaba en un eval. RCE root o low-priv según el deployment. Validación E2E con ASAN+gdb.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="wifidog-host-header-rce.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~17 min de lectura</span>
+                            <h3 class="article-title">wifidog: RCE root via cabecera Host (CWE-78) <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Un request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh,-c) que construye iptables. Reverse shell root verificada. Sink en fw_iptables.c:596 → util.c:96.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="libuhttpd-date2unix-stackoverflow.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~16 min de lectura</span>
+                            <h3 class="article-title">libuhttpd: Stack Overflow en date2unix (CWE-121) <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="autopsia-librtmp-minihttpd.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~12 min de lectura</span>
+                            <h3 class="article-title">Análisis: librtmp AMF3 + mini_httpd htpasswd <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Dos primitivas reales: OOB read en el decoder AMF3 de librtmp y command injection en htpasswd de mini_httpd. La lección de cuándo una primitiva alcanza impacto real.</p>
+                            <span class="article-arrow">→</span>
+                        </a>
+                        <a href="suite-webmin-usermin-accelppp-cups.html" class="article-link local-article">
+                            <span class="article-date mono">Sep 2026 · ~20 min de lectura</span>
+                            <h3 class="article-title">Suite de scripting servers: Webmin, Usermin, accel-ppp y CUPS <span class="local-badge">ARTÍCULO</span></h3>
+                            <p class="article-desc">Cuatro sinks de inyección en la familia miniserv + L2TP + CUPS, y el bypass de confianza X-SSL-Client-* con su alcance real (requiere 3 prerequisitos no por defecto).</p>
+                            <span class="article-arrow">→</span>
+                        </a>
                         <a href="sherlock-caza-autonoma-ia-local.html" class="article-link local-article">
                             <span class="article-date mono">Ago 2026 · ~20 min de lectura</span>
                             <h3 class="article-title">Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA — Siete Hallazgos en un Mes <span class="local-badge">SERIE</span></h3>
