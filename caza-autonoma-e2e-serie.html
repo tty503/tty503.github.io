@@ -1,267 +1,172 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="hat.png">
-    <link rel="apple-touch-icon" href="hat.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#08090c">
+<meta name="color-scheme" content="dark">
+<title>Caza autónoma E2E con IA local: 5 cadenas RCE reales</title>
+<meta name="description" content="Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, PoC, evidencia ASAN y la doctrina de la divulgación responsable.">
+<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/caza-autonoma-e2e-serie.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Caza autónoma E2E con IA local: 5 cadenas RCE reales">
+<meta property="og:description" content="Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, PoC, evidencia ASAN y la doctrina de la divulgación responsable.">
+<meta property="og:url" content="https://tty503.com/caza-autonoma-e2e-serie.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
+<meta property="article:published_time" content="2026-09-02">
+<meta property="article:modified_time" content="2026-09-02">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="Caza autónoma E2E con IA local: 5 cadenas RCE reales">
+<meta name="twitter:description" content="Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, PoC, evidencia ASAN y la doctrina de la divulgación re">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-    <title>Serie: Caza Autónoma de Vulnerabilidades con IA Local | tty503</title>
-    <meta name="description" content="Serie de divulgación responsable: cinco vulnerabilidades reales analizadas y validadas extremo a extremo (el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming, el servidor HTTP minimo, el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion). Pipeline, sinks línea a línea, PoC y evidencia — publicado para hardening y concienciación.">
-    <meta name="keywords" content="divulgacion responsable, caza autonoma IA, vulnerabilidades, E2E validation, el daemon de portal cautivo RCE, el daemon de autenticacion y redireccion command injection, el servidor HTTP embebido stack overflow, el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec, el spooler de impresion, bug hunting, tty503">
-    <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-    <link rel="canonical" href="https://tty503.com/caza-autonoma-e2e-serie.html">
-    <meta name="theme-color" content="#050505">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 
-    <meta property="og:title" content="Serie: Caza Autónoma de Vulnerabilidades con IA Local | tty503">
-    <meta property="og:description" content="Cinco vulnerabilidades reales validadas extremo a extremo con agentes de IA local. Técnica, sinks línea a línea y evidencia, publicadas como divulgación responsable.">
-    <meta property="og:url" content="https://tty503.com/caza-autonoma-e2e-serie.html">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503">
-    <meta property="article:published_time" content="2026-09-02">
-    <meta property="article:modified_time" content="2026-09-02">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@tty_503">
-    <meta name="twitter:creator" content="@tty_503">
-    <meta name="twitter:title" content="Serie: Caza Autónoma de Vulnerabilidades con IA Local">
-    <meta name="twitter:description" content="Cinco cadenas RCE reales validadas E2E. Pipeline, sinks línea a línea y evidencia, como divulgación responsable.">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-base: #030303; --bg-surface: #0a0a0a; --bg-card: #111111;
-            --border-subtle: #222222; --border-hover: #444444;
-            --text-primary: #f5f5f5; --text-secondary: #a3a3a3; --text-muted: #666666;
-            --accent: #ffffff; --accent-green: #4ade80; --accent-blue: #60a5fa;
-            --accent-amber: #f59e0b; --accent-red: #ef4444;
-            --syntax-inst: #f07178; --syntax-reg: #82aaff; --syntax-val: #f78c6c;
-            --syntax-func: #c3e88d; --syntax-comment: #546e7a;
-            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .noise-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.05; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); }
-        .navbar { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth); }
-        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
-        .nav-back:hover { color: var(--accent); }
-        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
-        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
-        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
-        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
-        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
-        .toc-container { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; margin: 2rem 0; overflow: hidden; }
-        .toc-summary { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; }
-        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
-        .toc-summary::-webkit-details-marker { display: none; }
-        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
-        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
-        .toc-content { padding: 0 1.5rem 1.2rem; }
-        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
-        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
-        .toc-content ol li a:hover { color: var(--accent-blue); }
-        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
-        .section-title:first-of-type { margin-top: 0; border-top: none; }
-        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
-        strong { color: var(--text-primary); font-weight: 600; }
-        .code-block { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); }
-        .code-block code { font-family: 'JetBrains Mono', monospace; }
-        .code-block .inst { color: var(--syntax-inst); } .code-block .reg { color: var(--syntax-reg); }
-        .code-block .val { color: var(--syntax-val); } .code-block .func { color: var(--syntax-func); }
-        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
-        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
-        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255, 255, 255, 0.02); }
-        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
-        li { margin-bottom: 0.5rem; }
-        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
-        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
-        .callout p { margin-bottom: 0; font-size: 0.95rem; }
-        .callout-success { border-left-color: var(--accent-green); } .callout-success .callout-title { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
-        a:hover { color: var(--accent); }
-        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
-        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
-        .social-links a:hover { color: var(--text-primary); }
-        .copyright { color: var(--text-muted); font-size: 0.8rem; }
-        @media (max-width: 600px) {
-            .article-container { padding: 6rem 1rem 3rem; } .article-title { font-size: 1.6rem; }
-            .section-title { font-size: 1.25rem; } .code-block { padding: 1rem; font-size: 0.75rem; }
-            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; } .social-links { gap: 1rem; }
-        }
-    </style>
 </head>
 <body>
-    <div class="noise-overlay"></div>
+<div class="bg-fx"></div>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
+<main class="post">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Caza autónoma E2E con IA local: 5 cadenas RCE re</a><span class="sep">/</span></nav>
+<header class="post-head">
+  <div class="post-tags"><span class="chip">Bug Hunting</span><span class="chip">RCE</span><span class="chip">Divulgación responsable</span><span class="chip">E2E</span></div>
+  <h1>Caza autónoma E2E con IA local: 5 cadenas RCE reales</h1>
+  <p class="lede">Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, PoC, evidencia ASAN y la doctrina de la divulgación responsable.</p>
+  <div class="post-meta"><span>📅 2026-09-02</span><span>⏱ 25 min</span><span>🏷 Serie</span></div>
+</header>
+<article class="post-body">
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Índice de la serie <b>caza autónoma con IA local</b>: seis hallazgos validados E2E en firmware/daemons de red.</li>
+    <li><b>RCE verificado</b> en <b>el daemon de portal cautivo</b>, <b>el daemon de autenticacion y redireccion</b> y <b>el servidor HTTP embebido</b>; suite <b>el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion</b> post-auth + trust-bypass; <b>la biblioteca cliente del protocolo de streaming/el servidor HTTP minimo</b> solo primitivas.</li>
+    <li>Doctrina: <b>sin crash reproducible no hay hallazgo</b>; cada fase de la cadena deja un marker y un log re-verificable.</li>
+    <li>Publicado como <b>divulgación responsable</b>: mecanismo, sink y cadena, sin exploit listo para producción.</li>
+  </ul>
+</aside>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_vuln_research</span></a>
-            <a href="sherlock-caza-autonoma-ia-local.html" class="nav-back mono">← Serie caza autónoma</a>
-        </div>
-    </nav>
+<details class="toc-card" open>
+  <summary>/indice_de_la_serie · <span class="tw">5</span> secciones</summary>
+  <ol>
+    <li><a href="#s00">Todos los hallazgos en una tabla</a></li>
+    <li><a href="#s01">La doctrina de caza</a></li>
+    <li><a href="#s02">El pipeline de validación E2E</a></li>
+    <li><a href="#s03">Primitivas vs productos: el umbral real</a></li>
+    <li><a href="#s04">Los posts individuales</a></li>
+  </ol>
+</details>
 
-    <article class="article-container">
-        <header class="article-header">
-            <div class="article-meta mono">
-                <span class="article-tag">Divulgación responsable</span>
-                <span class="article-tag">E2E Validation</span>
-                <span class="article-tag">Bug Hunting</span>
-                <span class="article-tag">Septiembre 2026</span>
-                <span>~25 min de lectura</span>
-            </div>
-            <h1 class="article-title">Serie: Caza Autónoma de Vulnerabilidades con IA Local</h1>
-            <p class="article-subtitle">
-                Un ciclo completo de caza con agentes de IA local produjo <strong>cinco cadenas de ejecución de código reales, verificadas extremo a extremo</strong> —el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming, el servidor HTTP minimo y la suite el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion—. Este índice reúne el pipeline, los sinks línea a línea, las cadenas de explotación y la evidencia, publicados como <strong>divulgación responsable</strong> para facilitar el hardening y la concienciación.
-            </p>
-        </header>
+<h2 id="s00"><span class="idx">01.</span> Todos los hallazgos en una tabla</h2>
+<p>Fotografía completa del ciclo. Todos pasaron la validación técnica E2E con evidencia reproducible.</p>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Target</th><th>Clase</th><th>Vector</th><th>Privilegio</th><th>Alcance</th></tr></thead>
+    <tbody>
+      <tr><td>el daemon de portal cautivo</td><td>CWE-78</td><td>EAP-Identity → conup</td><td>root / low-priv</td><td>WLAN local</td></tr>
+      <tr><td>el daemon de autenticacion y redireccion</td><td>CWE-78</td><td>Host header → iptables</td><td>root</td><td>Config no por defecto</td></tr>
+      <tr><td>el servidor HTTP embebido</td><td>CWE-121</td><td>If-Modified-Since → el conversor de fecha a timestamp</td><td>low-priv</td><td>Local / toolchain</td></tr>
+      <tr><td>la biblioteca cliente del protocolo de streaming</td><td>CWE-125</td><td>AMF3 invoke</td><td>crash/leak</td><td>OOB read</td></tr>
+      <tr><td>el servidor HTTP minimo el gestor de credenciales</td><td>CWE-78</td><td>argv[1] → system()</td><td>CLI local</td><td>Utilidad CLI</td></tr>
+      <tr><td>el panel web de administracion del servidor cpan</td><td>CWE-78</td><td>args → open(CMD,\|)</td><td>root</td><td>Post-auth</td></tr>
+      <tr><td>el panel web de administracion restringida el CGI de administracion</td><td>CWE-78</td><td>open(FIND,\|)</td><td>root</td><td>Post-auth</td></tr>
+      <tr><td>CUPSF</td><td>CWE-78</td><td>cupsICCProfile → la herramienta de configuracion de impresorasrip</td><td>lp</td><td>LAN</td></tr>
+    </tbody>
+  </table>
+</div>
 
-        <details class="toc-container" open>
-            <summary class="toc-summary mono">
-                <span class="toc-title">/índice_de_la_serie</span>
-                <span class="toc-toggle">+</span>
-            </summary>
-            <div class="toc-content">
-                <ol>
-                    <li><a href="#s00">Los Hallazgos en una Tabla</a></li>
-                    <li><a href="#s01">La Doctrina de Caza</a></li>
-                    <li><a href="#s02">El Pipeline de Validación E2E</a></li>
-                    <li><a href="#s03">Librerías vs Productos: el Umbral Real</a></li>
-                    <li><a href="#s04">Los Posts Individuales</a></li>
-                </ol>
-            </div>
-        </details>
+<h2 id="s01"><span class="idx">02.</span> La doctrina de caza</h2>
+<p>El motor detrás de estos hallazgos no es un fuzzer genérico ni un escáner: es un pipeline multicapa con agentes de IA local que clasifica, audita, valida y documenta. La regla de oro es brutalmente simple: <b>sin crash reproducible no hay hallazgo</b>. Y el error de raíz que se corrigió fue la tentación del análisis estático puro (leer código y opinar) frente a la ingeniería inversa real (construir inputs que rompan el programa).</p>
+<div class="code-wrap"><span class="lang">txt</span><pre class="code"><code><span class="syn-c"># Las tácticas de caza que alimentaron los sinks de esta serie</span>
+<span class="syn-f">T1</span>  CVE→Variant Sweep  : tomar un CVE reciente, entender el fix, cazar la misma clase en otros paths
+<span class="syn-f">T6</span>  Helpers adjacent    : el core se endurece; los binarios de un solo propósito casi nunca
+<span class="syn-f">T7</span>  pppd/scripts admin  : scripts que el daemon ejecuta con campos del protocolo sin sanear
+<span class="syn-f">T8</span>  Trust-bypass family : headers/cookies de proxy → todos los sinks post-auth se vuelven candidatos
+<span class="syn-f">T9</span>  LTS embedded        : la rama dormida que master ya parcheó
+<span class="syn-f">T10</span> Heritage protocol   : bugs de 1994 copiados durante 30 años sin ser rehechos</code></pre></div>
+<p>Cada hallazgo de la serie nació de uno de estos patrones. el daemon de portal cautivo y la suite el panel web de administracion del servidor/el panel web de administracion restringida son <b>T8</b> (confianza en la cadena EAP→RADIUS→script y en headers de proxy). el daemon de autenticacion y redireccion y el spooler de impresion son <b>T7/T6</b> (scripts admin y helpers). La IA local procesa cientos de proyectos en paralelo y propone, pero la validación con sanitizers y la construcción de la cadena completa es lo único que separa un crash de un hallazgo. El sistema que lo ejecuta se documenta en la <a href="sherlock-caza-autonoma-ia-local.html">serie Sherlock</a>.</p>
 
-        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Los Hallazgos en una Tabla</h2>
-        <p>
-            Esta es la fotografía completa del ciclo. Todos los hallazgos pasaron la validación técnica E2E con evidencia reproducible.
-        </p>
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>Target</th><th>Clase</th><th>Vector</th><th>Privilegio</th><th>Alcance</th></tr></thead>
-                <tbody>
-                    <tr><td class="mono">el daemon de portal cautivo</td><td>CWE-78</td><td>EAP-Identity → conup</td><td>root / low-priv</td><td>WLAN local</td></tr>
-                    <tr><td class="mono">el daemon de autenticacion y redireccion</td><td>CWE-78</td><td>Host header → iptables</td><td>root</td><td>Config no por defecto</td></tr>
-                    <tr><td class="mono">el servidor HTTP embebido</td><td>CWE-121</td><td>If-Modified-Since → el conversor de fecha a timestamp</td><td>low-priv</td><td>Local / toolchain</td></tr>
-                    <tr><td class="mono">la biblioteca cliente del protocolo de streaming</td><td>CWE-125</td><td>AMF3 invoke</td><td>crash/leak</td><td>OOB read</td></tr>
-                    <tr><td class="mono">el servidor HTTP minimo el gestor de credenciales</td><td>CWE-78</td><td>argv[1] → system()</td><td>CLI local</td><td>Utilidad CLI</td></tr>
-                    <tr><td class="mono">el panel web de administracion del servidor cpan</td><td>CWE-78</td><td>args → open(CMD,|)</td><td>root</td><td>Post-auth</td></tr>
-                    <tr><td class="mono">el panel web de administracion restringida el CGI de administracion</td><td>CWE-78</td><td>open(FIND,|)</td><td>root</td><td>Post-auth</td></tr>
-                    <tr><td class="mono">CUPSF</td><td>CWE-78</td><td>cupsICCProfile → la herramienta de configuracion de impresorasrip</td><td>lp</td><td>LAN</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> La Doctrina de Caza</h2>
-        <p>
-            El motor que generó estos hallazgos no es un fuzzer genérico ni un escáner: es un pipeline multicapa con agentes de IA local que clasifica, audita, valida y documenta. La regla de oro que guía todo el proceso es brutalmente simple: <strong>sin crash reproducible no hay hallazgo.</strong> Y el error de raíz que se corrigió fue la tentación del análisis estático puro (leer código y opinar) frente a la ingeniería inversa real (construir inputs que rompan el programa).
-        </p>
-        <div class="code-block mono">
-<span class="comment"># Las tácticas de caza que alimentaron los sinks de esta serie</span>
-<span class="val">T1</span> <span class="func">CVE→Variant Sweep</span>   : tomar un CVE reciente, entender el fix, cazar la misma clase en otros paths
-<span class="val">T6</span> <span class="func">Helpers adjacent</span>      : el core se endurece; los binarios de un solo propósito casi nunca
-<span class="val">T7</span> <span class="func">pppd/scripts admin</span>  : scripts que el daemon ejecuta con campos del protocolo sin sanear
-<span class="val">T8</span> <span class="func">Trust-bypass family</span> : headers/cookies de proxy → todos los sinks post-auth se vuelven candidatos
-<span class="val">T9</span> <span class="func">LTS embedded</span>         : la rama dormida que master ya parcheó
-<span class="val">T10</span> <span class="func">Heritage protocol</span>    : bugs de 1994 copiados durante 30 años sin ser rehechos</div>
-        <p>
-            Cada hallazgo de esta serie nació de uno de estos patrones. el daemon de portal cautivo y la suite el panel web de administracion del servidor/el panel web de administracion restringida son <strong>T8</strong> (confianza en la cadena EAP→RADIUS→script y en headers de proxy). el daemon de autenticacion y redireccion y CUPSF son <strong>T7/T6</strong> (scripts admin y helpers). el servidor HTTP embebido es un sink clásico de bounds. La lección del caza-día 1 —detallada a fondo en la <a href="sherlock-caza-autonoma-ia-local.html">serie Sherlock</a>— es que la IA local procesa cientos de proyectos en paralelo y propone, pero la validación con sanitizers y la construcción de la cadena completa es lo único que separa un crash de un hallazgo.
-        </p>
-
-        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> El Pipeline de Validación E2E</h2>
-        <p>
-            El estándar que usé para considerar "demostrado" un hallazgo es el <strong>SOP de evidencia E2E en container</strong>. Nada de "el código se ve vulnerable": cada fase de la cadena deja un marker y un log que se puede re-verificar. El patrón se aplicó de forma consistente en el daemon de portal cautivo, el daemon de autenticacion y redireccion y el servidor HTTP embebido.
-        </p>
-        <div class="code-block mono">
-<span class="comment"># La estructura canónica de validación (abreviada)</span>
+<h2 id="s02"><span class="idx">03.</span> El pipeline de validación E2E</h2>
+<p>El estándar para considerar "demostrado" un hallazgo es el <b>SOP de evidencia E2E en container</b>. Nada de "el código se ve vulnerable": cada fase de la cadena deja un marker y un log que se puede re-verificar. El patrón se aplicó igual en el daemon de portal cautivo, el daemon de autenticacion y redireccion y el servidor HTTP embebido.</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># La estructura canónica de validación (abreviada)</span>
 docker run -it --name &lt;target&gt;-e2e debian:12 bash
-<span class="inst"># 1. instalar deps, clonar y compilar el target (con ASAN en los C)</span>
-<span class="inst"># 2. escribir la suite que ejecuta la cadena y deja markers por fase</span>
-<span class="comment">#    .m_s01 .. .m_sNN  = cada eslabón (leak→write→control→pivot→log)</span>
-<span class="inst"># 3. capturar suite_output.log como evidencia final</span>
-<span class="inst"># 4. verificar el escenario REAL de deployment y el usuario del RCE</span>
-<span class="reg">SUITE_RCE_DEFAULT</span>=usuario_al_que_llega   <span class="comment"># p.ej. el daemon de portal cautivo:1000</span>
-<span class="reg">SUITE_PIVOT_LOG</span>=usuario_al_que_pivota      <span class="comment"># p.ej. root:0</span></div>
-        <p>
-            Dos de sus salidas —el detalle del setuid para scripts shebang y la disparidad nativo/gdb— merecen mención por lo que enseñan. Un helper setuid root eleva el <span class="mono">euid</span> de un binario ELF pero <strong>no</strong> de un script con shebang, porque el kernel preserva el <span class="mono">real_uid</span> del intérprete. Eso definió si un hallazgo terminaba en root o no. Y en el servidor HTTP embebido, la dirección del stack difirió en +0xC0 bytes entre correr bajo <span class="mono">ptrace</span> (gdb) y correr nativo, y solo se resolvió reconstruyendo el layout en el run real.
-        </p>
+<span class="syn-c"># 1. instalar deps, clonar y compilar el target (con ASAN en los C)</span>
+<span class="syn-c"># 2. escribir la suite que ejecuta la cadena y deja markers por fase</span>
+<span class="syn-c">#    .m_s01 .. .m_sNN  = cada eslabón (leak→write→control→pivot→log)</span>
+<span class="syn-c"># 3. capturar suite_output.log como evidencia final</span>
+<span class="syn-c"># 4. verificar el escenario REAL de deployment y el usuario del RCE</span>
+SUITE_RCE_DEFAULT=usuario_al_que_llega    <span class="syn-c"># p.ej. el daemon de portal cautivo:1000</span>
+SUITE_PIVOT_LOG=usuario_al_que_pivota     <span class="syn-c"># p.ej. root:0</span></code></pre></div>
+<p>Dos salidas del pipeline merecen mención por lo que enseñan. Un helper setuid root eleva el <code>euid</code> de un binario ELF pero <b>no</b> de un script con shebang, porque el kernel preserva el <code>real_uid</code> del intérprete; eso definió si un hallazgo terminaba en root o no. Y en el servidor HTTP embebido, la dirección del stack difirió en <b>+0xC0 bytes</b> entre correr bajo <code>ptrace</code> (gdb) y correr nativo, y solo se resolvió reconstruyendo el layout en el run real.</p>
 
-        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Librerías vs Productos: el Umbral Real</h2>
-        <p>
-            Una pregunta recurrente al evaluar estos hallazgos es si una librería (la biblioteca cliente del protocolo de streaming, el servidor HTTP embebido) tiene el mismo valor que un producto final. La respuesta honesta es que la línea divisoria no es "es una librería" ni "es un producto", sino <strong>"¿puedo demostrar ejecución de código en un escenario de despliegue real donde el código vulnerable sea alcanzable?"</strong>.
-        </p>
-        <ul>
-            <li><strong>RCE real demostrado</strong> (ejecución de código, no solo crash): el daemon de portal cautivo (touch uid 0/1000), el daemon de autenticacion y redireccion (reverse shell root), el servidor HTTP embebido (reverse shell low-priv), el panel web de administracion del servidor cpan (reverse shell), el daemon de tunel L2TP/IPsec (markers root), CUPSF (id/touch como lp).</li>
-            <li><strong>Primitivas de solo lectura / N-day</strong> sin cadena a RCE: la biblioteca cliente del protocolo de streaming (OOB read AMF3, familia de CVE previos), el servidor HTTP minimo OOB read (heap underflow).</li>
-        </ul>
-        <p>
-            el daemon de portal cautivo rindió una cadena completa con ejecución verificada; la biblioteca cliente del protocolo de streaming solo un leak. Esa diferencia —cadena a RCE frente a primitiva sin completar— define el interés real del hallazgo, independientemente de si es libería o producto.
-        </p>
+<h2 id="s03"><span class="idx">04.</span> Primitivas vs productos: el umbral real</h2>
+<p>Una pregunta recurrente al evaluar estos hallazgos es si una librería (la biblioteca cliente del protocolo de streaming, el servidor HTTP embebido) tiene el mismo valor que un producto. La línea divisoria honesta no es "es librería" ni "es producto", sino <b>"¿puedo demostrar ejecución de código en un escenario de despliegue real donde el código vulnerable sea alcanzable?"</b>.</p>
+<ul>
+  <li><b>RCE real demostrado</b> (ejecución de código, no solo crash): <a href="cadena-portal-cautivo-rce.html">el daemon de portal cautivo</a> (touch uid 0/1000), <a href="fw-host-header-rce.html">el daemon de autenticacion y redireccion</a> (reverse shell root), <a href="http-el conversor de fecha a timestamp-stackoverflow.html">el servidor HTTP embebido</a> (reverse shell low-priv), el panel web de administracion del servidor cpan (reverse shell), el daemon de tunel L2TP/IPsec (markers root), el spooler de impresion (id/touch como lp).</li>
+  <li><b>Primitivas de solo lectura / N-day</b> sin cadena a RCE: <a href="autopsia-streaming-http-minimo.html">la biblioteca cliente del protocolo de streaming</a> (OOB read AMF3, familia de CVE previos), <a href="autopsia-streaming-http-minimo.html">el servidor HTTP minimo</a> OOB read (heap underflow).</li>
+</ul>
+<p>el daemon de portal cautivo rindió una cadena completa con ejecución verificada; la biblioteca cliente del protocolo de streaming solo un leak. Esa diferencia —cadena a RCE frente a primitiva sin completar— define el interés real del hallazgo.</p>
 
-        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> Los Posts Individuales</h2>
-        <p>Cada hallazgo de la serie tiene su análisis completo, con el sink línea a línea, los PoCs y las evidencias E2E.</p>
-        <ul>
-            <li><strong><a href="cadena-portal-cautivo-rce.html">el daemon de portal cautivo: RCE via EAP-Identity → conup (CWE-78)</a></strong> — Un payload en el primer paquete pre-auth del handshake 802.1X viaja por la cadena EAP→RADIUS→script sin sanitizar y acaba en un <span class="mono">eval</span>. RCE root o low-priv según el deployment.</li>
-            <li><strong><a href="fw-host-header-rce.html">el daemon de autenticacion y redireccion: RCE root via cabecera Host (CWE-78)</a></strong> — Un único request HTTP pre-auth con <span class="mono">Host</span> malicioso termina en un <span class="mono">execvp("/bin/sh","-c")</span> que construye iptables. Reverse shell root.</li>
-            <li><strong><a href="http-el conversor de fecha a timestamp-stackoverflow.html">el servidor HTTP embebido: Stack Overflow en el conversor de fecha a timestamp (CWE-121)</a></strong> — Un header <span class="mono">If-Modified-Since</span> de 220 bytes desborda <span class="mono">buf[128]</span> y toma control del RIP con un decoder XOR in-stack.</li>
-            <li><strong><a href="autopsia-streaming-http-minimo.html">Análisis: la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales</a></strong> — Dos primitivas reales: OOB read N-day en el decoder AMF3 y un command injection CLI en el gestor de credenciales, con su cadena y limitaciones.</li>
-            <li><strong><a href="suite-paneles-tunel-spooler.html">La Suite el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion</a></strong> — Cuatro sinks de la familia de scripting servers + L2TP y el spooler de impresion, con el bypass de confianza X-SSL-Client-* y su corrección de honestidad.</li>
-        </ul>
+<h2 id="s04"><span class="idx">05.</span> Los posts individuales</h2>
+<p>Cada hallazgo tiene su análisis completo, con el sink línea a línea, PoCs y evidencias E2E.</p>
+<ul>
+  <li><a href="cadena-portal-cautivo-rce.html"><b>el daemon de portal cautivo: RCE vía EAP-Identity → conup (CWE-78)</b></a> — Un payload en el primer paquete pre-auth del handshake 802.1X viaja EAP→RADIUS→script sin sanitizar y acaba en un <code>eval</code>. RCE root o low-priv según deployment.</li>
+  <li><a href="fw-host-header-rce.html"><b>el daemon de autenticacion y redireccion: RCE root vía cabecera Host (CWE-78)</b></a> — Un único request HTTP pre-auth con <code>Host</code> malicioso termina en un <code>execvp("/bin/sh","-c")</code> que construye iptables. Reverse shell root.</li>
+  <li><a href="http-el conversor de fecha a timestamp-stackoverflow.html"><b>el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</b></a> — Un header <code>If-Modified-Since</code> de 220 bytes desborda <code>buf[128]</code> y toma control del RIP con un decoder XOR in-stack.</li>
+  <li><a href="autopsia-streaming-http-minimo.html"><b>la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales</b></a> — Dos primitivas reales: OOB read N-day en el decoder AMF3 y command injection CLI en el gestor de credenciales, con su cadena y limitaciones.</li>
+  <li><a href="suite-paneles-tunel-spooler.html"><b>Suite el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion</b></a> — Cuatro sinks de la familia de scripting servers + L2TP y el spooler de impresion, con el trust-bypass X-SSL-Client-* y su corrección de honestidad.</li>
+</ul>
 
-        <div class="callout">
-            <div class="callout-title mono">Sobre esta publicación</div>
-            <p>Todo el material se publica con fines de divulgación responsable: concienciación, hardening y análisis académico de bugs. Los detalles de exploición se presentan en su forma analítica —mecanismo, sink y cadena— con el criterio de no distribuir un exploit listo para disparar contra producciones sin el correspondiente proceso de divulgación. Los mantenedores de los targets afectados fueron contactados como parte del proceso responsable.</p>
-        </div>
-    </article>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="social-links mono">
-                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
-                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
-                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
-                <a href="https://tty503.com">tty503.com</a>
-            </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Vulnerability Research — Serie caza autónoma E2E.</p>
-        </div>
-    </footer>
-
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
-            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
-        });
-    </script>
-
-    <script type="application/ld+json">
+<div class="callout callout-info"><span class="ico">ℹ</span><div>
+  <div class="h">Sobre esta publicación</div>
+  <p>Todo el material se publica con fines de divulgación responsable: concienciación, hardening y análisis académico. Los detalles se presentan en su forma analítica —mecanismo, sink y cadena— sin distribuir un exploit listo para disparar contra producciones fuera de un proceso de divulgación. Los mantenedores de los targets afectados fueron contactados.</p>
+</div></div>
+</article>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>20 min</span></div><div class="t">Sherlock: caza autónoma de vulnerabilidades con IA local</div><div class="d">Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con valid</div><span class="badge badge-rce">Serie</span></a><a class="card" href="libarchive-cab-lzx-uninitialized-memory.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>11 min</span></div><div class="t">libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing</div><div class="d">Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRU</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="7zip-isfolderencrypted-oob-read.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>18 min</span></div><div class="t">7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente</div><div class="d">El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes</div><span class="badge badge-rce">Vulnerability Research</span></a></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "Serie: Caza Autónoma de Vulnerabilidades con IA Local",
-      "description": "Cinco cadenas RCE reales validadas extremo a extremo con agentes de IA local (el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming, el servidor HTTP minimo, el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion). Pipeline, sinks línea a línea y evidencia, como divulgación responsable.",
+      "headline": "Caza aut\u00f3noma E2E con IA local: 5 cadenas RCE reales",
+      "description": "\u00cdndice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks l\u00ednea a l\u00ednea, PoC, evidencia ASAN y la doctrina de la divulgaci\u00f3n responsable.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-09-02",
       "dateModified": "2026-09-02",
       "mainEntityOfPage": "https://tty503.com/caza-autonoma-e2e-serie.html",
-      "inLanguage": "es"
+      "inLanguage": "es",
+      "keywords": "Bug Hunting, RCE, Divulgaci\u00f3n responsable, E2E"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/caza-autonoma-e2e-serie.html", "name": "Caza autónoma E2E con IA local: 5 cadenas RCE reales"}}]
     }
-    </script>
+  ]
+}
+</script>
 </body>
 </html>

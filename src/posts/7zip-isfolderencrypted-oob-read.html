@@ -1,0 +1,220 @@
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Un archivo <b>.7z de 24 bytes</b> manipulados hace que el binario más instalado del mundo lea memoria que no le pertenece: <b>heap OOB read</b> confirmado en 7-Zip <b>26.00 · 26.01 · 26.02</b>.</li>
+    <li>Dos parsers, una estructura: <code>ReadFolder</code> consume el flag <code>0x10</code> de <code>CodersData</code>; <code>IsFolderEncrypted</code> lo ignora, se desincroniza byte a byte y compara contra <code>k_AES</code> valores leídos tras el final del buffer.</li>
+    <li>Disparador: <code>7zz l -slt</code> o <code>7zz x</code> (consultan <code>kpidEncrypted</code>). Clase: <b>CWE-125</b>.</li>
+    <li>Sin CVE, sin parche, ausente de los advisories GHSL-2026-116…122. Evidencia triple: ASAN + valgrind (build producción) + gdb, x86 y x64. Severidad honesta: <b>LOW</b>.</li>
+  </ul>
+</aside>
+
+<details class="toc-card" open>
+  <summary>/7zip_desync_parser · <span class="tw">10</span> secciones</summary>
+  <ol>
+    <li><a href="#z00">Resumen Técnico</a></li>
+    <li><a href="#z01">Contexto: Por qué 7-Zip importa</a></li>
+    <li><a href="#z02">La superficie: kpidEncrypted y los comandos disparadores</a></li>
+    <li><a href="#z03">Anatomía del bug: dos parsers, una estructura</a></li>
+    <li><a href="#z04">El desync, byte a byte</a></li>
+    <li><a href="#z05">El PoC: estructura del archivo trampa</a></li>
+    <li><a href="#z06">Evidencia de validación</a></li>
+    <li><a href="#z07">Acotación del OOB: por qué es LOW</a></li>
+    <li><a href="#z08">Impacto realista y mitigación</a></li>
+    <li><a href="#z09">Conclusión</a></li>
+  </ol>
+</details>
+
+<h2 id="z00"><span class="idx">01.</span> Resumen Técnico</h2>
+<div class="tbl-wrap">
+  <table>
+    <tbody>
+      <tr><th>Objetivo</th><td>7-Zip / 7-Zip ZS — binario CLI <code>7zz</code>, versiones 26.00 · 26.01 · 26.02</td></tr>
+      <tr><th>Vulnerabilidad</th><td>Heap buffer over-read en <code>NArchive::N7z::CHandler::IsFolderEncrypted</code> (<code>7zHandler.cpp:308</code>)</td></tr>
+      <tr><th>CWE</th><td>CWE-125 (Out-of-bounds Read) · VRT: MCR (Memory Corruption — Read)</td></tr>
+      <tr><th>Severidad</th><td><b>LOW</b> — solo lectura, 1–6 bytes controlables, sin camino directo a escritura</td></tr>
+      <tr><th>Disparador</th><td><code>7zz l -slt archivo.7z</code> y <code>7zz x archivo.7z</code> (consultan <code>kpidEncrypted</code>)</td></tr>
+      <tr><th>Novedad</th><td>Sin CVE asignado y ausente de los advisories GHSL-2026-116…122 (parcheados en 26.01); <code>git diff 26.01..26.02</code> confirma que <code>7zHandler.cpp</code> no cambió</td></tr>
+      <tr><th>Validación</th><td>ASAN heap-buffer-overflow + valgrind invalid read sobre builds gemelas (instrumentada y producción), x86 y x64</td></tr>
+      <tr><th>Estado fix upstream</th><td>Sin parche al cierre de este análisis — divulgación graduada: mecanismo sí, generador completo no</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="z01"><span class="idx">02.</span> Contexto: por qué 7-Zip importa</h2>
+<p>7-Zip está en todas partes: escritorios Windows, gateways antivirus que descomprimen adjuntos, pipelines CI/CD que extraen artefactos, appliances de correo. Cuando un parser de archivos comprimidos lee de más, la pregunta inmediata es <b>¿quién más lo hace?</b> — porque cada producto que incruste el código afectado hereda el bug. La racha de advisories GHSL-2026-116…122 sobre 7-Zip 26.00 demostró que la superficie sigue siendo fértil; todos esos fueron parcheados en la serie 26.01.</p>
+<p>Este hallazgo no está entre ellos. El diff entre 26.01 y 26.02 no toca el handler del formato 7z, y las pruebas confirman que el crash reproduce igual en las tres versiones. Es decir: <b>un bug de clase similar a los ya corregidos, pero en una ruta distinta que nadie había cubierto</b>.</p>
+
+<div class="callout callout-info"><span class="ico">ℹ</span><div>
+  <div class="h">Cómo lo encontró el sistema</div>
+  <p>La campaña de fuzzing sobre el formato 7z produjo un crash con firma estable (<code>heap-buffer-overflow READ of size 1</code> siempre en la misma línea). El triage automático clasificó el stack, la verificación cruzada lo reprodujo en build producción vía valgrind, y el paso de novedad descartó duplicados contra los advisories conocidos. Detalles del pipeline en el <a href="sherlock-caza-autonoma-ia-local.html">artículo central de la serie</a>.</p>
+</div></div>
+
+<h2 id="z02"><span class="idx">03.</span> La superficie: kpidEncrypted y los comandos disparadores</h2>
+<p>El bug vive en una consulta de propiedad. Cuando el usuario lista o extrae un archivo, la consola pregunta por cada carpeta interna si está cifrada mediante la propiedad <code>kpidEncrypted</code>. Esa consulta termina invocando a <code>IsFolderEncrypted</code>, que — en vez de reutilizar el resultado estructurado del parseo original — decide <b>volver a caminar los bytes crudos de <code>CodersData</code></b> buscando el ID del coder AES.</p>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Comando</th><th>Consulta kpidEncrypted</th><th>¿Dispara el OOB?</th></tr></thead>
+    <tbody>
+      <tr><td><code>7zz l -slt poc.7z</code></td><td>Sí (listado técnico por ítem)</td><td><b>Sí — crash</b></td></tr>
+      <tr><td><code>7zz x poc.7z</code></td><td>Sí (antes de decidir pedir contraseña)</td><td><b>Sí — crash</b></td></tr>
+      <tr><td><code>7zz t poc.7z</code></td><td>No (el test no consulta cifrado)</td><td>No</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>Esta asimetría tiene consecuencias prácticas: entornos que solo prueban integridad de archivos (<code>t</code>) no verán el problema, mientras que cualquier flujo que liste o extraiga — exactamente lo que hace un gateway de correo o un gestor de archivos — lo pisa de lleno.</p>
+
+<h2 id="z03"><span class="idx">04.</span> Anatomía del bug: dos parsers, una estructura</h2>
+<p>El formato 7z describe cada carpeta con una secuencia de codificadores dentro de <code>CodersData</code>. Cada coder empieza con un byte de flags donde el bit bajo guarda el tamaño del ID (<code>&amp; 0x0F</code>) y el bit 0x20 indica propiedades adicionales. Existe además un flag especial — <code>0x10</code> — que anuncia que detrás del ID vienen dos números: <code>numInStreams</code> y <code>numOutStreams</code>.</p>
+<p>El parser principal (<code>CInArchive::ReadFolder</code>, <code>7zIn.cpp:521</code>) interpreta ese flag correctamente y consume ambos números durante la apertura. Pero <code>IsFolderEncrypted</code> (<code>7zHandler.cpp:291–317</code>) re-parsea la misma región <b>solo con reglas de id+props</b>: nunca mira el bit 0x10. Dos lectores, una misma secuencia de bytes, dos posiciones finales distintas. El resto es aritmética del caos.</p>
+<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// 7zHandler.cpp:302-316 — bucle vulnerable (línea 308 = lectura OOB)</span>
+<span class="syn-f">CNum</span> numCoders = inByte.<span class="syn-f">ReadNum</span>();
+<span class="syn-k">for</span> (; numCoders != <span class="syn-n">0</span>; numCoders--) {
+    <span class="syn-k">const</span> Byte mainByte = inByte.<span class="syn-f">ReadByte</span>();
+    <span class="syn-k">const unsigned</span> idSize = (mainByte &amp; <span class="syn-n">0xF</span>);
+    <span class="syn-k">const</span> Byte *longID = inByte.<span class="syn-f">GetPtr</span>();
+    UInt64 id64 = <span class="syn-n">0</span>;
+    <span class="syn-k">for</span> (<span class="syn-k">unsigned</span> j = <span class="syn-n">0</span>; j &lt; idSize; j++)
+        id64 = (id64 &lt;&lt; <span class="syn-n">8</span>) | longID[j];   <span class="syn-c">// ← OOB READ sin check de límites</span>
+    inByte.<span class="syn-f">SkipDataNoCheck</span>(idSize);
+    <span class="syn-k">if</span> (id64 == k_AES) <span class="syn-k">return true</span>;
+    <span class="syn-k">if</span> ((mainByte &amp; <span class="syn-n">0x20</span>) != <span class="syn-n">0</span>)
+        inByte.<span class="syn-f">SkipDataNoCheck</span>(inByte.<span class="syn-f">ReadNum</span>());
+}
+<span class="syn-c">// Nota: ningún manejo de 0x10 → numIn/numOutStreams se interpretan</span>
+<span class="syn-c">// como si fueran datos de coders siguientes (desync garantizado)</span></code></pre></div>
+<p>El contraste dentro del propio archivo fuente lo confirma: otra función del mismo handler, <code>GetFolderInfo</code> (<code>7zHandler.cpp:400–434</code>), <b>sí</b> procesa el flag 0x10 y consume los dos contadores. El bug no es de diseño del formato: es de <b>implementación inconsistente entre dos lectores de la misma estructura</b>.</p>
+
+<h2 id="z04"><span class="idx">05.</span> El desync, byte a byte</h2>
+<p>Con el archivo trampa del generador, <code>CodersData</code> ocupa exactamente 24 bytes en el heap. Mira cómo el re-parse pierde la pista:</p>
+<figure class="figure">
+  <div style="overflow-x:auto;">
+    <svg viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama del desync: ReadFolder consume el flag 0x10, IsFolderEncrypted no, provocando lectura fuera de límites" style="min-width:700px; width:100%; height:auto;">
+      <style>
+        .cell { fill:#181818; stroke:#333333; }
+        .cellhl { fill:#2a1010; stroke:#ef4444; stroke-width:1.5; }
+        .cellg { fill:#0d1a0d; stroke:#4ade80; stroke-dasharray:3 2; }
+        .btxt { fill:#e5e5e5; font:600 12px 'JetBrains Mono',monospace; }
+        .ptxt { fill:#666666; font:9px 'JetBrains Mono',monospace; }
+        .rtxt { fill:#f59e0b; font:600 11px 'JetBrains Mono',monospace; }
+        .gtxt { fill:#4ade80; font:600 11px 'JetBrains Mono',monospace; }
+        .ttl { fill:#f5f5f5; font:600 13px 'JetBrains Mono',monospace; }
+        .sub { fill:#888888; font:11px 'Inter',sans-serif; }
+        .arrowR { stroke:#ef4444; stroke-width:1.5; fill:none; marker-end:url(#arrR); }
+        .arrowG { stroke:#4ade80; stroke-width:1.5; fill:none; marker-end:url(#arrG); }
+      </style>
+      <defs>
+        <marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ef4444"/></marker>
+        <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4ade80"/></marker>
+      </defs>
+      <text x="450" y="26" text-anchor="middle" class="ttl">CodersData — 24 bytes en el heap</text>
+      <g>
+        <rect x="70" y="50" width="56" height="40" class="cell"/><text x="98" y="74" text-anchor="middle" class="btxt">02</text><text x="98" y="104" text-anchor="middle" class="ptxt">numCoders</text>
+        <rect x="126" y="50" width="56" height="40" class="cell"/><text x="154" y="74" text-anchor="middle" class="btxt">31</text><text x="154" y="104" text-anchor="middle" class="ptxt">coder1 flg</text>
+        <rect x="182" y="50" width="56" height="40" class="cell"/><text x="210" y="74" text-anchor="middle" class="btxt">00</text><text x="210" y="104" text-anchor="middle" class="ptxt">id[0]</text>
+        <rect x="238" y="50" width="56" height="40" class="cellg"/><text x="266" y="74" text-anchor="middle" class="gtxt">0a</text><text x="266" y="104" text-anchor="middle" class="ptxt">numIn=10</text>
+        <rect x="294" y="50" width="56" height="40" class="cellg"/><text x="322" y="74" text-anchor="middle" class="gtxt">01</text><text x="322" y="104" text-anchor="middle" class="ptxt">numOut=1</text>
+        <rect x="350" y="50" width="56" height="40" class="cell"/><text x="378" y="74" text-anchor="middle" class="btxt">05</text><text x="378" y="104" text-anchor="middle" class="ptxt">propsSize</text>
+        <rect x="406" y="50" width="112" height="40" class="cell"/><text x="462" y="74" text-anchor="middle" class="btxt">5D 00×4</text><text x="462" y="104" text-anchor="middle" class="ptxt">props (LZMA2)</text>
+        <rect x="518" y="50" width="56" height="40" class="cell"/><text x="546" y="74" text-anchor="middle" class="btxt">00</text><text x="546" y="104" text-anchor="middle" class="ptxt">coder2</text>
+        <rect x="574" y="50" width="56" height="40" class="cell"/><text x="602" y="74" text-anchor="middle" class="btxt">00 00</text><text x="602" y="104" text-anchor="middle" class="ptxt">bond</text>
+        <rect x="630" y="50" width="200" height="40" class="cell"/><text x="730" y="74" text-anchor="middle" class="btxt">0a 09 … 01</text><text x="730" y="104" text-anchor="middle" class="ptxt">packStreams (10 bytes)</text>
+      </g>
+      <text x="70" y="150" class="ttl">✓ ReadFolder (7zIn.cpp:521) — parseo de apertura</text>
+      <path class="arrowG" d="M266 118 L266 168"/>
+      <text x="280" y="172" class="sub">consume flag 0x10 → salta numIn+numOut → propsSize=05 en su sitio → termina limpio en el byte 24</text>
+      <text x="70" y="215" class="ttl">✗ IsFolderEncrypted (7zHandler.cpp:308) — re-parse para kpidEncrypted</text>
+      <text x="70" y="245" class="sub">ignora 0x10 · lee mainByte=0x31 → idSize=1, id=00 · ve bit 0x20 → ReadNum() traga 0x0a como "propsSize"</text>
+      <text x="70" y="264" class="sub">skip 10 bytes → aterriza en pos 14 (zona de packStreams) creyendo que ahí empieza un segundo coder</text>
+      <rect x="70" y="285" width="56" height="40" class="cellhl"/>
+      <text x="98" y="309" text-anchor="middle" class="btxt">0a</text>
+      <text x="140" y="300" class="rtxt">mainByte falso = packStream[0]</text>
+      <text x="140" y="318" class="rtxt">idSize = 0x0a &amp; 0x0F = 10</text>
+      <rect x="70" y="360" width="760" height="52" rx="6" class="cellhl"/>
+      <text x="450" y="382" text-anchor="middle" class="btxt">longID[j] lee 10 bytes desde pos 15 → el byte 10 sale del final del buffer</text>
+      <text x="450" y="400" text-anchor="middle" class="sub">id64 se construye con memoria adyacente del heap y se compara contra k_AES</text>
+      <path class="arrowR" d="M98 330 Q98 350 200 358"/>
+    </svg>
+  </div>
+  <figcaption class="figcap">Figura 1 — El mismo buffer, dos lectores. En verde el parser correcto (consume 0x10 y termina limpio). En rojo el re-parse: confunde contadores de streams con datos de coders, aterriza en la zona de packStreams, fabrica un "coder fantasma" con idSize=10 y lee un byte más allá del final del allocation de 24 bytes.</figcaption>
+</figure>
+<p>La secuencia exacta del desync queda así:</p>
+<div class="code-wrap"><span class="lang">text</span><pre class="code"><code><span class="syn-c"># CodersData del PoC (24 bytes, modo desync)</span>
+pos <span class="syn-n">00</span>: <span class="syn-n">02</span>   <span class="syn-c"># numCoders = 2</span>
+pos <span class="syn-n">01</span>: <span class="syn-n">31</span>   <span class="syn-c"># coder1: flags (idSize=1, bit 0x20 set)</span>
+pos <span class="syn-n">02</span>: <span class="syn-n">00</span>   <span class="syn-c"># id[0]</span>
+pos <span class="syn-n">03</span>: <span class="syn-n">0a</span>   <span class="syn-c"># ← numInStreams=10  (lo come ReadFolder,</span>
+pos <span class="syn-n">04</span>: <span class="syn-n">01</span>   <span class="syn-c"># ← numOutStreams=1   lo ignora IsFolderEncrypted)</span>
+pos <span class="syn-n">05</span>: <span class="syn-n">05</span>   <span class="syn-c"># propsSize = 5</span>
+pos <span class="syn-n">06..0a</span>: <span class="syn-n">5D 00 00 00 00</span>   <span class="syn-c"># props LZMA2</span>
+pos <span class="syn-n">0b</span>: <span class="syn-n">00</span>   <span class="syn-c"># coder2 real</span>
+pos <span class="syn-n">0c..0d</span>: <span class="syn-n">00 00</span>   <span class="syn-c"># bond</span>
+pos <span class="syn-n">0e..17</span>: <span class="syn-n">0a 09 08 07 06 05 04 03 02 01</span>   <span class="syn-c"># packStreams</span>
+
+<span class="syn-c"># Lectura según IsFolderEncrypted:</span>
+pos <span class="syn-n">03</span>: ReadNum() → <span class="syn-n">0x0a</span> = 10   <span class="syn-c"># cree que es propsSize (¡no es 0x05!)</span>
+skip 10 bytes              <span class="syn-c"># devora props + coder2 + bond + 4 packStreams</span>
+pos <span class="syn-n">0e</span>: mainByte=<span class="syn-n">0x0a</span>     <span class="syn-c"># packStream[0] disfrazado de nuevo coder</span>
+idSize = 10 decimal       <span class="syn-c"># 0x0a &amp; 0xF</span>
+longID[0..9] → pos 15..24 <span class="syn-c"># el último byte YA está fuera del heap chunk</span></code></pre></div>
+
+<h2 id="z05"><span class="idx">06.</span> El PoC: estructura del archivo trampa</h2>
+<p>El generador interno construye un .7z mínimo cuyo header declara una carpeta con el patrón anterior. La clave no es criptografía sino <b>contabilidad de bytes</b>: hay que elegir <code>numInStreams</code> de modo que el skip del re-parse aterrice exactamente en la zona de packStreams, y que el primer byte de esa zona tenga el nibble bajo deseado.</p>
+<div class="code-wrap"><span class="lang">python</span><pre class="code"><code><span class="syn-c"># Flujo del generador (esqueleto conceptual — el script completo se reserva</span>
+<span class="syn-c"># para coordinación con el mantenedor mientras no exista parche)</span>
+<span class="syn-k">def</span> <span class="syn-f">construir_sig_header</span>():
+    coders_info = [<span class="syn-f">coder_con_flag_0x10</span>(num_in=<span class="syn-n">10</span>, num_out=<span class="syn-n">1</span>), ...]
+    coders_data = <span class="syn-f">serializar</span>(coders_info)      <span class="syn-c"># 24 bytes exactos</span>
+    pack_streams = <span class="syn-f">bytes_controlados</span>(<span class="syn-n">10</span>)       <span class="syn-c"># 0a 09 .. 01</span>
+    <span class="syn-k">return</span> <span class="syn-f">empaquetar_7z</span>(coders_data, pack_streams)
+
+$ python3 gen_poc.py clean    <span class="syn-c"># baseline: archivo válido equivalente</span>
+$ python3 gen_poc.py desync   <span class="syn-c"># variante disparadora del OOB</span></code></pre></div>
+<p>Conservar un <b>baseline limpio</b> junto al disparador fue decisión del sistema: permite demostrar que la única diferencia relevante es el patrón del flag 0x10, eliminando cualquier duda de factores externos (compresión, diccionarios, alineación).</p>
+
+<h2 id="z06"><span class="idx">07.</span> Evidencia de validación</h2>
+<p>La validación siguió la regla de las dos herramientas. Instrumento primario: build instrumentada con ASAN que reporta el desbordamiento con símbolos. Validador independiente: valgrind Memcheck sobre el binario de producción sin instrumentar, confirmando que el bug no es un artefacto del sanitizer.</p>
+<figure class="figure">
+  <img src="img/7zip-isfolderencrypted-oob-read-asan-evidencia.png" alt="Terminal mostrando el reporte de AddressSanitizer: heap-buffer-overflow READ of size 1 en NArchive::N7z::CHandler::IsFolderEncrypted 7zHandler.cpp:308, localizado justo después de una región de 24 bytes" loading="lazy">
+  <figcaption class="figcap">Evidencia A — ASAN: heap-buffer-overflow READ of size 1 en IsFolderEncrypted (7zHandler.cpp:308), «located 0 bytes after 24-byte region»: el allocation de CodersData queda exactamente atrás. Captura regenerada a partir del log original de validación con rutas de build redactadas.</figcaption>
+</figure>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Tool B — valgrind sobre binario de producción (sin instrumentar)</span>
+$ valgrind ~/builds/7zz-prod l -slt ~/poc/poc_desync.7z
+==<span class="syn-n">…</span>== Invalid read of size <span class="syn-n">1</span>
+==<span class="syn-n">…</span>==    at <span class="syn-n">…</span> NArchive::N7z::CHandler::<span class="syn-f">IsFolderEncrypted</span>(…) 7zHandler.cpp:<span class="syn-n">308</span>
+==<span class="syn-n">…</span>==  Address … is <span class="syn-n">0</span> bytes after a block of size <span class="syn-n">24</span> alloc'd
+
+<span class="syn-c"># Tool C — gdb: breakpoint en la línea culpable, inspección de idSize</span>
+(gdb) break 7zHandler.cpp:<span class="syn-n">308</span>
+(gdb) run l -slt poc_desync.7z
+(gdb) p idSize
+$<span class="syn-n">1</span> = <span class="syn-n">10</span>   <span class="syn-c"># el nibble bajo del "coder fantasma"</span></code></pre></div>
+<p>Ambas herramientas coinciden en los tres datos que importan: <b>tamaño de lectura (1 byte), línea exacta (308) y distancia al borde del allocation (0 bytes después de 24)</b>. Reproducido en builds x86 y x64.</p>
+
+<h2 id="z07"><span class="idx">08.</span> Acotación del OOB: por qué es LOW</h2>
+<p>El alcance del desborde está gobernado por el nibble bajo del mainByte falso, y ese byte lo elige el atacante dentro de la zona de packStreams:</p>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Variante</th><th>Configuración</th><th>idSize resultante</th><th>Bytes OOB</th></tr></thead>
+    <tbody>
+      <tr><td>PoC estándar</td><td><code>numIn=10</code>, packStream[0]=<code>0x0A</code></td><td>10</td><td>1 byte (ASAN corta en el primero)</td></tr>
+      <tr><td>PoC ampliado</td><td><code>numIn=15</code>, packStream[5]=<code>0x0F</code></td><td>15</td><td>hasta 6 bytes</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>Tres razones lo mantienen en LOW. Primera: <b>es solo lectura</b> — no hay escritura ni corrupción de metadatos del allocator. Segunda: el dato leído se acumula en <code>id64</code> y se compara contra la constante <code>k_AES</code>; su único efecto observable es un booleano (¿carpeta cifrada sí/no?), no un leak canalizable a disco o red. Tercera: la distancia máxima (~15 bytes) limita qué objetos vecinos pueden ser alcanzados, y ninguno de los observados altera decisiones de seguridad más allá del booleano citado.</p>
+<div class="callout callout-ok"><span class="ico">✔</span><div>
+  <div class="h">El valor estratégico del primitivo</div>
+  <p>Bajo en impacto, alto en señal: este read es el primitivo de lectura sobre el que el sistema construyó su siguiente hipótesis — control determinista del layout del heap para colocar datos elegibles justo detrás de CodersData. Esa escalada, documentada internamente como stepping stone hacia MEDIUM, es el tipo de cadena que separa un crash curioso de una vulnerabilidad madura.</p>
+</div></div>
+
+<h2 id="z08"><span class="idx">09.</span> Impacto realista y mitigación</h2>
+<p>¿Quién está expuesto? Cualquier flujo automatizado que liste o extraiga .7z de origen no confiable: gateways de correo que descomprimen adjuntos para escanear, servidores de archivos con previsualización, pipelines que validan artefactos, y usuarios finales abriendo archivos descargados. En todos esos casos el disparador es pasivo: basta listar el contenido.</p>
+<p>Para mantenedores, el fix es quirúrgico: <b>procesar el flag 0x10 en el re-parse</b> — consumir <code>numInStreams</code>/<code>numOutStreams</code> exactamente como hace <code>GetFolderInfo</code> — o, mejor aún, eliminar el re-parse crudo y reutilizar la representación estructurada ya calculada en la apertura. Para operadores, hasta que exista parche: tratar los .7z de origen desconocido como entradas hostiles (aislar el proceso extractor, aplicar timeouts, preferir servicios de descompresión sandboxeados).</p>
+<div class="callout callout-warn"><span class="ico">⚠</span><div>
+  <div class="h">Estado de divulgación</div>
+  <p>Al publicar este análisis no existe patch upstream ni CVE asignado. Por eso el generador completo no se distribuye aquí: el mecanismo está documentado con precisión suficiente para reproducirlo y corregirlo, pero no se sirve listo para disparar. Si eres mantenedor y necesitas el material completo, contacta por los canales habituales.</p>
+</div></div>
+
+<h2 id="z09"><span class="idx">10.</span> Conclusión</h2>
+<p>El caso resume lo que hace valioso un LOW bien documentado: una causa raíz clara (dos lectores con reglas divergentes sobre el mismo formato), un mecanismo auditable byte a byte, evidencia triple y una frontera de impacto honestamente acotada. Los bugs de re-parse divergente son una familia — donde hay uno, suele haber más —, y esta firma concreta (flag consumido en un parser, ignorado en otro) ahora forma parte del repertorio que el sistema busca activamente en otros parsers de archivos.</p>
+<p>La lección para quien construye parsers: <b>cada vez que una estructura se interpreta dos veces, las dos implementaciones deben compartir la misma gramática</b> — o mejor, la misma función. El formato no cambia; cambia quién lo lee y con cuántas ganas de leer todo.</p>

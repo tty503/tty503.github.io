@@ -1,309 +1,182 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="hat.png">
-    <link rel="apple-touch-icon" href="hat.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#08090c">
+<meta name="color-scheme" content="dark">
+<title>Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion</title>
+<meta name="description" content="Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion, y el bypass de confianza X-SSL-Client-* con su alcance real: tres prerrequisitos que no son default.">
+<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/suite-paneles-tunel-spooler.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion">
+<meta property="og:description" content="Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion, y el bypass de confianza X-SSL-Client-* con su alcance real: tres prerrequisitos que no son default.">
+<meta property="og:url" content="https://tty503.com/suite-paneles-tunel-spooler.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
+<meta property="article:published_time" content="2026-09-02">
+<meta property="article:modified_time" content="2026-09-02">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion">
+<meta name="twitter:description" content="Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion, y el bypass de confianza X-SSL-Client-* con su alcance real: tres prerrequisitos que no son default.">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-    <title>Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion | tty503</title>
-    <meta name="description" content="Cuatro sinks de inyección de comandos en la familia el panel web de administracion del servidor/el panel web de administracion restringida (mismo motor miniserv), el daemon de tunel L2TP/IPsec (L2TP→scripts) y el spooler de impresion (el spooler de impresion-browsed→la herramienta de configuracion de impresorasrip), con el bypass de confianza X-SSL-Client-* y su alcance real. Análisis línea a línea.">
-    <meta name="keywords" content="el panel web de administracion del servidor, el panel web de administracion restringida, cpan el CGI de administracion, el CGI de administracion, el daemon de tunel L2TP/IPsec L2TP, el spooler de impresion, la herramienta de configuracion de impresorasrip, command injection, X-SSL-Client, trust bypass, miniserv, bug hunting, divulgacion, tty503">
-    <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-    <link rel="canonical" href="https://tty503.com/suite-paneles-tunel-spooler.html">
-    <meta name="theme-color" content="#050505">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 
-    <meta property="og:title" content="Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion | tty503">
-    <meta property="og:description" content="Cuatro sinks de inyección de comandos en la familia de scripting servers + L2TP + el spooler de impresion, con el bypass de confianza X-SSL-Client-* y su alcance real.">
-    <meta property="og:url" content="https://tty503.com/suite-paneles-tunel-spooler.html">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503">
-    <meta property="article:published_time" content="2026-09-02">
-    <meta property="article:modified_time" content="2026-09-02">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@tty_503">
-    <meta name="twitter:creator" content="@tty_503">
-    <meta name="twitter:title" content="Suite el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion">
-    <meta name="twitter:description" content="4 sinks de inyección + bypass X-SSL-Client-*, con alcance real. Línea a línea.">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-base: #030303; --bg-surface: #0a0a0a; --bg-card: #111111;
-            --border-subtle: #222222; --border-hover: #444444;
-            --text-primary: #f5f5f5; --text-secondary: #a3a3a3; --text-muted: #666666;
-            --accent: #ffffff; --accent-green: #4ade80; --accent-blue: #60a5fa;
-            --accent-amber: #f59e0b; --accent-red: #ef4444;
-            --syntax-inst: #f07178; --syntax-reg: #82aaff; --syntax-val: #f78c6c;
-            --syntax-func: #c3e88d; --syntax-comment: #546e7a;
-            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .noise-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.05; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); }
-        .navbar { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth); }
-        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
-        .nav-back:hover { color: var(--accent); }
-        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
-        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
-        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .article-tag { background: transparent; color: var(--accent-red); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .article-title { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
-        .article-subtitle { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.7; max-width: 700px; }
-        .toc-container { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; margin: 2rem 0; overflow: hidden; }
-        .toc-summary { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; }
-        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
-        .toc-summary::-webkit-details-marker { display: none; }
-        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s; }
-        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
-        .toc-content { padding: 0 1.5rem 1.2rem; }
-        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
-        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
-        .toc-content ol li a:hover { color: var(--accent-blue); }
-        .section-title { font-size: 1.4rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
-        .subsection-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
-        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
-        strong { color: var(--text-primary); font-weight: 600; }
-        .code-block { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); }
-        .code-block code { font-family: 'JetBrains Mono', monospace; }
-        .code-block .inst { color: var(--syntax-inst); } .code-block .reg { color: var(--syntax-reg); }
-        .code-block .val { color: var(--syntax-val); } .code-block .func { color: var(--syntax-func); }
-        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
-        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
-        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255, 255, 255, 0.02); }
-        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
-        li { margin-bottom: 0.5rem; }
-        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
-        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
-        .callout p { margin-bottom: 0; font-size: 0.95rem; }
-        .callout-warning { border-left-color: var(--accent-amber); } .callout-warning .callout-title { color: var(--accent-amber); }
-        .callout-success { border-left-color: var(--accent-green); } .callout-success .callout-title { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
-        a:hover { color: var(--accent); }
-        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
-        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
-        .social-links a:hover { color: var(--text-primary); }
-        .copyright { color: var(--text-muted); font-size: 0.8rem; }
-        @media (max-width: 600px) {
-            .article-container { padding: 6rem 1rem 3rem; } .article-title { font-size: 1.5rem; }
-            .section-title { font-size: 1.2rem; } .code-block { padding: 1rem; font-size: 0.75rem; }
-            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; } .social-links { gap: 1rem; }
-        }
-    </style>
 </head>
 <body>
-    <div class="noise-overlay"></div>
+<div class="bg-fx"></div>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
+<main class="post">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Serie</a><span class="sep">/</span><a href="suite-paneles-tunel-spooler.html">Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, acc</a><span class="sep">/</span></nav>
+<header class="post-head">
+  <div class="post-tags"><span class="chip">CWE-78</span><span class="chip">Trust bypass</span><span class="chip">Scripting servers</span><span class="chip">el panel web de administracion del servidor</span></div>
+  <h1>Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion</h1>
+  <p class="lede">Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion, y el bypass de confianza X-SSL-Client-* con su alcance real: tres prerrequisitos que no son default.</p>
+  <div class="post-meta"><span>📅 2026-09-02</span><span>⏱ 20 min</span><span>🏷 Vulnerability Research</span></div>
+</header>
+<article class="post-body">
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Cuatro sinks de <b>command injection</b> en la familia de scripting servers: <b>el panel web de administracion del servidor</b>, <b>el panel web de administracion restringida</b> (motor <code>miniserv</code> compartido), <b>el daemon de tunel L2TP/IPsec</b> (L2TP→scripts) y <b>el spooler de impresion</b> (la herramienta de configuracion de impresorasrip).</li>
+    <li>El hilo común: datos de red o de configuración sin sanear terminan en un <code>sh -c</code> — la superficie de scripts admin y helpers que el core ya endureció.</li>
+    <li>El trust-bypass <code>X-SSL-Client-*</code> es real pero <b>condicional</b>: exige <code>trust_real_ip=1</code> + proxy en <code>trusted_proxies</code> + DN coincidente exacto con un certificado pre-registrado.</li>
+    <li>Lección: "común en producción" ≠ "config por defecto"; verificar siempre el valor real antes de declarar alcance pre-auth.</li>
+  </ul>
+</aside>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_vuln_research</span></a>
-            <a href="caza-autonoma-e2e-serie.html" class="nav-back mono">← Índice de la serie</a>
-        </div>
-    </nav>
+<details class="toc-card" open>
+  <summary>/suite_scripting_servers · <span class="tw">6</span> secciones</summary>
+  <ol>
+    <li><a href="#su00">Resumen de los cuatro sinks</a></li>
+    <li><a href="#su01">0x00 — el panel web de administracion del servidor cpan/el CGI de administracion</a></li>
+    <li><a href="#su02">0x01 — el panel web de administracion restringida ssh/el CGI de administracion y el CGI de administracion</a></li>
+    <li><a href="#su03">0x02 — el daemon de tunel L2TP/IPsec L2TP → scripts ip-up</a></li>
+    <li><a href="#su04">0x03 — el spooler de impresion: el spooler de impresion-browsed → la herramienta de configuracion de impresorasrip</a></li>
+    <li><a href="#su05">0x04 — El bypass de confianza X-SSL-Client-*</a></li>
+  </ol>
+</details>
 
-    <article class="article-container">
-        <header class="article-header">
-            <div class="article-meta mono">
-                <span class="article-tag">CWE-78</span>
-                <span class="article-tag">Trust bypass</span>
-                <span class="article-tag">Scripting servers</span>
-                <span class="article-tag">Septiembre 2026</span>
-                <span>~20 min de lectura</span>
-            </div>
-            <h1 class="article-title">Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion</h1>
-            <p class="article-subtitle">
-                Cuatro sinks de inyección de comandos en una misma familia de scripting servers (el panel web de administracion del servidor y el panel web de administracion restringida comparten el motor <span class="mono">miniserv</span>), más el túnel L2TP de el daemon de tunel L2TP/IPsec y la cadena el spooler de impresion-browsed→la herramienta de configuracion de impresorasrip de el spooler de impresion. Incluye el análisis del bypass de confianza <span class="mono">X-SSL-Client-*</span> y su alcance real.
-            </p>
-        </header>
+<h2 id="su00"><span class="idx">01.</span> Resumen de los cuatro sinks</h2>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Target</th><th>Sink</th><th>Clase</th><th>Privilegio</th><th>Alcance</th></tr></thead>
+    <tbody>
+      <tr><td>el panel web de administracion del servidor</td><td>cpan/el CGI de administracion:45</td><td>CWE-78</td><td>root</td><td>Post-auth</td></tr>
+      <tr><td>el panel web de administracion restringida</td><td>ssh/el CGI de administracion:9/12</td><td>CWE-78</td><td>no-root</td><td>Post-auth</td></tr>
+      <tr><td>el daemon de tunel L2TP/IPsec</td><td>ip-up/down ($6)</td><td>CWE-78</td><td>root</td><td>L2TP (config)</td></tr>
+      <tr><td>el spooler de impresion</td><td>la herramienta de configuracion de impresorasrip sh -c</td><td>CWE-78</td><td>lp</td><td>LAN</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>El hilo común: todos ejecutan un shell con datos que en algún punto provienen de la red o de un campo de configuración sin sanear. Es la clase de bug que el core de cada producto ha ido endureciendo, pero sobrevive en los <em>scripts admin</em> y los <em>helpers</em> — la superficie que el mantenimiento no mira.</p>
 
-        <details class="toc-container" open>
-            <summary class="toc-summary mono">
-                <span class="toc-title">/suite_scripting_servers</span>
-                <span class="toc-toggle">+</span>
-            </summary>
-            <div class="toc-content">
-                <ol>
-                    <li><a href="#su00">Resumen de los Cuatro Sinks</a></li>
-                    <li><a href="#su01">0x00 — el panel web de administracion del servidor cpan/el CGI de administracion</a></li>
-                    <li><a href="#su02">0x01 — el panel web de administracion restringida ssh/el CGI de administracion y el CGI de administracion</a></li>
-                    <li><a href="#su03">0x02 — el daemon de tunel L2TP/IPsec L2TP → scripts ip-up</a></li>
-                    <li><a href="#su04">0x03 — CUPSF: el spooler de impresion-browsed → la herramienta de configuracion de impresorasrip</a></li>
-                    <li><a href="#su05">0x04 — El bypass de confianza X-SSL-Client-*</a></li>
-                    <li><a href="#su06">0x05 — Referencias</a></li>
-                </ol>
-            </div>
-        </details>
+<h2 id="su01"><span class="idx">02.</span> 0x00 — el panel web de administracion del servidor cpan/el CGI de administracion</h2>
+<p>El módulo de instalación de módulos Perl de el panel web de administracion del servidor (CPAN) pasa los argumentos del usuario directamente a la apertura de un pipe de comandos:</p>
+<div class="code-wrap"><span class="lang">perl</span><pre class="code"><code><span class="syn-c">// cpan/el CGI de administracion:45 — el argumento del usuario entra a un comando</span>
+<span class="syn-f">open</span>(CMD, <span class="syn-s">"..."</span> . $module . <span class="syn-s">" |"</span>) <span class="syn-c">or</span> <span class="syn-f">die</span>(...);
+<span class="syn-c">// un pipe "|" se ejecuta con /bin/sh -c; $module sin escapar =&gt; inyección</span>
+<span class="syn-c">// Presente sin cambios desde hace muchos años (sink heredado/legacy)</span></code></pre></div>
+<p>El sink está en el cierre del pipe con <code>|</code>, que el intérprete ejecuta con <code>/bin/sh -c</code>. Un módulo como <code>;touch /tmp/x;#</code> termina la parte "normal" y ejecuta lo inyectado. El alcance es <b>post-auth</b>: requiere una sesión válida de el panel web de administracion del servidor con privilegios de administrador (root). No es pre-auth.</p>
 
-        <h2 class="section-title mono" id="su00"><span style="color: var(--text-muted);">00.</span> Resumen de los Cuatro Sinks</h2>
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>Target</th><th>Sink</th><th>Clase</th><th>Privilegio</th><th>Alcance</th></tr></thead>
-                <tbody>
-                    <tr><td class="mono">el panel web de administracion del servidor</td><td class="mono">cpan/el CGI de administracion:45</td><td>CWE-78</td><td>root</td><td>Post-auth</td></tr>
-                    <tr><td class="mono">el panel web de administracion restringida</td><td class="mono">ssh/el CGI de administracion:9/12</td><td>CWE-78</td><td>no-root</td><td>Post-auth</td></tr>
-                    <tr><td class="mono">el daemon de tunel L2TP/IPsec</td><td class="mono">ip-up/down ($6)</td><td>CWE-78</td><td>root</td><td>L2TP (config)</td></tr>
-                    <tr><td class="mono">el spooler de impresion</td><td class="mono">la herramienta de configuracion de impresorasrip sh -c</td><td>CWE-78</td><td>lp</td><td>LAN</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <p>
-            El hilo común es que todos ejecutan un shell con datos que en algún punto provienen de la red o de un campo de configuración sin sanear. Son la clase de bug que el core de cada producto ha ido endureciendo, pero que sobrevive en los <em>scripts admin</em> y los <em>helpers</em> —lo que esta serie llama la superficie que el mantenimiento no mira.
-        </p>
+<h2 id="su02"><span class="idx">03.</span> 0x01 — el panel web de administracion restringida ssh/el CGI de administracion y el CGI de administracion</h2>
+<p><b>el panel web de administracion restringida</b> comparte el motor <code>miniserv</code> con el panel web de administracion del servidor pero sirve a usuarios normales, no al admin. Tiene dos sinks de la familia:</p>
+<div class="code-wrap"><span class="lang">perl</span><pre class="code"><code><span class="syn-c">// ssh/el CGI de administracion:9/12 — el tipo ($type) se interpola sin quotemeta</span>
+$cmd = <span class="syn-s">"..."</span> . $type . <span class="syn-s">" ..."</span>;
+<span class="syn-f">system</span>($cmd);   <span class="syn-c">// $type del usuario, sin escapar</span>
 
-        <h2 class="section-title mono" id="su01"><span style="color: var(--text-muted);">01.</span> 0x00 — el panel web de administracion del servidor cpan/el CGI de administracion</h2>
-        <p>
-            El módulo de instalación de módulos Perl de el panel web de administracion del servidor (CPAN) pasa los argumentos del usuario directamente a la apertura de un pipe de comandos:
-        </p>
-        <div class="code-block mono">
-<span class="comment">// cpan/el CGI de administracion:45 — el argumento del usuario entra a un comando</span>
-<span class="func">open</span>(<span class="reg">CMD</span>, <span class="val">"..."</span> . <span class="reg">$module</span> . <span class="val">" |"</span>) <span class="inst">or</span> <span class="func">die</span>(...);
-<span class="comment">// un pipe "|" se ejecuta con /bin/sh -c; $module sin escapar => inyección</span>
-<span class="comment">// Presente sin cambios desde hace muchos años (sink heredado/legacy)</span></div>
-        <p>
-            El sink está en el cierre del pipe con <span class="mono">|</span>, que el intérprete ejecuta con <span class="mono">/bin/sh -c</span>. Un módulo como <span class="mono">;touch /tmp/x;#</span> termina la parte "normal" y ejecuta el comando inyectado. El alcance es <strong>post-auth</strong>: requiere una sesión válida de el panel web de administracion del servidor (con los privilegios del administrador, root). No es un bug pre-auth.
-        </p>
+<span class="syn-c">// htaccess/el CGI de administracion:9 — open con pipe sobre input</span>
+<span class="syn-f">open</span>(FIND, <span class="syn-s">"find ..."</span> . $_ . <span class="syn-s">" |"</span>) <span class="syn-c">or</span> <span class="syn-f">die</span>(...);
+<span class="syn-c">// $_ (dato del request) entra a un pipe sh -c sin quotemeta</span></code></pre></div>
+<p>Ambos son <b>post-auth</b> y, por defecto, corren con el uid del usuario de el panel web de administracion restringida (miniserv baja el euid): el RCE llega como un usuario no-root. La inyección es real, pero el impacto queda acotado a la cuenta del usuario autenticado salvo que la configuración eleve privilegios.</p>
 
-        <h2 class="section-title mono" id="su02"><span style="color: var(--text-muted);">02.</span> 0x01 — el panel web de administracion restringida ssh/el CGI de administracion y el CGI de administracion</h2>
-        <p>
-            <strong>el panel web de administracion restringida</strong> comparte el motor <span class="mono">miniserv</span> con el panel web de administracion del servidor pero sirve a usuarios normales, no al admin. Tiene dos sinks de la familia:
-        </p>
-        <div class="code-block mono">
-<span class="comment">// ssh/el CGI de administracion:9/12 — el tipo ($type) se interpola sin quotemeta</span>
-<span class="reg">$cmd</span> = <span class="val">"..."</span> . <span class="reg">$type</span> . <span class="val">" ..."</span>;
-<span class="func">system</span>(<span class="reg">$cmd</span>);   <span class="comment">// $type del usuario, sin escapar</span>
+<h2 id="su03"><span class="idx">04.</span> 0x02 — el daemon de tunel L2TP/IPsec L2TP → scripts ip-up</h2>
+<p><b>el daemon de tunel L2TP/IPsec</b> es un servidor PPP/BGP/L2TP para BRAS y LNS de ISP. En su modo de compatibilidad <code>pppd_compat</code> ejecuta los scripts <code>ip-up/ip-down</code> con los campos de la sesión sin escapar. El AVP que llega sin sanear es el <code>CALLING_SID</code> (identificador llamante):</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c">// ip-up/ip-down — CALLING_SID ($6) se evalúa sin comillas</span>
+<span class="syn-f">eval</span> <span class="syn-s">"$6"</span>;   <span class="syn-c">// el AVP llamante del túnel L2TP entra a un eval</span>
 
-<span class="comment">// htaccess/el CGI de administracion:9 — open con pipe sobre input</span>
-<span class="func">open</span>(<span class="reg">FIND</span>, <span class="val">"find ...</span>" . <span class="reg">$_</span> . <span class="val">" |"</span>) <span class="inst">or</span> <span class="func">die</span>(...);
-<span class="comment">// $_ (dato del request) entra a un pipe sh -c sin quotemeta</span></div>
-        <p>
-            Ambos son <strong>post-auth</strong> y, por defecto, corren con el uid del usuario de el panel web de administracion restringida (miniserv baja el euid): el RCE llega como un usuario no-root. La inyección es real pero el impacto queda acotado a la cuenta del usuario autenticado salvo que la configuración eleve privilegios.
-        </p>
+<span class="syn-c">// Origen: el Calling-SID del paquete ICRQ L2TP (UDP 1701), 0-click</span>
+<span class="syn-c">// con contenido: ;id &gt; /tmp/x;# =&gt; ejecución en el script de sesión</span></code></pre></div>
+<p>Es un camino <b>pre-auth y 0-click</b> por UDP L2TP (puerto 1701): el túnel se inicia antes de autenticarse. La ejecución es <b>root</b> (los scripts ppp corren como root). La limitación real: requiere la config de compatibilidad <code>pppd_compat</code> con los scripts presentes, que no es la instalación por defecto pura.</p>
 
-        <h2 class="section-title mono" id="su03"><span style="color: var(--text-muted);">03.</span> 0x02 — el daemon de tunel L2TP/IPsec L2TP → scripts ip-up</h2>
-        <p>
-            <strong>el daemon de tunel L2TP/IPsec</strong> es un servidor PPP/BGP/L2TP para BRAS y LNS de ISP. En su modo de compatibilidad <span class="mono">pppd_compat</span>, ejecuta los scripts <span class="mono">ip-up/ip-down</span> con los campos de la sesión sin escapar. El AVP que llega sin sanear es el <span class="mono">CALLING_SID</span> (el identificador llamante), que se expande en el script:
-        </p>
-        <div class="code-block mono">
-<span class="comment">// ip-up/ip-down — CALLING_SID ($6) se evalúa sin comillas</span>
-<span class="func">eval</span> <span class="val">"$6"</span>;   <span class="comment">// el AVP llamante del túnel L2TP entra a un eval</span>
+<h2 id="su04"><span class="idx">05.</span> 0x03 — el spooler de impresion: el spooler de impresion-browsed → la herramienta de configuracion de impresorasrip</h2>
+<p><b>el spooler de impresion</b> es el sistema de impresión estándar. El daemon <code>el spooler de impresion-browsed</code> descubre impresoras de red y, al procesar trabajos, deriva el filtro <code>la herramienta de configuracion de impresorasrip</code>, que ejecuta con un shell:</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c">// el spooler de impresion-browsed → la herramienta de configuracion de impresorasrip → sh -c</span>
+<span class="syn-c">// El perfil de color (cupsICCProfile) se pasa fuera del allowlist</span>
+<span class="syn-c">// y se interpola en el comando del filtro:</span>
+<span class="syn-f">sh -c</span> <span class="syn-s">"... la herramienta de configuracion de impresoras-rip ..."</span>  <span class="syn-c">// perfil no validado =&gt; inyección</span>
 
-<span class="comment">// Origen: el Calling-SID del paquete ICRQ L2TP (UDP 1701), 0-click</span>
-<span class="comment">// con conteño: ;id > /tmp/x;# => ejecución en el script de sesión</span></div>
-        <p>
-            Es un camino <strong>pre-auth y 0-click</strong> por UDP L2TP (puerto 1701), porque el túnel se inicia antes de autenticarse. La ejecución es <strong>root</strong> (los scripts de ppp corren como root). La limitación real es que requiere la config de compatibilidad <span class="mono">pppd_compat</span> con los scripts presentes, que no es la instalación por defecto pura.
-        </p>
+<span class="syn-c">// Origen: perfil manipulado vía descubrimiento el spooler de impresion-browsed</span>
+<span class="syn-c">// (ya cubierto por la familia CVE-2024-47177 — variante allowlist)</span></code></pre></div>
+<p>El vector es el descubrimiento de impresoras de red: un perfil fuera del allowlist del mantenedor se interpola en el comando del filtro. Ejecuta como <code>lp</code> (usuario del sistema de impresión). Alcance: una LAN con impresión en red (el spooler de impresion-browsed activo), no Internet de forma directa.</p>
 
-        <h2 class="section-title mono" id="su04"><span style="color: var(--text-muted);">04.</span> 0x03 — CUPSF: el spooler de impresion-browsed → la herramienta de configuracion de impresorasrip</h2>
-        <p>
-            <strong>el spooler de impresion</strong> es el sistema de impresión estándar. El daemon <span class="mono">el spooler de impresion-browsed</span> descubre impresoras de red y, al procesar trabajos, deriva el filtro <span class="mono">la herramienta de configuracion de impresorasrip</span> que ejecuta con un shell:
-        </p>
-        <div class="code-block mono">
-<span class="comment">// el spooler de impresion-browsed → la herramienta de configuracion de impresorasrip → sh -c</span>
-<span class="comment">// El perfil de color (cupsICCProfile) se pasa fuera del allowlist</span>
-<span class="comment">// y se interpola en el comando del filtro:</span>
-<span class="func">sh -c</span> <span class="val">"... la herramienta de configuracion de impresoras-rip ..."</span>  <span class="comment">// perfil no validado => inyección</span>
+<h2 id="su05"><span class="idx">06.</span> 0x04 — El bypass de confianza X-SSL-Client-*</h2>
+<p>el panel web de administracion del servidor/el panel web de administracion restringida validan la autenticación por cliente SSL. En despliegues detrás de un reverse proxy, el motor <code>miniserv</code> confía en las cabeceras <code>X-SSL-Client-*</code> que el proxy inyecta para indicar el certificado del cliente:</p>
+<div class="code-wrap"><span class="lang">perl</span><pre class="code"><code><span class="syn-c">// miniserv-lib.pl — confianza en las cabeceras SSL del proxy</span>
+<span class="syn-f">$header</span>{<span class="syn-s">"X-SSL-Client-DN"</span>}, <span class="syn-f">$header</span>{<span class="syn-s">"X-SSL-Client-Cert"</span>} ...
+<span class="syn-c">// se usan para resolver el usuario por certificado (find_user_by_cert)</span></code></pre></div>
+<p>La clase de riesgo conceptual: si el motor no distingue una cabecera inyectada por el atacante de una inyectada por el proxy, los sinks post-auth de la familia podrían volverse pre-auth por composición. Tras validación rigurosa, el alcance real en config estándar es limitado:</p>
+<ul>
+  <li>Requiere <code>trust_real_ip=1</code> en <code>miniserv.conf</code> (opt-in del admin para reverse proxy).</li>
+  <li>El peer IP del cliente debe estar dentro de <code>trusted_proxies</code>; si no, el motor borra esas cabeceras.</li>
+  <li>El <code>X-SSL-Client-DN</code> espoofeado debe coincidir <b>exacto</b> con un certificado pre-registrado a un usuario en <code>find_user_by_cert</code> — no es un bypass ciego fabricable a voluntad.</li>
+</ul>
+<div class="callout callout-warn"><span class="ico">⚠</span><div>
+  <div class="h">Nota de honestidad técnica</div>
+  <p>Con los tres prerrequisitos activos, el bypass sí convierte los sinks post-auth en pre-auth. Pero ninguna es el valor por defecto: son cambios que un admin habilita para operar tras un reverse proxy. La lección general es <b>verificar siempre el valor real de la configuración por defecto antes de declarar una clase de alcance</b>: "común en producción" no es lo mismo que "config por defecto".</p>
+</div></div>
 
-<span class="comment">// Origen: perfil manipulado vía descubrimiento el spooler de impresion-browsed</span>
-<span class="comment">// (ya cubierto por la familia CVE-2024-47177 — variante allowlist)</span></div>
-        <p>
-            El vector es el descubrimiento de impresoras de red (<span class="mono">el spooler de impresion-browsed</span>): un perfil fuera del allowlist del mantenedor se interpola en el comando del filtro. Ejecuta como <span class="mono">lp</span> (usuario del sistema de impresión). El alcance es una LAN con impresión en red (el spooler de impresion-browsed activo), no Internet de forma directa.
-        </p>
-
-        <h2 class="section-title mono" id="su05"><span style="color: var(--text-muted);">05.</span> 0x04 — El bypass de confianza X-SSL-Client-*</h2>
-        <p>
-            el panel web de administracion del servidor/el panel web de administracion restringida validan la autenticación por cliente SSL. En despliegues detrás de un reverse proxy, el motor <span class="mono">miniserv</span> confía en las cabeceras <span class="mono">X-SSL-Client-*</span> que el proxy inyecta para indicar el certificado del cliente:
-        </p>
-        <div class="code-block mono">
-<span class="comment">// miniserv-lib.pl — confianza en las cabeceras SSL del proxy</span>
-<span class="reg">$header</span>{<span class="val">"X-SSL-Client-DN"</span>}, <span class="reg">$header</span>{<span class="val">"X-SSL-Client-Cert"</span>} ...
-<span class="comment">// se usan para resolver el usuario por certificado (find_user_by_cert)</span></div>
-        <p>
-            La clase de riesgo conceptual es que, si el motor no distingue una cabecera inyectada por el atacante de una inyectada por el proxy, todos los sinks <em>post-auth</em> de la familia podrían volverse <em>pre-auth</em> por composición. Tras validación rigurosa, el alcance real de este bypass en config estándar es limitado:
-        </p>
-        <ul>
-            <li>Requiere <span class="mono">trust_real_ip=1</span> en <span class="mono">miniserv.conf</span> (opt-in del admin para reverse proxy).</li>
-            <li>El peer IP del cliente debe estar dentro de <span class="mono">trusted_proxies</span>; si no, el motor borra esas cabeceras (<span class="mono">delete $header{...}</span>).</li>
-            <li>El <span class="mono">X-SSL-Client-DN</span> espoofeado debe coincidir <strong>exacto</strong> con un certificado pre-registrado a un usuario en <span class="mono">find_user_by_cert</span>. No es un bypass ciego fabricable a voluntad.</li>
-        </ul>
-        <div class="callout-warning">
-            <div class="callout-title mono">Nota de honestidad técnica</div>
-            <p>Con los tres prerequisitos activos, el bypass sí convierte los sinks post-auth en pre-auth. Pero ninguna de esas condiciones es el valor por defecto de la configuración: son cambios que un admin habilita para operar tras un reverse proxy. La lección general de este análisis es <strong>verificar siempre el valor real de la configuración por defecto antes de declarar una clase de alcance</strong>; "común en producción" no es lo mismo que "config por defecto".</p>
-        </div>
-
-        <h2 class="section-title mono" id="su06"><span style="color: var(--text-muted);">06.</span> 0x05 — Referencias</h2>
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>Referencia</th><th>Descripción</th></tr></thead>
-                <tbody>
-                    <tr><td class="mono">el panel web de administracion del servidor cpan/el CGI de administracion:45</td><td>Sink open(CMD,"...|") → sh -c, heredado/multi-año</td></tr>
-                    <tr><td class="mono">el panel web de administracion restringida ssh/el CGI de administracion:9/12</td><td>system() con $type sin quotemeta</td></tr>
-                    <tr><td class="mono">el panel web de administracion restringida htaccess/el CGI de administracion:9</td><td>open(FIND,"...|") con input del request</td></tr>
-                    <tr><td class="mono">el daemon de tunel L2TP/IPsec ip-up/down</td><td>eval de CALLING_SID ($6) sobre AVP L2TP</td></tr>
-                    <tr><td class="mono">CUPSF el spooler de impresion-browsed</td><td>cupsICCProfile → la herramienta de configuracion de impresorasrip sh -c (variante CVE-2024-47177)</td></tr>
-                    <tr><td class="mono">miniserv-lib.pl</td><td>Confianza en cabeceras X-SSL-Client-* (bypass condicional)</td></tr>
-                    <tr><td class="mono">CWE-78</td><td>Improper Neutralization in OS Command</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="callout-success">
-            <div class="callout-title mono">Divulgación responsable</div>
-            <p>Estos sinks se publican con fines de hardening y concienciación. La mitigación común a toda la familia es simple y robusta: <strong>nunca interpolar datos de red o de request en un shell</strong> — usar <span class="mono">quotemeta</span>/escapado en Perl para la familia miniserv, no derivar comandos por <span class="mono">eval</span> en los scripts ppp, y validar los perfiles contra el allowlist en el spooler de impresion. Cada caso fue comunicado al mantenedor como parte del proceso responsable.</p>
-        </div>
-
-        <p style="margin-top:2rem;">
-            <a href="caza-autonoma-e2e-serie.html" class="mono" style="font-size:0.85rem; color:var(--accent-blue);">← Volver al índice de la serie</a>
-        </p>
-    </article>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="social-links mono">
-                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
-                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
-                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
-                <a href="https://tty503.com">tty503.com</a>
-            </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Vulnerability Research — Suite el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion.</p>
-        </div>
-    </footer>
-
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
-            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
-        });
-    </script>
-
-    <script type="application/ld+json">
+<div class="callout callout-ok"><span class="ico">✓</span><div>
+  <div class="h">Divulgación responsable</div>
+  <p>Se publican con fines de hardening y concienciación. Mitigación común a toda la familia: <b>nunca interpolar datos de red o de request en un shell</b> — <code>quotemeta</code>/escapado en Perl para la familia miniserv, no derivar comandos por <code>eval</code> en los scripts ppp, y validar los perfiles contra el allowlist en el spooler de impresion. Cada caso comunicado al mantenedor como parte del proceso responsable.</p>
+</div></div>
+</article>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="autopsia-streaming-http-minimo.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>12 min</span></div><div class="t">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</div><div class="d">OOB read en el decoder AMF3 de la biblioteca cliente del protocolo de streaming y command injection en el gestor de credenciales de el servidor HTTP minimo. Cuándo una primitiva real no llega</div><span class="badge badge-infra">Vulnerability Research</span></a><a class="card" href="cadena-portal-cautivo-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>18 min</span></div><div class="t">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</div><div class="d">Payload en EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en un eval. RC</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="fw-host-header-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>17 min</span></div><div class="t">el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)</div><div class="d">Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell r</div><span class="badge badge-rce">Vulnerability Research</span></a></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
       "@type": "Article",
       "headline": "Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion",
-      "description": "Cuatro sinks de inyección de comandos en la familia el panel web de administracion del servidor/el panel web de administracion restringida (motor miniserv), el daemon de tunel L2TP/IPsec (L2TP→scripts) y el spooler de impresion (la herramienta de configuracion de impresorasrip), con el bypass de confianza X-SSL-Client-* y su alcance real. Análisis línea a línea.",
+      "description": "Cuatro sinks de inyecci\u00f3n en la familia miniserv + L2TP + el spooler de impresion, y el bypass de confianza X-SSL-Client-* con su alcance real: tres prerrequisitos que no son default.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-09-02",
       "dateModified": "2026-09-02",
       "mainEntityOfPage": "https://tty503.com/suite-paneles-tunel-spooler.html",
-      "inLanguage": "es"
+      "inLanguage": "es",
+      "keywords": "CWE-78, Trust bypass, Scripting servers, el panel web de administracion del servidor"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/caza-autonoma-e2e-serie.html", "name": "Serie"}}, {"@type": "ListItem", "position": 3, "item": {"@id": "https://tty503.com/suite-paneles-tunel-spooler.html", "name": "Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion"}}]
     }
-    </script>
+  ]
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,206 @@
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>No es un diagrama de PowerPoint: es un <b>SOC personal desplegado y escupiendo alertas a Telegram</b> — virtualización con <b>Proxmox</b>, filtrado DPI con <b>OPNsense</b>, señuelos <b>T-Pot</b> expuestos a internet, y red mesh privada <b>Tailscale</b> ejecutada en contenedores <b>Podman rootless</b>.</li>
+    <li><b>Regla de oro:</b> flujo de logs <b>unidireccional</b> (Honeypot → SOC/NOC, jamás al revés). Si el honeypot cae en manos de un atacante, no puede pivotar ni tocar los históricos.</li>
+    <li>IaC total con <b>Terraform (Contabo) + Ansible + PyInfra</b>, secretos en <b>Hashicorp Vault</b>, y observabilidad con <b>Wazuh + Zabbix + Prometheus + Grafana</b> + alertas real-time por Telegram Bot API (validado en vivo: Apache caído, alerta y resolución en 1 minuto).</li>
+    <li>Defensa en profundidad con <b>anillos concéntricos de logs</b> (Honeypot: 4 anillos, SOC/NOC: 2, Home: 1) — si un anillo cae o es manipulado, los demás siguen escribiendo.</li>
+  </ul>
+</aside>
+
+<details class="toc-card" open>
+  <summary>/laboratorio_soc · <span class="tw">11</span> secciones</summary>
+  <ol>
+    <li><a href="#a00">Resumen técnico</a></li>
+    <li><a href="#a01">Propósito y filosofía</a></li>
+    <li><a href="#a02">Infraestructura base</a></li>
+    <li><a href="#a03">Conectividad: Tailscale</a></li>
+    <li><a href="#a04">Arquitectura lógica</a></li>
+    <li><a href="#a05">Monitoreo y alertas</a></li>
+    <li><a href="#a06">Anillos de logs</a></li>
+    <li><a href="#a07">Despliegue IaC</a></li>
+    <li><a href="#a08">El borrador</a></li>
+    <li><a href="#a09">Lecciones y próximos pasos</a></li>
+    <li><a href="#a10">Referencias</a></li>
+  </ol>
+</details>
+
+<h2 id="a00"><span class="idx">01.</span> Resumen técnico</h2>
+<div class="tbl-wrap">
+  <table>
+    <tbody>
+      <tr><th>Tipo de entorno</th><td>SOC personal / Blue Team con honeypots activos y threat intelligence</td></tr>
+      <tr><th>Virtualización</th><td>Proxmox VE (VM OPNsense + VM T-Pot + VM Proxy Server)</td></tr>
+      <tr><th>Nodos cloud</th><td>VPS «SOC/NOC» (monitoreo) y VPS «Honeypot Core» (señuelos)</td></tr>
+      <tr><th>Conectividad</th><td>Red mesh Tailscale <span class="mono">10.100.50.0/24</span>, sidecar proxy en Podman rootless</td></tr>
+      <tr><th>Monitoreo</th><td>Wazuh (SIEM/IDS), Zabbix (disponibilidad), Prometheus (métricas), Grafana (dashboards)</td></tr>
+      <tr><th>Alertas</th><td>Telegram Bot API, en tiempo real desde Grafana</td></tr>
+      <tr><th>IaC</th><td>Terraform (provider Contabo), Ansible, PyInfra, Hashicorp Vault</td></tr>
+      <tr><th>Regla de oro</th><td>Flujo de logs unidireccional: Honeypot → SOC/NOC, jamás en sentido contrario</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="a01"><span class="idx">02.</span> Propósito y filosofía del laboratorio</h2>
+<p>Este laboratorio responde a una necesidad muy concreta: tener un entorno bajo control donde ensayar un <b>Blue Team / SOC</b> operativo — ingestión de logs, detección de intrusiones, honeypots expuestos y capacidad de respuesta. Nada de papel: está corriendo, captura tráfico hostil real y sus alertas aterrizan en Telegram.</p>
+<p>Tres principios gobiernan cada decisión de diseño:</p>
+<ol>
+  <li><b>Aislamiento estricto:</b> ningún servicio administrativo se asoma a internet; el acceso viaja siempre por la VPN privada sobre Tailscale.</li>
+  <li><b>Infraestructura como Código (IaC):</b> cada componente queda definido en Terraform y configurado con Ansible — reproducibilidad total y documentación que nunca caduca.</li>
+  <li><b>Defensa en profundidad:</b> anillos concéntricos de logs, contenedores sin privilegios, firewalls con inspección profunda y segmentación de red para acorralar cualquier compromiso.</li>
+</ol>
+
+<h2 id="a02"><span class="idx">03.</span> Infraestructura base: Home, SOC/NOC y Honeypot Core</h2>
+<h3>VM local «Home» — el centro de control</h3>
+<p>El proyecto arranca en una máquina virtual local con <b>Debian 13 XFCE</b> apodada «Home». Desde ella administro todo el laboratorio, con una regla innegociable: <b>ningún puerto de administración mira a internet</b>. Las VPS solo se tocan a través de la red privada de Tailscale.</p>
+<div class="tbl-wrap">
+  <table>
+    <tbody>
+      <tr><th>Recurso</th><td>CPU 4 núcleos · RAM 4 GB · Disco 60 GB · Debian 13 XFCE · <span class="mono">10.100.50.2</span> · rol: centro de control, IaC y revisión de logs</td></tr>
+    </tbody>
+  </table>
+</div>
+<h3>VPS «SOC/NOC» — el cerebro que vigila</h3>
+<p>Primera VPS: todo el músculo analítico. Wazuh Manager para SIEM/IDS, Zabbix Server para disponibilidad, Prometheus para métricas y Grafana como panel unificado. Desde aquí salen las alertas hacia la API de Telegram Bot.</p>
+<h3>VPS «Honeypot Core» — los señuelos</h3>
+<p>Segunda VPS: el framework T-Pot con sensores multiplataforma (Cowrie, Dionaea, Honeytrap) ofreciendo servicios trampa a internet. Todo el tráfico malicioso viaja de manera <b>unidireccional</b> hacia el SOC/NOC.</p>
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>VPS</th><th>IP pública</th><th>IP Tailscale</th><th>CPU</th><th>RAM</th><th>Disco</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono">SOC/NOC</td><td class="mono">198.51.100.50</td><td class="mono">10.100.50.10</td><td>3 núcleos</td><td>8 GB</td><td>150 GB SSD</td></tr>
+      <tr><td class="mono">Honeypot Core</td><td class="mono">198.51.100.60</td><td class="mono">10.100.50.20</td><td>3 núcleos</td><td>8 GB</td><td>150 GB SSD</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="callout callout-warn"><span class="ico">🔒</span><div>
+  <div class="h">Regla de oro: acceso unidireccional</div>
+  <p>Entre ambas VPS el tráfico solo fluye en un sentido: del Honeypot hacia el SOC/NOC llevando logs. En dirección contraria no existe camino alguno. Si el Honeypot cae en manos de un atacante, este no podrá pivotar hacia el SOC/NOC ni tocar los históricos.</p>
+</div></div>
+
+<h2 id="a03"><span class="idx">04.</span> Conectividad: Tailscale como tejido conector</h2>
+<p><b>Tailscale</b> es la costilla que sostiene toda la estructura: una red privada tipo mesh sobre el segmento <span class="mono">10.100.50.0/24</span>, con IP fija por nodo.</p>
+<h3>Tailscale sidecar proxy con Podman rootless</h3>
+<p>Un detalle crítico es dónde vive Tailscale dentro de las VPS: no se instala sobre el sistema operativo, sino dentro de un <b>contenedor Podman en modo rootless</b> actuando como <b>sidecar proxy</b>. Ventajas triples:</p>
+<ul>
+  <li><b>Abstracción de red:</b> el contenedor tapa las IPs reales de los servidores, incluso ante mis propios ojos: quien entra por Tailscale jamás ve la IP física de la VPS.</li>
+  <li><b>Aislamiento de privilegios:</b> Podman corre bajo un usuario sin poderes, lejos de la interfaz de red real del host.</li>
+  <li><b>Redirección interna:</b> el sidecar opera desde la red privada del servidor y deriva el tráfico hacia cada servicio sin exponer interfaces físicas.</li>
+</ul>
+<p>Los perfiles administrativos con menos privilegios se conectan a esa instancia embotellada en Podman, y ella les abre únicamente los servicios que necesitan: ven un espacio confinado dentro de una red privada, sin atisbo del sistema operativo subyacente.</p>
+
+<h2 id="a04"><span class="idx">05.</span> Diagrama de arquitectura lógica</h2>
+<p>El plano maestro: flujo completo de datos, direccionamiento IP e interconexión de todas las piezas. Fruto de varias iteraciones, refleja fielmente el despliegue vigente.</p>
+<figure class="figure">
+  <img src="img/laboratorio-soc-honeypot-arquitectura-logica.png" alt="Diagrama de arquitectura lógica del laboratorio SOC/Honeypot: Proxmox con OPNsense, T-Pot y Proxy Server, VPS SOC/NOC, VPS Honeypot Core y VM Home conectadas por Tailscale" loading="lazy">
+  <figcaption class="figcap">Plano maestro — Proxmox VE con OPNsense, T-Pot y Proxy Server; VPS SOC/NOC con Wazuh, Zabbix, Prometheus y Grafana; VPS Honeypot Core con Podman rootless y Tailscale sidecar; VM Home como centro de control con IaC; alertas salientes vía Telegram Bot API.</figcaption>
+</figure>
+<h3>Desglose del diagrama</h3>
+<p><b>1. Entorno de simulación e ingesta forense (Proxmox VE):</b></p>
+<ul>
+  <li><b>Hipervisor protegido:</b> Proxmox VE bajo <span class="mono">10.100.50.30</span> de la red Tailscale.</li>
+  <li><b>VM OPNsense (firewall):</b> IP interna <span class="mono">192.168.10.1</span>. Recibe internet por la WAN dedicada <span class="mono">203.0.113.88</span>, aplica DPI, NAT y port forward aislado hacia los señuelos.</li>
+  <li><b>VM T-Pot Suite:</b> IP interna <span class="mono">192.168.10.100</span>. Sensor multiplataforma (Cowrie, Dionaea, Honeytrap) junto a agentes de Wazuh y Zabbix; logs crudos hacia el Proxy Server.</li>
+  <li><b>VM Proxy Server:</b> IP interna <span class="mono">192.168.10.5</span>. Colector y balanceador unidireccional que extrae los datos fuera del entorno simulado rumbo al SOC/NOC.</li>
+</ul>
+<p><b>2. Capa de orquestación y red mesh VPN (Tailscale <span class="mono">10.100.50.0/24</span>):</b></p>
+<ul>
+  <li><b>VPS SOC/NOC:</b> ingiere logs de forma asíncrona y unidireccional. Aloja Prometheus (métricas), Wazuh Manager (SIEM/IDS), Zabbix Server (disponibilidad) y Grafana (dashboard unificado). Alertas → Telegram Bot API.</li>
+  <li><b>VPS Honeypot Core:</b> confinada mediante contenedores Podman rootless y abstrae su red física con el Tailscale sidecar proxy.</li>
+</ul>
+<p><b>3. Entorno de control central (local):</b></p>
+<ul>
+  <li><b>VM Home:</b> centro de operaciones local. Gobierna la infraestructura con IaC —Terraform, Ansible, PyInfra—, accede por SSH exclusivamente vía red privada y mantiene un servidor de logs local para auditorías.</li>
+</ul>
+
+<h2 id="a05"><span class="idx">06.</span> Stack de monitoreo y alertas en tiempo real</h2>
+<p>El corazón late en la VPS SOC/NOC: la cuaterna <b>Wazuh + Zabbix + Prometheus + Grafana</b> da visibilidad de punta a punta — de la detección de intrusiones al pulso de rendimiento.</p>
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>Herramienta</th><th>Rol</th><th>Datos que procesa</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono">Wazuh Manager</td><td>SIEM / IDS</td><td>Eventos de seguridad, integridad de archivos, detección de anomalías</td></tr>
+      <tr><td class="mono">Zabbix Server</td><td>Disponibilidad</td><td>Estado de servicios, consumo de recursos, uptime</td></tr>
+      <tr><td class="mono">Prometheus</td><td>Métricas de rendimiento</td><td>CPU, memoria, disco, tráfico de red, contenedores</td></tr>
+      <tr><td class="mono">Grafana</td><td>Dashboard unificado</td><td>Visualización de datos de Wazuh, Zabbix y Prometheus</td></tr>
+      <tr><td class="mono">Telegram Bot API</td><td>Alertas en tiempo real</td><td>Notificaciones de incidentes disparadas desde Grafana</td></tr>
+    </tbody>
+  </table>
+</div>
+<h3>Validación en vivo: Apache caído y recuperado</h3>
+<p>Esta captura documenta el laboratorio en plena faena, durante un incidente real donde Apache se cayó y quedó restablecido en 1 minuto:</p>
+<figure class="figure">
+  <img src="img/laboratorio-soc-zabbix-alerta-monitoreo-tiempo-real.jpeg" alt="Validación en vivo del monitoreo: alerta de Zabbix por Apache caído, terminal con systemctl y resolución recibida en Telegram" loading="lazy">
+  <figcaption class="figcap">Incidente real de principio a fin — Panel de Zabbix con métricas de memoria (6.27 GB libres) y disco (27.75 w/s); terminal confirmando apache2 activo tras la recuperación; Telegram entregando la alerta «Apache: Service is down» con resolución en 1 minuto.</figcaption>
+</figure>
+<p>Tres paneles cuentan la historia simultáneamente: Zabbix (izquierda) con memoria/disco y gráfico de red; la terminal (centro) con <span class="mono">systemctl status apache2</span>; y Telegram (derecha) con el asunto <span class="mono">{ALERT.SUBJECT}</span>, «Apache: Service is down» iniciado a las 02:54:09 y resuelto en 1 minuto.</p>
+
+<h2 id="a06"><span class="idx">07.</span> Anillos de logs: defensa en profundidad</h2>
+<p>La estrategia de logging se organiza en <b>anillos concéntricos</b>, desde lo más externo (cada contenedor) hasta lo más interno (la VPS entera). Si un anillo cae o es manipulado, los demás siguen escribiendo.</p>
+<p><b>Honeypot Core — 4 anillos:</b></p>
+<ol>
+  <li>Contenedores de servicios (Podman): logs de cada sensor del T-Pot y del sidecar Tailscale.</li>
+  <li>Instancias de Proxmox: logs de las VMs del hipervisor.</li>
+  <li>Contenedor de Tailscale: logs del proxy sidecar y del tráfico de red.</li>
+  <li>VPS completa: logs del SO, accesos SSH y eventos de seguridad.</li>
+</ol>
+<p><b>SOC/NOC — 2 anillos:</b> (1) contenedores de Tailscale y SOC/NOC; (2) VPS completa.</p>
+<p><b>Home — 1 anillo auto-hospedado:</b> la VM completa con servidor de logs local.</p>
+<div class="callout callout-warn"><span class="ico">📜</span><div>
+  <div class="h">La lección de Oldsmar y Ucrania</div>
+  <p>Oldsmar (2021) y el apagón de Ucrania (2015) dejaron una certeza incómoda: <b>sin logs resulta imposible distinguir un error técnico de un ataque deliberado</b>. Los anillos de este laboratorio existen precisamente para que esa distinción esté siempre al alcance: cuando algo falla, sé qué anillo debió registrar el evento y puedo seguirle el rastro hasta el origen.</p>
+</div></div>
+
+<h2 id="a07"><span class="idx">08.</span> Despliegue automatizado: IaC con Terraform, Ansible y PyInfra</h2>
+<p>La <b>Infraestructura como Código</b> es uno de los pilares: todo componente está declarado en archivos versionables, capaces de reconstruir el entorno desde cero en minutos.</p>
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>Herramienta</th><th>Propósito</th><th>Cuándo se usa</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono">Terraform</td><td>Provisión de infraestructura</td><td>Crear servidores, redes y firewall. Provider de Contabo para las VPS.</td></tr>
+      <tr><td class="mono">Ansible</td><td>Configuración y despliegue</td><td>Instalar/configurar software, permisos y AppArmor cuando el servidor está listo.</td></tr>
+      <tr><td class="mono">PyInfra</td><td>Alternativa a Ansible</td><td>Debugging en tiempo real; scripts Python nativos.</td></tr>
+      <tr><td class="mono">Mitogen Library</td><td>Ejecución remota eficiente</td><td>Scripts de monitoreo en el host remoto sin SSH persistente.</td></tr>
+      <tr><td class="mono">Hashicorp Vault</td><td>Gestión de secretos</td><td>Tokens, contraseñas y datos sensibles para aplicaciones autorizadas.</td></tr>
+    </tbody>
+  </table>
+</div>
+<h3>La API de Contabo como botón de emergencia</h3>
+<p>La VPS Honeypot se gestiona desde el SOC/NOC a través de la <b>API de Contabo</b>: snapshots antes de cualquier cambio, <b>reinstalación desde cero</b> si detecto compromiso, y <b>apagado</b> del servidor en emergencia — todo desde scripts automatizados.</p>
+<h3>IPs adicionales para segmentar servicios</h3>
+<p>Cada servicio expuesto a internet —como los señuelos— recibe una <b>IP adicional propia</b>, distinta de la IP administrativa de la VPS: el tráfico público queda separado por completo de la superficie de gestión.</p>
+
+<h2 id="a08"><span class="idx">09.</span> El borrador: arquitectura de bloques preliminar</h2>
+<p>Antes del plano maestro existió la versión preliminar —el «borrador» estructural— que fijó las relaciones directas entre componentes sin entrar en direccionamiento IP.</p>
+<figure class="figure">
+  <img src="img/laboratorio-soc-arquitectura-bloques-borrador.jpeg" alt="Diagrama de bloques preliminar del laboratorio: Home y VPS conectadas vía Tailscale, con Proxmox encapsulando las VMs Proxy, T-Pot y OPNsense" loading="lazy">
+  <figcaption class="figcap">Borrador de alto nivel — Relación directa entre Home y las VPS vía Tailscale como tejido conector; Proxmox encapsula las tres VMs (Proxy, T-Pot, OPNsense) en el segmento 192.168.x.x. Nombres de servidores censurados con marcas rojas por seguridad.</figcaption>
+</figure>
+<p>Ese croquis resultó decisivo para planificar los segmentos de Tailscale y la encapsulación de las VMs dentro de Proxmox antes de saltar al diseño detallado.</p>
+
+<h2 id="a09"><span class="idx">10.</span> Lecciones aprendidas y próximos pasos</h2>
+<ol>
+  <li><b>Tailscale simplifica lo complejo:</b> una red VPN segmentada con proxies sidecar habría sido un proyecto en sí mismo; su facilidad no cuesta seguridad si va acompañada de contenedores rootless.</li>
+  <li><b>Podman rootless no es un lujo:</b> ejecutar Tailscale sin privilegios añade el colchón de aislamiento que marca la diferencia si el proxy cae comprometido.</li>
+  <li><b>IaC es documentación viva:</b> los ficheros de Terraform y Ansible describen el sistema mejor que cualquier wiki, porque son exactamente lo que se ejecuta.</li>
+  <li><b>Los anillos de logs no son opcionales:</b> apostar a un único punto de logging es sembrar un desastre forense; redundar la captura de eventos es inversión, no gasto.</li>
+  <li><b>Las alertas cierran el bucle:</b> dashboards preciosos valen cero si nadie mira la pantalla; Telegram garantiza que los incidentes se enteren de mí aunque yo no me entere de ellos.</li>
+</ol>
+<p><b>Próximos pasos:</b> centralizar secretos con Hashicorp Vault · migrar playbooks a Mitogen · sembrar Canarytokens como señuelos internos · documentar el ciclo de respuesta a incidentes (de la detección en Grafana a la contención) · explorar MISP para compartir threat intelligence.</p>
+<div class="callout callout-danger"><span class="ico">⚠</span><div>
+  <div class="h">Nota de seguridad</div>
+  <p>Las IPs públicas mostradas (<span class="mono">198.51.100.x</span>, <span class="mono">203.0.113.88</span>) pertenecen al rango de documentación RFC 5737 y no corresponden a infraestructura real. Los nombres de servidor verdaderos están censurados en los diagramas.</p>
+</div></div>
+
+<h2 id="a10"><span class="idx">11.</span> Referencias</h2>
+<ul>
+  <li>Post original en LinkedIn: «Arquitectura y despliegue de Laboratorio SOC Automatizado» y «Sensores Defensivos: Honeypots y Canarytokens»</li>
+  <li><a href="https://www.proxmox.com" target="_blank" rel="noopener noreferrer">Proxmox VE</a> · <a href="https://opnsense.org" target="_blank" rel="noopener noreferrer">OPNsense</a> · <a href="https://tailscale.com" target="_blank" rel="noopener noreferrer">Tailscale</a></li>
+  <li><a href="https://podman.io" target="_blank" rel="noopener noreferrer">Podman</a> · <a href="https://www.terraform.io" target="_blank" rel="noopener noreferrer">Terraform</a> · <a href="https://www.ansible.com" target="_blank" rel="noopener noreferrer">Ansible</a></li>
+</ul>

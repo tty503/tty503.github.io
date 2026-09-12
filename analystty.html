@@ -1,435 +1,267 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="hat.png">
-    <link rel="apple-touch-icon" href="hat.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#08090c">
+<meta name="color-scheme" content="dark">
+<title>analystty: triage automatizado de malware PE con Python</title>
+<meta name="description" content="Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x64dbg automáticamente. Stack: Capstone, pefile, malapi.json. Caso real: un dropper con API hashing.">
+<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/analystty.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="analystty: triage automatizado de malware PE con Python">
+<meta property="og:description" content="Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x64dbg automáticamente. Stack: Capstone, pefile, malapi.json. Caso real: un dropper con API hashing.">
+<meta property="og:url" content="https://tty503.com/analystty.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
+<meta property="article:published_time" content="2026-05-15">
+<meta property="article:modified_time" content="2026-05-15">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="analystty: triage automatizado de malware PE con Python">
+<meta name="twitter:description" content="Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x64dbg automáticamente. Stack: Capstone, pefile, malapi.json. Caso real:">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 
-    <!-- ==================== SEO CORE ==================== -->
-    <title>analystty: triage automatizado de malware PE con Python | tty503</title>
-    <meta name="description" content="De un PE sospechoso a breakpoints en x64dbg: TTPs contra MITRE ATT&CK, desensamblado con Capstone y un caso real de dropper multi-etapa con API Hashing.">
-    <meta name="keywords" content="analystty, análisis PE, malware analysis, triage, python, capstone, x64dbg, reversing, ingeniería inversa, threat intelligence, TTPs, API Hashing, detección TTPs MITRE ATT&CK, volcado memoria Radare2, breakpoints automáticos, pefile">
-    <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-    <link rel="canonical" href="https://tty503.com/analystty.html">
-    <meta name="theme-color" content="#050505">
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="analystty: triage automatizado de malware PE con Python | tty503">
-    <meta property="og:description" content="Mi herramienta propia en Python convierte un PE sospechoso en un mapa de capacidades y breakpoints: imports clasificados contra MITRE ATT&CK, .text desensamblado con Capstone y x64dbg instrumentado sin calcular offsets a mano.">
-    <meta property="og:url" content="https://tty503.com/analystty.html">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503">
-    <meta property="og:image" content="https://tty503.com/img/analystty-pipeline-radare2-triage-pe.jpg">
-    <meta property="og:image:alt" content="Pipeline de automatización con Radare2 y volcado de módulos desempaquetados en memoria para triage de malware">
-    <meta property="article:published_time" content="2026-05-15">
-    <meta property="article:modified_time" content="2026-08-21">
-    <meta property="article:tag" content="Malware Analysis">
-    <meta property="article:tag" content="Python">
-    <meta property="article:tag" content="Reverse Engineering">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@tty_503">
-    <meta name="twitter:creator" content="@tty_503">
-    <meta name="twitter:title" content="analystty: triage automatizado de malware PE con Python">
-    <meta name="twitter:description" content="Imports clasificados como TTPs de MITRE ATT&CK, .text desensamblado con Capstone y breakpoints colocados solos en x64dbg. Con caso real de dropper multi-etapa.">
-    <meta name="twitter:image" content="https://tty503.com/img/analystty-pipeline-radare2-triage-pe.jpg">
-    <meta name="twitter:image:alt" content="Pipeline de automatización de triage de malware con Radare2">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-base: #030303; --bg-surface: #0a0a0a; --bg-card: #111111;
-            --border-subtle: #222222; --border-hover: #444444;
-            --text-primary: #f5f5f5; --text-secondary: #a3a3a3; --text-muted: #666666;
-            --accent: #ffffff; --accent-green: #4ade80; --accent-blue: #60a5fa;
-            --accent-amber: #f59e0b; --accent-red: #ef4444;
-            --syntax-inst: #f07178; --syntax-reg: #82aaff; --syntax-val: #f78c6c;
-            --syntax-func: #c3e88d; --syntax-comment: #546e7a;
-            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .noise-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.05; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); }
-        .navbar { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth); }
-        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
-        .nav-back:hover { color: var(--accent); }
-        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
-        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
-        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
-        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
-        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
-        .toc-container { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; margin: 2rem 0; overflow: hidden; }
-        .toc-summary { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; }
-        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
-        .toc-summary::-webkit-details-marker { display: none; }
-        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
-        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
-        .toc-content { padding: 0 1.5rem 1.2rem; }
-        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
-        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
-        .toc-content ol li a:hover { color: var(--accent-blue); }
-        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
-        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
-        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
-        strong { color: var(--text-primary); font-weight: 600; }
-        .code-block { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); position: relative; }
-        .code-block code { font-family: 'JetBrains Mono', monospace; }
-        .code-block .inst { color: var(--syntax-inst); } .code-block .reg { color: var(--syntax-reg); }
-        .code-block .val { color: var(--syntax-val); } .code-block .func { color: var(--syntax-func); }
-        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
-        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
-        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255, 255, 255, 0.02); }
-        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
-        li { margin-bottom: 0.5rem; }
-        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
-        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
-        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
-        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
-        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
-        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
-        .callout p { margin-bottom: 0; font-size: 0.95rem; }
-        .callout-warning { border-left-color: var(--accent-amber); } .callout-warning .callout-title { color: var(--accent-amber); }
-        .callout-danger { border-left-color: var(--accent-red); } .callout-danger .callout-title { color: var(--accent-red); }
-        .callout-success { border-left-color: var(--accent-green); } .callout-success .callout-title { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
-        a:hover { color: var(--accent); }
-        .diagram-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow-x: auto; background: var(--bg-card); }
-        .diagram-container svg { display: block; min-width: 720px; width: 100%; height: auto; }
-        .cta-closure { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center; }
-        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
-        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
-        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .cta-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem; border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: var(--transition-smooth); border: 1px solid var(--border-subtle); color: var(--text-secondary); background: transparent; }
-        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
-        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
-        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
-        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
-        .social-links a:hover { color: var(--text-primary); }
-        .copyright { color: var(--text-muted); font-size: 0.8rem; }
-        @media (max-width: 600px) {
-            .article-container { padding: 6rem 1rem 3rem; } .article-title { font-size: 1.6rem; }
-            .section-title { font-size: 1.25rem; } .code-block { padding: 1rem; font-size: 0.75rem; }
-            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; } .social-links { gap: 1rem; }
-            .cta-closure { padding: 1.5rem 1rem; } .cta-closure-links { flex-direction: column; align-items: center; }
-            .cta-btn { width: 100%; justify-content: center; } .toc-content { padding: 0 1rem 1rem; } .toc-summary { padding: 1rem; }
-        }
-    </style>
 </head>
 <body>
-    <div class="noise-overlay"></div>
+<div class="bg-fx"></div>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
+<main class="post">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="analystty.html">analystty: triage automatizado de malware PE con</a><span class="sep">/</span></nav>
+<header class="post-head">
+  <div class="post-tags"><span class="chip">Python</span><span class="chip">Malware Analysis</span><span class="chip">Capstone</span><span class="chip">Automatización</span></div>
+  <h1>analystty: triage automatizado de malware PE con Python</h1>
+  <p class="lede">Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x64dbg automáticamente. Stack: Capstone, pefile, malapi.json. Caso real: un dropper con API hashing.</p>
+  <div class="post-meta"><span>📅 2026-05-15</span><span>⏱ 12 min</span><span>🏷 Herramientas propias</span></div>
+</header>
+<article class="post-body">
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>El triage de una muestra es siempre el mismo baile mecánico: abrir el binario, leer imports, sospechar, mapear funciones y montar el depurador. Eso se automatiza.</li>
+    <li><b>analystty</b> (Python puro, nacido octubre 2024) clasifica las APIs de Windows contra tácticas <b>MITRE ATT&amp;CK</b>, desensambla <code>.text</code> con <b>Capstone</b> y deja los breakpoints clavados en <b>x64dbg</b> sin calcular un offset a mano — resuelve ASLR con una resta.</li>
+    <li>De la lista plana de imports pasa a un <b>call graph simplificado</b>: función contenedora + dirección de instrucción + API sospechosa, listo para el depurador.</li>
+    <li>Validado en el <a href="threat-hunter-recollection.html">dropper multi-etapa con API Hashing de la Threat Hunter Recollection</a>: import-hashing saltado con un volcado en Radare2 y capacidades cartografiadas en minutos.</li>
+  </ul>
+</aside>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="https://tty503.com" class="nav-brand mono">tty503</a>
-            <a href="index.html" class="nav-back mono">← Volver al inicio</a>
-        </div>
-    </nav>
+<details class="toc-card" open>
+  <summary>/analystty · <span class="tw">11</span> secciones</summary>
+  <ol>
+    <li><a href="#a00">Resumen Técnico</a></li>
+    <li><a href="#a01">La motivación: automatizar lo mecánico</a></li>
+    <li><a href="#a02">Arquitectura interna y dependencias</a></li>
+    <li><a href="#a03">El pipeline: del binario al breakpoint</a></li>
+    <li><a href="#a04">TTPs con MITRE ATT&amp;CK desde los imports</a></li>
+    <li><a href="#a05">Correlación: del import al call graph</a></li>
+    <li><a href="#a06">ASLR y breakpoints automáticos en x64dbg</a></li>
+    <li><a href="#a07">Caso real: el dropper multi-etapa con API hashing</a></li>
+    <li><a href="#a08">Limitaciones honestas y roadmap</a></li>
+    <li><a href="#a09">Conclusión: la navaja suiza personal</a></li>
+    <li><a href="#a10">Referencias</a></li>
+  </ol>
+</details>
 
-    <article class="article-container">
-        <header class="article-header">
-            <div class="article-meta mono">
-                <span class="article-tag">Python</span>
-                <span class="article-tag">Malware Analysis</span>
-                <span class="article-tag">Reverse Engineering</span>
-                <span class="article-tag">Automatización</span>
-                <span>15 de mayo de 2026</span>
-                <span>~12 min de lectura</span>
-            </div>
-            <h1 class="article-title">analystty: del PE Sospechoso al Breakpoint sin Tocar el Teclado dos Veces</h1>
-            <p class="article-subtitle">
-                El triage inicial de una muestra es siempre el mismo baile: abrir el binario, leer imports, sospechar, mapear funciones y montar el depurador. Cansado de repetirlo, escribí analystty en octubre de 2024: una navaja suiza en Python que clasifica APIs contra MITRE ATT&CK, desensambla la sección .text con Capstone y deja los breakpoints clavados en x64dbg. Aquí cuento cómo está construida y cómo resolví con ella un dropper multi-etapa protegido con API Hashing.
-            </p>
-        </header>
+<h2 id="a00"><span class="idx">01.</span> Resumen Técnico</h2>
+<div class="tbl-wrap">
+  <table>
+    <tbody>
+      <tr><th>Herramienta</th><td>analystty — triage automatizado de ejecutables PE en Python puro</td></tr>
+      <tr><th>Origen</th><td>Proyecto personal iniciado en octubre de 2024</td></tr>
+      <tr><th>Componentes</th><td><code>frm_pe</code> (análisis estático) y <code>medbg</code> (interfaz de depuración)</td></tr>
+      <tr><th>Dependencias</th><td>pefile, Capstone, bindings de x64dbg, tabulate</td></tr>
+      <tr><th>Inteligencia</th><td><code>malapi.json</code>: APIs maliciosas categorizadas y cruzadas con tácticas MITRE ATT&amp;CK</td></tr>
+      <tr><th>Salida</th><td>Correlación función↔API sospechosa + script de breakpoints para x64dbg</td></tr>
+      <tr><th>Caso validado</th><td>Dropper multi-etapa con API Hashing (noviembre de 2025): Clipper e InfoStealer identificados tras volcado con Radare2</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>Así se ve una corrida completa sobre la muestra del caso real de la sección 07:</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code>$ analystty --target dropper_nexilo.exe
+<span class="syn-f">[+]</span> PE cargado: dropper_nexilo.exe (x86_64)
+<span class="syn-f">[+]</span> Imports extraídos: <span class="syn-n">47 APIs</span> en <span class="syn-n">5</span> DLLs
+<span class="syn-f">[!]</span> TTPs detectadas: <span class="syn-k">Evasión (TA0005), Inyección (TA0004), Ejecución (TA0002)</span>
+<span class="syn-f">[+]</span> Sección .text desensamblada: <span class="syn-n">1,247 instrucciones</span> desde Entry Point
+<span class="syn-f">[+]</span> Correlación completada: <span class="syn-n">8 funciones</span> mapeadas a APIs sospechosas
+<span class="syn-f">[+]</span> Breakpoints generados para x64dbg: <span class="syn-n">4 breakpoints</span> en direcciones críticas
+<span class="syn-f">[+]</span> Script exportado: analystty_dropper_nexilo.txt</code></pre></div>
 
-        <details class="toc-container" open>
-            <summary class="toc-summary mono">
-                <span class="toc-title">/índice_del_analisis</span>
-                <span class="toc-toggle">+</span>
-            </summary>
-            <div class="toc-content">
-                <ol>
-                    <li><a href="#s00">Resumen Técnico</a></li>
-                    <li><a href="#s01">La Motivación: Automatizar lo Mecánico</a></li>
-                    <li><a href="#s02">Arquitectura Interna y Dependencias</a></li>
-                    <li><a href="#s03">El Pipeline: del Binario al Breakpoint</a></li>
-                    <li><a href="#s04">TTPs con MITRE ATT&amp;CK desde los Imports</a></li>
-                    <li><a href="#s05">Correlación: del Import al Call Graph</a></li>
-                    <li><a href="#s06">ASLR y Breakpoints Automáticos en x64dbg</a></li>
-                    <li><a href="#s07">Caso Real: Diseccionando un Dropper Multi-Etapa</a></li>
-                    <li><a href="#s08">Limitaciones Honestas y Roadmap</a></li>
-                    <li><a href="#s09">Conclusión: la Navaja Suiza Personal</a></li>
-                    <li><a href="#s10">Referencias</a></li>
-                </ol>
-            </div>
-        </details>
+<h2 id="a01"><span class="idx">02.</span> La motivación: automatizar lo mecánico</h2>
+<p>Todo análisis de malware arranca igual: cargar el binario, extraer la tabla de importaciones, ojear las APIs una por una, averiguar qué función las invoca y preparar el entorno dinámico. Es trabajo necesario pero profundamente repetitivo — y la repetición es mi señal inequívoca de que toca automatizar. De ahí nació analystty en octubre de 2024, como proyecto práctico y personal.</p>
+<p>No pretendía reinventar IDA Python ni el scripting de Ghidra. La ambición era más modesta y más útil: una herramienta ligera en Python puro capaz de tragarse un PE sospechoso y devolverme en segundos un mapa nítido de sus capacidades maliciosas.</p>
+<div class="callout callout-info"><span class="ico">▣</span><div>
+  <div class="h">Filosofía del proyecto</div>
+  <p>Más que innovar, analystty consolida conocimiento y elimina fricción: es el puente entre lo estático (estructura PE, desensamblado) y lo dinámico (depuración con x64dbg). Su bautismo de fuego llegó con el <a href="threat-hunter-recollection.html">dropper multi-etapa de la Threat Hunter Recollection</a>, analizado exactamente con este pipeline.</p>
+</div></div>
 
-        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen Técnico</h2>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr><th>Parámetro</th><th>Valor</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td class="mono">Herramienta</td><td>analystty — triage automatizado de ejecutables PE en Python puro</td></tr>
-                    <tr><td class="mono">Origen</td><td>Proyecto personal iniciado en octubre de 2024</td></tr>
-                    <tr><td class="mono">Componentes</td><td><span class="mono">frm_pe</span> (análisis estático) y <span class="mono">medbg</span> (interfaz de depuración)</td></tr>
-                    <tr><td class="mono">Dependencias</td><td>pefile, Capstone, bindings de x64dbg, tabulate</td></tr>
-                    <tr><td class="mono">Inteligencia</td><td><span class="mono">malapi.json</span>: APIs maliciosas categorizadas y cruzadas con tácticas MITRE ATT&amp;CK</td></tr>
-                    <tr><td class="mono">Salida</td><td>Correlación función↔API sospechosa + script de breakpoints para x64dbg</td></tr>
-                    <tr><td class="mono">Caso validado</td><td>Dropper multi-etapa con API Hashing (noviembre de 2025): Clipper e InfoStealer identificados tras volcado con Radare2</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <p>
-            Así se ve una corrida completa sobre la muestra del caso real que cierro en la sección 07:
-        </p>
-        <div class="code-block mono"><span class="func">$ analystty --target dropper_nexilo.exe</span>
-<span class="func">[+]</span> PE cargado: dropper_nexilo.exe (x86_64)
-<span class="func">[+]</span> Imports extraídos: <span class="val">47 APIs en 5 DLLs</span>
-<span class="inst">[!]</span> TTPs detectadas: <span class="reg">Evasión (TA0005), Inyección (TA0004), Ejecución (TA0002)</span>
-<span class="func">[+]</span> Sección .text desensamblada: <span class="val">1,247 instrucciones</span> desde Entry Point
-<span class="func">[+]</span> Correlación completada: <span class="val">8 funciones</span> mapeadas a APIs sospechosas
-<span class="func">[+]</span> Breakpoints generados para x64dbg: <span class="val">4 breakpoints</span> en direcciones críticas
-<span class="func">[+]</span> Script exportado: analystty_dropper_nexilo.txt</div>
+<h2 id="a02"><span class="idx">03.</span> Arquitectura interna y dependencias</h2>
+<p>Todo el peso recae sobre dos clases que gobiernan <code>src/analystty.py</code>, cada una dueña de una mitad del problema:</p>
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>Componente</th><th>Rol</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>frm_pe</code></td><td>Motor de análisis estático: parseo de headers, secciones e imports; desensamblado con Capstone y detección heurística de funciones.</td></tr>
+      <tr><td><code>medbg</code></td><td>Interfaz de depuración: conexión TCP con x64dbg, traducción de direcciones virtuales (ASLR) y colocación automática de breakpoints.</td></tr>
+    </tbody>
+  </table>
+</div>
+<h3 class="idx">Dependencias clave</h3>
+<ul>
+  <li><b>pefile</b> — el parseo robusto de la estructura de los ejecutables.</li>
+  <li><b>Capstone</b> — el motor que convierte bytes en instrucciones legibles.</li>
+  <li><b>x64dbg (py)</b> — bindings para manejar el depurador y sus breakpoints.</li>
+  <li><b>tabulate</b> — resultados presentables directamente en consola.</li>
+</ul>
 
-        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> La Motivación: Automatizar lo Mecánico</h2>
-        <p>
-            Todo análisis de malware arranca igual: cargar el binario, extraer la tabla de importaciones, ojear las APIs una por una, averiguar qué función las invoca y preparar el entorno dinámico. Es trabajo necesario pero profundamente repetitivo, y la repetición es mi señal inequívoca de que toca automatizar. De ahí nació <strong>analystty</strong> en octubre de 2024, como proyecto práctico y personal.
-        </p>
-        <p>
-            No pretendía reinventar IDA Python ni el scripting de Ghidra. La ambición era más modesta y más útil: una herramienta ligera en Python puro capaz de tragarse un PE sospechoso y devolverme en segundos un mapa nítido de sus capacidades maliciosas.
-        </p>
-        <div class="callout">
-            <div class="callout-title mono">Filosofía del proyecto</div>
-            <p>Más que innovar, <strong>analystty</strong> me sirve para consolidar conocimiento y eliminar fricción: es el puente entre lo estático (estructura PE, desensamblado) y lo dinámico (depuración con x64dbg). Su bautismo de fuego llegó con el <a href="threat-hunter-recollection.html">dropper multi-etapa que documenté en la Threat Hunter Recollection</a>, analizado exactamente con este pipeline.</p>
-        </div>
+<h2 id="a03"><span class="idx">04.</span> El pipeline: del binario al breakpoint</h2>
+<p>El flujo orquestado desde <code>__init__.py</code> es estrictamente secuencial: cada fase entrega su producto a la siguiente sin que yo meta mano.</p>
+<ol>
+  <li><b>Ingesta del PE</b> — el binario se carga con pefile, detectando automáticamente si trata de un ejecutable de 32 o 64 bits.</li>
+  <li><b>Extracción de imports</b> — la tabla de importaciones se parsea para listar DLLs y funciones consumidas.</li>
+  <li><b>Detección de amenazas (TTPs)</b> — los imports se cruzan con <code>malapi.json</code>, la base de inteligencia que agrupa APIs maliciosas por categoría (Evasión, Inyección, Spying…).</li>
+  <li><b>Desensamblado</b> — la sección <code>.text</code> se vuelca y desensambla partiendo del Entry Point.</li>
+  <li><b>Detección heurística de funciones</b> — los límites de cada procedimiento se marcan con el patrón <code>push rbp</code> / <code>ret</code>.</li>
+  <li><b>Correlación</b> — se determina qué función del usuario invoca cada API sospechosa, exponiendo el punto caliente del código.</li>
+  <li><b>Instrumentación</b> — <code>medbg</code> traduce direcciones y planta los breakpoints en x64dbg justo antes de las llamadas críticas.</li>
+</ol>
+<figure class="figure">
+  <img src="img/analystty-pipeline-radare2-triage-pe.jpg" alt="Pipeline de automatización con Radare2 y volcado de módulos desempaquetados en memoria durante el triage de malware" loading="lazy">
+  <figcaption class="figcap">El pipeline con Radare2 — Automatización del volcado (dump) de módulos ya desempaquetados en memoria mediante scripts sobre Radare2, pieza clave del triage dinámico.</figcaption>
+</figure>
 
-        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> Arquitectura Interna y Dependencias</h2>
-        <p>
-            Todo el peso recae sobre dos clases que gobiernan <span class="mono">src/analystty.py</span>, cada una dueña de una mitad del problema:
-        </p>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr><th>Componente</th><th>Clase</th><th>Rol</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td class="mono">frm_pe</td><td>Motor de Análisis Estático</td><td>Parseo de headers, secciones e imports; desensamblado con Capstone y detección de funciones.</td></tr>
-                    <tr><td class="mono">medbg</td><td>Interfaz de Depuración</td><td>Conexión TCP con x64dbg, traducción de direcciones virtuales (ASLR) y colocación automática de breakpoints.</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <h3 class="subsection-title">Dependencias Clave</h3>
-        <ul>
-            <li><strong>pefile:</strong> el parseo robusto de la estructura de los ejecutables.</li>
-            <li><strong>Capstone:</strong> el motor que convierte bytes en instrucciones legibles.</li>
-            <li><strong>x64dbg (py):</strong> bindings para manejar el depurador y sus breakpoints.</li>
-            <li><strong>tabulate:</strong> resultados presentables directamente en consola.</li>
-        </ul>
+<h2 id="a04"><span class="idx">05.</span> TTPs con MITRE ATT&amp;CK desde los imports</h2>
+<p>El corazón de la detección estática late en <code>malapi.json</code>. En lugar de conformarme con un veredicto plano de «esto es malo», la herramienta clasifica el comportamiento potencial inscrito en las APIs de Windows y lo alinea con tácticas del framework MITRE ATT&amp;CK:</p>
+<div class="code-wrap"><span class="lang">json</span><pre class="code"><code><span class="syn-c">// Firmas dentro de malapi.json — cada categoría apunta a una táctica ATT&CK</span>
+<span class="syn-s">"Evasión"</span>:   [Sleep, GetModuleHandleA,
+               IsDebuggerPresent, ...]
+<span class="syn-s">"Inyección"</span>: [VirtualAllocEx, WriteProcessMemory,
+               CreateRemoteThread, ...]
+<span class="syn-s">"Ejecución"</span>: [WinExec, ShellExecute,
+               CreateProcess, ...]</code></pre></div>
+<p>Que el binario importe <code>WinExec</code> y <code>Sleep</code> no genera solo un aviso: esas APIs quedan etiquetadas como <b>Ejecución (TA0002)</b> y <b>Evasión de Defensas (TA0005)</b>. Sin ejecutar absolutamente nada, ya existe una hipótesis de las TTPs del espécimen.</p>
 
-        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> El Pipeline: del Binario al Breakpoint</h2>
-        <p>
-            El flujo orquestado desde <span class="mono">__init__.py</span> es estrictamente secuencial: cada fase entrega su producto a la siguiente sin que yo meta mano:
-        </p>
-        <ol>
-            <li><strong>Ingesta del PE:</strong> el binario se carga con pefile, detectando automáticamente si trata de un ejecutable de 32 o 64 bits.</li>
-            <li><strong>Extracción de Imports:</strong> la tabla de importaciones se parsea para listar DLLs y funciones consumidas.</li>
-            <li><strong>Detección de Amenazas (TTPs):</strong> los imports se cruzan con <span class="mono">malapi.json</span>, una base de inteligencia que agrupa APIs maliciosas por categoría (Evasión, Inyección, Spying…).</li>
-            <li><strong>Desensamblado:</strong> la sección <span class="mono">.text</span> se vuelca y desensambla partiendo del Entry Point.</li>
-            <li><strong>Detección Heurística de Funciones:</strong> los límites de cada procedimiento se marcan con el patrón <span class="mono">push rbp</span> / <span class="mono">ret</span>.</li>
-            <li><strong>Correlación:</strong> se determina qué función del usuario invoca cada API sospechosa, exponiendo el punto caliente del código.</li>
-            <li><strong>Instrumentación:</strong> <span class="mono">medbg</span> traduce direcciones y planta los breakpoints en x64dbg justo antes de las llamadas críticas.</li>
-        </ol>
-        <div class="image-container">
-            <img src="img/analystty-pipeline-radare2-triage-pe.jpg" alt="Pipeline de automatización con Radare2 y volcado de módulos desempaquetados en memoria durante el triage de malware" loading="lazy">
-            <div class="image-caption mono">Automatización del volcado (dump) de módulos ya desempaquetados en memoria mediante scripts sobre Radare2, pieza clave del triage.</div>
-        </div>
+<h2 id="a05"><span class="idx">06.</span> Correlación: del import al call graph</h2>
+<p>Saber <i>qué</i> hace el binario está bien; saber <i>dónde</i> lo hace es otro nivel. La función <code>getFunctionsByMalApiDetect()</code> resuelve las direcciones de las instrucciones <code>call</code> y <code>jmp</code> para construir la tabla de correlación:</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code># Salida del módulo de correlación: ADDR, NAME (API), START (función contenedora)
+ADDR              NAME              START
+0x140001234       Sleep             0x140001450
+0x140001256       VirtualAllocEx    0x140001450
+0x1400012a1       WriteProcessMemory 0x140001450
+0x1400012c0       WinExec           0x140001290</code></pre></div>
+<figure class="figure">
+  <img src="img/analystty-correlacion-funciones-api-sospechosas.jpg" alt="Tablas de correlación entre funciones del binario y APIs sospechosas como Sleep o WinExec, con direcciones de instrucciones mapeadas" loading="lazy">
+  <figcaption class="figcap">Call graph simplificado — Direcciones de instrucciones (ADDR) ligadas a APIs (NAME) dentro de sus funciones contenedoras (START). De una lista plana de imports a una hipótesis de flujo real.</figcaption>
+</figure>
+<p>Con ello paso de una lista plana a un <b>call graph simplificado</b> donde queda claro, por ejemplo, que la función residente en <code>0x140001450</code> es quien ejecuta comandos y evade sandboxes. Trazar esa relación entre API sospechosa y función contenedora separa un análisis automatizado serio de una mera enumeración de imports.</p>
 
-        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> TTPs con MITRE ATT&amp;CK desde los Imports</h2>
-        <p>
-            El corazón de la detección estática late en <span class="mono">malapi.json</span>. En lugar de conformarme con un veredicto plano de "esto es malo", la herramienta clasifica el comportamiento potencial inscrito en las APIs de Windows y lo alinea con tácticas del framework MITRE ATT&amp;CK:
-        </p>
-        <div class="code-block mono"><span class="comment">// Firmas dentro de malapi.json — cada categoría apunta a una táctica ATT&amp;CK</span>
-<span class="val">"Evasión"</span>:   [<span class="func">"Sleep"</span>, <span class="func">"GetModuleHandleA"</span>, <span class="func">"IsDebuggerPresent"</span>, ...]
-<span class="inst">"Inyección"</span>: [<span class="func">"VirtualAllocEx"</span>, <span class="func">"WriteProcessMemory"</span>, <span class="func">"CreateRemoteThread"</span>, ...]
-<span class="reg">"Ejecución"</span>: [<span class="func">"WinExec"</span>, <span class="func">"ShellExecute"</span>, <span class="func">"CreateProcess"</span>, ...]</div>
-        <p>
-            Que el binario importe <span class="mono">WinExec</span> y <span class="mono">Sleep</span> no genera solo un aviso: esas APIs quedan etiquetadas como <strong>Ejecución (TA0002)</strong> y <strong>Evasión de Defensas (TA0005)</strong>. Sin ejecutar absolutamente nada, ya tengo una hipótesis de las TTPs del espécimen.
-        </p>
-
-        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> Correlación: del Import al Call Graph</h2>
-        <p>
-            Saber <i>qué</i> hace el binario está bien; saber <i>dónde</i> lo hace es otro nivel. La función <span class="mono">getFunctionsByMalApiDetect()</span> resuelve las direcciones de las instrucciones <span class="mono">call</span> y <span class="mono">jmp</span> para construir la tabla de correlación.
-        </p>
-        <p>
-            Con ello paso de una lista plana de imports a un <strong>call graph</strong> simplificado donde queda claro, por ejemplo, que la función residente en <span class="mono">0x140001450</span> es quien ejecuta comandos y evade sandboxes. Trazar esa relación entre API sospechosa y función contenedora separa un análisis automatizado serio de una mera enumeración de imports.
-        </p>
-        <div class="image-container">
-            <img src="img/analystty-correlacion-funciones-api-sospechosas.jpg" alt="Tablas de correlación entre funciones del binario y APIs sospechosas como Sleep o WinExec, con direcciones de instrucciones mapeadas" loading="lazy">
-            <div class="image-caption mono">Salida del módulo de correlación: direcciones de instrucciones (ADDR) ligadas a APIs (NAME) como Sleep y WinExec dentro de sus funciones contenedoras (START).</div>
-        </div>
-
-        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> ASLR y Breakpoints Automáticos en x64dbg</h2>
-        <p>
-            El quebradero de cabeza clásico del análisis dinámico se llama ASLR: la dirección que ves en IDA o Ghidra casi nunca coincide con la del proceso vivo. <span class="mono">medbg</span> lo neutraliza con una aritmética directa implementada en <span class="mono">__mappingPhysicalAddress</span>:
-        </p>
-        <div class="code-block mono"><span class="comment">// Fórmula de traducción de direcciones virtuales a físicas</span>
+<h2 id="a06"><span class="idx">07.</span> ASLR y breakpoints automáticos en x64dbg</h2>
+<p>El quebradero de cabeza clásico del análisis dinámico se llama ASLR: la dirección que ves en IDA o Ghidra casi nunca coincide con la del proceso vivo. <code>medbg</code> lo neutraliza con una aritmética directa implementada en <code>__mappingPhysicalAddress</code>:</p>
+<div class="code-wrap"><span class="lang">python</span><pre class="code"><code><span class="syn-c"># Fórmula de traducción de direcciones virtuales a físicas</span>
 Physical_Address = (Virtual_AVA - ImageBase) + ModuleBase_Actual
 
-<span class="comment">// Ejemplo real tomado del caso de prueba:</span>
-IMAGE BASE (Disco):   <span class="val">0x140000000</span>
-BASE ADDRESS (RAM):   <span class="val">0x7ff780fd0000</span>
-Breakpoint calculado: <span class="val">0x7ff780fd1464</span> → <span class="func">OK</span></div>
-        <p>
-            Gracias a esa conversión, la herramienta clava los breakpoints directamente sobre las instrucciones <span class="mono">call rax</span> o los saltos hacia APIs sospechosas, sin que yo calcule un solo offset a mano.
-        </p>
-        <div class="image-container">
-            <img src="img/analystty-x64dbg-breakpoints-automaticos.jpg" alt="Sesión de x64dbg mostrando breakpoints establecidos automáticamente tras la traducción de direcciones" loading="lazy">
-            <div class="image-caption mono">Sesión de x64dbg instrumentada: los breakpoints colocados automáticamente tras traducir direcciones apuntan a instrucciones críticas del binario.</div>
-        </div>
+<span class="syn-c"># Ejemplo real tomado del caso de prueba:</span>
+IMAGE BASE (Disco):  <span class="syn-n">0x140000000</span>
+BASE ADDRESS (RAM):  <span class="syn-n">0x7ff780fd0000</span>
+Breakpoint calculado: <span class="syn-n">0x7ff780fd1464</span> → OK</code></pre></div>
+<figure class="figure">
+  <img src="img/analystty-x64dbg-breakpoints-automaticos.jpg" alt="Sesión de x64dbg mostrando breakpoints establecidos automáticamente tras la traducción de direcciones" loading="lazy">
+  <figcaption class="figcap">Sesión de x64dbg instrumentada — Los breakpoints colocados automáticamente tras traducir direcciones apuntan a instrucciones críticas del binario, sin calcular un offset a mano.</figcaption>
+</figure>
 
-        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> Caso Real: Diseccionando un Dropper Multi-Etapa con API Hashing</h2>
-        <p>
-            En noviembre de 2025 rescaté el proyecto del cajón para una tarea concreta: diseccionar un dropper multi-etapa. La muestra ocultaba sus imports detrás de <strong>API Hashing</strong> —resuelve las funciones en runtime en vez de declararlas—, así que la herramienta brilló especialmente en la fase de desempaquetado y volcado.
-        </p>
-        <h3 class="subsection-title">Volcado de Memoria con Radare2</h3>
-        <p>
-            El flujo aplicado, paso a paso:
-        </p>
-        <ol>
-            <li><strong>Aislamiento:</strong> ejecución dentro de un bunker de Proxmox VE con snapshot para rollback instantáneo; ese mismo laboratorio está descrito en mi <a href="infraestructura-tunel-ofuscado.html">guía de infraestructura ofuscada con WireGuard y proxy residencial</a>.</li>
-            <li><strong>Forzado de ejecución:</strong> dejé correr la muestra hasta que liberara su payload en memoria, saltándome de un plumazo el API Hashing inicial.</li>
-            <li><strong>Scripting de volcado:</strong> con un script hermano de los de la herramienta automatizé el dump de las regiones de interés usando Radare2 (<span class="mono">functions_to_dump.txt</span>).</li>
-            <li><strong>Análisis de TTPs:</strong> con el payload ya en disco, analystty cartografió las capacidades en minutos: lógica de <strong>Clipper</strong> (robo de criptomonedas sustituyendo direcciones en el portapapeles) e <strong>InfoStealer</strong> (exfiltración de credenciales y datos del sistema).</li>
-        </ol>
-        <p>
-            El caso completo, con las técnicas de evasión del dropper incluidas, vive en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>; allí explico también cómo el pipeline permitió identificar sus capacidades en minutos en lugar de horas. Y las <a href="myPracticalShellcodeC2.html">técnicas de inyección que documenté en el C2 Builder</a> comparten ADN con esta familia: API Hashing, inyección en memoria y persistencia vía registro de Windows.
-        </p>
-        <div class="image-container">
-            <img src="img/analystty-validacion-offsets-breakpoints-x64dbg.jpg" alt="Validación manual de offsets calculados por analystty confirmando que los breakpoints caen sobre funciones maliciosas" loading="lazy">
-            <div class="image-caption mono">Validación manual de offsets: confirmación de que cada breakpoint cae donde debe, dentro del espacio de memoria del proceso analizado.</div>
-        </div>
+<h2 id="a07"><span class="idx">08.</span> Caso real: el dropper multi-etapa con API hashing</h2>
+<p>En noviembre de 2025 rescaté el proyecto del cajón para una tarea concreta: diseccionar un dropper multi-etapa. La muestra ocultaba sus imports detrás de <b>API Hashing</b> —resuelve las funciones en runtime en vez de declararlas—, así que la herramienta brilló especialmente en la fase de desempaquetado y volcado.</p>
+<h3 class="idx">Volcado de memoria con Radare2</h3>
+<ol>
+  <li><b>Aislamiento</b> — ejecución dentro de un bunker de Proxmox VE con snapshot para rollback instantáneo; el mismo laboratorio que describo en la <a href="infraestructura-tunel-ofuscado.html">guía de infraestructura ofuscada con WireGuard</a>.</li>
+  <li><b>Forzado de ejecución</b> — dejar correr la muestra hasta que liberara su payload en memoria, saltándome de un plumazo el API Hashing inicial.</li>
+  <li><b>Scripting de volcado</b> — con un script hermano automatizé el dump de las regiones de interés usando Radare2 (<code>functions_to_dump.txt</code>).</li>
+  <li><b>Análisis de TTPs</b> — con el payload ya en disco, analystty cartografió las capacidades en minutos: lógica de <b>Clipper</b> (robo de criptomonedas sustituyendo direcciones en el portapapeles) e <b>InfoStealer</b> (exfiltración de credenciales y datos del sistema).</li>
+</ol>
+<figure class="figure">
+  <img src="img/analystty-validacion-offsets-breakpoints-x64dbg.jpg" alt="Validación manual de offsets calculados por analystty confirmando que los breakpoints caen sobre funciones maliciosas" loading="lazy">
+  <figcaption class="figcap">Validación manual de offsets — Confirmación de que cada breakpoint cae donde debe, dentro del espacio de memoria del proceso analizado.</figcaption>
+</figure>
+<p>El caso completo, con las técnicas de evasión del dropper incluidas, vive en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>. Allí explico cómo el pipeline permitió identificar sus capacidades en minutos en lugar de horas — y las <a href="myPracticalShellcodeC2.html">técnicas de inyección del C2 Builder</a> comparten ADN con esta familia: API Hashing, inyección en memoria y persistencia vía registro de Windows.</p>
 
-        <h2 class="section-title mono" id="s08"><span style="color: var(--text-muted);">08.</span> Limitaciones Honestas y Roadmap</h2>
-        <p>
-            analystty es una herramienta de práctica en evolución constante y tiene aristas bien visibles. Prefiero listarlas yo antes de que las descubra nadie más:
-        </p>
-        <div class="callout callout-warning">
-            <div class="callout-title mono">Limitaciones Actuales</div>
-            <ul>
-                <li><strong>Detección de funciones ingenua:</strong> depende del patrón <span class="mono">push rbp</span>. Se rompe con código ofuscado, optimizaciones agresivas o ausencia de frame pointer; la migración a un enfoque basado en CFG está en el horizonte.</li>
-                <li><strong>Resolución de saltos incompleta:</strong> cubre saltos directos y los mediados por <span class="mono">rax</span>, pero no flujos complejos (<span class="mono">jne</span>, <span class="mono">push/ret</span>).</li>
-                <li><strong>Bug en getInstruction():</strong> el método <span class="mono">getInstruction</span> de <span class="mono">medbg</span> itera sobre una lista vacía, así que no devuelve correctamente el desensamblado desde el debugger.</li>
-                <li><strong>Soporte PE32 parcial:</strong> el motor detecta binarios de 32 bits, pero el cálculo de offsets aún no está adaptado del todo.</li>
-                <li><strong>Rutas hardcodeadas:</strong> los ficheros de configuración usan barras invertidas (<span class="mono">\\</span>), lo que rompe la compatibilidad con Linux/macOS.</li>
-            </ul>
-        </div>
-        <h3 class="subsection-title">Próximos Pasos (TODO List)</h3>
-        <ul>
-            <li>Construir una <strong>CLI</strong> seria que acepte el binario como argumento en lugar de tenerlo fijo en código.</li>
-            <li>Reparar los bugs de <span class="mono">getInstruction</span> y <span class="mono">getBpLines</span>.</li>
-            <li>Sustituir la detección de funciones por una basada en flujo de control (CFG) para aguantar mejor el código ofuscado.</li>
-            <li>Incorporar firmas PEID desde <span class="mono">userdb.txt</span> y detectar empacadores de forma automática.</li>
-            <li>Empaquetar todo como módulo instalable vía pip.</li>
-        </ul>
+<h2 id="a08"><span class="idx">09.</span> Limitaciones honestas y roadmap</h2>
+<p>analystty es una herramienta de práctica en evolución constante y tiene aristas bien visibles. Prefiero listarlas yo antes de que las descubra nadie más.</p>
+<div class="callout callout-warn"><span class="ico">⚠</span><div>
+  <div class="h">Limitaciones actuales</div>
+  <p>Detección de funciones ingenua: depende del patrón <code>push rbp</code>; se rompe con código ofuscado, optimizaciones agresivas o ausencia de frame pointer (la migración a un enfoque basado en CFG está en el horizonte). Resolución de saltos incompleta: cubre saltos directos y los mediados por <code>rax</code>, pero no flujos complejos (<code>jne</code>, <code>push/ret</code>). Bug en <code>getInstruction()</code>: <code>medbg</code> itera sobre una lista vacía y no devuelve correctamente el desensamblado desde el debugger. Soporte PE32 parcial y rutas hardcodeadas con barras invertidas que rompen la portabilidad a Linux/macOS.</p>
+</div></div>
+<h3 class="idx">Próximos pasos</h3>
+<ul>
+  <li>Construir una <b>CLI</b> seria que acepte el binario como argumento en lugar de tenerlo fijo en código.</li>
+  <li>Reparar los bugs de <code>getInstruction</code> y <code>getBpLines</code>.</li>
+  <li>Sustituir la detección de funciones por una basada en flujo de control (CFG) para aguantar mejor el código ofuscado.</li>
+  <li>Incorporar firmas PEID desde <code>userdb.txt</code> y detectar empacadores de forma automática.</li>
+  <li>Empaquetar todo como módulo instalable vía pip.</li>
+</ul>
 
-        <h2 class="section-title mono" id="s09"><span style="color: var(--text-muted);">09.</span> Conclusión: la Navaja Suiza Personal</h2>
-        <p>
-            analystty no aspira a ser producto ni a discutirle el puesto a las suites comerciales de reversing. Es <strong>mi</strong> herramienta de confianza: un proyecto vivo que crece con cada muestra nueva que cruza mi laboratorio, y la cristalización de esas tareas repetitivas que aun así exigen precisión quirúrgica.
-        </p>
-        <p>
-            Si algo me dejó el proceso es una regla clara: nunca dejar herramientas a medias. Desenterrar el código un año después y adaptarlo a una amenaza real —el dropper con API Hashing de la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>— me recordó sin anestesia que las herramientas construidas para uno mismo acaban siendo las más rentables. Las <a href="myPracticalShellcodeC2.html">técnicas de evasión del C2 Builder</a> apuntan a la misma moraleja: automatiza lo repetitivo y reserva el criterio humano para lo que de verdad lo necesita.
-        </p>
-        <p>
-            El código está publicado en GitHub por si alguien quiere curiosearlo, destriparlo o doblarlo a sus propias rutinas de triage.
-        </p>
+<h2 id="a09"><span class="idx">10.</span> Conclusión: la navaja suiza personal</h2>
+<p>analystty no aspira a ser producto ni a discutirle el puesto a las suites comerciales de reversing. Es <b>mi</b> herramienta de confianza: un proyecto vivo que crece con cada muestra nueva que cruza mi laboratorio, y la cristalización de esas tareas repetitivas que aun así exigen precisión quirúrgica.</p>
+<p>Si algo me dejó el proceso es una regla clara: nunca dejar herramientas a medias. Desenterrar el código un año después y adaptarlo a una amenaza real —el dropper con API Hashing de la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>— me recordó sin anestesia que las herramientas construidas para uno mismo acaban siendo las más rentables. El ejercicio paralelo de <a href="evasion-estatica-asm-mirai.html">evasión estática en ASM contra Mirai</a> apunta a la misma moraleja: automatiza lo repetitivo y reserva el criterio humano para lo que de verdad lo necesita.</p>
+<p>El código está publicado en GitHub por si alguien quiere curiosearlo, destriparlo o doblarlo a sus propias rutinas de triage.</p>
 
-        <div class="cta-closure">
-            <h3 class="mono">/¿Quieres ver esta herramienta en plena acción?</h3>
-            <p>El pipeline completo de analystty fue el que diseccionó el dropper multi-etapa real con API Hashing: desde el aislamiento en Proxmox hasta la identificación del Clipper y el InfoStealer. El expediente completo está en la bitácora de threat hunting.</p>
-            <div class="cta-closure-links">
-                <a href="index.html" class="cta-btn primary mono">← Volver al índice</a>
-                <a href="threat-hunter-recollection.html" class="cta-btn mono">Threat Hunter Recollection →</a>
-                <a href="assembly.html" class="cta-btn mono">Assembly para Reversing →</a>
-                <a href="myPracticalShellcodeC2.html" class="cta-btn mono">C2 Builder →</a>
-            </div>
-        </div>
-
-        <h2 class="section-title mono" id="s10"><span style="color: var(--text-muted);">10.</span> Referencias</h2>
-        <ul>
-            <li><a href="https://github.com/tty503/analystty" target="_blank" rel="noopener noreferrer">Repositorio de analystty en GitHub</a></li>
-            <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — El dropper multi-etapa analizado con este pipeline</a></li>
-            <li><a href="myPracticalShellcodeC2.html">De la Shellcode Artesanal al C2 Builder — Técnicas de evasión relacionadas</a></li>
-            <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada con WireGuard — El entorno de laboratorio utilizado</a></li>
-            <li><a href="plc.html">PLC Siemens S5/S7 — Ingeniería inversa aplicada a OT</a></li>
-            <li><a href="https://www.capstone-engine.org" target="_blank" rel="noopener noreferrer">Capstone Engine — Motor de desensamblado</a></li>
-            <li><a href="https://github.com/erocarrera/pefile" target="_blank" rel="noopener noreferrer">pefile — Python PE parsing</a></li>
-        </ul>
-    </article>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="social-links mono">
-                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
-                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
-                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
-                <a href="https://tty503.com">tty503.com</a>
-            </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. analystty — triage automatizado de malware PE con Python, Capstone y x64dbg.</p>
-        </div>
-    </footer>
-
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
-            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
-        });
-    </script>
-
-    <script type="application/ld+json">
+<h2 id="a10"><span class="idx">11.</span> Referencias</h2>
+<ul>
+  <li><a href="https://github.com/tty503/analystty" target="_blank" rel="noopener noreferrer">Repositorio de analystty en GitHub</a></li>
+  <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — el dropper multi-etapa analizado con este pipeline</a></li>
+  <li><a href="myPracticalShellcodeC2.html">De la shellcode artesanal al C2 Builder — técnicas de evasión relacionadas</a></li>
+  <li><a href="evasion-estatica-asm-mirai.html">Evasión estática en ASM — polimorfismo manual contra firmas YARA</a></li>
+  <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura ofuscada con WireGuard — el entorno de laboratorio utilizado</a></li>
+  <li><a href="https://www.capstone-engine.org" target="_blank" rel="noopener noreferrer">Capstone Engine — motor de desensamblado</a></li>
+  <li><a href="https://github.com/erocarrera/pefile" target="_blank" rel="noopener noreferrer">pefile — Python PE parsing</a></li>
+</ul>
+</article>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="threat-hunter-recollection.html"><span class="arrow">→</span><div class="meta"><span>2026-05-24</span><span>45 min</span></div><div class="t">Threat Hunter Recollection: cinco investigaciones reales de caza</div><div class="d">Bitácora de un año de caza: mapeo OSINT de una red de estafa piramidal, fraude con Lumma Stealer, deconstrucción de NetS</div><span class="badge badge-ti">Threat Intelligence</span></a><a class="card" href="myPracticalShellcodeC2.html"><span class="arrow">→</span><div class="meta"><span>2026-05-22</span><span>120 min</span></div><div class="t">De winshellcode a BugBuilder: inyección y C2 en Windows</div><div class="d">Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API</div><span class="badge badge-ti">Malware Development</span></a><a class="card" href="evasion-estatica-asm-mirai.html"><span class="arrow">→</span><div class="meta"><span>2026-06-01</span><span>25 min</span></div><div class="t">Evasión estática en ASM: romper firmas de Mirai sin packers</div><div class="d">De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con</div><span class="badge badge-ti">Malware Analysis</span></a></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
       "@type": "Article",
       "headline": "analystty: triage automatizado de malware PE con Python",
-      "description": "De un PE sospechoso a breakpoints en x64dbg: TTPs contra MITRE ATT&CK, desensamblado con Capstone y un caso real de dropper multi-etapa con API Hashing.",
-      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "description": "Herramienta que extrae imports, detecta TTPs con MITRE ATT&CK, desensambla la secci\u00f3n .text y genera breakpoints para x64dbg autom\u00e1ticamente. Stack: Capstone, pefile, malapi.json. Caso real: un dropper con API hashing.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-05-15",
-      "dateModified": "2026-08-21",
+      "dateModified": "2026-05-15",
       "mainEntityOfPage": "https://tty503.com/analystty.html",
-      "image": "https://tty503.com/img/analystty-pipeline-radare2-triage-pe.jpg",
-      "keywords": ["malware analysis", "PE triage", "Python", "Capstone", "x64dbg", "API Hashing", "TTPs", "MITRE ATT&CK", "reverse engineering", "pefile", "Radare2", "breakpoints automáticos"],
-      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
       "inLanguage": "es",
-      "wordCount": "1900",
-      "timeRequired": "PT12M",
-      "about": [
-        { "@type": "Thing", "name": "Malware Analysis" },
-        { "@type": "Thing", "name": "Reverse Engineering" },
-        { "@type": "Thing", "name": "MITRE ATT&CK" },
-        { "@type": "Thing", "name": "Automatización con Python" }
-      ]
+      "keywords": "Python, Malware Analysis, Capstone, Automatizaci\u00f3n"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/analystty.html", "name": "analystty: triage automatizado de malware PE con Python"}}]
     }
-    </script>
+  ]
+}
+</script>
 </body>
 </html>

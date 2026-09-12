@@ -1,1000 +1,475 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#08090c">
+<meta name="color-scheme" content="dark">
+<title>Christian Márquez (tty503) — Threat Intelligence, Reversing y Exploit Development</title>
+<meta name="description" content="Christian Márquez (tty503): especialista en threat intelligence, ingeniería inversa de malware, exploit development y seguridad OT/PLC. Cadenas RCE pre-auth verificadas, análisis de malware a nivel de bytes y deconstrucción de infraestructuras de fraude financiero, desde Venezuela.">
+<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Christian Márquez (tty503) — Threat Intelligence, Reversing y Exploit Development">
+<meta property="og:description" content="Christian Márquez (tty503): especialista en threat intelligence, ingeniería inversa de malware, exploit development y seguridad OT/PLC. Cadenas RCE pre-auth verificadas, análisis de malware a nivel de bytes y deconstrucción de infraestructuras de fraude financiero, desde Venezuela.">
+<meta property="og:url" content="https://tty503.com/">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-RZVNG112YY');
-    </script>
 
-    <meta charset="UTF-8">
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="hat.png">
-    <link rel="apple-touch-icon" href="hat.png">    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    
-    <!-- ==================== SEO AVANZADO ==================== -->
-    <title>Christian Márquez (tty503) | Threat Intelligence, Ingeniería Inversa, Exploit Development y Seguridad OT</title>
-    <meta name="description" content="Christian Márquez (tty503): Threat Intelligence, ingeniería inversa de malware, exploit development, seguridad en infraestructuras críticas OT/PLC Siemens S5/S7, DevSecOps, automatización con Ansible y Terraform, y análisis forense de fraudes financieros. Portafolio con investigaciones técnicas reales desde Venezuela.">
-    <meta name="keywords" content="Christian Marquez, tty503, threat intelligence, ingeniería inversa, reversing, malware analysis, exploit development, binary exploitation, ROP, shellcode, PLC Siemens, seguridad OT, SCADA, DevSecOps, Ansible, Terraform, Proxmox, Ghidra, x64dbg, Capstone, Assembly x86, ARM64, APT, ciberdefensa, red team, blue team, SOC, honeypot, Wazuh, blockchain forensics, Pig Butchering, crypto scam, OSINT, infraestructura crítica, Venezuela, consultor ciberseguridad, ciberguerra, guerra híbrida, Mustang Panda, USCYBERCOM, operational technology, cyber warfare, evasión estática, Mirai, YARA evasion, DGA, polimorfismo ASM, CVE-2020-6507, CVE-2021-38003, CVE-2023-7024, CVE-2023-2033, Chrome V8, WebRTC, TheHole, kernel streaming, JEB Decompiler, rz-libmc7, MC7, MC7+, ADONIS kernel, sandbox escape, Claroty Team82, SAINT GRAIL, Go, Python, migración, bug hunting, TOCTOU, Chromium, 7-Zip, CRC bypass, orquestador, AST, DeepSeek, fuzzing, PoC">
-    <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <link rel="canonical" href="https://tty503.com">
-    <meta name="theme-color" content="#050505">
-    <meta name="googlebot" content="index, follow">
-    <meta name="bingbot" content="index, follow">
-    
-    <!-- Open Graph / Redes Sociales -->
-    <meta property="og:locale" content="es_ES">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Christian Márquez (tty503) — Threat Intelligence, Ingeniería Inversa, Exploit Development y Seguridad OT">
-    <meta property="og:description" content="Portafolio profesional: threat intelligence, ingeniería inversa de malware, exploit development, seguridad en PLC Siemens, automatización de infraestructura y análisis forense de fraudes financieros. Especialista en infraestructuras críticas desde Venezuela.">
-    <meta property="og:url" content="https://tty503.com">
-    <meta property="og:site_name" content="tty503 — Christian Márquez Portfolio">
-    <meta property="og:image" content="https://tty503.com/p1.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Christian Márquez - Threat Intelligence, Ingeniería Inversa, Exploit Development y Seguridad OT">
-    <meta property="og:image:type" content="image/jpeg">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@tty_503">
-    <meta name="twitter:creator" content="@tty_503">
-    <meta name="twitter:title" content="Christian Márquez (tty503) | Threat Intelligence, Exploit Dev y Seguridad OT">
-    <meta name="twitter:description" content="Threat intelligence, ingeniería inversa, exploit development, PLC Siemens, automatización de infraestructura y análisis forense desde Venezuela.">
-    <meta name="twitter:image" content="https://tty503.com/p1.jpg">
-    <meta name="twitter:image:alt" content="Christian Márquez - tty503 Portfolio">
-    
-    <!-- Preconexión de Fuentes -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <style>
-        /* ==================== VARIABLES Y RESET ==================== */
-        :root {
-            --bg-base: #030303;
-            --bg-surface: #0a0a0a;
-            --bg-card: #111111;
-            --border-subtle: #222222;
-            --border-hover: #444444;
-            --text-primary: #f5f5f5;
-            --text-secondary: #a3a3a3;
-            --text-muted: #666666;
-            --accent: #ffffff;
-            --accent-green: #4ade80;
-            --accent-blue: #60a5fa;
-            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="Christian Márquez (tty503) — Threat Intelligence, Reversing y Exploit Development">
+<meta name="twitter:description" content="Christian Márquez (tty503): especialista en threat intelligence, ingeniería inversa de malware, exploit development y seguridad OT/PLC. Cadenas RCE pre-auth verificadas, análisis de malware ">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
-        }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .noise-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 9999; opacity: 0.06;
-            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E');
-        }
-        .text-gradient {
-            background: linear-gradient(180deg, #ffffff 0%, #888888 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .navbar {
-            position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.7);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth);
-        }
-        .nav-container { max-width: 1200px; margin: 0 auto; padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav-brand { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .nav-brand span { color: var(--text-secondary); font-size: 0.9rem; }
-        .nav-links { display: flex; gap: 2rem; }
-        .nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.5px; transition: var(--transition-smooth); }
-        .nav-links a:hover { color: var(--accent); }
-        .hero { min-height: 100vh; display: flex; align-items: center; padding: 8rem 2rem 4rem; position: relative; }
-        .hero::before { content: ''; position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 70%); z-index: 0; pointer-events: none; }
-        .hero-container { max-width: 1200px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; position: relative; z-index: 1; }
-        .hero-content h1 { font-size: clamp(3rem, 5vw, 4.5rem); font-weight: 700; line-height: 1.1; letter-spacing: -1px; margin-bottom: 0.5rem; }
-        .hero-handle { display: inline-block; font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem; background: var(--bg-card); padding: 0.4rem 1rem; border-radius: 4px; border: 1px solid var(--border-subtle); }
-        .hero-description { font-size: 1.1rem; color: var(--text-secondary); max-width: 580px; margin-bottom: 2.5rem; line-height: 1.8; }
-        .hero-tags { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-        .tag { background: transparent; color: var(--text-secondary); padding: 0.4rem 0.8rem; border-radius: 2px; font-size: 0.8rem; border: 1px solid var(--border-subtle); transition: var(--transition-smooth); font-weight: 500; }
-        .tag:hover { border-color: var(--text-secondary); color: var(--text-primary); }
-        .hero-image-wrapper { position: relative; display: flex; justify-content: center; align-items: center; }
-        .hero-image-container { position: relative; width: 100%; max-width: 400px; aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.03); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        .profile-img { width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(100%) contrast(1.1) brightness(0.9); transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
-        .hero-image-container:hover .profile-img { filter: grayscale(0%) contrast(1.05) brightness(1); transform: scale(1.02); }
-        .section { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
-        .section-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1rem; }
-        .section-title { font-size: 2rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.5px; }
-        .section-title span { color: var(--text-muted); font-weight: 400; margin-right: 1rem; }
-        .about-text { font-size: 1.15rem; color: var(--text-secondary); max-width: 800px; line-height: 1.8; }
-        .about-text strong { color: var(--text-primary); font-weight: 500; }
-        .about-more-link { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 2rem; color: var(--text-secondary); text-decoration: none; font-size: 0.95rem; font-weight: 500; border: 1px solid var(--border-subtle); padding: 0.7rem 1.5rem; border-radius: 4px; transition: var(--transition-smooth); }
-        .about-more-link:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
-        .about-more-link .arrow-icon { transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
-        .about-more-link:hover .arrow-icon { transform: translateX(4px); }
-        .theme-group { margin-bottom: 1rem; border: 1px solid var(--border-subtle); border-radius: 6px; background: transparent; overflow: hidden; transition: var(--transition-smooth); }
-        .theme-group[open] { border-color: var(--border-hover); background: var(--bg-card); }
-        .theme-summary { padding: 1.5rem 2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; gap: 1.5rem; }
-        .theme-summary:hover { background: rgba(255, 255, 255, 0.02); }
-        .theme-summary::-webkit-details-marker { display: none; }
-        .theme-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: flex-start; gap: 0.5rem; }
-        .theme-icon { color: var(--text-muted); }
-        .toggle-icon { color: var(--text-muted); font-size: 1.5rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); line-height: 1; flex-shrink: 0; }
-        .theme-group[open] .toggle-icon { transform: rotate(45deg); color: var(--text-primary); }
-        .theme-content { padding: 0 2rem 1.5rem; animation: fadeInDown 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .source-divider { display: flex; align-items: center; gap: 1rem; margin: 2rem 0 1.2rem; color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.5px; }
-        .source-divider::before, .source-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-subtle); }
-        .source-divider span { display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
-        .source-divider .divider-icon { font-size: 0.9rem; }
-        .local-badge { display: inline-block; background: transparent; color: var(--accent-green); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.65rem; border: 1px solid rgba(74, 222, 128, 0.3); margin-left: 0.5rem; vertical-align: middle; letter-spacing: 0.3px; }
-        .exp-item { background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.5rem; margin-bottom: 1rem; transition: var(--transition-smooth); }
-        .exp-item:last-child { margin-bottom: 0; }
-        .exp-item:hover { border-color: var(--border-hover); background: #181818; }
-        .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.8rem; }
-        .exp-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
-        .exp-meta { font-size: 0.85rem; color: var(--text-muted); }
-        .exp-details { display: flex; flex-direction: column; gap: 0.8rem; }
-        .exp-detail-row { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; display: flex; flex-direction: row; gap: 0.5rem; }
-        .exp-detail-row strong { color: var(--text-primary); font-weight: 500; min-width: 110px; flex-shrink: 0; }
-        .article-link { display: block; background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.5rem; margin-bottom: 1rem; text-decoration: none; transition: var(--transition-smooth); position: relative; }
-        .article-link:last-child { margin-bottom: 0; }
-        .article-link:hover { background: #181818; border-color: var(--border-hover); }
-        .article-link.local-article:hover { border-color: rgba(74, 222, 128, 0.3); }
-        .article-link.local-article:hover .article-arrow { color: var(--accent-green); }
-        .article-date { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
-        .article-title { font-size: 1.05rem; color: var(--text-primary); font-weight: 500; margin-bottom: 0.5rem; }
-        .article-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
-        .article-arrow { position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem; transition: var(--transition-smooth); }
-        .article-link:hover .article-arrow { color: var(--text-primary); transform: translate(5px, -50%); }
-        .footer { border-top: 1px solid var(--border-subtle); padding: 4rem 2rem; text-align: center; background: var(--bg-surface); }
-        .footer-content { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
-        .social-links { display: flex; gap: 2rem; }
-        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: var(--transition-smooth); font-weight: 500; }
-        .social-links a:hover { color: var(--text-primary); }
-        .copyright { color: var(--text-muted); font-size: 0.85rem; }
-        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-        @media (max-width: 900px) {
-            .hero-container { grid-template-columns: 1fr; text-align: center; gap: 2.5rem; }
-            .hero-content { display: flex; flex-direction: column; align-items: center; }
-            .hero-tags { justify-content: center; }
-            .article-arrow { display: none; }
-            .exp-detail-row { flex-direction: column; gap: 0.2rem; }
-            .exp-detail-row strong { display: block; margin-bottom: 0.1rem; }
-        }
-        @media (max-width: 600px) {
-            .nav-container { padding: 1rem 1.2rem; }
-            .nav-links { display: none; }
-            .section { padding: 4rem 1.2rem; }
-            .section-header { margin-bottom: 2rem; }
-            .section-title { font-size: 1.5rem; display: flex; flex-direction: column; gap: 0.3rem; word-wrap: break-word; }
-            .section-title span { margin-right: 0; font-size: 1.2rem; }
-            .hero { padding: 6.5rem 1.2rem 3rem; }
-            .hero-container { display: flex; flex-direction: column; gap: 2.5rem; }
-            .hero-content h1 { font-size: 2.6rem; }
-            .hero-description { font-size: 1rem; }
-            .hero-handle { font-size: 0.9rem; padding: 0.3rem 0.8rem; margin-bottom: 1.5rem; }
-            .hero-image-container { max-width: 200px; margin: 0 auto; }
-            .tag { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
-            .theme-summary { padding: 1.2rem 1rem; gap: 0.8rem; }
-            .theme-title { font-size: 1rem; line-height: 1.4; }
-            .toggle-icon { font-size: 1.4rem; }
-            .theme-content { padding: 0 1rem 1.2rem; }
-            .exp-item { padding: 1.2rem 1rem; }
-            .exp-header { flex-direction: column; gap: 0.3rem; }
-            .exp-title { font-size: 1.05rem; }
-            .article-link { padding: 1.2rem 1rem; }
-            .article-title { font-size: 1rem; }
-            .footer { padding: 3rem 1.2rem; }
-            .social-links { gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
-            .source-divider { font-size: 0.7rem; gap: 0.5rem; }
-            .source-divider span { gap: 0.2rem; }
-        }
-        @media (max-width: 380px) {
-            .hero-content h1 { font-size: 2.2rem; }
-            .section-title { font-size: 1.35rem; }
-            .theme-title { font-size: 0.95rem; }
-            .about-text { font-size: 1rem; }
-            .hero-image-container { max-width: 180px; }
-        }
-        .nav-icon-wrapper {
-            display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
-            border-radius: 4px; position: relative; overflow: hidden; flex-shrink: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(200,200,200,0.08) 30%, rgba(255,255,255,0.15) 60%, rgba(180,180,180,0.06) 100%);
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 3px rgba(0,0,0,0.4);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
-        }
-        .nav-icon-wrapper::before { content: ''; position: absolute; inset: 0; opacity: 0.08; z-index: 2; pointer-events: none; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); border-radius: inherit; }
-        .nav-icon-wrapper::after { content: ''; position: absolute; inset: -1px; border-radius: 5px; z-index: 0; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 100%); opacity: 0; transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
-        .nav-icon-wrapper:hover::after { opacity: 1; }
-        .nav-icon-wrapper img { width: 18px; height: 18px; position: relative; z-index: 1; filter: brightness(1.2) contrast(1.1); transition: filter 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
-        .nav-icon-wrapper:hover { background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(220,220,220,0.12) 30%, rgba(255,255,255,0.22) 60%, rgba(200,200,200,0.10) 100%); border-color: rgba(255,255,255,0.15); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.5); }
-        .nav-icon-wrapper:hover img { filter: brightness(1.4) contrast(1.15); }
-        @media (max-width: 600px) { .nav-icon-wrapper { width: 26px; height: 26px; border-radius: 3px; } .nav-icon-wrapper img { width: 16px; height: 16px; } }
-        @media (max-width: 380px) { .nav-icon-wrapper { width: 24px; height: 24px; } .nav-icon-wrapper img { width: 14px; height: 14px; } }
-    </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+
 </head>
 <body>
-    <div class="noise-overlay"></div>
+<div class="bg-fx"></div>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker"><span class="blink"></span> usuario@tty503:~$ whoami</span>
+    <h1>Christian <span class="grad">Márquez</span></h1>
+    <p class="lead">
+      Threat intelligence, ingeniería inversa de malware, exploit development y seguridad en
+      infraestructuras críticas. Del registro del procesador a la topología de una red ofuscada,
+      del <b>PLC que controla una subestación</b> al SIEM que correlaciona eventos en tiempo real:
+      opero en todas las capas, desarmando binarios a bajo nivel y documentando cada hallazgo desde
+      Venezuela.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="index.html#publications">Explorar investigaciones</a>
+      <a class="btn btn-ghost" href="aboutme.html">Ruta completa</a>
+    </div>
+    <div class="chips">
+      <span class="chip on">Threat Intelligence</span>
+      <span class="chip">Reverse Engineering</span>
+      <span class="chip">Exploit Development</span>
+      <span class="chip">Malware Analysis</span>
+      <span class="chip">PLC Siemens / OT</span>
+      <span class="chip">Bug Hunting autónomo</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="num">29</span><span class="lbl">publicaciones técnicas</span></div>
+      <div class="stat"><span class="num">12</span><span class="lbl">hallazgos documentados</span></div>
+      <div class="stat"><span class="num">5</span><span class="lbl">cadenas RCE verificadas E2E</span></div>
+      <div class="stat"><span class="num">2012</span><span class="lbl">inicio de la ruta</span></div>
+    </div>
+  </div>
+</header>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="#" class="nav-brand mono">
-                <span class="nav-icon-wrapper">
-                    <img src="hat.png" alt="tty503 logo" width="18" height="18">
-                </span>
-                tty503 <span>_portfolio</span>
-            </a>
-            <div class="nav-links">
-                <a href="#about">Sobre mí</a>
-                <a href="#experience">Experiencia</a>
-                <a href="#research">Investigaciones</a>
-                <a href="#articles">Artículos del Sitio</a>
-            </div>
+<main>
+  <section id="about" class="section">
+    <div class="section-inner">
+      <div class="sec-head">
+        <span class="sec-eyebrow">// sobre_mí</span>
+        <h2 class="sec-title">Ruta</h2>
+        <p class="sec-sub">
+          Mi ruta no ha sido lineal: del firmware de microcontroladores al análisis de APTs, de la
+          shellcode artesanal a la automatización de infraestructura completa. Esa amplitud —entender
+          cómo se conectan todas las capas— es lo que me permite trazar vectores de ataque que otros
+          pasan por alto.
+        </p>
+      </div>
+      <div class="tl">
+        <div class="tl-item">
+          <div>
+            <div class="org">tty503 · Consultor</div>
+            <div class="role">Consultor en Automatización e Infraestructura</div>
+            <div class="range">Ene 2026 – Abr 2026</div>
+          </div>
+          <p class="what">Autonomicé despliegues con <b>Ansible y Terraform</b> sobre Linux, entornos
+          aislados con Proxmox/QEMU/Docker y túneles de tráfico para el análisis de plataformas.</p>
         </div>
-    </nav>
-
-    <header class="hero">
-        <div class="hero-container">
-            <div class="hero-content reveal">
-                <div class="hero-handle mono">usuario@tty503:~$ whoami</div>
-                <h1 class="text-gradient">Christian<br>Márquez</h1>
-                <p class="hero-description">
-                    Threat intelligence, ingeniería inversa de malware, exploit development y seguridad en infraestructuras críticas. Del firmware de microcontroladores al análisis de APTs, opero en todas las capas —del registro del procesador a la topología de una red ofuscada, del PLC que controla una subestación al SIEM que correlaciona eventos en tiempo real— diseñando infraestructura resiliente, desarmando binarios a bajo nivel y documentando cada hallazgo desde Venezuela.
-                </p>
-                <div class="hero-tags mono">
-                    <span class="tag">Threat Intelligence</span>
-                    <span class="tag">Reverse Engineering</span>
-                    <span class="tag">Exploit Development</span>
-                    <span class="tag">Malware Analysis</span>
-                    <span class="tag">PLC Siemens</span>
-                    <span class="tag">OT Security</span>
-                    <span class="tag">DevSecOps</span>
-                    <span class="tag">Ghidra</span>
-                    <span class="tag">Assembly x86</span>
-                    <span class="tag">Evasión de Firmas</span>
-                </div>
-            </div>
-            <div class="hero-image-wrapper reveal" style="transition-delay: 0.2s;">
-                <div class="hero-image-container">
-                    <img src="p1.jpg" alt="Christian Márquez - Threat Intelligence, Ingeniería Inversa, Exploit Development y Seguridad OT" class="profile-img">
-                </div>
-            </div>
+        <div class="tl-item">
+          <div>
+            <div class="org">tty503 · Consultor</div>
+            <div class="role">Especialista en Ingeniería Inversa y Seguridad</div>
+            <div class="range">Abr 2024 – Dic 2024</div>
+          </div>
+          <p class="what">Reversing con Ghidra/IDA, análisis de tráfico con mitmproxy, manipulación de
+          mecanismos anti-tamper y herramientas forenses en Bash para el <b>triage de malware</b>.</p>
         </div>
-    </header>
-
-    <main>
-        <section id="about" class="section">
-            <div class="section-header reveal">
-                <h2 class="section-title mono"><span></span>Sobre_mí</h2>
-            </div>
-            <p class="about-text reveal">
-                Mi ruta no ha sido lineal. He pasado del firmware de microcontroladores al análisis de amenazas persistentes avanzadas, de la shellcode artesanal a la automatización de infraestructura completa. <strong>Esa amplitud —operar con soltura desde el registro del procesador hasta la topología de una red ofuscada, desde el PLC que controla un actuador físico hasta el SIEM que correlaciona eventos en tiempo real— es lo que define mi enfoque.</strong> No me especializo en una capa: entiendo cómo se conectan todas, y eso me permite trazar vectores de ataque que otros pasan por alto. En un contexto donde la infraestructura crítica de Venezuela se ha convertido en terreno de disputa cibernética, comprender la intersección entre operational technology, redes de telecomunicaciones y threat intelligence no es un lujo: es una necesidad.<br><br>
-                Mi trayectoria es completamente <strong>autodidacta</strong>, forjada desde 2012 a base de curiosidad técnica y práctica constante. Desde la programación de microcontroladores y el desarrollo de firmware hasta el diseño de túneles de red ofuscados, el análisis de malware a bajo nivel en Assembly x86/ARM64, la ingeniería inversa de protocolos industriales y el exploit development con ROP y shellcode, cada disciplina alimenta a las demás. Este perfil híbrido —que combina threat intelligence, reversing profundo, desarrollo de exploits y automatización DevSecOps— es el que demandan los equipos de ciberdefensa que enfrentan adversarios reales, no simulacros.<br><br>
-                Actualmente, mi investigación se centra en la <strong>inteligencia de amenazas aplicada a fraudes financieros transfronterizos</strong>, la <strong>ingeniería inversa de malware</strong>, el <strong>desarrollo de exploits</strong>, la <strong>seguridad de entornos industriales OT/PLC</strong> y el desarrollo de <strong>herramientas propias</strong> para automatizar el análisis forense. Mi objetivo es la maestría técnica a través de la práctica deliberada y la documentación precisa de cada hallazgo.
-            </p>
-            <a href="aboutme.html" class="about-more-link mono reveal">
-                Ver mi ruta completa <span class="arrow-icon">→</span>
-            </a>
-        </section>
-
-        <section id="experience" class="section">
-            <div class="section-header reveal">
-                <h2 class="section-title mono"><span></span>Experiencia_Técnica</h2>
-            </div>
-            <div class="accordion-container">
-                <details class="theme-group reveal" open>
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Infraestructura y Seguridad</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <div class="exp-item">
-                            <div class="exp-header"><h4 class="exp-title">Consultor en Automatización e Infraestructura</h4><span class="exp-meta mono">tty503 | Ene 2026 - Abr 2026</span></div>
-                            <div class="exp-details">
-                                <p class="exp-detail-row"><strong>Qué hice:</strong> Autonomicé despliegues con Ansible y Terraform sobre Linux, configurando entornos aislados con Proxmox, QEMU y Docker.</p>
-                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Infraestructura escalable y segura, junto con túneles de tráfico residenciales para facilitar el análisis de plataformas.</p>
-                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Orquestación avanzada de máquinas virtuales y validación de sistemas mediante automatización estricta en Python/Bash.</p>
-                            </div>
-                        </div>
-                       <div class="exp-item">
-                            <div class="exp-header"><h4 class="exp-title">Especialista en Ingeniería Inversa y Seguridad</h4><span class="exp-meta mono">tty503 | Abr 2024 - Dic 2024</span></div>
-                            <div class="exp-details">
-                                <p class="exp-detail-row"><strong>Qué hice:</strong> Ejecuté ingeniería inversa sobre binarios mediante análisis estático con Ghidra e IDA, y analicé tráfico de red con mitmproxy.</p>
-                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Extracción de lógica en binarios ofuscados, manipulación de mecanismos anti-tamper y desarrollo de herramientas forenses en Bash para el triage de malware.</p>
-                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Interacción a bajo nivel con binarios compilados y metodologías para desmantelar mecanismos de protección en entornos restringidos.</p>
-                            </div>
-                        </div>
-                        <div class="exp-item">
-                            <div class="exp-header"><h4 class="exp-title">Administrador de Sistemas Linux</h4><span class="exp-meta mono">tty503 | Ene 2022 - Jun 2022</span></div>
-                            <div class="exp-details">
-                                <p class="exp-detail-row"><strong>Qué hice:</strong> Administré servidores Debian/Ubuntu (físicos y virtuales), configurando redes y cortafuegos.</p>
-                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Conectividad segura y automatización de mantenimientos/backups para garantizar la continuidad operativa de servicios internos.</p>
-                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Diagnóstico resolutivo de incidencias mediante auditoría profunda de logs del sistema.</p>
-                            </div>
-                        </div>
-                    </div>
-                </details>
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Desarrollo de Software y Firmware</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <div class="exp-item">
-                            <div class="exp-header"><h4 class="exp-title">Desarrollador Backend y Scripting</h4><span class="exp-meta mono">tty503 | Mar 2024 - May 2024</span></div>
-                            <div class="exp-details">
-                                <p class="exp-detail-row"><strong>Qué hice:</strong> Desarrollé APIs REST con FastAPI (Python) integradas con bases SQL (PostgreSQL, MySQL) a través de SQLAlchemy.</p>
-                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Backend robusto y documentado desplegado sobre contenedores Docker, con tareas automatizadas en Bash.</p>
-                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Arquitectura ágil de bases de datos y orquestación limpia de microservicios.</p>
-                            </div>
-                        </div>
-                        <div class="exp-item">
-                            <div class="exp-header"><h4 class="exp-title">Desarrollador de .NET</h4><span class="exp-meta mono">Kexe | Nov 2023 - Mar 2024</span></div>
-                            <div class="exp-details">
-                                <p class="exp-detail-row"><strong>Qué hice:</strong> Mantuve y desarrollé un sistema empresarial modular en C# (.NET Framework/Core) colaborando bajo metodología SCRUM.</p>
-                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Implementación íntegra de un módulo de reportes de gastos con filtros dinámicos, integrado con DevExpress.</p>
-                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Refactorización crítica de lógica de negocio y controladores sin interrumpir operativas existentes.</p>
-                            </div>
-                        </div>
-                        <div class="exp-item">
-                            <div class="exp-header"><h4 class="exp-title">Profesional de Apoyo (Hardware/Firmware)</h4><span class="exp-meta mono">CENDIT | Oct 2022 - Nov 2023</span></div>
-                            <div class="exp-details">
-                                <p class="exp-detail-row"><strong>Qué hice:</strong> Programé firmware en C para microcontroladores PIC (18 y 24) en entornos de proyectos médicos y educativos.</p>
-                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Implementación estable de protocolos I2C/UART y documentación algorítmica precisa en LaTeX y PlantUML.</p>
-                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Rigurosidad en el desarrollo orientado a hardware, electrónica básica y control de versiones institucional.</p>
-                            </div>
-                        </div>
-                        <div class="exp-item">
-                            <div class="exp-header"><h4 class="exp-title">Desarrollador Web y Scripting</h4><span class="exp-meta mono">Independiente | Jul 2021 - Dic 2021</span></div>
-                            <div class="exp-details">
-                                <p class="exp-detail-row"><strong>Qué hice:</strong> Desarrollé scripts en Python/PHP y colaboré en la construcción de proyectos web usando HTML y jQuery.</p>
-                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Automatización temprana de flujos de trabajo e inicialización de entornos LAMP/LEMP en servidores VPS.</p>
-                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> El ciclo base de despliegue web y los fundamentos de automatización de servidor.</p>
-                            </div>
-                        </div>
-                    </div>
-                </details>
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Divulgación y Redacción Técnica</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <div class="exp-item">
-                            <div class="exp-header"><h4 class="exp-title">Blog Contributor</h4><span class="exp-meta mono">ReldSec | Jun 2017 - Nov 2019</span></div>
-                            <div class="exp-details">
-                                <p class="exp-detail-row"><strong>Qué hice:</strong> Escribí artículos técnicos centrados en ciberseguridad y programación, apoyando con scripts internos (Python/PHP).</p>
-                                <p class="exp-detail-row"><strong>Qué ofrecí:</strong> Contenido formativo valioso para la comunidad y herramientas personalizadas para el equipo editorial.</p>
-                                <p class="exp-detail-row"><strong>Qué aprendí:</strong> Sistematización de la investigación técnica, dinámicas de trabajo colaborativo y control de versiones a nivel básico.</p>
-                            </div>
-                        </div>
-                    </div>
-                </details>
-            </div>
-        </section>
-
-        <section id="research" class="section">
-            <div class="section-header reveal">
-                <h2 class="section-title mono"><span></span>Investigaciones_Temáticas</h2>
-            </div>
-            <div class="accordion-container">
-                <details class="theme-group reveal" open>
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Análisis de Malware y Threat Intel</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-malwareanalysis-threatintel-ugcPost-7401771334181232640-FMcc" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Dic 2025</span>
-                            <h3 class="article-title">Campaña NetSupport RAT: "Caja de Belleza Lancôme"</h3>
-                            <p class="article-desc">Deconstrucción de una campaña de infección activa dirigida a usuarios en España utilizando señuelos de marcas de belleza reconocidas.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-proxmox-ugcPost-7392246317483315200-hz5X" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Nov 2025</span>
-                            <h3 class="article-title">Triage Rápido: Desmontando el Dropper Nexilo-CC-Checker</h3>
-                            <p class="article-desc">Aislamiento en Proxmox VE, scripting para volcado de memoria (dump.sh) y levantamiento a pseudo-C en Ghidra de un dropper evasivo.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-clipper-ugcPost-7392043572163661824-AFeZ" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Nov 2025</span>
-                            <h3 class="article-title">Nexilo-CC-Checker: Dropper multi-etapa</h3>
-                            <p class="article-desc">Análisis de malware distribuido vía Telegram, uso de API Hashing para evasión y despliegue modular de un Clipper e InfoStealer.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_cybersecurity-malwareanalysis-assembly-activity-7400333681262870528-O57N" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Nov 2025</span>
-                            <h3 class="article-title">Mirai 0/65 en VirusTotal: Evasión de firmas estáticas con ASM</h3>
-                            <p class="article-desc">Prueba de concepto de ofuscación (Builder en C + Stub ASM x86) usando aritmética para reducir la detección de malware a cero. Publicación completa en el sitio.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_threatintelligence-ciberseguridad-bec-ugcPost-7385113809625088000-l8bP" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Oct 2025</span>
-                            <h3 class="article-title">Ciclo Completo de Fraude Financiero: Lumma Stealer</h3>
-                            <p class="article-desc">Desmantelamiento de campaña BEC desde el robo de credenciales y acceso a VPS hasta la monetización mediante Crypto Scams en Telegram.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_magistv-ciberseguridad-malware-activity-7374268549386903552-PXXK" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Oct 2025</span>
-                            <h3 class="article-title">MagisTV: Evasión, persistencia y posible botnet</h3>
-                            <p class="article-desc">Auditoría a la app de streaming pirata. Arquitectura del APK, técnicas de evasión (DGA, HTTP DNS) y riesgos del modelo de negocio oculto.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
-                        <a href="analystty.html" class="article-link local-article">
-                            <span class="article-date mono">~12 min de lectura</span>
-                            <h3 class="article-title">analystty — Automatización de Triage de Malware <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Herramienta interna en Python para automatizar el análisis estático de archivos PE, detección de APIs maliciosas, mapeo de TTPs e integración con x64dbg. Stack: Capstone, pefile, malapi.json.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="evasion-estatica-asm-mirai.html" class="article-link local-article">
-                            <span class="article-date mono">May 2026 · ~25 min de lectura</span>
-                            <h3 class="article-title">Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Polimorfismo manual en Assembly para tumbar detecciones de 16/64 a 0/65 en VirusTotal. Stub descifrador en NASM con claves dinámicas, propuesta de arquitectura DGA mutante con validación Denuvo-like, 8 diagramas PlantUML y correlación con MITRE ATT&CK (T1027, T1562.001, T1568.002).</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="threat-hunter-recollection.html" class="article-link local-article">
-                            <span class="article-date mono">May 2026 · ~45 min de lectura</span>
-                            <h3 class="article-title">Threat Hunter Recollection: Una Crónica de Caza Conectando Campañas <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Cinco investigaciones reales conectadas por un mismo hilo metodológico. Del mapeo OSINT de una red de estafa piramidal global al reversing de un dropper multi-etapa, pasando por la deconstrucción de NetSupport RAT y el análisis de infraestructura BEC.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="pigbutchering-bybsusd.html" class="article-link local-article">
-                            <span class="article-date mono">May 2026 · ~30 min de lectura</span>
-                            <h3 class="article-title">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Investigación técnica de una red de estafa tipo Pig Butchering con rotación rápida de dominios, WebSocket con Workerman PHP, API con captcha roto y certificados falsos. Incluye IoCs, diagramas de infraestructura y referencias al FBI, DOJ y Europol.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="fakewealth-cmdxcapital.html" class="article-link local-article">
-                            <span class="article-date mono">Oct 2025–May 2026 · ~60 min de lectura</span>
-                            <h3 class="article-title">Operación FakeWealth: Inteligencia de Amenazas sobre cmdxcapital <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Investigación de threat intelligence sobre una red de fraude financiero con infraestructura en Cloudflare y Google Cloud. Crash de Laravel con appDebug:true en producción, bypass de captcha, migración de wallets Bitcoin y spoofing de Companies House UK.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="operation-general-jp-silentwarn.html" class="article-link local-article">
-                            <span class="article-date mono">Jun 2025 · ~55 min de lectura</span>
-                            <h3 class="article-title">Operaciones General JP y SilentWarn: Dos Campañas de Phishing Conectadas <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Investigación de threat intelligence sobre dos campañas de phishing activas. General JP: redirección multi-capa, Google Cloud Storage, Filemail API y kit PHP con exfiltración a Telegram. SilentWarn: React + EmailJS + SMTPjs, geofencing para Vietnam. IoCs, patrones de infraestructura y correlación con investigaciones previas.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Ingeniería Inversa y Low-Level</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="https://www.linkedin.com/posts/tty503_iossecurity-reverseengineering-lowlevel-ugcPost-7427797339592994816-cHU5" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Feb 2026</span>
-                            <h3 class="article-title">Reversing iOS y Virtualización Crítica</h3>
-                            <p class="article-desc">Destripando binarios para entender la "confianza" en iOS. Orquestación con QEMU, validación por GPU (Metal) y low-level scripting en Swift/Bash.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_cprogramming-linux-systemsprogramming-activity-7403118821433163777-TWhz" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Dic 2025</span>
-                            <h3 class="article-title">Ghost Commander v2: Disco fantasma en RAM de Linux</h3>
-                            <p class="article-desc">Herramienta en C que simula corrupción de memoria usando syscalls oscuras y visualización con mapas de calor hexadecimal en tiempo real.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_me-encanta-encontrar-la-manera-de-resolver-activity-7396271971270807556-Qe1M" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Nov 2025</span>
-                            <h3 class="article-title">Herramienta TUI en Bash para Análisis Forense</h3>
-                            <p class="article-desc">Desarrollo de utilidad en terminal para cálculo de entropía, extracción de metadata y hashing SHA-256 automatizado al vuelo.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
-                        <a href="assembly.html" class="article-link local-article">
-                            <span class="article-date mono">~2 horas de lectura</span>
-                            <h3 class="article-title">Assembly para Ingeniería Inversa (RE) <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Referencia de consulta rápida: stack frames, variables globales/locales, clases vs structs, malloc/new, pilas, colas, listas enlazadas, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64) y heurísticas para identificación de funciones.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="web-api-pentesting2024.html" class="article-link local-article">
-                            <span class="article-date mono">Jun–Ago 2024 · ~30 min de lectura</span>
-                            <h3 class="article-title">Pentesting a Web API Financiera: Token Reuse, IDOR y Fuga de Datos <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Auditoría de seguridad ofensiva freelance a una Web API del sector financiero. Ingeniería inversa de APK, bypass de certificate pinning, token reuse con JWT, IDOR y extracción automatizada de datos sensibles.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Exploit Development y Binary Exploitation</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
-                        <a href="exploit-development-ot-awl-arm.html" class="article-link local-article">
-                            <span class="article-date mono">Jun 2026 · ~90 min de lectura</span>
-                            <h3 class="article-title">Exploit Development en Entornos OT: Del AWL al Shellcode en PLC Siemens, ROP sobre ARM/MIPS y Bypass de Sandbox <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Cierre del ciclo entre reversing de AWL/MC7/MC7+ y exploit development. Análisis del ecosistema de herramientas (JEB Decompiler, rz-libmc7, Ghidra). Caso central: CVE-2020-15782 (Claroty Team82), sandbox escape con ejecución de código nativo ARM/MIPS en kernel ADONIS. Cuatro workshops prácticos: shellcode AWL, ROP sobre MC7, fuzzing de Modbus/S7comm con AFL++, y cadena completa drive-by → sandbox escape → modificación física de salidas en S7-1200. Guía de laboratorio ICS con costos, red OT segmentada e integración con túnel ofuscado.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="exploit-development-lab.html" class="article-link local-article">
-                            <span class="article-date mono">Sep 2024 · ~90 min de lectura</span>
-                            <h3 class="article-title">Laboratorio de Exploit Development: Arquitectura del Kernel, Binarios y ROP en la Práctica <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Bitácora de un mes de laboratorio intensivo. Windows Internals, drivers KMDF/UMDF, formatos PE/ELF/DEX, Assembly x86/AMD64/ARM64, shellcode injection, ROP con cadena funcional en 64 bits, y disección de cuatro CVEs reales en Chrome V8 y WebRTC. Incluye laboratorio práctico con VirtualBox, INetSim, fakedns y plan de retoma con diez tareas priorizadas.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="myPracticalShellcodeC2.html" class="article-link local-article">
-                            <span class="article-date mono">~120 min de lectura</span>
-                            <h3 class="article-title">De la Shellcode Artesanal al C2 Builder <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Evolución técnica de un dropper de shellcode en C/Assembly (WinExec/ExitProcess) a un framework de malware con panel C2 en C#. Incluye compendio extenso de técnicas: inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, XOR encryption, API hashing, y persistencia.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="assembly.html" class="article-link local-article">
-                            <span class="article-date mono">~2 horas de lectura</span>
-                            <h3 class="article-title">Assembly para Ingeniería Inversa: Guía de Referencia Rápida <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Stack frames, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64), estructuras en memoria, heurísticas de identificación de funciones y patrones de desensamblado para threat analysts y exploit developers.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="evasion-estatica-asm-mirai.html" class="article-link local-article">
-                            <span class="article-date mono">May 2026 · ~25 min de lectura</span>
-                            <h3 class="article-title">Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Polimorfismo manual en Assembly x86 para evadir firmas YARA. Stub descifrador en NASM, generador de claves dinámicas en C++, y propuesta de infraestructura DGA mutante con validación Denuvo-like. De 16/64 a 0/65 en VirusTotal.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Malware Dev y Técnicas Ofensivas</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="https://www.linkedin.com/posts/tty503_cybersecurity-malwareanalysis-assembly-activity-7400333681262870528-O57N" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Nov 2025</span>
-                            <h3 class="article-title">Mirai 0/65 en VirusTotal: Evasión de firmas estáticas</h3>
-                            <p class="article-desc">Prueba de concepto de ofuscación (Builder en C + Stub ASM x86) usando aritmética básica para reducir la detección de malware a cero.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
-                        <a href="evasion-estatica-asm-mirai.html" class="article-link local-article">
-                            <span class="article-date mono">May 2026 · ~25 min de lectura</span>
-                            <h3 class="article-title">Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">De 16/64 a 0/65 en VirusTotal sin packers ni crypters. Polimorfismo manual en Assembly, stub descifrador en NASM con fórmula ((A^B)+(C-1))-(D+1), propuesta de arquitectura DGA mutante con validación Denuvo-like, 8 diagramas y correlación MITRE ATT&CK.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="myPracticalShellcodeC2.html" class="article-link local-article">
-                            <span class="article-date mono">~120 min de lectura</span>
-                            <h3 class="article-title">De la Shellcode Artesanal al C2 Builder <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Evolución técnica de un dropper de shellcode en C/Assembly (WinExec/ExitProcess) a un framework de malware con panel C2 en C#. Incluye compendio extenso de técnicas: inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, XOR encryption, API hashing, y persistencia.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="infraestructura-tunel-ofuscado.html" class="article-link local-article">
-                            <span class="article-date mono">~30 min de lectura</span>
-                            <h3 class="article-title">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Diseño de túnel privado con udp2raw (faketcp + XOR), enmascaramiento de salida con redsocks + SOCKS5 residencial, DNS blindado con dnscrypt-proxy (DoH) y automatización completa del despliegue en bash.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Seguridad OT e Infraestructura Crítica</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="https://www.linkedin.com/posts/tty503_el-problema-no-era-el-exploit-era-que-nadie-share-7461423263005577217-Wf7I" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">May 2026</span>
-                            <h3 class="article-title">El problema no era el exploit. Era que nadie podría probarlo.</h3>
-                            <p class="article-desc">Investigación sobre la arquitectura de PLCs Siemens y la ausencia total de registros de eventos en sistemas industriales reales. Análisis de casos como Ucrania, Oldsmar y TRITON, y propuesta de forensic readiness con SIEM industrial.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-threatintelligence-venezuela-ugcPost-7453262188116602880-G01e" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Abr 2026</span>
-                            <h3 class="article-title">Lotus Wiper y la fragilidad OT en Venezuela</h3>
-                            <p class="article-desc">Análisis de infraestructura crítica, exposición de PLC Schneider Modicon Quantum sobre Modbus TCP y vulnerabilidades por falta de segmentación IT/OT.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_plc-cybersecurity-reverseengineering-activity-7374521525460443137-Cllg" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Oct 2025</span>
-                            <h3 class="article-title">Ingeniería Inversa en PLC Siemens S5/S7</h3>
-                            <p class="article-desc">Análisis de bajo nivel de la arquitectura interna de autómatas, máquina virtual MC7, protocolos industriales y vectores de seguridad ofensiva.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
-                        <a href="exploit-development-ot-awl-arm.html" class="article-link local-article">
-                            <span class="article-date mono">Jun 2026 · ~90 min de lectura</span>
-                            <h3 class="article-title">Exploit Development OT: Del AWL al Shellcode en PLC Siemens, ROP sobre ARM/MIPS y Bypass de Sandbox <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Caso central CVE-2020-15782 (Claroty Team82). Cuatro workshops: shellcode AWL, ROP sobre MC7, fuzzing de Modbus/S7comm, y cadena completa drive-by → sandbox escape. Guía de laboratorio ICS con costos y red OT segmentada.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="plc.html" class="article-link local-article">
-                            <span class="article-date mono">~40 min de lectura</span>
-                            <h3 class="article-title">PLC Siemens S5/S7: Arquitectura, MC7, Seguridad OT y Hallazgos en Infraestructuras Venezolanas <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Investigación extendida: fundamentos de STEP5/AWL, transición a STEP7, máquina virtual MC7, ingeniería inversa de bytecodes, hallazgos en Venalum y CorpoElec, y exploración de shellcode para PLCs.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Blue Team y Defensa Activa</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="https://www.linkedin.com/posts/tty503_blueteam-cybersoc-soc-activity-7365751574985416704-pGHR" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Oct 2025</span>
-                            <h3 class="article-title">Arquitectura y despliegue de Laboratorio SOC Automatizado</h3>
-                            <p class="article-desc">Implementación defensiva con infraestructura como código (Terraform/Ansible). Despliegue de Wazuh, Grafana y segmentación con OPNsense en Proxmox.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_siem-honeypot-blueteam-activity-7373882236732981248-iNTy" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Oct 2025</span>
-                            <h3 class="article-title">Sensores Defensivos: Honeypots y Canarytokens</h3>
-                            <p class="article-desc">Técnicas poco convencionales para Blue Teams. Implementación de activos falsos y uso de WebRTC para revelar IPs reales detrás de VPNs.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="https://www.linkedin.com/posts/tty503_cybersecurity-infosec-emailsecurity-activity-7384269364356608000-Db7W" target="_blank" rel="noopener noreferrer" class="article-link">
-                            <span class="article-date mono">Oct 2025</span>
-                            <h3 class="article-title">Explotación de SMTP Smuggling</h3>
-                            <p class="article-desc">Demostración práctica de cómo las configuraciones inconsistentes entre servidores de correo permiten eludir controles de seguridad perimetrales.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <div class="source-divider"><span>Notas técnicas exportadas</span></div>
-                        <a href="infra-soc.html" class="article-link local-article">
-                            <span class="article-date mono">~35 min de lectura</span>
-                            <h3 class="article-title">Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización <span class="local-badge">NOTAS</span></h3>
-                            <p class="article-desc">Documentación completa del diseño, despliegue y operación de un laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo con Wazuh, Zabbix, Prometheus y Grafana.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-            </div>
-        </section>
-
-        <!-- ==================== SECCIÓN: ARTÍCULOS DEL SITIO ==================== -->
-        <section id="articles" class="section">
-            <div class="section-header reveal">
-                <h2 class="section-title mono"><span></span>Artículos_del_Sitio</h2>
-            </div>
-            <p class="about-text reveal" style="margin-bottom: 2.5rem; font-size: 1rem;">
-                Documentación técnica en profundidad publicada exclusivamente en <strong>tty503.com</strong>. Análisis de malware a nivel de bytes, exploit development, deconstrucción de infraestructuras criminales, automatización de laboratorios y auditorías de seguridad ofensiva.
-            </p>
-            <div class="accordion-container">
-                <!-- Clúster A: Malware Analysis & Reverse Engineering -->
-                <details class="theme-group reveal" open>
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Malware Analysis & Ingeniería Inversa</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="exploit-development-ot-awl-arm.html" class="article-link local-article">
-                            <span class="article-date mono">Jun 2026 · ~90 min de lectura</span>
-                            <h3 class="article-title">Exploit Development en Entornos OT: Del AWL al Shellcode en PLC Siemens, ROP sobre ARM/MIPS y Bypass de Sandbox <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Cierre del ciclo entre reversing de AWL/MC7/MC7+ y exploit development. JEB Decompiler, rz-libmc7, Ghidra. CVE-2020-15782 (Claroty Team82): sandbox escape con ejecución nativa ARM/MIPS en kernel ADONIS. Cuatro workshops y guía de laboratorio ICS.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="saint-grail-go.html" class="article-link local-article">
-                            <span class="article-date mono">Jul 2026 · ~15 min de lectura</span>
-                            <h3 class="article-title">SAINT GRAIL: De Python a Go, Resultados Concretos y el Futuro del Bug Hunting Autónomo <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Migración a Go: rendimiento extremo, concurrencia nativa y dos PoCs funcionales generados por IA. TOCTOU en Chromium y CRC Bypass en 7-Zip (9.20–25.01). Código fuente y PoCs públicos en GitHub.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="saint-grail.html" class="article-link local-article">
-                            <span class="article-date mono">Jun 2026 · ~25 min de lectura</span>
-                            <h3 class="article-title">SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Sistema que integra DeepSeek, DeepWiki y un agente híbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB, grafo interactivo en vanilla JS, dashboard con control de tokens y ciclo de investigación asistida.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="exploit-development-lab.html" class="article-link local-article">
-                            <span class="article-date mono">Sep 2024 · ~90 min de lectura</span>
-                            <h3 class="article-title">Laboratorio de Exploit Development: Arquitectura del Kernel, Binarios y ROP en la Práctica <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Bitácora de un mes de laboratorio. Windows Internals, drivers KMDF, formatos PE/ELF/DEX, Assembly x86/AMD64/ARM64, shellcode, ROP en 64 bits, y disección de CVEs reales en Chrome V8 y WebRTC. Incluye laboratorio con VirtualBox, INetSim y fakedns.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="evasion-estatica-asm-mirai.html" class="article-link local-article">
-                            <span class="article-date mono">May 2026 · ~25 min de lectura</span>
-                            <h3 class="article-title">Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Cómo pasé una muestra real de Mirai de 16/64 a 0/65 en VirusTotal sin packers ni crypters. Polimorfismo manual en Assembly, stub descifrador en NASM con fórmula aritmética dinámica, y propuesta de arquitectura de entrega mutante con DGA.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="analystty.html" class="article-link local-article">
-                            <span class="article-date mono">~12 min de lectura</span>
-                            <h3 class="article-title">analystty — Automatización de Triage PE con Python, Capstone y pefile <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Herramienta que extrae imports, detecta TTPs, desensambla la sección .text y genera breakpoints para x64dbg de forma automática. Incluye caso real con un Dropper multi-etapa y API Hashing.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="myPracticalShellcodeC2.html" class="article-link local-article">
-                            <span class="article-date mono">~120 min de lectura</span>
-                            <h3 class="article-title">De winshellcode a BugBuilder: Compendio de Técnicas de Inyección y C2 en Windows <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Tres años de evolución documentados. Más de 20 técnicas: inyección clásica, APC, thread hijacking, API hooking, cifrado XOR, API hashing y persistencia. Incluye panel C2 estructurado.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="plc.html" class="article-link local-article">
-                            <span class="article-date mono">~40 min de lectura</span>
-                            <h3 class="article-title">Ingeniería Inversa de PLC Siemens MC7: Deficiencia Estructural de Logs en Infraestructuras Críticas <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Laboratorio de reversing sobre la máquina virtual MC7 y el lenguaje AWL. Correlación de volcado hexadecimal con rizin. Ausencia total de registros de auditoría en sistemas reales.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="assembly.html" class="article-link local-article">
-                            <span class="article-date mono">~2 horas de lectura</span>
-                            <h3 class="article-title">Assembly para Ingeniería Inversa: Guía de Referencia Rápida <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Stack frames, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64), estructuras en memoria, heurísticas de identificación de funciones y patrones de desensamblado.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <!-- Clúster A2: Vulnerability Research & Bug Bounty -->
-                <details class="theme-group reveal" open>
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Vulnerability Research & Bug Bounty — Caza autónoma E2E + Serie Sherlock</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="caza-autonoma-e2e-serie.html" class="article-link local-article">
-                            <span class="article-date mono">Sep 2026 · ~25 min de lectura</span>
-                            <h3 class="article-title">Caza Autónoma E2E con IA Local: 5 Cadenas RCE Reales, Divulgación Completa <span class="local-badge">SERIE</span></h3>
-                            <p class="article-desc">Cinco cadenas de ejecución de código verificadas extremo a extremo: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y la suite el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, PoC y evidencia, publicados como divulgación responsable.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="cadena-portal-cautivo-rce.html" class="article-link local-article">
-                            <span class="article-date mono">Sep 2026 · ~18 min de lectura</span>
-                            <h3 class="article-title">el daemon de portal cautivo: RCE via EAP-Identity → conup (CWE-78) <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Un payload en el EAP-Response/Identity pre-auth viaja sin sanitizar por la cadena EAP→RADIUS→env→script y acaba en un eval. RCE root o low-priv según el deployment. Validación E2E con ASAN+gdb.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="fw-host-header-rce.html" class="article-link local-article">
-                            <span class="article-date mono">Sep 2026 · ~17 min de lectura</span>
-                            <h3 class="article-title">el daemon de autenticacion y redireccion: RCE root via cabecera Host (CWE-78) <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Un request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh,-c) que construye iptables. Reverse shell root verificada. Sink en fw_iptables.c:596 → util.c:96.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="http-el conversor de fecha a timestamp-stackoverflow.html" class="article-link local-article">
-                            <span class="article-date mono">Sep 2026 · ~16 min de lectura</span>
-                            <h3 class="article-title">el servidor HTTP embebido: Stack Overflow en el conversor de fecha a timestamp (CWE-121) <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="autopsia-streaming-http-minimo.html" class="article-link local-article">
-                            <span class="article-date mono">Sep 2026 · ~12 min de lectura</span>
-                            <h3 class="article-title">Análisis: la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Dos primitivas reales: OOB read en el decoder AMF3 de la biblioteca cliente del protocolo de streaming y command injection en el gestor de credenciales de el servidor HTTP minimo. La lección de cuándo una primitiva alcanza impacto real.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="suite-paneles-tunel-spooler.html" class="article-link local-article">
-                            <span class="article-date mono">Sep 2026 · ~20 min de lectura</span>
-                            <h3 class="article-title">Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion, y el bypass de confianza X-SSL-Client-* con su alcance real (requiere 3 prerequisitos no por defecto).</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="sherlock-caza-autonoma-ia-local.html" class="article-link local-article">
-                            <span class="article-date mono">Ago 2026 · ~20 min de lectura</span>
-                            <h3 class="article-title">Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA — Siete Hallazgos en un Mes <span class="local-badge">SERIE</span></h3>
-                            <p class="article-desc">Centro de la serie: arquitectura del sistema de caza autónomo sobre hardware local, metodología de triage y validación doble, política de divulgación graduada e índice de los siete hallazgos confirmados contra 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="7zip-isfolderencrypted-oob-read.html" class="article-link local-article">
-                            <span class="article-date mono">Ago 2026 · ~18 min de lectura</span>
-                            <h3 class="article-title">7-Zip: Heap Out-of-Bounds Read en IsFolderEncrypted por Re-parse Divergente de CodersData <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes en 7-Zip 26.00–26.02. Desync byte a byte, diagrama dual-parser, PoC estructural y evidencia ASAN + valgrind en x86/x64.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html" class="article-link local-article">
-                            <span class="article-date mono">Ago 2026 · ~16 min de lectura</span>
-                            <h3 class="article-title">FFmpeg: Tres Demuxers, Un Mismo Pecado — SIGFPE en VPK, Memory Leak en VQF y Hang en Smacker <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Tres bugs de DoS hallados por fuzzing autónomo: división por cero con 21 bytes (CWE-369, parcheada en 8.1.2), leak escalable hasta ~677 MB por archivo (CWE-401) y bucle de 13,5M frames con un input de 105 bytes (CWE-400). Tabla comparativa y descarte de hipótesis.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="libwebp-vp8l-lossless-decode-dos.html" class="article-link local-article">
-                            <span class="article-date mono">Ago 2026 · ~12 min de lectura</span>
-                            <h3 class="article-title">libwebp: DoS por Área de Imagen No Validada en el Decoder Lossless VP8L <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Un WebP lossless de 34 bytes declara hasta 16384×16384 píxeles sin comprobar MAX_IMAGE_AREA, justo el guardia que el path lossy sí aplica. Análisis de la asimetría entre motores, amplificación 34 B → 256M píxeles y evidencia reproducible.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="pcre2-jit-compile-hang-recursion.html" class="article-link local-article">
-                            <span class="article-date mono">Ago 2026 · ~13 min de lectura</span>
-                            <h3 class="article-title">PCRE2: Hang en la Compilación JIT por Recursión (?0) dentro de un Negative Lookahead <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">El intérprete compila el patrón en 0 ms; pcre2_jit_compile se cuelga eternamente en get_framesize. Diagnóstico diferencial JIT vs intérprete para demostrar que el bug vive en la compilación, no en el matching. Crítico para WAFs y filtros de regex externas.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="libarchive-cab-lzx-uninitialized-memory.html" class="article-link local-article">
-                            <span class="article-date mono">Ago 2026 · ~11 min de lectura</span>
-                            <h3 class="article-title">libarchive: Uninitialized Heap Read en CAB/LZX Cazado con Patch-Diffing <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y la clasificación honesta de una carrera perdida (DUP-RACE).</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <!-- Clúster B: Threat Intelligence & Fraud Investigations -->
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Threat Intelligence & Investigaciones de Fraude</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="threat-hunter-recollection.html" class="article-link local-article">
-                            <span class="article-date mono">~45 min de lectura</span>
-                            <h3 class="article-title">Threat Hunter Recollection: Bitácora de 5 Investigaciones Reales de Caza <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Un año de laboratorio resumido: rastreo OSINT de infraestructuras criminales, análisis de fraude con Lumma Stealer, y deconstrucción completa de la Kill Chain de NetSupport RAT.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="pigbutchering-bybsusd.html" class="article-link local-article">
-                            <span class="article-date mono">~30 min de lectura</span>
-                            <h3 class="article-title">Deconstrucción de Red de Pig Butchering: Exchange Falso en Vue3 con WebSocket <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Análisis forense de un exchange falso con frontend Vue3 y WebSocket en tiempo real alojado en Hong Kong. El backend entrega la clave del captcha en el propio JSON.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="fakewealth-cmdxcapital.html" class="article-link local-article">
-                            <span class="article-date mono">~60 min de lectura</span>
-                            <h3 class="article-title">Caso cmdxcapital: Fuga de Datos en Laravel por appDebug Activo <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">El modo depuración de Laravel en producción expuso consultas SQL, tokens y rutas del servidor. Diez dominios satélite bajo Cloudflare y smurfing hacia wallets Bitcoin Bech32.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="operation-general-jp-silentwarn.html" class="article-link local-article">
-                            <span class="article-date mono">~15 min de lectura</span>
-                            <h3 class="article-title">Operaciones General JP y SilentWarn: Dos Campañas de Phishing Conectadas <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">General JP: kit PHP clásico con exfiltración a Telegram. SilentWarn: SPA en React sobre Cloudflare Pages con bloqueo de DevTools y geofencing a Vietnam.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <!-- Clúster C: Defensive & Offensive Infrastructure -->
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Infraestructura Defensiva & Ofensiva</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="infraestructura-tunel-ofuscado.html" class="article-link local-article">
-                            <span class="article-date mono">~30 min de lectura</span>
-                            <h3 class="article-title">Bypass de DPI con WireGuard + udp2raw: Túnel TCP Falso simulando HTTPS <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Arquitectura de túnel WireGuard encapsulado en TCP falso mediante udp2raw, enmascaramiento de tráfico a través de proxy residencial, y blindaje DNS con dnscrypt-proxy.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="infra-soc.html" class="article-link local-article">
-                            <span class="article-date mono">~35 min de lectura</span>
-                            <h3 class="article-title">Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización Blue Team <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Diseño y despliegue de laboratorio defensivo con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo con Wazuh y Grafana.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <!-- Clúster D: AppSec & Pentesting -->
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> AppSec & Pentesting</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="web-api-pentesting2024.html" class="article-link local-article">
-                            <span class="article-date mono">~25 min de lectura</span>
-                            <h3 class="article-title">Pentesting a Web API Financiera: IDOR por Validación Incompleta de JWT <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Auditoría freelance a una API financiera con Certificate Pinning, cifrado y ofuscación burlados por una falla IDOR. El backend validaba la firma JWT pero no la pertenencia del recurso.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-                <!-- Clúster E: Red Team & Evasion -->
-                <details class="theme-group reveal">
-                    <summary class="theme-summary mono">
-                        <h3 class="theme-title"><span class="theme-icon">/</span> Red Team & Técnicas de Evasión</h3>
-                        <span class="toggle-icon">+</span>
-                    </summary>
-                    <div class="theme-content">
-                        <a href="exploit-development-ot-awl-arm.html" class="article-link local-article">
-                            <span class="article-date mono">Jun 2026 · ~90 min de lectura</span>
-                            <h3 class="article-title">Exploit Development OT: Del AWL al Shellcode en PLC Siemens, ROP y Bypass de Sandbox <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">CVE-2020-15782, sandbox escape ARM/MIPS en kernel ADONIS. Cuatro workshops: shellcode AWL, ROP, fuzzing y cadena completa drive-by → proceso físico. Guía de laboratorio ICS.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="exploit-development-lab.html" class="article-link local-article">
-                            <span class="article-date mono">Sep 2024 · ~90 min de lectura</span>
-                            <h3 class="article-title">Laboratorio de Exploit Development: Kernel, Binarios y ROP <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Windows Internals, drivers KMDF, Assembly, shellcode, ROP en 64 bits, CVEs reales diseccionados. Laboratorio práctico con VirtualBox, INetSim y fakedns. Plan de retoma con 10 tareas.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="evasion-estatica-asm-mirai.html" class="article-link local-article">
-                            <span class="article-date mono">May 2026 · ~25 min de lectura</span>
-                            <h3 class="article-title">Evasión Estática: Destruyendo Firmas de Mirai con Aritmética en ASM <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">De 16/64 a 0/65 en VirusTotal. Stub descifrador en NASM, claves dinámicas en C++, DGA mutante con validación Denuvo-like. 8 diagramas y correlación MITRE ATT&CK.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="arte-de-la-paciencia-sudo-cache.html" class="article-link local-article">
-                            <span class="article-date mono">~15 min de lectura</span>
-                            <h3 class="article-title">El Arte de la Paciencia: Cómo un Script de 15 Líneas Puede Iniciar una Brecha <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">PoC que abusa del mecanismo de caché de sudo (T1548.003). Elevación a escenario real con ofuscación y evasión. Incluye reglas de auditd para detección Blue Team.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="myPracticalShellcodeC2.html" class="article-link local-article">
-                            <span class="article-date mono">~120 min de lectura</span>
-                            <h3 class="article-title">De winshellcode a BugBuilder: Técnicas de Inyección y C2 en Windows <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Más de 20 técnicas: inyección clásica, APC, thread hijacking, API hooking, XOR, API hashing y persistencia. Builder con panel C2 en C# y compilación automatizada de payloads.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                        <a href="infraestructura-tunel-ofuscado.html" class="article-link local-article">
-                            <span class="article-date mono">~30 min de lectura</span>
-                            <h3 class="article-title">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial <span class="local-badge">ARTÍCULO</span></h3>
-                            <p class="article-desc">Túnel WireGuard encapsulado en TCP falso mediante udp2raw. Enmascaramiento con redsocks + SOCKS5 residencial. DNS blindado con dnscrypt-proxy. Despliegue en 90s.</p>
-                            <span class="article-arrow">→</span>
-                        </a>
-                    </div>
-                </details>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="footer-content reveal">
-            <div class="social-links mono">
-                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
-                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
-                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
-            </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Threat Intelligence, Ingeniería Inversa, Exploit Development y Seguridad OT — Venezuela.</p>
+        <div class="tl-item">
+          <div>
+            <div class="org">CENDIT · Profesional de Apoyo</div>
+            <div class="role">Programación de firmware en C (PIC 18/24)</div>
+            <div class="range">Oct 2022 – Nov 2023</div>
+          </div>
+          <p class="what">Protocolos <b>I2C/UART</b> en proyectos médicos y educativos, documentación
+          algorítmica en LaTeX y control de versiones institucional.</p>
         </div>
-    </footer>
+        <div class="tl-item">
+          <div>
+            <div class="org">Kexe · Desarrollador</div>
+            <div class="role">Desarrollo .NET (C#)</div>
+            <div class="range">Nov 2023 – Mar 2024</div>
+          </div>
+          <p class="what">Sistema empresarial modular bajo SCRUM, módulo de reportes con filtros
+          dinámicos integrado con <b>DevExpress</b>.</p>
+        </div>
+      </div>
+      <p style="margin-top:1.8rem;"><a class="btn btn-ghost" href="aboutme.html">Ver la ruta completa →</a></p>
+    </div>
+  </section>
 
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-        const revealElements = document.querySelectorAll('.reveal');
-        const revealOptions = { threshold: 0.15, rootMargin: "0px 0px -50px 0px" };
-        const revealObserver = new IntersectionObserver(function(entries, observer) {
-            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); } });
-        }, revealOptions);
-        revealElements.forEach(el => { revealObserver.observe(el); });
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; navbar.style.borderBottom = '1px solid var(--border-subtle)'; }
-            else { navbar.style.background = 'rgba(3, 3, 3, 0.7)'; navbar.style.borderBottom = '1px solid transparent'; }
-        });
-        const detailsElements = document.querySelectorAll('details.theme-group');
-        detailsElements.forEach((targetDetail) => {
-            targetDetail.addEventListener('click', () => {
-                detailsElements.forEach((detail) => { if (detail !== targetDetail) { detail.removeAttribute('open'); } });
-            });
-        });
-    </script>
+  <section id="research" class="section">
+    <div class="section-inner">
+      <div class="sec-head">
+        <span class="sec-eyebrow">// investigación</span>
+        <h2 class="sec-title">Investigaciones_Temáticas</h2>
+        <p class="sec-sub">Seis líneas de trabajo con publicaciones dedicadas en este sitio, más un
+        flujo continuo de análisis externos publicados en LinkedIn.</p>
+      </div>
+      <div class="grid grid-3">
+        <a class="card" href="analystty.html"><span class="arrow">→</span>
+          <div class="meta"><span>Automatización de triage</span></div>
+          <div class="t">Análisis de Malware</div>
+          <div class="d">Triage estático de PE con Capstone y pefile, detección de API hashing,
+          mapeo MITRE y desensamblado automático de la sección .text.</div>
+          <span class="badge badge-ti">analystty · evasion-estatica</span>
+        </a>
+        <a class="card" href="threat-hunter-recollection.html"><span class="arrow">→</span>
+          <div class="meta"><span>5 investigaciones reales</span></div>
+          <div class="t">Threat Intel & Fraude</div>
+          <div class="d">Deconstrucción de redes Pig Butchering, campañas BEC, phishing conectado y
+          un año de caza con un hilo metodológico común.</div>
+          <span class="badge badge-ti">pigbutchering · fakewealth · silentwarn</span>
+        </a>
+        <a class="card" href="exploit-development-lab.html"><span class="arrow">→</span>
+          <div class="meta"><span>Kernel + Binarios + ROP</span></div>
+          <div class="t">Exploit Development</div>
+          <div class="d">Windows Internals, drivers KMDF, formatos PE/ELF/DEX, shellcode, ROP en 64
+          bits y disección de CVEs reales en Chrome V8 y WebRTC.</div>
+          <span class="badge badge-infra">exploit-lab · shellcode-c2</span>
+        </a>
+        <a class="card" href="plc.html"><span class="arrow">→</span>
+          <div class="meta"><span>PLC Siemens S5/S7</span></div>
+          <div class="t">Seguridad OT / Infraestructura crítica</div>
+          <div class="d">La máquina virtual MC7, el lenguaje AWL, reversing de bytecodes y el
+          silencio forense estructural de sistemas industriales reales.</div>
+          <span class="badge badge-infra">plc · exploit-ot</span>
+        </a>
+        <a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span>
+          <div class="meta"><span>7 hallazgos en un mes</span></div>
+          <div class="t">Bug Hunting autónomo con IA local</div>
+          <div class="d">Pipeline de caza sobre hardware local con validación doble contra 7-Zip,
+          FFmpeg, libwebp, PCRE2 y libarchive — y 5 cadenas RCE E2E publicadas por separado.</div>
+          <span class="badge badge-rce">sherlock · caza-e2e</span>
+        </a>
+        <a class="card" href="infra-soc.html"><span class="arrow">→</span>
+          <div class="meta"><span>Blue Team + Evasión</span></div>
+          <div class="t">Infraestructura defensiva y ofensiva</div>
+          <div class="d">Laboratorio SOC con honeypots, túneles ofuscados contra DPI y bypass de
+          firmas estáticas con aritmética en Assembly.</div>
+          <span class="badge badge-infra">infra-soc · tunel-ofuscado</span>
+        </a>
+      </div>
+      <p class="sec-sub" style="margin-top:2.6rem;font-size:0.82rem;" id="externos"><b>Análisis externos</b> (LinkedIn):</p>
+      <div class="grid grid-2">
+        <a class="card" href="https://www.linkedin.com/posts/tty503_ciberseguridad-malwareanalysis-threatintel-ugcPost-7401771334181232640-FMcc" target="_blank" rel="noopener noreferrer"><span class="arrow">→</span>
+          <div class="meta"><span>Dic 2025</span><span>Campaign</span></div>
+          <div class="t">Campaña NetSupport RAT: "Caja de Belleza Lancôme"</div>
+          <div class="d">Deconstrucción de una infección activa dirigida a usuarios en España con
+          señuelos de marcas de belleza reconocidas.</div>
+        </a>
+        <a class="card" href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-clipper-ugcPost-7392043572163661824-AFeZ" target="_blank" rel="noopener noreferrer"><span class="arrow">→</span>
+          <div class="meta"><span>Nov 2025</span><span>Multi-etapa</span></div>
+          <div class="t">Nexilo-CC-Checker: dropper multi-etapa</div>
+          <div class="d">Malware distribuido vía Telegram con API hashing para evasión y despliegue
+          modular de un Clipper e InfoStealer.</div>
+        </a>
+        <a class="card" href="https://www.linkedin.com/posts/tty503_iossecurity-reverseengineering-lowlevel-ugcPost-7427797339592994816-cHU5" target="_blank" rel="noopener noreferrer"><span class="arrow">→</span>
+          <div class="meta"><span>Feb 2026</span><span>Low-level</span></div>
+          <div class="t">Reversing iOS y virtualización crítica</div>
+          <div class="d">Orquestación con QEMU, validación por GPU (Metal) y low-level scripting en
+          Swift/Bash destripando la "confianza" en iOS.</div>
+        </a>
+        <a class="card" href="https://www.linkedin.com/posts/tty503_el-problema-no-era-el-exploit-era-que-nadie-share-7461423263005577217-Wf7I" target="_blank" rel="noopener noreferrer"><span class="arrow">→</span>
+          <div class="meta"><span>May 2026</span><span>OT Forense</span></div>
+          <div class="t">El problema no era el exploit: nadie podría probarlo</div>
+          <div class="d">La ausencia total de registros de eventos en PLCs reales y la propuesta de
+          forensic readiness con SIEM industrial.</div>
+        </a>
+      </div>
+    </div>
+  </section>
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Christian Márquez",
-      "alternateName": ["tty503", "Christian Marquez"],
-      "url": "https://tty503.com",
-      "image": "https://tty503.com/p1.jpg",
-      "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503", "https://x.com/tty_503"],
-      "jobTitle": "Threat Intelligence Specialist | Reverse Engineer | Exploit Developer | OT Security Researcher",
-      "worksFor": { "@type": "Organization", "name": "tty503 Independent Consultant" },
-      "knowsAbout": [
-        "Threat Intelligence", "Malware Analysis", "Reverse Engineering", "Exploit Development", "Binary Exploitation",
-        "ROP", "Shellcode", "Assembly x86", "ARM64", "Windows Internals", "KMDF",
-        "PLC Siemens S5/S7", "SCADA Security", "OT Security", "Cyber Warfare", "Critical Infrastructure",
-        "DevSecOps", "Ansible", "Terraform", "Proxmox", "Ghidra", "x64dbg", "Capstone",
-        "Wazuh", "SIEM", "Honeypot", "Blockchain Forensics", "Pig Butchering",
-        "Crypto Scam Investigation", "OSINT", "Venezuela", "Python", "Bash", "Linux",
-        "Malware Evasion", "YARA Evasion", "DGA", "MITRE ATT&CK", "Polimorfismo ASM",
-        "CVE-2020-6507", "CVE-2021-38003", "CVE-2023-7024", "CVE-2023-2033", "Chrome V8", "WebRTC",
-        "JEB Decompiler", "rz-libmc7", "MC7", "MC7+", "ADONIS kernel", "CVE-2020-15782", "Claroty Team82",
-        "sandbox escape", "ARM/MIPS shellcode", "Modbus fuzzing", "S7comm fuzzing",
-        "SAINT GRAIL", "Go", "Python", "migración", "bug hunting", "TOCTOU", "Chromium", "7-Zip", "CRC bypass", "orquestador", "AST", "DeepSeek", "fuzzing", "PoC"
-      ],
-      "description": "Christian Márquez (tty503) es un especialista en threat intelligence, ingeniería inversa de malware, exploit development y seguridad en infraestructuras críticas OT/PLC. Opera desde Venezuela, documentando investigaciones técnicas que son consumidas por analistas de seguridad en hubs globales."
-    }
-    </script>
+  <section id="publications" class="section">
+    <div class="section-inner">
+      <div class="sec-head">
+        <span class="sec-eyebrow">// publicaciones</span>
+        <h2 class="sec-title">Artículos_del_Sitio</h2>
+        <p class="sec-sub">Documentación técnica en profundidad publicada exclusivamente en
+        tty503.com: análisis a nivel de bytes, exploit development, deconstrucción de
+        infraestructuras criminales y auditorías ofensivas. Todas las investigaciones, línea a línea.</p>
+      </div>
+
+      <div class="sec-eyebrow" style="margin:2.4rem 0 1rem;">Vulnerability Research &amp; Bug Hunting</div>
+      <div class="grid grid-3">
+        <a class="card" href="caza-autonoma-e2e-serie.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>25 min</span></div>
+          <div class="t">Caza autónoma E2E con IA local: 5 cadenas RCE reales</div>
+          <div class="d">Índice de la serie: pipeline, sinks línea a línea, PoC y evidencia ASAN de
+          las cinco cadenas de ejecución de código verificadas extremo a extremo.</div>
+          <span class="badge badge-rce">Serie</span>
+        </a>
+        <a class="card" href="cadena-portal-cautivo-rce.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>18 min</span></div>
+          <div class="t">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup</div>
+          <div class="d">Un payload en el EAP-Response/Identity pre-auth viaja sin saneado por
+          EAP→RADIUS→env→script y termina en un eval. Validado con ASAN+gdb.</div>
+          <span class="badge badge-rce">CWE-78</span>
+        </a>
+        <a class="card" href="fw-host-header-rce.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>17 min</span></div>
+          <div class="t">el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables</div>
+          <div class="d">Request HTTP pre-auth con Host maliciosa termina en execvp(/bin/sh, -c).
+          Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.</div>
+          <span class="badge badge-rce">CWE-78</span>
+        </a>
+        <a class="card" href="http-el conversor de fecha a timestamp-stackoverflow.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>16 min</span></div>
+          <div class="t">el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp</div>
+          <div class="d">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del
+          RIP con un decoder XOR in-stack.</div>
+          <span class="badge badge-rce">CWE-121</span>
+        </a>
+        <a class="card" href="autopsia-streaming-http-minimo.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>12 min</span></div>
+          <div class="t">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales</div>
+          <div class="d">OOB read en el decoder AMF3 y command injection en el gestor de credenciales: cuándo una
+          primitiva real no llega a ejecución de código.</div>
+          <span class="badge badge-infra">CWE-125 · CWE-78</span>
+        </a>
+        <a class="card" href="suite-paneles-tunel-spooler.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>20 min</span></div>
+          <div class="t">Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec, el spooler de impresion</div>
+          <div class="d">Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion y el bypass de
+          confianza X-SSL-Client-* con su alcance real.</div>
+          <span class="badge badge-rce">CWE-78</span>
+        </a>
+        <a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>20 min</span></div>
+          <div class="t">Sherlock: caza autónoma de vulnerabilidades con IA local</div>
+          <div class="d">Sistema de caza sobre hardware local, método de triage con validación doble
+          e índice de siete hallazgos confirmados.</div>
+          <span class="badge badge-rce">Serie</span>
+        </a>
+        <a class="card" href="7zip-isfolderencrypted-oob-read.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>18 min</span></div>
+          <div class="t">7-Zip: heap OOB read en IsFolderEncrypted</div>
+          <div class="d">El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora produce
+          lecturas fuera del heap de 1–6 bytes en 7-Zip 26.00–26.02.</div>
+          <span class="badge badge-rce">CWE-125</span>
+        </a>
+        <a class="card" href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>16 min</span></div>
+          <div class="t">FFmpeg: DoS en demuxers VPK, VQF y Smacker</div>
+          <div class="d">SIGFPE con 21 bytes, leak escalable hasta ~677 MB y un bucle de 13,5M frames
+          con un input de 105 bytes.</div>
+          <span class="badge badge-dos">CWE-369 · CWE-401 · CWE-400</span>
+        </a>
+        <a class="card" href="libwebp-vp8l-lossless-decode-dos.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>12 min</span></div>
+          <div class="t">libwebp: DoS por área de imagen no validada en VP8L</div>
+          <div class="d">Un WebP lossless de 34 bytes declara hasta 16384×16384 píxeles esquivando
+          MAX_IMAGE_AREA, el guardia que el path lossy sí aplica.</div>
+          <span class="badge badge-dos">CWE-400</span>
+        </a>
+        <a class="card" href="pcre2-jit-compile-hang-recursion.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>13 min</span></div>
+          <div class="t">PCRE2: hang en compilación JIT por recursión (?0)</div>
+          <div class="d">El intérprete compila el patrón en 0 ms; pcre2_jit_compile se cuelga en
+          get_framesize. El bug vive en la compilación, no en el matching.</div>
+          <span class="badge badge-dos">CWE-400</span>
+        </a>
+        <a class="card" href="libarchive-cab-lzx-uninitialized-memory.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>11 min</span></div>
+          <div class="t">libarchive: uninitialized heap read en CAB/LZX</div>
+          <div class="d">Mismo CAB, dos builds: la vulnerable lee un history guard sin inicializar; la
+          parcheada rechaza con LZX_CORRUPT. Patch-diffing como radar.</div>
+          <span class="badge badge-rce">CWE-457</span>
+        </a>
+      </div>
+
+      <div class="sec-eyebrow" style="margin:2.4rem 0 1rem;">Malware Analysis &amp; Threat Intelligence</div>
+      <div class="grid grid-3">
+        <a class="card" href="threat-hunter-recollection.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>45 min</span></div>
+          <div class="t">Threat Hunter Recollection: cinco investigaciones reales</div>
+          <div class="d">Bitácora de un año de caza: red de estafa piramidal, fraude con Lumma
+          Stealer, NetSupport RAT y un dropper multi-etapa conectados por un hilo metodológico.</div>
+          <span class="badge badge-ti">Threat Intelligence</span>
+        </a>
+        <a class="card" href="pigbutchering-bybsusd.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>30 min</span></div>
+          <div class="t">Pig butchering: un exchange falso en Vue3 con WebSocket</div>
+          <div class="d">Exchange falso en Hong Kong cuyo backend entrega la clave del captcha en el
+          propio JSON. IoCs, diagramas y referencias FBI, DOJ y Europol.</div>
+          <span class="badge badge-ti">Threat Intelligence</span>
+        </a>
+        <a class="card" href="fakewealth-cmdxcapital.html"><span class="arrow">→</span>
+          <div class="meta"><span>oct 2025</span><span>60 min</span></div>
+          <div class="t">cmdxcapital: fuga de datos en Laravel por appDebug activo</div>
+          <div class="d">El modo depuración en producción expuso SQL, tokens y rutas. Diez dominios
+          satélite bajo Cloudflare y smurfing hacia wallets Bitcoin Bech32.</div>
+          <span class="badge badge-ti">Threat Intelligence</span>
+        </a>
+        <a class="card" href="operation-general-jp-silentwarn.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2025</span><span>15 min</span></div>
+          <div class="t">General JP y SilentWarn: dos campañas de phishing conectadas</div>
+          <div class="d">General JP: kit PHP con exfiltración a Telegram. SilentWarn: SPA React con
+          geofencing a Vietnam. IoCs y patrones de infraestructura.</div>
+          <span class="badge badge-ti">Threat Intelligence</span>
+        </a>
+        <a class="card" href="myPracticalShellcodeC2.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>120 min</span></div>
+          <div class="t">De winshellcode a BugBuilder: inyección y C2 en Windows</div>
+          <div class="d">Tres años de evolución: más de 20 técnicas (inyección clásica, APC, thread
+          hijacking, API hooking, XOR, persistencia) y un builder con panel C2 en C#.</div>
+          <span class="badge badge-ti">Malware Development</span>
+        </a>
+        <a class="card" href="evasion-estatica-asm-mirai.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2026</span><span>25 min</span></div>
+          <div class="t">Evasión estática en ASM: romper firmas de Mirai sin packers</div>
+          <div class="d">De 16/64 a 0/65 en VirusTotal con polimorfismo manual en Assembly x86,
+          stub descifrador en NASM y arquitectura de entrega mutante con DGA.</div>
+          <span class="badge badge-ti">Malware Analysis</span>
+        </a>
+        <a class="card" href="analystty.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>12 min</span></div>
+          <div class="t">analystty: triage automatizado de malware PE con Python</div>
+          <div class="d">Extrae imports, detecta TTPs, desensambla .text y genera breakpoints para
+          x64dbg. Stack: Capstone, pefile, malapi.json. Caso real con API hashing.</div>
+          <span class="badge badge-ti">Herramientas propias</span>
+        </a>
+      </div>
+
+      <div class="sec-eyebrow" style="margin:2.4rem 0 1rem;">Exploit Development &amp; Seguridad OT</div>
+      <div class="grid grid-3">
+        <a class="card" href="exploit-development-lab.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2026</span><span>90 min</span></div>
+          <div class="t">Laboratorio de exploit development: kernel de Windows y ROP</div>
+          <div class="d">Windows internals, drivers KMDF/UMDF, formatos PE/ELF/DEX, Assembly,
+          shellcode, ROP en 64 bits y disección de CVEs reales en Chrome V8 y WebRTC.</div>
+          <span class="badge badge-infra">Exploit Development</span>
+        </a>
+        <a class="card" href="exploit-development-ot-awl-arm.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2026</span><span>90 min</span></div>
+          <div class="t">Exploit development OT: del AWL al shellcode en PLC Siemens</div>
+          <div class="d">CVE-2020-15782 (Claroty Team82), sandbox escape ARM/MIPS en kernel ADONIS,
+          ROP sobre MC7 y cuatro workshops sobre S7-1200.</div>
+          <span class="badge badge-infra">OT Security</span>
+        </a>
+        <a class="card" href="plc.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>40 min</span></div>
+          <div class="t">PLC Siemens S5/S7 por dentro: AWL, bytecode MC7 y el silencio forense</div>
+          <div class="d">STEP5/AWL, transición a STEP7, la máquina virtual MC7, reversing de
+          bytecodes y la ausencia estructural de logs de auditoría en ICS.</div>
+          <span class="badge badge-infra">Seguridad OT</span>
+        </a>
+        <a class="card" href="assembly.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>120 min</span></div>
+          <div class="t">Assembly x86/x64 para ingeniería inversa: guía de campo</div>
+          <div class="d">Stack frames, clases vs structs, convenciones de llamada (cdecl/stdcall/
+          SystemV/Windows x64) y heurísticas para identificar funciones en Ghidra.</div>
+          <span class="badge badge-guide">Guías</span>
+        </a>
+        <a class="card" href="arte-de-la-paciencia-sudo-cache.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>15 min</span></div>
+          <div class="t">El arte de la paciencia: un script de 15 líneas puede iniciar una brecha</div>
+          <div class="d">PoC que abusa de la caché de sudo (T1548.003), elevación con ofuscación y
+          reglas de auditd para detección Blue Team.</div>
+          <span class="badge badge-infra">Red Team</span>
+        </a>
+      </div>
+
+      <div class="sec-eyebrow" style="margin:2.4rem 0 1rem;">Infraestructura, Pentesting &amp; Herramientas propias</div>
+      <div class="grid grid-3">
+        <a class="card" href="infra-soc.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>35 min</span></div>
+          <div class="t">Laboratorio SOC con honeypots: aislamiento y automatización</div>
+          <div class="d">Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y
+          stack de monitoreo: Wazuh, Zabbix, Prometheus y Grafana.</div>
+          <span class="badge badge-infra">Infraestructura</span>
+        </a>
+        <a class="card" href="infraestructura-tunel-ofuscado.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>30 min</span></div>
+          <div class="t">Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial</div>
+          <div class="d">udp2raw (faketcp + XOR), enmascaramiento con redsocks + SOCKS5 residencial y
+          DNS blindado con dnscrypt-proxy. Despliegue automatizado.</div>
+          <span class="badge badge-infra">Infraestructura</span>
+        </a>
+        <a class="card" href="web-api-pentesting2024.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2024</span><span>25 min</span></div>
+          <div class="t">Pentesting a web API financiera: IDOR por validación incompleta de JWT</div>
+          <div class="d">Certificate pinning, cifrado y ofuscación burlados: el backend validaba la
+          firma JWT pero no la pertenencia del recurso.</div>
+          <span class="badge badge-infra">Pentesting</span>
+        </a>
+        <a class="card" href="saint-grail.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2026</span><span>25 min</span></div>
+          <div class="t">SAINT GRAIL: plataforma modular de investigación ofensiva con IA</div>
+          <div class="d">DeepSeek + DeepWiki + agente híbrido para documentar, visualizar y ejecutar
+          hallazgos. Arquitectura Flask + SurrealDB y grafo interactivo.</div>
+          <span class="badge badge-guide">Herramientas propias</span>
+        </a>
+        <a class="card" href="saint-grail-go.html"><span class="arrow">→</span>
+          <div class="meta"><span>jul 2026</span><span>15 min</span></div>
+          <div class="t">SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</div>
+          <div class="d">Migración a Go por rendimiento y concurrencia: TOCTOU en Chromium y CRC
+          bypass en 7-Zip (9.20–25.01). PoCs públicos en GitHub.</div>
+          <span class="badge badge-guide">Herramientas propias</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": "https://tty503.com/#person",
+  "name": "Christian Márquez",
+  "alternateName": ["tty503", "Christian Marquez"],
+  "url": "https://tty503.com",
+  "image": "https://tty503.com/p1.jpg",
+  "sameAs": ["https://github.com/tty503", "https://linkedin.com/in/tty503", "https://x.com/tty_503"],
+  "jobTitle": "Threat Intelligence Specialist · Reverse Engineer · Exploit Developer · OT Security Researcher",
+  "worksFor": { "@type": "Organization", "name": "tty503 Independent Consultant" },
+  "knowsAbout": [
+    "Threat Intelligence", "Malware Analysis", "Reverse Engineering", "Exploit Development",
+    "Binary Exploitation", "ROP", "Shellcode", "Assembly x86/x64", "ARM64", "Windows Internals",
+    "PLC Siemens S5/S7", "SCADA Security", "OT Security", "Critical Infrastructure", "CVE Research",
+    "DevSecOps", "Ansible", "Terraform", "Proxmox", "Ghidra", "x64dbg", "Capstone", "Wazuh", "SIEM",
+    "Honeypot", "Blockchain Forensics", "Pig Butchering", "OSINT", "Python", "Go", "Bash", "Linux",
+    "Malware Evasion", "YARA Evasion", "DGA", "MITRE ATT&CK", "Fuzzing", "SAINT GRAIL", "Sherlock"
+  ],
+  "description": "Especialista en threat intelligence, ingeniería inversa, exploit development y seguridad en infraestructuras críticas OT/PLC. Investiga y documenta cadenas de explotación, malware y fraude financiero desde Venezuela."
+}
+</script>
 </body>
 </html>

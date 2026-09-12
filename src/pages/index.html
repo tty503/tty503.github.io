@@ -1,0 +1,400 @@
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker"><span class="blink"></span> usuario@tty503:~$ whoami</span>
+    <h1>Christian <span class="grad">Márquez</span></h1>
+    <p class="lead">
+      Threat intelligence, ingeniería inversa de malware, exploit development y seguridad en
+      infraestructuras críticas. Del registro del procesador a la topología de una red ofuscada,
+      del <b>PLC que controla una subestación</b> al SIEM que correlaciona eventos en tiempo real:
+      opero en todas las capas, desarmando binarios a bajo nivel y documentando cada hallazgo desde
+      Venezuela.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="index.html#publications">Explorar investigaciones</a>
+      <a class="btn btn-ghost" href="aboutme.html">Ruta completa</a>
+    </div>
+    <div class="chips">
+      <span class="chip on">Threat Intelligence</span>
+      <span class="chip">Reverse Engineering</span>
+      <span class="chip">Exploit Development</span>
+      <span class="chip">Malware Analysis</span>
+      <span class="chip">PLC Siemens / OT</span>
+      <span class="chip">Bug Hunting autónomo</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="num">29</span><span class="lbl">publicaciones técnicas</span></div>
+      <div class="stat"><span class="num">12</span><span class="lbl">hallazgos documentados</span></div>
+      <div class="stat"><span class="num">5</span><span class="lbl">cadenas RCE verificadas E2E</span></div>
+      <div class="stat"><span class="num">2012</span><span class="lbl">inicio de la ruta</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="about" class="section">
+    <div class="section-inner">
+      <div class="sec-head">
+        <span class="sec-eyebrow">// sobre_mí</span>
+        <h2 class="sec-title">Ruta</h2>
+        <p class="sec-sub">
+          Mi ruta no ha sido lineal: del firmware de microcontroladores al análisis de APTs, de la
+          shellcode artesanal a la automatización de infraestructura completa. Esa amplitud —entender
+          cómo se conectan todas las capas— es lo que me permite trazar vectores de ataque que otros
+          pasan por alto.
+        </p>
+      </div>
+      <div class="tl">
+        <div class="tl-item">
+          <div>
+            <div class="org">tty503 · Consultor</div>
+            <div class="role">Consultor en Automatización e Infraestructura</div>
+            <div class="range">Ene 2026 – Abr 2026</div>
+          </div>
+          <p class="what">Autonomicé despliegues con <b>Ansible y Terraform</b> sobre Linux, entornos
+          aislados con Proxmox/QEMU/Docker y túneles de tráfico para el análisis de plataformas.</p>
+        </div>
+        <div class="tl-item">
+          <div>
+            <div class="org">tty503 · Consultor</div>
+            <div class="role">Especialista en Ingeniería Inversa y Seguridad</div>
+            <div class="range">Abr 2024 – Dic 2024</div>
+          </div>
+          <p class="what">Reversing con Ghidra/IDA, análisis de tráfico con mitmproxy, manipulación de
+          mecanismos anti-tamper y herramientas forenses en Bash para el <b>triage de malware</b>.</p>
+        </div>
+        <div class="tl-item">
+          <div>
+            <div class="org">CENDIT · Profesional de Apoyo</div>
+            <div class="role">Programación de firmware en C (PIC 18/24)</div>
+            <div class="range">Oct 2022 – Nov 2023</div>
+          </div>
+          <p class="what">Protocolos <b>I2C/UART</b> en proyectos médicos y educativos, documentación
+          algorítmica en LaTeX y control de versiones institucional.</p>
+        </div>
+        <div class="tl-item">
+          <div>
+            <div class="org">Kexe · Desarrollador</div>
+            <div class="role">Desarrollo .NET (C#)</div>
+            <div class="range">Nov 2023 – Mar 2024</div>
+          </div>
+          <p class="what">Sistema empresarial modular bajo SCRUM, módulo de reportes con filtros
+          dinámicos integrado con <b>DevExpress</b>.</p>
+        </div>
+      </div>
+      <p style="margin-top:1.8rem;"><a class="btn btn-ghost" href="aboutme.html">Ver la ruta completa →</a></p>
+    </div>
+  </section>
+
+  <section id="research" class="section">
+    <div class="section-inner">
+      <div class="sec-head">
+        <span class="sec-eyebrow">// investigación</span>
+        <h2 class="sec-title">Investigaciones_Temáticas</h2>
+        <p class="sec-sub">Seis líneas de trabajo con publicaciones dedicadas en este sitio, más un
+        flujo continuo de análisis externos publicados en LinkedIn.</p>
+      </div>
+      <div class="grid grid-3">
+        <a class="card" href="analystty.html"><span class="arrow">→</span>
+          <div class="meta"><span>Automatización de triage</span></div>
+          <div class="t">Análisis de Malware</div>
+          <div class="d">Triage estático de PE con Capstone y pefile, detección de API hashing,
+          mapeo MITRE y desensamblado automático de la sección .text.</div>
+          <span class="badge badge-ti">analystty · evasion-estatica</span>
+        </a>
+        <a class="card" href="threat-hunter-recollection.html"><span class="arrow">→</span>
+          <div class="meta"><span>5 investigaciones reales</span></div>
+          <div class="t">Threat Intel & Fraude</div>
+          <div class="d">Deconstrucción de redes Pig Butchering, campañas BEC, phishing conectado y
+          un año de caza con un hilo metodológico común.</div>
+          <span class="badge badge-ti">pigbutchering · fakewealth · silentwarn</span>
+        </a>
+        <a class="card" href="exploit-development-lab.html"><span class="arrow">→</span>
+          <div class="meta"><span>Kernel + Binarios + ROP</span></div>
+          <div class="t">Exploit Development</div>
+          <div class="d">Windows Internals, drivers KMDF, formatos PE/ELF/DEX, shellcode, ROP en 64
+          bits y disección de CVEs reales en Chrome V8 y WebRTC.</div>
+          <span class="badge badge-infra">exploit-lab · shellcode-c2</span>
+        </a>
+        <a class="card" href="plc.html"><span class="arrow">→</span>
+          <div class="meta"><span>PLC Siemens S5/S7</span></div>
+          <div class="t">Seguridad OT / Infraestructura crítica</div>
+          <div class="d">La máquina virtual MC7, el lenguaje AWL, reversing de bytecodes y el
+          silencio forense estructural de sistemas industriales reales.</div>
+          <span class="badge badge-infra">plc · exploit-ot</span>
+        </a>
+        <a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span>
+          <div class="meta"><span>7 hallazgos en un mes</span></div>
+          <div class="t">Bug Hunting autónomo con IA local</div>
+          <div class="d">Pipeline de caza sobre hardware local con validación doble contra 7-Zip,
+          FFmpeg, libwebp, PCRE2 y libarchive — y 5 cadenas RCE E2E publicadas por separado.</div>
+          <span class="badge badge-rce">sherlock · caza-e2e</span>
+        </a>
+        <a class="card" href="infra-soc.html"><span class="arrow">→</span>
+          <div class="meta"><span>Blue Team + Evasión</span></div>
+          <div class="t">Infraestructura defensiva y ofensiva</div>
+          <div class="d">Laboratorio SOC con honeypots, túneles ofuscados contra DPI y bypass de
+          firmas estáticas con aritmética en Assembly.</div>
+          <span class="badge badge-infra">infra-soc · tunel-ofuscado</span>
+        </a>
+      </div>
+      <p class="sec-sub" style="margin-top:2.6rem;font-size:0.82rem;" id="externos"><b>Análisis externos</b> (LinkedIn):</p>
+      <div class="grid grid-2">
+        <a class="card" href="https://www.linkedin.com/posts/tty503_ciberseguridad-malwareanalysis-threatintel-ugcPost-7401771334181232640-FMcc" target="_blank" rel="noopener noreferrer"><span class="arrow">→</span>
+          <div class="meta"><span>Dic 2025</span><span>Campaign</span></div>
+          <div class="t">Campaña NetSupport RAT: "Caja de Belleza Lancôme"</div>
+          <div class="d">Deconstrucción de una infección activa dirigida a usuarios en España con
+          señuelos de marcas de belleza reconocidas.</div>
+        </a>
+        <a class="card" href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-clipper-ugcPost-7392043572163661824-AFeZ" target="_blank" rel="noopener noreferrer"><span class="arrow">→</span>
+          <div class="meta"><span>Nov 2025</span><span>Multi-etapa</span></div>
+          <div class="t">Nexilo-CC-Checker: dropper multi-etapa</div>
+          <div class="d">Malware distribuido vía Telegram con API hashing para evasión y despliegue
+          modular de un Clipper e InfoStealer.</div>
+        </a>
+        <a class="card" href="https://www.linkedin.com/posts/tty503_iossecurity-reverseengineering-lowlevel-ugcPost-7427797339592994816-cHU5" target="_blank" rel="noopener noreferrer"><span class="arrow">→</span>
+          <div class="meta"><span>Feb 2026</span><span>Low-level</span></div>
+          <div class="t">Reversing iOS y virtualización crítica</div>
+          <div class="d">Orquestación con QEMU, validación por GPU (Metal) y low-level scripting en
+          Swift/Bash destripando la "confianza" en iOS.</div>
+        </a>
+        <a class="card" href="https://www.linkedin.com/posts/tty503_el-problema-no-era-el-exploit-era-que-nadie-share-7461423263005577217-Wf7I" target="_blank" rel="noopener noreferrer"><span class="arrow">→</span>
+          <div class="meta"><span>May 2026</span><span>OT Forense</span></div>
+          <div class="t">El problema no era el exploit: nadie podría probarlo</div>
+          <div class="d">La ausencia total de registros de eventos en PLCs reales y la propuesta de
+          forensic readiness con SIEM industrial.</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="publications" class="section">
+    <div class="section-inner">
+      <div class="sec-head">
+        <span class="sec-eyebrow">// publicaciones</span>
+        <h2 class="sec-title">Artículos_del_Sitio</h2>
+        <p class="sec-sub">Documentación técnica en profundidad publicada exclusivamente en
+        tty503.com: análisis a nivel de bytes, exploit development, deconstrucción de
+        infraestructuras criminales y auditorías ofensivas. Todas las investigaciones, línea a línea.</p>
+      </div>
+
+      <div class="sec-eyebrow" style="margin:2.4rem 0 1rem;">Vulnerability Research &amp; Bug Hunting</div>
+      <div class="grid grid-3">
+        <a class="card" href="caza-autonoma-e2e-serie.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>25 min</span></div>
+          <div class="t">Caza autónoma E2E con IA local: 5 cadenas RCE reales</div>
+          <div class="d">Índice de la serie: pipeline, sinks línea a línea, PoC y evidencia ASAN de
+          las cinco cadenas de ejecución de código verificadas extremo a extremo.</div>
+          <span class="badge badge-rce">Serie</span>
+        </a>
+        <a class="card" href="cadena-portal-cautivo-rce.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>18 min</span></div>
+          <div class="t">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup</div>
+          <div class="d">Un payload en el EAP-Response/Identity pre-auth viaja sin saneado por
+          EAP→RADIUS→env→script y termina en un eval. Validado con ASAN+gdb.</div>
+          <span class="badge badge-rce">CWE-78</span>
+        </a>
+        <a class="card" href="fw-host-header-rce.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>17 min</span></div>
+          <div class="t">el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables</div>
+          <div class="d">Request HTTP pre-auth con Host maliciosa termina en execvp(/bin/sh, -c).
+          Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.</div>
+          <span class="badge badge-rce">CWE-78</span>
+        </a>
+        <a class="card" href="http-el conversor de fecha a timestamp-stackoverflow.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>16 min</span></div>
+          <div class="t">el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp</div>
+          <div class="d">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del
+          RIP con un decoder XOR in-stack.</div>
+          <span class="badge badge-rce">CWE-121</span>
+        </a>
+        <a class="card" href="autopsia-streaming-http-minimo.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>12 min</span></div>
+          <div class="t">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales</div>
+          <div class="d">OOB read en el decoder AMF3 y command injection en el gestor de credenciales: cuándo una
+          primitiva real no llega a ejecución de código.</div>
+          <span class="badge badge-infra">CWE-125 · CWE-78</span>
+        </a>
+        <a class="card" href="suite-paneles-tunel-spooler.html"><span class="arrow">→</span>
+          <div class="meta"><span>sep 2026</span><span>20 min</span></div>
+          <div class="t">Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec, el spooler de impresion</div>
+          <div class="d">Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion y el bypass de
+          confianza X-SSL-Client-* con su alcance real.</div>
+          <span class="badge badge-rce">CWE-78</span>
+        </a>
+        <a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>20 min</span></div>
+          <div class="t">Sherlock: caza autónoma de vulnerabilidades con IA local</div>
+          <div class="d">Sistema de caza sobre hardware local, método de triage con validación doble
+          e índice de siete hallazgos confirmados.</div>
+          <span class="badge badge-rce">Serie</span>
+        </a>
+        <a class="card" href="7zip-isfolderencrypted-oob-read.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>18 min</span></div>
+          <div class="t">7-Zip: heap OOB read en IsFolderEncrypted</div>
+          <div class="d">El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora produce
+          lecturas fuera del heap de 1–6 bytes en 7-Zip 26.00–26.02.</div>
+          <span class="badge badge-rce">CWE-125</span>
+        </a>
+        <a class="card" href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>16 min</span></div>
+          <div class="t">FFmpeg: DoS en demuxers VPK, VQF y Smacker</div>
+          <div class="d">SIGFPE con 21 bytes, leak escalable hasta ~677 MB y un bucle de 13,5M frames
+          con un input de 105 bytes.</div>
+          <span class="badge badge-dos">CWE-369 · CWE-401 · CWE-400</span>
+        </a>
+        <a class="card" href="libwebp-vp8l-lossless-decode-dos.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>12 min</span></div>
+          <div class="t">libwebp: DoS por área de imagen no validada en VP8L</div>
+          <div class="d">Un WebP lossless de 34 bytes declara hasta 16384×16384 píxeles esquivando
+          MAX_IMAGE_AREA, el guardia que el path lossy sí aplica.</div>
+          <span class="badge badge-dos">CWE-400</span>
+        </a>
+        <a class="card" href="pcre2-jit-compile-hang-recursion.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>13 min</span></div>
+          <div class="t">PCRE2: hang en compilación JIT por recursión (?0)</div>
+          <div class="d">El intérprete compila el patrón en 0 ms; pcre2_jit_compile se cuelga en
+          get_framesize. El bug vive en la compilación, no en el matching.</div>
+          <span class="badge badge-dos">CWE-400</span>
+        </a>
+        <a class="card" href="libarchive-cab-lzx-uninitialized-memory.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2026</span><span>11 min</span></div>
+          <div class="t">libarchive: uninitialized heap read en CAB/LZX</div>
+          <div class="d">Mismo CAB, dos builds: la vulnerable lee un history guard sin inicializar; la
+          parcheada rechaza con LZX_CORRUPT. Patch-diffing como radar.</div>
+          <span class="badge badge-rce">CWE-457</span>
+        </a>
+      </div>
+
+      <div class="sec-eyebrow" style="margin:2.4rem 0 1rem;">Malware Analysis &amp; Threat Intelligence</div>
+      <div class="grid grid-3">
+        <a class="card" href="threat-hunter-recollection.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>45 min</span></div>
+          <div class="t">Threat Hunter Recollection: cinco investigaciones reales</div>
+          <div class="d">Bitácora de un año de caza: red de estafa piramidal, fraude con Lumma
+          Stealer, NetSupport RAT y un dropper multi-etapa conectados por un hilo metodológico.</div>
+          <span class="badge badge-ti">Threat Intelligence</span>
+        </a>
+        <a class="card" href="pigbutchering-bybsusd.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>30 min</span></div>
+          <div class="t">Pig butchering: un exchange falso en Vue3 con WebSocket</div>
+          <div class="d">Exchange falso en Hong Kong cuyo backend entrega la clave del captcha en el
+          propio JSON. IoCs, diagramas y referencias FBI, DOJ y Europol.</div>
+          <span class="badge badge-ti">Threat Intelligence</span>
+        </a>
+        <a class="card" href="fakewealth-cmdxcapital.html"><span class="arrow">→</span>
+          <div class="meta"><span>oct 2025</span><span>60 min</span></div>
+          <div class="t">cmdxcapital: fuga de datos en Laravel por appDebug activo</div>
+          <div class="d">El modo depuración en producción expuso SQL, tokens y rutas. Diez dominios
+          satélite bajo Cloudflare y smurfing hacia wallets Bitcoin Bech32.</div>
+          <span class="badge badge-ti">Threat Intelligence</span>
+        </a>
+        <a class="card" href="operation-general-jp-silentwarn.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2025</span><span>15 min</span></div>
+          <div class="t">General JP y SilentWarn: dos campañas de phishing conectadas</div>
+          <div class="d">General JP: kit PHP con exfiltración a Telegram. SilentWarn: SPA React con
+          geofencing a Vietnam. IoCs y patrones de infraestructura.</div>
+          <span class="badge badge-ti">Threat Intelligence</span>
+        </a>
+        <a class="card" href="myPracticalShellcodeC2.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>120 min</span></div>
+          <div class="t">De winshellcode a BugBuilder: inyección y C2 en Windows</div>
+          <div class="d">Tres años de evolución: más de 20 técnicas (inyección clásica, APC, thread
+          hijacking, API hooking, XOR, persistencia) y un builder con panel C2 en C#.</div>
+          <span class="badge badge-ti">Malware Development</span>
+        </a>
+        <a class="card" href="evasion-estatica-asm-mirai.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2026</span><span>25 min</span></div>
+          <div class="t">Evasión estática en ASM: romper firmas de Mirai sin packers</div>
+          <div class="d">De 16/64 a 0/65 en VirusTotal con polimorfismo manual en Assembly x86,
+          stub descifrador en NASM y arquitectura de entrega mutante con DGA.</div>
+          <span class="badge badge-ti">Malware Analysis</span>
+        </a>
+        <a class="card" href="analystty.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>12 min</span></div>
+          <div class="t">analystty: triage automatizado de malware PE con Python</div>
+          <div class="d">Extrae imports, detecta TTPs, desensambla .text y genera breakpoints para
+          x64dbg. Stack: Capstone, pefile, malapi.json. Caso real con API hashing.</div>
+          <span class="badge badge-ti">Herramientas propias</span>
+        </a>
+      </div>
+
+      <div class="sec-eyebrow" style="margin:2.4rem 0 1rem;">Exploit Development &amp; Seguridad OT</div>
+      <div class="grid grid-3">
+        <a class="card" href="exploit-development-lab.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2026</span><span>90 min</span></div>
+          <div class="t">Laboratorio de exploit development: kernel de Windows y ROP</div>
+          <div class="d">Windows internals, drivers KMDF/UMDF, formatos PE/ELF/DEX, Assembly,
+          shellcode, ROP en 64 bits y disección de CVEs reales en Chrome V8 y WebRTC.</div>
+          <span class="badge badge-infra">Exploit Development</span>
+        </a>
+        <a class="card" href="exploit-development-ot-awl-arm.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2026</span><span>90 min</span></div>
+          <div class="t">Exploit development OT: del AWL al shellcode en PLC Siemens</div>
+          <div class="d">CVE-2020-15782 (Claroty Team82), sandbox escape ARM/MIPS en kernel ADONIS,
+          ROP sobre MC7 y cuatro workshops sobre S7-1200.</div>
+          <span class="badge badge-infra">OT Security</span>
+        </a>
+        <a class="card" href="plc.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>40 min</span></div>
+          <div class="t">PLC Siemens S5/S7 por dentro: AWL, bytecode MC7 y el silencio forense</div>
+          <div class="d">STEP5/AWL, transición a STEP7, la máquina virtual MC7, reversing de
+          bytecodes y la ausencia estructural de logs de auditoría en ICS.</div>
+          <span class="badge badge-infra">Seguridad OT</span>
+        </a>
+        <a class="card" href="assembly.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>120 min</span></div>
+          <div class="t">Assembly x86/x64 para ingeniería inversa: guía de campo</div>
+          <div class="d">Stack frames, clases vs structs, convenciones de llamada (cdecl/stdcall/
+          SystemV/Windows x64) y heurísticas para identificar funciones en Ghidra.</div>
+          <span class="badge badge-guide">Guías</span>
+        </a>
+        <a class="card" href="arte-de-la-paciencia-sudo-cache.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>15 min</span></div>
+          <div class="t">El arte de la paciencia: un script de 15 líneas puede iniciar una brecha</div>
+          <div class="d">PoC que abusa de la caché de sudo (T1548.003), elevación con ofuscación y
+          reglas de auditd para detección Blue Team.</div>
+          <span class="badge badge-infra">Red Team</span>
+        </a>
+      </div>
+
+      <div class="sec-eyebrow" style="margin:2.4rem 0 1rem;">Infraestructura, Pentesting &amp; Herramientas propias</div>
+      <div class="grid grid-3">
+        <a class="card" href="infra-soc.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>35 min</span></div>
+          <div class="t">Laboratorio SOC con honeypots: aislamiento y automatización</div>
+          <div class="d">Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y
+          stack de monitoreo: Wazuh, Zabbix, Prometheus y Grafana.</div>
+          <span class="badge badge-infra">Infraestructura</span>
+        </a>
+        <a class="card" href="infraestructura-tunel-ofuscado.html"><span class="arrow">→</span>
+          <div class="meta"><span>may 2026</span><span>30 min</span></div>
+          <div class="t">Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial</div>
+          <div class="d">udp2raw (faketcp + XOR), enmascaramiento con redsocks + SOCKS5 residencial y
+          DNS blindado con dnscrypt-proxy. Despliegue automatizado.</div>
+          <span class="badge badge-infra">Infraestructura</span>
+        </a>
+        <a class="card" href="web-api-pentesting2024.html"><span class="arrow">→</span>
+          <div class="meta"><span>ago 2024</span><span>25 min</span></div>
+          <div class="t">Pentesting a web API financiera: IDOR por validación incompleta de JWT</div>
+          <div class="d">Certificate pinning, cifrado y ofuscación burlados: el backend validaba la
+          firma JWT pero no la pertenencia del recurso.</div>
+          <span class="badge badge-infra">Pentesting</span>
+        </a>
+        <a class="card" href="saint-grail.html"><span class="arrow">→</span>
+          <div class="meta"><span>jun 2026</span><span>25 min</span></div>
+          <div class="t">SAINT GRAIL: plataforma modular de investigación ofensiva con IA</div>
+          <div class="d">DeepSeek + DeepWiki + agente híbrido para documentar, visualizar y ejecutar
+          hallazgos. Arquitectura Flask + SurrealDB y grafo interactivo.</div>
+          <span class="badge badge-guide">Herramientas propias</span>
+        </a>
+        <a class="card" href="saint-grail-go.html"><span class="arrow">→</span>
+          <div class="meta"><span>jul 2026</span><span>15 min</span></div>
+          <div class="t">SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</div>
+          <div class="d">Migración a Go por rendimiento y concurrencia: TOCTOU en Chromium y CRC
+          bypass en 7-Zip (9.20–25.01). PoCs públicos en GitHub.</div>
+          <span class="badge badge-guide">Herramientas propias</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
