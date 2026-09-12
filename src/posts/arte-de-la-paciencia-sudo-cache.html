@@ -1,0 +1,173 @@
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>No hay contingentes de kernel: la escalada más efectiva a veces no fuerza la cerradura, <b>espera a que el administrador abra la puerta con sus propias llaves</b>. PoC de Bash que abusa del <b>caché de credenciales de sudo</b> — mapeado en MITRE ATT&amp;CK como <b>T1548.003: Sudo and Sudo Caching</b>.</li>
+    <li>Mecanismo: <span class="mono">sudo -n</span> comprueba el ticket de caché sin pedir contraseña; por defecto el timeout es <b>15 minutos</b> (<span class="mono">timestamp_timeout</span> en <span class="mono">/etc/sudoers</span>). El script sondea cada 5 segundos y actúa cuando el ticket aparece — sin prompt, sin logs de fallo de autenticación, sin alertas.</li>
+    <li>Casos reales: <b>Baron Samedit</b> (CVE-2021-3156), abuso de caché en red team documentado por <b>Emulation Monkey</b> (22 minutos de espera, invisible para el EDR), la herramienta <b>SudoKiller</b> y el patrón de paciencia de <b>APT28</b> escalando justo tras el login de un administrador.</li>
+    <li>El salto de PoC a arma real: capas de ofuscación (cron/timers systemd/in-memory), payload en ensamblador gestionando el heap sin tocar disco, y eliminación de trazas — nada de «Caché detectado» en español.</li>
+    <li>Mitigación defendible: <span class="mono">timestamp_timeout=0</span>, monitorización de <span class="mono">sudo -n</span> con auditd y alertas sobre accesos a <span class="mono">/var/run/sudo/ts/</span>.</li>
+  </ul>
+</aside>
+
+<details class="toc-card" open>
+  <summary>/índice_de_la_investigación · <span class="tw">9</span> secciones</summary>
+  <ol>
+    <li><a href="#a00">Resumen de inteligencia</a></li>
+    <li><a href="#a01">La filosofía del «low-tech» ofensivo</a></li>
+    <li><a href="#a02">Deconstrucción técnica del TTP T1548.003</a></li>
+    <li><a href="#a03">Casos reales documentados</a></li>
+    <li><a href="#a04">De la PoC ingenua al ataque real</a></li>
+    <li><a href="#a05">Conexiones con el portafolio</a></li>
+    <li><a href="#a06">Mitigación y detección</a></li>
+    <li><a href="#a07">Conclusión</a></li>
+    <li><a href="#a08">Referencias</a></li>
+  </ol>
+</details>
+
+<h2 id="a00"><span class="idx">01.</span> Resumen de inteligencia</h2>
+<p>Esta investigación explora una táctica de post-explotación que <b>no requiere exploits de kernel, desbordamientos de buffer ni ROP</b>: es el abuso de una funcionalidad perfectamente documentada de Linux/Unix — el <b>caché de credenciales de sudo</b>, mapeado como <b>T1548.003: Sudo and Sudo Caching</b>.</p>
+<p>La estructura del artículo tiene cuatro capas: la filosofía del «low-tech» ofensivo nacida de años analizando malware; la deconstrucción técnica de la PoC en Bash; un repaso por casos reales — desde APT hasta herramientas de red team —; y el escalamiento a un escenario de ataque realista con las técnicas de ofuscación, inyección y evasión implementadas en <b>BugBuilder</b>. Todo el análisis corrió en un laboratorio aislado con Proxmox VE, replicando la metodología de mi <a href="infraestructura-tunel-ofuscado.html">infraestructura de túnel ofuscado</a>.</p>
+
+<h2 id="a01"><span class="idx">02.</span> La filosofía del «low-tech» ofensivo</h2>
+<p>En el barro del análisis de malware uno ve malabares increíbles: cifrado asimétrico por sesión, certificados contra proxies, ofuscación multicapa, API hashing. El objetivo es siempre el mismo: <b>persistir y escalar sin ser detectado</b>.</p>
+<p>Recuerdo la frustración al reversear una app financiera con un esquema de certificados sólido y cifrado decente que guardaba la clave a simple vista en el binario. Esa experiencia enseñó que <b>la complejidad técnica no equivale a seguridad real</b>. El eslabón más débil no siempre es la persona que clica en un phishing — como documenté en <a href="operation-general-jp-silentwarn.html">General JP y SilentWarn</a> —. A veces es el administrador que ejecutó <span class="mono">sudo</span> hace 5 minutos y cuyo token de privilegios sigue flotando en la memoria del sistema.</p>
+<p>La táctica que sigue no explota una vulnerabilidad, sino un <b>mecanismo de conveniencia</b> perfectamente documentado: el caché de sudo. En post-explotación, la escalada no necesita ser ruidosa ni compleja. Solo necesita ser <b>paciente</b>.</p>
+<div class="callout callout-warn"><span class="ico">🗝️</span><div>
+  <div class="h">Principio de la simplicidad letal</div>
+  <p>Las técnicas más elegantes no fuerzan la cerradura: <b>esperan a que la víctima abra la puerta con sus propias llaves</b>. Esta PoC es la encarnación de ese principio.</p>
+</div></div>
+
+<h2 id="a02"><span class="idx">03.</span> Deconstrucción técnica del TTP T1548.003</h2>
+<h3>El mecanismo: cómo funciona el caché de sudo</h3>
+<p>Cuando un usuario ejecuta <span class="mono">sudo</span> e introduce su contraseña, el sistema almacena un <b>ticket de autenticación con validez temporal</b>. Por defecto, casi todas las distribuciones configuran un timeout de <b>15 minutos</b> vía <span class="mono">timestamp_timeout</span> en <span class="mono">/etc/sudoers</span>, permitiendo múltiples comandos sin re-autenticarse. Es una comodidad de usabilidad convertible en vector de escalada.</p>
+<p>El corazón de la PoC es la bandera <span class="mono">-n</span> de sudo (modo no interactivo): si hay ticket válido, ejecuta el comando elevado sin pedir contraseña; si no, falla en silencio con exit code distinto de cero. <b>Sin mensajes, sin prompts, sin logs de fallo de autenticación</b> — porque técnicamente no hay un intento fallido: solo una comprobación de ticket.</p>
+<h3>La prueba de concepto</h3>
+<p>Máquina de estados finitos de tres fases — <b>esperar, sondear, actuar</b> —. La versión de laboratorio es deliberadamente verbosa para entender su funcionamiento; sondea cada 5 segundos y ejecuta el payload heredando los privilegios del ticket:</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c">#!/bin/bash</span>
+<span class="syn-c"># PoC: Sudo Cache Waiter (T1548.003)</span>
+<span class="syn-c"># Versión de laboratorio con mensajes de depuración</span>
+
+<span class="syn-k">while</span> <span class="syn-k">true</span>; <span class="syn-k">do</span>
+    <span class="syn-c"># Fase 1: sondeo sigiloso con bandera -n (no interactiva)</span>
+    <span class="syn-k">if</span> sudo -n <span class="syn-k">true</span> &amp;&gt;/dev/null; <span class="syn-k">then</span>
+        <span class="syn-v">echo</span> <span class="syn-s">"Caché de sudo detectado. Intentando ejecutar el comando..."</span>
+
+        <span class="syn-c"># Fase 2: intento de ejecución con privilegios heredados</span>
+        <span class="syn-k">if</span> sudo -n apt update &amp;&gt;/dev/null; <span class="syn-k">then</span>
+            <span class="syn-v">echo</span> <span class="syn-s">"Comando ejecutado con éxito. Saliendo del script."</span>
+            <span class="syn-k">break</span>
+        <span class="syn-k">else</span>
+            <span class="syn-v">echo</span> <span class="syn-s">"El comando requiere una contraseña. Volviendo a esperar..."</span>
+            sleep 5
+        <span class="syn-k">fi</span>
+    <span class="syn-k">else</span>
+        <span class="syn-c"># Fase 3: espera pasiva</span>
+        <span class="syn-v">echo</span> <span class="syn-s">"No hay caché de sudo. Esperando 5 segundos..."</span>
+        sleep 5
+    <span class="syn-k">fi</span>
+<span class="syn-k">done</span></code></pre></div>
+<figure class="figure">
+  <img src="img/sudo-cache-poc-terminal-debian-segundo-plano.jpg" alt="Terminal de Debian mostrando el script t.sh ejecutándose en segundo plano y capturando el momento en que se activa el caché de sudo para ejecutar apt update" loading="lazy">
+  <figcaption class="figcap">Terminal de Debian con el script <span class="mono">t.sh</span> en background — el ciclo de espera captura el ticket de sudo y ejecuta <span class="mono">apt update</span> con privilegios elevados. Los repositorios de Debian, VS Code, Docker, Sublime Text y Tailscale confirman que la actualización corrió completa.</figcaption>
+</figure>
+<h3>Por qué esta PoC es ingenua (y por qué eso es bueno)</h3>
+<p>Como apuntó un colega al revisarla: <i>«me daría cuenta de que algo está mal porque mi terminal me responde en español»</i>. Mensajes de depuración, nombre sospechoso <span class="mono">t.sh</span>, bucle infinito: cualquier administrador atento o EDR con reglas básicas de comportamiento la detectaría.</p>
+<p>Pero ahí está la clave: <b>esta PoC no está diseñada para ser operativa, sino para ilustrar un concepto</b>. La distancia entre esta versión de laboratorio y un arma real es exactamente la ingeniería que separa un script de un TTP profesional.</p>
+
+<h2 id="a03"><span class="idx">04.</span> Casos reales documentados</h2>
+<h3>CVE-2021-3156: Baron Samedit — cuando el caché no era necesario</h3>
+<p>Descubierto por Qualys en enero de 2021: desbordamiento de buffer en sudo que daba root a cualquier usuario <b>sin autenticación ni ticket de caché</b>, explotando los modos shell (<span class="mono">-s</span>/<span class="mono">-i</span>) con caracteres de escape. Corregido en sudo 1.9.5p2, afectó a casi todas las distros desde 2011. Lo relevante: <b>incluso sin la paciencia del caché, sudo ya demostró ser un vector crítico</b>.</p>
+<h3>Emulation Monkey: abuso del caché en red team</h3>
+<p>En 2023, un ejercicio de red team contra infraestructura corporativa desplegó un script de sondeo de sudo en <span class="mono">/tmp</span> del servidor de desarrollo. Esperó <b>22 minutos</b> hasta que un administrador ejecutó <span class="mono">sudo systemctl restart nginx</span>; el payload inyectó persistencia. <b>El EDR no detectó nada: durante la fase de espera no hubo ninguna llamada sospechosa al sistema.</b></p>
+<h3>SudoKiller: la herramienta que automatiza el abuso</h3>
+<p>Herramienta de post-explotación comunitaria que automatiza el vector: además de sondear el caché, implementa persistencia vía <span class="mono">~/.bashrc</span> y <span class="mono">~/.bash_profile</span>, manipula los timestamps de <span class="mono">/var/run/sudo/ts/</span> y corre como daemon en espacio de usuario. Su existencia confirma que la técnica es <b>estándar en el toolkit de cualquier red team moderno</b>.</p>
+<h3>APT28 (Fancy Bear): paciencia en operaciones reales</h3>
+<p>Los informes de Mandiant y CrowdStrike documentan un patrón consistente en entornos Linux del grupo: tras el acceso inicial, permanecen inactivos <b>durante días</b> antes de intentar escalar. En incidentes de 2022 la escalada ocurría <b>justo después del login de un administrador legítimo</b> — monitorizan la actividad y actúan cuando las condiciones de privilegio son favorables. Conceptualmente idéntico a esta PoC, ejecutado con la disciplina de un actor estatal.</p>
+<div class="callout callout-warn"><span class="ico">🧠</span><div>
+  <div class="h">Lección de threat intelligence: el patrón de la paciencia</div>
+  <p>La constante en todos estos casos no es la sofisticación del código, sino <b>la paciencia del adversario</b>. Baron Samedit fue un 0-day devastador; las campañas del caché de sudo no necesitan exploits: necesitan que el defensor cometa el error de ejecutar sudo en una sesión comprometida. La diferencia entre éxito y fracaso se mide en <b>minutos de espera, no en líneas de código</b>.</p>
+</div></div>
+
+<h2 id="a04"><span class="idx">05.</span> De la PoC ingenua al ataque real</h2>
+<p>Convertir la PoC en un arma operativa requiere las técnicas de <b>ofuscación, persistencia y evasión</b> de BugBuilder y de mis análisis de malware, transformando 15 líneas en un implante sigiloso que resista forense y monitorización.</p>
+<h3>Capa 1: ofuscación de la ejecución</h3>
+<ul>
+  <li><b>Enterrarlo en una tarea cron</b> con nombre genérico (<span class="mono">/etc/cron.d/apt-check-update</span>) que ejecute el script cada minuto.</li>
+  <li><b>Registrarlo como timer de systemd</b>: más sigiloso que cron, y no aparece en los logs tradicionales de crontab.</li>
+  <li><b>Inyectarlo en la memoria de un proceso legítimo</b> con thread hijacking o APC injection (como en BugBuilder): el script reside en memoria sin tocar disco.</li>
+</ul>
+<h3>Capa 2: modificación del payload</h3>
+<p><span class="mono">apt update</span> es un placeholder. En un escenario real el payload gestionaría sus recursos en el heap sin tocar disco — asignar, redimensionar y liberar, igual que un implante cargando módulos adicionales en memoria:</p>
+<div class="code-wrap"><span class="lang">nasm</span><pre class="code"><code><span class="syn-c">; ptr = (int*)malloc(sizeof(int));            ; asignar 4 bytes en el heap</span>
+<span class="syn-k">mov</span> <span class="syn-v">ecx</span>, <span class="syn-n">0x4</span>                          <span class="syn-c">; sizeof(int) = 4 bytes</span>
+<span class="syn-k">call</span> <span class="syn-f">malloc</span>                        <span class="syn-c">; Retorna dirección del bloque en rax</span>
+<span class="syn-k">mov</span> <span class="syn-v">[rbp-0x8]</span>, <span class="syn-v">rax</span>                 <span class="syn-c">; Guardar puntero en variable local</span>
+
+<span class="syn-c">; ptr = (int*)realloc(ptr, sizeof(*ptr) + (8 * sizeof(int)));</span>
+<span class="syn-k">mov</span> <span class="syn-v">rax</span>, <span class="syn-v">[rbp-0x8]</span>                 <span class="syn-c">; Bloque original</span>
+<span class="syn-k">mov</span> <span class="syn-v">edx</span>, <span class="syn-n">0x24</span>                        <span class="syn-c">; 4 + (4*8) = 36 bytes — nuevo tamaño</span>
+<span class="syn-k">mov</span> <span class="syn-v">rcx</span>, <span class="syn-v">rax</span>                        <span class="syn-c">; Primer argumento: puntero original</span>
+<span class="syn-k">call</span> <span class="syn-f">realloc</span>                       <span class="syn-c">; Retorna nueva dirección (puede ser distinta)</span>
+<span class="syn-k">mov</span> <span class="syn-v">[rbp-0x8]</span>, <span class="syn-v">rax</span>                 <span class="syn-c">; Actualizar puntero con nueva dirección</span>
+
+<span class="syn-c">; free(ptr); — liberar bloque</span>
+<span class="syn-k">mov</span> <span class="syn-v">rax</span>, <span class="syn-v">[rbp-0x8]</span>                 <span class="syn-c">; Cargar puntero</span>
+<span class="syn-k">mov</span> <span class="syn-v">rcx</span>, <span class="syn-v">rax</span>                        <span class="syn-c">; Pasar como argumento</span>
+<span class="syn-k">call</span> <span class="syn-f">free</span>                          <span class="syn-c">; Liberar memoria</span></code></pre></div>
+<p>En un payload real, ese ciclo cargaría una <b>librería compartida maliciosa desde un buffer en memoria</b>, sin escribir nada en disco: tras obtener privilegios, el script instalaría un rootkit en espacio de usuario, tocaría PAM o exfiltraría claves SSH. Concepto idéntico: <b>gestionar recursos sin dejar trazas en el filesystem</b>.</p>
+<h3>Capa 3: eliminación de trazas</h3>
+<p>El script de producción no imprimiría nada: sin «Caché detectado», sin stdout, sin logs. Tras la primera ejecución exitosa se autodestruiría u ocultaría. La filosofía es la del <a href="plc.html">análisis de PLC Siemens</a>: <b>si no hay registros de auditoría, la atribución y la respuesta quedan anuladas</b>.</p>
+<div class="callout callout-warn"><span class="ico">👁️</span><div>
+  <div class="h">El peligro de lo invisible</div>
+  <p>Esta táctica es peligrosa porque <b>no es un exploit</b>: no hay CVE que parchear ni firma que detectar; es el abuso paciente de una funcionalidad legítima. Los equipos blue deben monitorizar cualquier uso de <span class="mono">sudo -n</span> que no provenga de scripts de administración conocidos y firmados.</p>
+</div></div>
+
+<h2 id="a05"><span class="idx">06.</span> Conexiones con el portafolio</h2>
+<ul>
+  <li><b>BugBuilder:</b> la fábrica automatizada de binarios con inyección clásica, APC, thread hijacking y API hooking — las mismas técnicas de ofuscación y persistencia aplicables a este script.</li>
+  <li><b>analystty:</b> el triaje automatizado de PE que extrae imports, detecta TTPs y genera breakpoints para x64dbg — la metodología para entender cómo el malware real implementa estas tácticas.</li>
+  <li><b>PLC Siemens:</b> la ausencia total de registros de auditoría en sistemas críticos. Sin telemetría, un script así se ejecutaría indefinidamente sin ser detectado.</li>
+  <li><b>Infraestructura de túnel ofuscado:</b> el entorno blindado desde el que se hizo la prueba — WireGuard sobre TCP falso, proxy residencial y DNS sobre HTTPS.</li>
+</ul>
+<div class="callout callout-info"><span class="ico">🔗</span><div>
+  <div class="h">Hilo conductor del portafolio</div>
+  <p>Todas mis investigaciones comparten un denominador: <b>la infraestructura y los patrones de comportamiento son el talón de Aquiles del adversario</b>. Esta PoC es el reverso: cómo explotar los patrones de comportamiento del defensor para escalar sin disparar una sola alerta.</p>
+</div></div>
+
+<h2 id="a06"><span class="idx">07.</span> Mitigación y detección</h2>
+<p>La buena noticia: mitigaciones simples y efectivas. La mala: la mayoría de los sistemas no las implementan por defecto.</p>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Mitigación</th><th>Implementación</th><th>Efectividad</th></tr></thead>
+    <tbody>
+      <tr><td>Deshabilitar el caché de sudo</td><td class="mono">Defaults timestamp_timeout=0 en /etc/sudoers</td><td>Elimina el vector por completo; degrada usabilidad</td></tr>
+      <tr><td>Reducir el timeout del caché</td><td class="mono">Defaults timestamp_timeout=2</td><td>Reduce la ventana de oportunidad a 2 minutos</td></tr>
+      <tr><td>Monitorizar sudo -n</td><td>Reglas de auditd o SIEM para usos no interactivos de sudo</td><td>Alta, si se correlaciona con procesos inusuales</td></tr>
+      <tr><td>Endpoints hardening</td><td>Restringir cron y timers de systemd a binarios firmados</td><td>Previene la persistencia del script</td></tr>
+      <tr><td>Monitorizar /var/run/sudo/ts/</td><td>Alertar sobre lecturas al directorio de timestamps</td><td>Detecta el sondeo de herramientas como SudoKiller</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="code-wrap"><span class="lang">auditd</span><pre class="code"><code><span class="syn-c"># Registrar todos los usos de sudo -n</span>
+-a always,exit -F exe=/usr/bin/sudo -F key=sudo_non_interactive
+
+<span class="syn-c"># Filtrar en el SIEM por la bandera -n</span>
+index=linux key=sudo_non_interactive <span class="syn-s">"COMM=sudo -n"</span></code></pre></div>
+
+<h2 id="a07"><span class="idx">08.</span> Conclusión</h2>
+<p>Esta PoC, nacida de una conversación informal de laboratorio, refuerza una lección fundamental: <b>la defensa en profundidad no puede limitarse a buscar firmas o comportamientos anómalos complejos</b>. Baron Samedit, Emulation Monkey, SudoKiller y los patrones de APT28 demuestran que el vector de sudo — con o sin exploits — es un clásico que no pasa de moda.</p>
+<p>La amenaza más elegante no es la que fuerza la cerradura con un 0-day de kernel, sino la que espera a que el administrador abra la puerta con sus propias llaves. Para el threat hunter: los patrones simples y pacientes — un script que duerme, sondea en silencio y actúa solo en condiciones perfectas — son increíblemente difíciles de detectar con herramientas tradicionales. Requieren una mentalidad de caza que vaya <b>más allá de los IoCs y se centre en anomalías de comportamiento de bajo perfil</b>.</p>
+<blockquote><p>La próxima vez que ejecutes <span class="mono">sudo</span>, recuerda: en algún lugar de tu sistema podría haber un script de 15 líneas esperando ese preciso momento. Y probablemente no imprimirá ningún mensaje en español.</p></blockquote>
+
+<h2 id="a08"><span class="idx">09.</span> Referencias</h2>
+<ul>
+  <li><a href="https://attack.mitre.org/techniques/T1548/003/" target="_blank" rel="noopener noreferrer">MITRE ATT&amp;CK — T1548.003: Sudo and Sudo Caching</a></li>
+  <li><a href="https://www.sudo.ws/docs/man/sudoers.man/" target="_blank" rel="noopener noreferrer">sudoers(5) — manual de configuración de sudo</a></li>
+  <li><a href="https://blog.qualys.com/vulnerabilities-threat-research/2021/01/26/cve-2021-3156-heap-based-buffer-overflow-in-sudo-baron-samedit" target="_blank" rel="noopener noreferrer">Qualys — CVE-2021-3156: Baron Samedit</a></li>
+  <li><a href="https://github.com/EmulationMonkey/sudo-cache-abuse" target="_blank" rel="noopener noreferrer">Emulation Monkey — abuso del caché de sudo en red team</a></li>
+  <li><a href="https://github.com/TH3xACE/SUDO_KILLER" target="_blank" rel="noopener noreferrer">SudoKiller — post-explotación y abuso de sudo</a></li>
+  <li><a href="https://www.mandiant.com/resources/blog/apt28-espionage-linux" target="_blank" rel="noopener noreferrer">Mandiant — APT28: espionage in Linux environments</a></li>
+  <li><a href="https://www.crowdstrike.com/blog/linux-targeting-by-fancy-bear/" target="_blank" rel="noopener noreferrer">CrowdStrike — Linux targeting by Fancy Bear</a></li>
+  <li><a href="myPracticalShellcodeC2.html">BugBuilder: evolución de tres años en desarrollo ofensivo</a></li>
+  <li><a href="analystty.html">analystty: triaje automatizado para archivos PE</a></li>
+</ul>

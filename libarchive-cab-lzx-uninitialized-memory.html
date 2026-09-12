@@ -1,432 +1,250 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="hat.png">
-    <link rel="apple-touch-icon" href="hat.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#08090c">
+<meta name="color-scheme" content="dark">
+<title>libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing</title>
+<meta name="description" content="Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y una clasificación honesta: DUP-RACE.">
+<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/libarchive-cab-lzx-uninitialized-memory.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing">
+<meta property="og:description" content="Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y una clasificación honesta: DUP-RACE.">
+<meta property="og:url" content="https://tty503.com/libarchive-cab-lzx-uninitialized-memory.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
+<meta property="article:published_time" content="2026-08-21">
+<meta property="article:modified_time" content="2026-08-21">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing">
+<meta name="twitter:description" content="Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y una clasificación">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 
-    <!-- ==================== SEO CORE ==================== -->
-    <title>libarchive: Uninitialized Heap Read en CAB/LZX Detectado por Patch-Diffing (CWE-457) | tty503</title>
-    <meta name="description" content="Cómo el patch-diffing contra upstream reveló un read no inicializado del history guard LZX en bsdtar 3.8.9: mismo CAB, build vulnerable extrae con rc=0 y build parcheado rechaza con LZX_CORRUPT. Metodología A/B, clasificación honesta DUP-RACE y evidencia ASAN/valgrind.">
-    <meta name="keywords" content="libarchive vulnerabilidad, bsdtar, CAB LZX, CWE-457, use of uninitialized value, history guard, patch diffing, divergencia post-snapshot, dup-race, ASAN MSan, valgrind track-origins, fuzzing IA, bug hunting autónomo, Christian Márquez, tty503">
-    <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-    <link rel="canonical" href="https://tty503.com/libarchive-cab-lzx-uninitialized-memory.html">
-    <meta name="theme-color" content="#050505">
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="libarchive: Uninitialized Heap Read en CAB/LZX por Patch-Diffing | tty503">
-    <meta property="og:description" content="Mismo archivo CAB, dos builds: la vulnerable extrae leyendo memoria sin inicializar; la parcheada rechaza. Historia de una divergencia post-snapshot y del patch-diffing como técnica de caza.">
-    <meta property="og:url" content="https://tty503.com/libarchive-cab-lzx-uninitialized-memory.html">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="tty503">
-    <meta property="og:image" content="https://tty503.com/img/libarchive-cab-lzx-uninit-read-ab-evidencia.png">
-    <meta property="og:image:alt" content="Terminal mostrando la comparación A/B entre bsdtar vulnerable y parcheado sobre el mismo CAB LZX">
-    <meta property="article:published_time" content="2026-08-21">
-    <meta property="article:modified_time" content="2026-08-21">
-    <meta property="article:tag" content="Vulnerabilidad">
-    <meta property="article:tag" content="CWE-457">
-    <meta property="article:tag" content="libarchive">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@tty_503">
-    <meta name="twitter:creator" content="@tty_503">
-    <meta name="twitter:title" content="libarchive 3.8.9: uninitialized heap read en CAB/LZX (CWE-457)">
-    <meta name="twitter:description" content="El history guard de LZX se lee sin inicializar en 3.8.9. El fix upstream existía desde el 08-08 y el snapshot no lo tenía: así lo demostró un A/B con dos builds de bsdtar.">
-    <meta name="twitter:image" content="https://tty503.com/img/libarchive-cab-lzx-uninit-read-ab-evidencia.png">
-    <meta name="twitter:image:alt" content="Evidencia A/B de la divergencia entre builds de bsdtar">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-base: #030303; --bg-surface: #0a0a0a; --bg-card: #111111;
-            --border-subtle: #222222; --border-hover: #444444;
-            --text-primary: #f5f5f5; --text-secondary: #a3a3a3; --text-muted: #666666;
-            --accent: #ffffff; --accent-green: #4ade80; --accent-blue: #60a5fa;
-            --accent-amber: #f59e0b; --accent-red: #ef4444;
-            --syntax-inst: #f07178; --syntax-reg: #82aaff; --syntax-val: #f78c6c;
-            --syntax-func: #c3e88d; --syntax-comment: #546e7a;
-            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .noise-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.05; background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)"/%3E%3C/svg%3E'); }
-        .navbar { position: fixed; top: 0; width: 100%; background: rgba(3, 3, 3, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-subtle); z-index: 1000; transition: var(--transition-smooth); }
-        .nav-container { max-width: 900px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav-brand { font-size: 1rem; font-weight: 600; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .nav-back { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition-smooth); }
-        .nav-back:hover { color: var(--accent); }
-        .article-container { max-width: 900px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
-        .article-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
-        .article-meta { display: flex; gap: 1.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .article-tag { background: transparent; color: var(--accent-blue); padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; border: 1px solid rgba(96, 165, 250, 0.3); }
-        .article-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1rem; color: var(--text-primary); }
-        .article-subtitle { font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7; max-width: 650px; }
-        .toc-container { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; margin: 2rem 0; overflow: hidden; }
-        .toc-summary { padding: 1.2rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; user-select: none; transition: background 0.3s; }
-        .toc-summary:hover { background: rgba(255, 255, 255, 0.02); }
-        .toc-summary::-webkit-details-marker { display: none; }
-        .toc-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-        .toc-toggle { color: var(--text-muted); font-size: 1.4rem; font-weight: 300; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
-        .toc-container[open] .toc-toggle { transform: rotate(45deg); color: var(--text-primary); }
-        .toc-content { padding: 0 1.5rem 1.2rem; }
-        .toc-content ol { margin: 0; padding-left: 1.2rem; color: var(--text-secondary); font-size: 0.85rem; line-height: 2; }
-        .toc-content ol li a { color: var(--text-secondary); text-decoration: none; transition: var(--transition-smooth); }
-        .toc-content ol li a:hover { color: var(--accent-blue); }
-        .section-title { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); margin: 2.5rem 0 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); }
-        .subsection-title { font-size: 1.15rem; font-weight: 600; color: var(--text-primary); margin: 2rem 0 0.8rem; }
-        p { color: var(--text-secondary); margin-bottom: 1.2rem; font-size: 1rem; line-height: 1.8; }
-        strong { color: var(--text-primary); font-weight: 600; }
-        .code-block { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; white-space: pre; -webkit-overflow-scrolling: touch; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary); position: relative; }
-        .code-block code { font-family: 'JetBrains Mono', monospace; }
-        .code-block .inst { color: var(--syntax-inst); } .code-block .reg { color: var(--syntax-reg); }
-        .code-block .val { color: var(--syntax-val); } .code-block .func { color: var(--syntax-func); }
-        .code-block .comment { color: var(--syntax-comment); font-style: italic; }
-        .table-wrapper { overflow-x: auto; margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: var(--bg-card); color: var(--text-primary); padding: 0.8rem 1rem; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-hover); white-space: nowrap; }
-        td { padding: 0.7rem 1rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255, 255, 255, 0.02); }
-        ul, ol { color: var(--text-secondary); margin: 1rem 0 1.5rem 1.5rem; line-height: 1.8; }
-        li { margin-bottom: 0.5rem; }
-        .image-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow: hidden; background: var(--bg-card); }
-        .image-container img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: filter 0.4s ease; }
-        .image-container img:hover { filter: grayscale(0%) contrast(1.1); }
-        .image-caption { padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-subtle); }
-        .callout { background: var(--bg-card); border-left: 3px solid var(--accent-blue); padding: 1.2rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
-        .callout-title { font-weight: 600; color: var(--accent-blue); margin-bottom: 0.5rem; font-size: 0.9rem; }
-        .callout p { margin-bottom: 0; font-size: 0.95rem; }
-        .callout-warning { border-left-color: var(--accent-amber); } .callout-warning .callout-title { color: var(--accent-amber); }
-        .callout-danger { border-left-color: var(--accent-red); } .callout-danger .callout-title { color: var(--accent-red); }
-        .callout-success { border-left-color: var(--accent-green); } .callout-success .callout-title { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; transition: var(--transition-smooth); word-break: break-word; }
-        a:hover { color: var(--accent); }
-        .diagram-container { margin: 2rem 0; border: 1px solid var(--border-subtle); border-radius: 6px; overflow-x: auto; background: var(--bg-card); }
-        .diagram-container svg { display: block; min-width: 720px; width: 100%; height: auto; }
-        .cta-closure { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 2rem; margin: 3rem 0 2rem; text-align: center; }
-        .cta-closure h3 { font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.8rem; font-weight: 600; }
-        .cta-closure p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1.2rem; line-height: 1.7; }
-        .cta-closure-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .cta-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem; border-radius: 4px; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: var(--transition-smooth); border: 1px solid var(--border-subtle); color: var(--text-secondary); background: transparent; }
-        .cta-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
-        .cta-btn.primary { border-color: rgba(96, 165, 250, 0.3); color: var(--accent-blue); }
-        .footer { border-top: 1px solid var(--border-subtle); padding: 3rem 1.5rem; text-align: center; background: var(--bg-surface); }
-        .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .social-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-        .social-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; transition: var(--transition-smooth); }
-        .social-links a:hover { color: var(--text-primary); }
-        .copyright { color: var(--text-muted); font-size: 0.8rem; }
-        @media (max-width: 600px) {
-            .article-container { padding: 6rem 1rem 3rem; } .article-title { font-size: 1.6rem; }
-            .section-title { font-size: 1.25rem; } .code-block { padding: 1rem; font-size: 0.75rem; }
-            th, td { padding: 0.5rem 0.6rem; font-size: 0.75rem; } .social-links { gap: 1rem; }
-            .cta-closure { padding: 1.5rem 1rem; } .cta-closure-links { flex-direction: column; align-items: center; }
-            .cta-btn { width: 100%; justify-content: center; } .toc-content { padding: 0 1rem 1rem; } .toc-summary { padding: 1rem; }
-        }
-    </style>
 </head>
 <body>
-    <div class="noise-overlay"></div>
+<div class="bg-fx"></div>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
+<main class="post">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="libarchive-cab-lzx-uninitialized-memory.html">libarchive: uninitialized heap read en CAB/LZX c</a><span class="sep">/</span></nav>
+<header class="post-head">
+  <div class="post-tags"><span class="chip">CWE-457</span><span class="chip">libarchive</span><span class="chip">Patch-diffing</span><span class="chip">LZX</span></div>
+  <h1>libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing</h1>
+  <p class="lede">Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y una clasificación honesta: DUP-RACE.</p>
+  <div class="post-meta"><span>📅 2026-08-21</span><span>⏱ 11 min</span><span>🏷 Vulnerability Research</span></div>
+</header>
+<article class="post-body">
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Mismo archivo CAB, dos binarios: el <b>snapshot de bsdtar 3.8.9</b> extrae leyendo un <em>history guard</em> del decoder <b>LZX</b> que nadie inicializó (CWE-457); el build con el fix upstream lo rechaza con <code>LZX_CORRUPT</code>.</li>
+    <li>Método: <b>patch-diffing como radar</b> — un commit upstream del 08-08 endureció el path CAB/LZX, y la revisión periódica del snapshot reveló que el fix no estaba en él.</li>
+    <li>Validación A/B: mismo input, única variable = el parche. Vulnerable <code>rc=0</code> (extrae bajo ASAN <code>use-of-uninitialized-value</code>); parcheado <code>rc=1</code> (-25, LZX_CORRUPT).</li>
+    <li>Clasificación honesta: <b>DUP-RACE</b> — el fix ya existía una semana antes de la detección. El activo duradero es el método, no el CVE.</li>
+  </ul>
+</aside>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="https://tty503.com" class="nav-brand mono">tty503 <span style="color: var(--text-secondary); font-size: 0.85rem;">_vuln_research</span></a>
-            <a href="sherlock-caza-autonoma-ia-local.html" class="nav-back mono">← Serie Sherlock</a>
-        </div>
-    </nav>
+<details class="toc-card" open>
+  <summary>/libarchive_patchdiff · <span class="tw">9</span> secciones</summary>
+  <ol>
+    <li><a href="#a00">Resumen Técnico</a></li>
+    <li><a href="#a01">Contexto: snapshots que envejecen mal</a></li>
+    <li><a href="#a02">El método: patch-diffing como radar</a></li>
+    <li><a href="#a03">Anatomía: el history guard sin inicializar</a></li>
+    <li><a href="#a04">El experimento A/B</a></li>
+    <li><a href="#a05">La clasificación honesta: DUP-RACE</a></li>
+    <li><a href="#a06">Acotación: por qué es LOW</a></li>
+    <li><a href="#a07">Lecciones metodológicas</a></li>
+    <li><a href="#a08">Conclusión</a></li>
+  </ol>
+</details>
 
-    <article class="article-container">
-        <header class="article-header">
-            <div class="article-meta mono">
-                <span class="article-tag">Vulnerability Research</span>
-                <span class="article-tag">CWE-457</span>
-                <span class="article-tag">Patch-Diffing</span>
-                <span class="article-tag">libarchive</span>
-                <span>Agosto 2026</span>
-                <span>~11 min de lectura</span>
-            </div>
-            <h1 class="article-title">libarchive: Uninitialized Heap Read en CAB/LZX Cazado con Patch-Diffing</h1>
-            <p class="article-subtitle">
-                Mismo archivo CAB, dos binarios: uno extrae tranquilamente leyendo memoria que nadie inicializó; el otro, con el parche aplicado, rechaza el archivo. Este hallazgo del sistema autónomo <a href="sherlock-caza-autonoma-ia-local.html">Sherlock</a> es doblemente interesante: por el bug en sí —un read no inicializado del <em>history guard</em> del descompresor LZX (CWE-457)— y por cómo se encontró: comparando un snapshot objetivo contra upstream y midiendo exactamente dónde divergen.
-            </p>
-        </header>
+<h2 id="a00"><span class="idx">01.</span> Resumen Técnico</h2>
+<div class="tbl-wrap">
+  <table>
+    <tbody>
+      <tr><th>Objetivo</th><td>libarchive / bsdtar 3.8.9 — path de extracción CAB con compresión LZX</td></tr>
+      <tr><th>Vulnerabilidad</th><td>Uninitialized heap read del <em>history guard</em> del decoder LZX (<code>lzx_read_blocks</code>) durante la extracción</td></tr>
+      <tr><th>CWE</th><td>CWE-457 (Use of Uninitialized Variable) · VRT: MCR (read)</td></tr>
+      <tr><th>Severidad</th><td><b>LOW</b> — solo lectura de valores no controlados directamente; sin escalada a escritura</td></tr>
+      <tr><th>Detección</th><td>Divergencia post-snapshot: fix upstream del 2026-08-08 ausente en el snapshot del target</td></tr>
+      <tr><th>Método</th><td>Patch-diffing + comparación A/B con el mismo input CAB sobre dos builds de bsdtar</td></tr>
+      <tr><th>Resultado A/B</th><td>Build vulnerable: <code>rc=0</code>, extrae (con lectura no inicializada). Build parcheado: <code>rc=1</code> (-25, LZX_CORRUPT)</td></tr>
+      <tr><th>Validación</th><td>ASAN (<code>use-of-uninitialized-value</code>) + valgrind <code>--track-origins=yes</code></td></tr>
+      <tr><th>Clasificación</th><td>DUP-RACE — el fix llegó por otra vía dentro de la ventana de análisis; se documenta como caso metodológico</td></tr>
+    </tbody>
+  </table>
+</div>
 
-        <!-- ToC -->
-        <details class="toc-container" open>
-            <summary class="toc-summary mono">
-                <span class="toc-title">/índice_del_análisis</span>
-                <span class="toc-toggle">+</span>
-            </summary>
-            <div class="toc-content">
-                <ol>
-                    <li><a href="#s00">Resumen Técnico</a></li>
-                    <li><a href="#s01">Contexto: Snapshots que Envejecen Mal</a></li>
-                    <li><a href="#s02">El Método: Patch-Diffing como Radar</a></li>
-                    <li><a href="#s03">Anatomía: El History Guard Sin Inicializar</a></li>
-                    <li><a href="#s04">El Experimento A/B</a></li>
-                    <li><a href="#s05">La Clasificación Honesta: DUP-RACE</a></li>
-                    <li><a href="#s06">Acotación: Por Qué es LOW</a></li>
-                    <li><a href="#s07">Lecciones Metodológicas</a></li>
-                    <li><a href="#s08">Conclusión</a></li>
-                </ol>
-            </div>
-        </details>
+<h2 id="a01"><span class="idx">02.</span> Contexto: snapshots que envejecen mal</h2>
+<p>Analizar un target serio exige construirlo: compilar la versión concreta, instrumentarla, fijar su entorno. Esa construcción es un <b>snapshot</b> — y desde el momento en que existe, empieza a envejecer. Upstream sigue vivo: commits, hardening, fixes. Cada día que pasa, tu snapshot fiel deja de serlo un poco más.</p>
+<p>Esta historia nace de esa tensión. El sistema Sherlock mantiene un snapshot de libarchive 3.8.9 para sus campañas de fuzzing sobre formatos de archivo. Durante la revisión periódica contra upstream apareció un commit del <b>2026-08-08</b> que tocaba justo el camino CAB/LZX que el snapshot ejercita: un hardening frente a lectura de memoria no inicializada en el history guard del decoder LZX. Pregunta inmediata: ¿el snapshot contiene ese fix? Respuesta corta: no. Pregunta larga: ¿qué significa eso en la práctica? El resto del artículo es la respuesta.</p>
 
-        <!-- 00 RESUMEN -->
-        <h2 class="section-title mono" id="s00"><span style="color: var(--text-muted);">00.</span> Resumen Técnico</h2>
-        <div class="table-wrapper">
-            <table>
-                <tbody>
-                    <tr><th>Objetivo</th><td>libarchive / bsdtar 3.8.9 — path de extracción CAB con compresión LZX</td></tr>
-                    <tr><th>Vulnerabilidad</th><td>Uninitialized heap read del <em>history guard</em> del decoder LZX (<span class="mono">lzx_read_blocks</span>) durante la extracción</td></tr>
-                    <tr><th>CWE</th><td>CWE-457 (Use of Uninitialized Variable) · VRT: MCR (read)</td></tr>
-                    <tr><th>Severidad</th><td><strong>LOW</strong> — solo lectura de valores no controlados directamente; sin escalada a escritura</td></tr>
-                    <tr><th>Detección</th><td>Divergencia post-snapshot: fix upstream del 2026-08-08 ausente en el snapshot del target</td></tr>
-                    <tr><th>Método</th><td>Patch-diffing + comparación A/B con el mismo input CAB sobre dos builds de bsdtar</td></tr>
-                    <tr><th>Resultado A/B</th><td>Build vulnerable: <span class="mono">rc=0</span>, extrae (con lectura no inicializada). Build parcheado: <span class="mono">rc=1</span> (-25, LZX_CORRUPT)</td></tr>
-                    <tr><th>Validación</th><td>ASAN (<span class="mono">use-of-uninitialized-value</span>) + valgrind <span class="mono">--track-origins=yes</span></td></tr>
-                    <tr><th>Clasificación</th><td>DUP-RACE — el fix llegó por otra vía dentro de la ventana de análisis; se documenta como caso metodológico</td></tr>
-                </tbody>
-            </table>
-        </div>
+<h2 id="a02"><span class="idx">03.</span> El método: patch-diffing como radar</h2>
+<p>El patch-diffing suele asociarse a martes de parches de grandes vendors: comparar binarios antes/después para localizar la vulnerabilidad corregida. Pero tiene un uso inverso igual de potente para quien caza con targets propios: <b>usar los commits upstream como radar de zonas calientes</b>. Si el proyecto acaba de blindar una ruta de código, esa ruta era frágil ayer — y cualquier versión viva sin el parche lo sigue siendo hoy.</p>
+<figure class="figure">
+  <div style="overflow-x:auto;">
+    <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Línea temporal del patch-diffing: snapshot 3.8.9 construido, fix upstream el 08-08, revisión del 15-08 detecta la divergencia y el A/B la confirma" style="min-width:720px; width:100%; height:auto;">
+      <defs>
+        <marker id="carrW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a3a3a3"/></marker>
+        <marker id="carrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#f59e0b"/></marker>
+        <marker id="carrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ef4444"/></marker>
+        <marker id="carrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4ade80"/></marker>
+      </defs>
+      <style>
+        .ttl { fill:#f5f5f5; font:600 12px 'JetBrains Mono',monospace; }
+        .csub { fill:#888888; font:11px 'Inter',sans-serif; }
+        .ccell { fill:#181818; stroke:#333333; }
+        .ccellr { fill:#1c1010; stroke:#ef4444; }
+        .cbtxt { fill:#e5e5e5; font:600 11px 'JetBrains Mono',monospace; }
+        .crtxt { fill:#ef4444; font:600 11px 'JetBrains Mono',monospace; }
+        .catxt { fill:#f59e0b; font:600 11px 'JetBrains Mono',monospace; }
+        .cgtxt { fill:#4ade80; font:600 11px 'JetBrains Mono',monospace; }
+      </style>
+      <line x1="60" y1="70" x2="850" y2="70" stroke="#333333" stroke-width="2"/>
+      <circle cx="130" cy="70" r="6" fill="#60a5fa"/>
+      <rect x="60" y="92" width="200" height="64" rx="6" class="ccell"/>
+      <text x="160" y="114" text-anchor="middle" class="ttl">Snapshot 3.8.9</text>
+      <text x="160" y="132" text-anchor="middle" class="csub">build ASAN propio · target de fuzzing</text>
+      <text x="160" y="148" text-anchor="middle" class="csub">sin el hardening futuro</text>
+      <circle cx="450" cy="70" r="6" fill="#f59e0b"/>
+      <rect x="350" y="92" width="200" height="64" rx="6" class="ccell"/>
+      <text x="450" y="114" text-anchor="middle" class="catxt">Fix upstream · 08-08</text>
+      <text x="450" y="132" text-anchor="middle" class="csub">history guard LZX validado</text>
+      <text x="450" y="148" text-anchor="middle" class="csub">path CAB/LZX endurecido</text>
+      <circle cx="700" cy="70" r="6" fill="#ef4444"/>
+      <rect x="610" y="92" width="220" height="64" rx="6" class="ccellr"/>
+      <text x="720" y="114" text-anchor="middle" class="crtxt">Revisión · 15-08</text>
+      <text x="720" y="132" text-anchor="middle" class="csub">diff snapshot ↔ upstream:</text>
+      <text x="720" y="148" text-anchor="middle" class="csub">¡el fix NO está en el snapshot!</text>
+      <path d="M130 76 L130 90" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#carrW)"/>
+      <path d="M450 76 L450 90" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#carrA)"/>
+      <path d="M700 76 L700 90" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#carrR)"/>
+      <path d="M450 156 Q450 190 300 210" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#carrA)"/>
+      <path d="M720 156 Q720 195 540 214" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#carrR)"/>
+      <rect x="150" y="212" width="330" height="72" rx="6" class="ccell"/>
+      <text x="315" y="234" text-anchor="middle" class="ttl">Experimento A/B</text>
+      <text x="315" y="252" text-anchor="middle" class="csub">mismo CAB LZX → bsdtar 3.8.9 vs bsdtar parcheado</text>
+      <text x="315" y="270" text-anchor="middle" class="csub">ASAN + valgrind como jueces</text>
+      <rect x="520" y="218" width="310" height="60" rx="6" class="ccellr"/>
+      <text x="675" y="240" text-anchor="middle" class="crtxt">Divergencia confirmada</text>
+      <text x="675" y="260" text-anchor="middle" class="csub">vulnerable extrae (rc=0) · parcheado rechaza (rc=1)</text>
+    </svg>
+  </div>
+  <figcaption class="figcap">Figura 1 — Cronología del hallazgo: el commit upstream del 08-08 funciona como aviso; la revisión semanal del snapshot lo convierte en hipótesis; el A/B la transforma en hecho medible.</figcaption>
+</figure>
 
-        <!-- 01 CONTEXTO -->
-        <h2 class="section-title mono" id="s01"><span style="color: var(--text-muted);">01.</span> Contexto: Snapshots que Envejecen Mal</h2>
-        <p>
-            Analizar un target serio exige construirlo: compilar la versión concreta, instrumentarla, fijar su entorno. Esa construcción es un <strong>snapshot</strong> —y desde el momento en que existe, empieza a envejecer. Upstream sigue vivo: commits, hardening, fixes. Cada día que pasa, tu snapshot fiel deja de serlo un poco más.
-        </p>
-        <p>
-            Esta historia nace de esa tensión. El sistema Sherlock mantiene un snapshot de libarchive 3.8.9 para sus campañas de fuzzing sobre formatos de archivo. Durante la revisión periódica contra upstream apareció un commit del <strong>2026-08-08</strong> que tocaba justo el camino CAB/LZX que el snapshot ejercita: un hardening frente a lectura de memoria no inicializada en el history guard del decoder LZX. Pregunta inmediata: ¿el snapshot contiene ese fix? Respuesta corta: no. Pregunta larga: ¿qué significa eso en la práctica? El resto del artículo es la respuesta.
-        </p>
+<h2 id="a03"><span class="idx">04.</span> Anatomía: el history guard sin inicializar</h2>
+<p>El algoritmo LZX — el que comprimían los instaladores de Windows y los ficheros CAB antiguos — mantiene un <em>historial</em> de ventana: los últimos kilobytes de salida descomprimida, que las instrucciones de match reutilizan como diccionario. Para acelerar la decodificación, la implementación de libarchive lleva controles auxiliares sobre ese historial; uno de ellos es el <b>history guard</b>, que decide cuándo el estado del historial es válido.</p>
+<p>El problema: en ciertas secuencias de bloques CAB malformadas, el guard se <em>consulta</em> antes de haber sido <em>escrito</em>. El heap entrega lo que había en esas direcciones — basura de usos anteriores — y el decoder toma decisiones de decodificación basadas en ella. Formalmente es CWE-457: comportamiento dependiente de valores no inicializados. En la práctica observada, la consecuencia visible era que archivos que deberían ser rechazados como corruptos se «decodificaban» hasta el final, consumiendo la basura como si fuera estado legítimo.</p>
+<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c"># Forma del defecto (semántica del fix upstream del 08-08)</span>
 
-        <!-- 02 METODO -->
-        <h2 class="section-title mono" id="s02"><span style="color: var(--text-muted);">02.</span> El Método: Patch-Diffing como Radar</h2>
-        <p>
-          El patch-diffing suele asociarse a martes de parches de grandes vendors: comparar binarios antes/después para localizar la vulnerabilidad corregida. Pero tiene un uso inverso igual de potente para quien caza con targets propios: <strong>usar los commits upstream como radar de zonas calientes</strong>. Si el proyecto acaba de blindar una ruta de código, esa ruta era frágil ayer —y cualquier versión viva sin el parche lo sigue siendo hoy.
-        </p>
-        <div class="diagram-container">
-        <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Línea temporal del patch-diffing: snapshot 3.8.9 construido, fix upstream el 08-08, revisión del 15-08 detecta la divergencia y el A/B la confirma">
-            <defs>
-                <marker id="arrW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a3a3a3"/></marker>
-                <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#f59e0b"/></marker>
-                <marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ef4444"/></marker>
-                <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4ade80"/></marker>
-            </defs>
-            <style>
-                .ttl { fill:#f5f5f5; font:600 12px 'JetBrains Mono',monospace; }
-                .sub { fill:#888888; font:11px 'Inter',sans-serif; }
-                .cell { fill:#181818; stroke:#333333; }
-                .cellr { fill:#1c1010; stroke:#ef4444; }
-                .btxt { fill:#e5e5e5; font:600 11px 'JetBrains Mono',monospace; }
-                .rtxt { fill:#ef4444; font:600 11px 'JetBrains Mono',monospace; }
-                .atxt { fill:#f59e0b; font:600 11px 'JetBrains Mono',monospace; }
-                .gtxt { fill:#4ade80; font:600 11px 'JetBrains Mono',monospace; }
-            </style>
-            <!-- eje temporal -->
-            <line x1="60" y1="70" x2="850" y2="70" stroke="#333333" stroke-width="2"/>
-            <!-- hito 1: snapshot -->
-            <circle cx="130" cy="70" r="6" fill="#60a5fa"/>
-            <rect x="60" y="92" width="200" height="64" rx="6" class="cell"/>
-            <text x="160" y="114" text-anchor="middle" class="ttl">Snapshot 3.8.9</text>
-            <text x="160" y="132" text-anchor="middle" class="sub">build ASAN propio · target de fuzzing</text>
-            <text x="160" y="148" text-anchor="middle" class="sub">sin el hardening futuro</text>
-            <!-- hito 2: fix upstream -->
-            <circle cx="450" cy="70" r="6" fill="#f59e0b"/>
-            <rect x="350" y="92" width="200" height="64" rx="6" class="cell"/>
-            <text x="450" y="114" text-anchor="middle" class="atxt">Fix upstream · 08-08</text>
-            <text x="450" y="132" text-anchor="middle" class="sub">history guard LZX validado</text>
-            <text x="450" y="148" text-anchor="middle" class="sub">path CAB/LZX endurecido</text>
-            <!-- hito 3: revision -->
-            <circle cx="700" cy="70" r="6" fill="#ef4444"/>
-            <rect x="610" y="92" width="220" height="64" rx="6" class="cellr"/>
-            <text x="720" y="114" text-anchor="middle" class="rtxt">Revisión · 15-08</text>
-            <text x="720" y="132" text-anchor="middle" class="sub">diff snapshot ↔ upstream:</text>
-            <text x="720" y="148" text-anchor="middle" class="sub">¡el fix NO está en el snapshot!</text>
-            <path d="M130 76 L130 90" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#arrW)"/>
-            <path d="M450 76 L450 90" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#arrA)"/>
-            <path d="M700 76 L700 90" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#arrR)"/>
-            <!-- consecuencia -->
-            <path d="M450 156 Q450 190 300 210" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#arrA)"/>
-            <path d="M720 156 Q720 195 540 214" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#arrR)"/>
-            <rect x="150" y="212" width="330" height="72" rx="6" class="cell"/>
-            <text x="315" y="234" text-anchor="middle" class="ttl">Experimento A/B</text>
-            <text x="315" y="252" text-anchor="middle" class="sub">mismo CAB LZX → bsdtar 3.8.9 vs bsdtar parcheado</text>
-            <text x="315" y="270" text-anchor="middle" class="sub">ASAN + valgrind como jueces</text>
-            <rect x="520" y="218" width="310" height="60" rx="6" class="cellr"/>
-            <text x="675" y="240" text-anchor="middle" class="rtxt">Divergencia confirmada</text>
-            <text x="675" y="260" text-anchor="middle" class="sub">vulnerable extrae (rc=0) · parcheado rechaza (rc=1)</text>
-        </svg>
-        </div>
-        <div class="image-caption mono" style="margin-top:-1.5rem; margin-bottom:2rem;">Figura 1 — Cronología del hallazgo: el commit upstream del 08-08 funciona como aviso; la revisión semanal del snapshot lo convierte en hipótesis; el A/B la transforma en hecho medible.</div>
+<span class="syn-c"># ANTES (snapshot 3.8.9):</span>
+<span class="syn-k">if</span> (guard &amp;&amp; ...)        <span class="syn-c"># guard puede llegar aquí SIN inicializar</span>
+    ...procesar bloque...  <span class="syn-c"># decisión tomada sobre basura del heap</span>
 
-        <!-- 03 ANATOMIA -->
-        <h2 class="section-title mono" id="s03"><span style="color: var(--text-muted);">03.</span> Anatomía: El History Guard sin Inicializar</h2>
-        <p>
-            El algoritmo LZX —el que comprimían los instaladores de Windows y los ficheros CAB antiguos— mantiene un <em>historial</em> de ventana: los últimos kilobytes de salida descomprimida, que las instrucciones de match reutilizan como diccionario. Para acelerar la decodificación, la implementación de libarchive lleva controles auxiliares sobre ese historial; uno de ellos es el <strong>history guard</strong>, que decide cuándo el estado del historial es válido.
-        </p>
-        <p>
-            El problema: en ciertas secuencias de bloques CAB malformadas, el guard se <em>consulta</em> antes de haber sido <em>escrito</em>. El heap entrega lo que había en esas direcciones —basura de usos anteriores— y el decoder toma decisiones de decodificación basadas en ella. Formalmente es CWE-457: comportamiento dependiente de valores no inicializados. En la práctica observada, la consecuencia visible era que archivos que deberían ser rechazados como corruptos se «decodificaban» hasta el final, consumiendo la basura como si fuera estado legítimo.
-        </p>
-        <div class="code-block mono"><span class="comment"># Forma del defecto (semántica del fix upstream del 08-08)</span>
+<span class="syn-c"># DESPUÉS (upstream parcheado):</span>
+<span class="syn-k">if</span> (!history_valid)      <span class="syn-c"># estado explícito + inicialización garantizada</span>
+    <span class="syn-k">return</span> -<span class="syn-n">25</span>;           <span class="syn-c"># LZX_CORRUPT: rechazo limpio del stream</span></code></pre></div>
+<p>Los sanitarios lo confirman con precisión quirúrgica: AddressSanitizer reporta <code>use-of-uninitialized-value</code> en el camino del guard durante <code>lzx_read_blocks</code>, y valgrind con <code>--track-origins=yes</code> remonta el valor hasta su origen: una asignación de heap cuyo contenido nunca se escribió antes de leerse.</p>
 
-<span class="comment"># ANTES (snapshot 3.8.9):</span>
-<span class="inst">if</span> (guard &amp;&amp; ...)        <span class="comment"># guard puede llegar aquí SIN inicializar</span>
-    ...procesar bloque...  <span class="comment"># decisión tomada sobre basura del heap</span>
-
-<span class="comment"># DESPUÉS (upstream parcheado):</span>
-<span class="inst">if</span> (!history_valid)      <span class="comment"># estado explícito + inicialización garantizada</span>
-    <span class="inst">return</span> -<span class="val">25</span>;           <span class="comment"># LZX_CORRUPT: rechazo limpio del stream</span></div>
-        <p>
-            Los sanitarios lo confirman con precisión quirúrgica: AddressSanitizer reporta <span class="mono">use-of-uninitialized-value</span> en el camino del guard durante <span class="mono">lzx_read_blocks</span>, y valgrind con <span class="mono">--track-origins=yes</span> remonta el valor hasta su origen: una asignación de heap cuyo contenido nunca se escribió antes de leerse.
-        </p>
-
-        <!-- 04 AB -->
-        <h2 class="section-title mono" id="s04"><span style="color: var(--text-muted);">04.</span> El Experimento A/B</h2>
-        <p>
-          La validación mínima de una divergencia es comparar los dos mundos con todo lo demás constante: mismo input CAB que recorre el path del history guard, misma invocación de extracción, única variable = el parche.
-        </p>
-        <div class="image-container">
-            <img src="img/libarchive-cab-lzx-uninit-read-ab-evidencia.png" alt="Terminal mostrando la comparación A/B: bsdtar 3.8.9 extrae el CAB con rc=0 mientras el build parcheado devuelve rc=1 con error LZX_CORRUPT, seguido de la confirmación de valgrind" loading="lazy">
-            <div class="image-caption mono">Evidencia A/B — El mismo CAB ante dos builds: el snapshot vulnerable extrae silenciosamente (con lectura no inicializada bajo ASAN/valgrind); el parcheado corta con «corrupt history guard». Captura regenerada a partir del log original de validación con rutas de entorno redactadas.</div>
-        </div>
-        <div class="code-block mono"><span class="comment"># Resumen del protocolo A/B (2026-08-15)</span>
-<span class="comment"># A — snapshot vulnerable (bsdtar ASAN 3.8.9)</span>
+<h2 id="a04"><span class="idx">05.</span> El experimento A/B</h2>
+<p>La validación mínima de una divergencia es comparar los dos mundos con todo lo demás constante: mismo input CAB que recorre el path del history guard, misma invocación de extracción, única variable = el parche.</p>
+<figure class="figure">
+  <img src="img/libarchive-cab-lzx-uninit-read-ab-evidencia.png" alt="Terminal mostrando la comparación A/B: bsdtar 3.8.9 extrae el CAB con rc=0 mientras el build parcheado devuelve rc=1 con error LZX_CORRUPT, seguido de la confirmación de valgrind" loading="lazy">
+  <figcaption class="figcap">Evidencia A/B — El mismo CAB ante dos builds: el snapshot vulnerable extrae silenciosamente (con lectura no inicializada bajo ASAN/valgrind); el parcheado corta con «corrupt history guard». Captura regenerada a partir del log original de validación con rutas de entorno redactadas.</figcaption>
+</figure>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Resumen del protocolo A/B (2026-08-15)</span>
+<span class="syn-c"># A — snapshot vulnerable (bsdtar ASAN 3.8.9)</span>
 $ bsdtar-asan-3.8.9 -xvf poc_cab_lzx_history.cab ; echo rc=$?
 poc_lzx.bin   extraído
-rc=<span class="val">0</span>                          <span class="comment"># éxito aparente...</span>
-<span class="comment">#   stderr ASAN: use-of-uninitialized-value (history guard)</span>
+rc=<span class="syn-n">0</span>                          <span class="syn-c"># éxito aparente...</span>
+<span class="syn-c">#   stderr ASAN: use-of-uninitialized-value (history guard)</span>
 
-<span class="comment"># B — build parcheado (fix upstream 08-08)</span>
+<span class="syn-c"># B — build parcheado (fix upstream 08-08)</span>
 $ bsdtar-patched -xvf poc_cab_lzx_history.cab ; echo rc=$?
 bsdtar: LZX decoder error: corrupt history guard
-rc=<span class="val">1</span>                          <span class="comment"># (-25, LZX_CORRUPT): rechazo correcto</span>
+rc=<span class="syn-n">1</span>                          <span class="syn-c"># (-25, LZX_CORRUPT): rechazo correcto</span>
 
-<span class="comment"># Origen confirmado de forma independiente:</span>
+<span class="syn-c"># Origen confirmado de forma independiente:</span>
 $ valgrind --track-origins=yes bsdtar-asan-3.8.9 -xf poc_cab_lzx_history.cab
-==<span class="val">…</span>== Conditional jump or move depends on uninitialised value(s)
-==<span class="val">…</span>==  Uninitialised value was created by a heap allocation</div>
-        <p>
-            La asimetría de veredictos es el resultado completo: <strong>un archivo que el código correcto considera corrupto atraviesa el código vulnerable sin levantar sospechas</strong>. Ese es exactamente el tipo de silencio que un read no inicializado produce —y el tipo de señal que un A/B bien montado vuelve audible.
-        </p>
+==<span class="syn-n">…</span>== Conditional jump or move depends on uninitialised value(s)
+==<span class="syn-n">…</span>==  Uninitialised value was created by a heap allocation</code></pre></div>
+<p>La asimetría de veredictos es el resultado completo: <b>un archivo que el código correcto considera corrupto atraviesa el código vulnerable sin levantar sospechas</b>. Ese es exactamente el tipo de silencio que un read no inicializado produce — y el tipo de señal que un A/B bien montado vuelve audible.</p>
 
-        <!-- 05 DUPRACE -->
-        <h2 class="section-title mono" id="s05"><span style="color: var(--text-muted);">05.</span> La Clasificación Honesta: DUP-RACE</h2>
-        <p>
-            Aquí el sistema aplicó una regla que vale tanto para humanos como para agentes: <strong>verificar la fecha del fix antes de reclamar prioridad</strong>. El hardening upstream databa del 08-08 —una semana antes de la detección—, lo que sitúa el descubrimiento dentro de una carrera perdida: alguien reportó el problema primero y upstream ya lo había cerrado. El hallazgo se archiva como <strong>DUP-RACE</strong>: real, reproducible, pero duplicado respecto a la línea temporal oficial.
-        </p>
-        <div class="callout-warning">
-            <div class="callout-title mono">Por qué publicarlo aun siendo dup-race</div>
-            <p>Tres razones. Primera: el valor metodológico —el patch-diffing como radar— sobrevive al destino del bug concreto. Segunda: millones de sistemas siguen ejecutando builds sin el fix; saber que el path existe ayuda a operadores a priorizar actualizaciones de libarchive. Tercera: la honestidad taxonómica es parte del contrato de esta serie; un dup-race documentado enseña más que un hallazgo inflado.</p>
-        </div>
+<h2 id="a05"><span class="idx">06.</span> La clasificación honesta: DUP-RACE</h2>
+<p>Aquí el sistema aplicó una regla que vale tanto para humanos como para agentes: <b>verificar la fecha del fix antes de reclamar prioridad</b>. El hardening upstream databa del 08-08 — una semana antes de la detección —, lo que sitúa el descubrimiento dentro de una carrera perdida: alguien reportó el problema primero y upstream ya lo había cerrado. El hallazgo se archiva como <b>DUP-RACE</b>: real, reproducible, pero duplicado respecto a la línea temporal oficial.</p>
+<div class="callout callout-warn"><span class="ico">⚠</span><div>
+  <div class="h">Por qué publicarlo aun siendo dup-race</div>
+  <p>Tres razones. Primera: el valor metodológico — el patch-diffing como radar — sobrevive al destino del bug concreto. Segunda: millones de sistemas siguen ejecutando builds sin el fix; saber que el path existe ayuda a operadores a priorizar actualizaciones de libarchive. Tercera: la honestidad taxonómica es parte del contrato de esta serie; un dup-race documentado enseña más que un hallazgo inflado.</p>
+</div></div>
 
-        <!-- 06 ACOTACION -->
-        <h2 class="section-title mono" id="s06"><span style="color: var(--text-muted);">06.</span> Acotación: Por Qué es LOW</h2>
-        <ul>
-            <li><strong>Solo lectura</strong>: el defecto consume valores no inicializados para decidir flujo interno; no hay primitiva de escritura ni corrupción de estructuras adyacentes.</li>
-            <li><strong>Valores no controlados directamente</strong>: el atacante condiciona <em>que</em> se lea basura, pero no <em>qué</em> basura —el contenido depende del estado previo del heap, no de bytes elegidos del input.</li>
-            <li><strong>Efecto observable limitado</strong>: aceptación de streams corruptos y decisiones internas contaminadas; sin fuga directa de datos al output en el escenario observado. Escalarlo a info-leak exigiría encadenarlo con superficies adicionales que este análisis no persiguió.</li>
-        </ul>
+<h2 id="a06"><span class="idx">07.</span> Acotación: por qué es LOW</h2>
+<ul>
+  <li><b>Solo lectura</b>: el defecto consume valores no inicializados para decidir flujo interno; no hay primitiva de escritura ni corrupción de estructuras adyacentes.</li>
+  <li><b>Valores no controlados directamente</b>: el atacante condiciona <em>que</em> se lea basura, pero no <em>qué</em> basura — el contenido depende del estado previo del heap, no de bytes elegidos del input.</li>
+  <li><b>Efecto observable limitado</b>: aceptación de streams corruptos y decisiones internas contaminadas; sin fuga directa de datos al output en el escenario observado. Escalarlo a info-leak exigiría encadenarlo con superficies adicionales que este análisis no persiguió.</li>
+</ul>
 
-        <!-- 07 LECCIONES -->
-        <h2 class="section-title mono" id="s07"><span style="color: var(--text-muted);">07.</span> Lecciones Metodológicas</h2>
-        <p>
-            Más allá del CWE, este caso dejó tres reglas operativas al sistema:
-        </p>
-        <ol>
-            <li><strong>La fecha del fix importa tanto como el fix</strong>: una divergencia detectada días después del commit upstream casi siempre es carrera perdida; reconocerlo rápido ahorra semanas de maduración inútil y protege la credibilidad del programa.</li>
-            <li><strong>El A/B con build ASAN es la validación mínima</strong>: una divergencia solo afirmada por diff de código es una hipótesis; con dos binarios y un input, es un experimento. La diferencia entre ambos estados es la diferencia entre creer y saber.</li>
-            <li><strong>Los commits upstream son inteligencia gratuita</strong>: cada hardening señala una debilidad histórica y delimita las versiones vivas que aún la padecen. Revisarlos periódicamente convierte el repositorio ajeno en sensor propio.</li>
-        </ol>
+<h2 id="a07"><span class="idx">08.</span> Lecciones metodológicas</h2>
+<p>Más allá del CWE, este caso dejó tres reglas operativas al sistema:</p>
+<ol>
+  <li><b>La fecha del fix importa tanto como el fix</b>: una divergencia detectada días después del commit upstream casi siempre es carrera perdida; reconocerlo rápido ahorra semanas de maduración inútil y protege la credibilidad del programa.</li>
+  <li><b>El A/B con build ASAN es la validación mínima</b>: una divergencia solo afirmada por diff de código es una hipótesis; con dos binarios y un input, es un experimento. La diferencia entre ambos estados es la diferencia entre creer y saber.</li>
+  <li><b>Los commits upstream son inteligencia gratuita</b>: cada hardening señala una debilidad histórica y delimita las versiones vivas que aún la padecen. Revisarlos periódicamente convierte el repositorio ajeno en sensor propio.</li>
+</ol>
 
-        <!-- 08 CONCLUSION -->
-        <h2 class="section-title mono" id="s08"><span style="color: var(--text-muted);">08.</span> Conclusión</h2>
-        <p>
-            No todos los hallazgos terminan en CVE propio, y está bien que sea así. Este caso demuestra que un sistema de caza maduro también sabe <strong>perder carreras con elegancia</strong>: detectar la divergencia, medirla, clasificarla honestamente y extraer de ella el activo duradero —el método—. El history guard de LZX ya está protegido upstream; el patch-diffing como radar, en cambio, apenas empieza a dar sus primeros resultados.
-        </p>
-        <p>
-            Para operadores, el recordatorio práctico: si vuestra distribución todavía sirve builds de libarchive sin el hardening de agosto, los CAB malformados pueden atravesar vuestro extractor con éxito aparente. Actualizar no es burocracia; es cerrar puertas que otros ya saben dónde están.
-        </p>
-
-        <!-- CTA -->
-        <div class="cta-closure">
-            <h3 class="mono">/Más hallazgos de la serie Sherlock</h3>
-            <p>Siete vulnerabilidades confirmadas en un mes de caza autónoma con modelos locales de IA. Todos los análisis con evidencia y diagramas.</p>
-            <div class="cta-closure-links">
-                <a href="sherlock-caza-autonoma-ia-local.html" class="cta-btn primary mono">← Centro de la serie</a>
-                <a href="7zip-isfolderencrypted-oob-read.html" class="cta-btn mono">7-Zip: Heap OOB Read →</a>
-                <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html" class="cta-btn mono">FFmpeg: VPK · VQF · Smacker →</a>
-                <a href="libwebp-vp8l-lossless-decode-dos.html" class="cta-btn mono">libwebp: VP8L DoS →</a>
-                <a href="pcre2-jit-compile-hang-recursion.html" class="cta-btn mono">PCRE2: JIT Hang →</a>
-            </div>
-        </div>
-
-        <!-- Referencias -->
-        <h2 class="section-title mono"><span style="color: var(--text-muted);">09.</span> Referencias</h2>
-        <ul>
-            <li><a href="https://www.libarchive.org/" target="_blank" rel="noopener noreferrer">libarchive — sitio oficial del proyecto</a></li>
-            <li><a href="https://cwe.mitre.org/data/definitions/457.html" target="_blank" rel="noopener noreferrer">MITRE CWE-457: Use of Uninitialized Variable</a></li>
-            <li><a href="https://github.com/google/sanitizers" target="_blank" rel="noopener noreferrer">AddressSanitizer — MemorySanitizer y detección de valores no inicializados</a></li>
-            <li><a href="https://www.valgrind.org/docs/manual/mc-manual.html" target="_blank" rel="noopener noreferrer">Valgrind Memcheck — track-origins</a></li>
-            <li><a href="https://msdn.microsoft.com/en-us/library/bb417345.aspx" target="_blank" rel="noopener noreferrer">Especificación LZX (Microsoft Compression Scheme)</a></li>
-            <li><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA (tty503.com)</a></li>
-            <li><a href="saint-grail-go.html">SAINT GRAIL Go: CRC Bypass en 7-Zip 9.20–25.01 (tty503.com)</a></li>
-        </ul>
-    </article>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="social-links mono">
-                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">github/tty503</a>
-                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">linkedin/tty503</a>
-                <a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">x/tty_503</a>
-                <a href="https://tty503.com">tty503.com</a>
-            </div>
-            <p class="copyright">© <span id="current-year"></span> Christian Márquez. Vulnerability Research — Serie Sherlock.</p>
-        </div>
-    </footer>
-
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-        const navbar = document.querySelector('.navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) { navbar.style.background = 'rgba(3, 3, 3, 0.9)'; }
-            else { navbar.style.background = 'rgba(3, 3, 3, 0.75)'; }
-        });
-    </script>
-
-    <!-- ==================== SCHEMA JSON-LD ==================== -->
-    <script type="application/ld+json">
+<h2 id="a08"><span class="idx">09.</span> Conclusión</h2>
+<p>No todos los hallazgos terminan en CVE propio, y está bien que sea así. Este caso demuestra que un sistema de caza maduro también sabe <b>perder carreras con elegancia</b>: detectar la divergencia, medirla, clasificarla honestamente y extraer de ella el activo duradero — el método. El history guard de LZX ya está protegido upstream; el patch-diffing como radar, en cambio, apenas empieza a dar sus primeros resultados.</p>
+<p>Para operadores, el recordatorio práctico: si vuestra distribución todavía sirve builds de libarchive sin el hardening de agosto, los CAB malformados pueden atravesar vuestro extractor con éxito aparente. Actualizar no es burocracia; es cerrar puertas que otros ya saben dónde están.</p>
+</article>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="7zip-isfolderencrypted-oob-read.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>18 min</span></div><div class="t">7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente</div><div class="d">El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>16 min</span></div><div class="t">FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)</div><div class="d">Tres bugs de DoS por fuzzing autónomo: división por cero con 21 bytes (CWE-369, parcheada), leak escalable hasta ~677 MB</div><span class="badge badge-dos">Vulnerability Research</span></a><a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>20 min</span></div><div class="t">Sherlock: caza autónoma de vulnerabilidades con IA local</div><div class="d">Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con valid</div><span class="badge badge-rce">Serie</span></a></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "libarchive: Uninitialized Heap Read en CAB/LZX Cazado con Patch-Diffing",
-      "description": "Mismo CAB, dos builds de bsdtar: el 3.8.9 vulnerable extrae leyendo un history guard LZX sin inicializar (CWE-457) y el parcheado rechaza con LZX_CORRUPT. Patch-diffing como radar, experimento A/B, clasificación honesta DUP-RACE y evidencia ASAN/valgrind.",
-      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com", "sameAs": ["https://linkedin.com/in/tty503", "https://github.com/tty503"] },
+      "headline": "libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing",
+      "description": "Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y una clasificaci\u00f3n honesta: DUP-RACE.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-08-21",
       "dateModified": "2026-08-21",
       "mainEntityOfPage": "https://tty503.com/libarchive-cab-lzx-uninitialized-memory.html",
-      "image": "https://tty503.com/img/libarchive-cab-lzx-uninit-read-ab-evidencia.png",
-      "keywords": ["libarchive", "bsdtar", "CAB", "LZX", "CWE-457", "uninitialized memory", "patch diffing", "dup-race", "ASAN", "valgrind"],
-      "publisher": { "@type": "Organization", "name": "tty503", "url": "https://tty503.com" },
       "inLanguage": "es",
-      "wordCount": "1800",
-      "timeRequired": "PT11M",
-      "about": [
-        { "@type": "Thing", "name": "Vulnerability Research" },
-        { "@type": "Thing", "name": "Patch-Diffing" },
-        { "@type": "Thing", "name": "Formato CAB" }
-      ]
+      "keywords": "CWE-457, libarchive, Patch-diffing, LZX"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/libarchive-cab-lzx-uninitialized-memory.html", "name": "libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing"}}]
     }
-    </script>
+  ]
+}
+</script>
 </body>
 </html>

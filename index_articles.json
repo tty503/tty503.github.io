@@ -1,0 +1,373 @@
+[
+ {
+  "href": "analystty.html",
+  "date": "",
+  "title": "analystty — Automatización de Triage de Malware NOTAS",
+  "desc": "Herramienta interna en Python para automatizar el análisis estático de archivos PE, detección de APIs maliciosas, mapeo de TTPs e integración con x64dbg. Stack: Capstone, pefile, malapi.json.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "evasion-estatica-asm-mirai.html",
+  "date": "",
+  "title": "Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM ARTÍCULO",
+  "desc": "Polimorfismo manual en Assembly para tumbar detecciones de 16/64 a 0/65 en VirusTotal. Stub descifrador en NASM con claves dinámicas, propuesta de arquitectura DGA mutante con validación Denuvo-like, 8 diagramas PlantUML y correlación con MITRE ATT&CK (T1027, T1562.001, T1568.002).",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "threat-hunter-recollection.html",
+  "date": "",
+  "title": "Threat Hunter Recollection: Una Crónica de Caza Conectando Campañas NOTAS",
+  "desc": "Cinco investigaciones reales conectadas por un mismo hilo metodológico. Del mapeo OSINT de una red de estafa piramidal global al reversing de un dropper multi-etapa, pasando por la deconstrucción de NetSupport RAT y el análisis de infraestructura BEC.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "pigbutchering-bybsusd.html",
+  "date": "",
+  "title": "Red de Estafa \"Pig Butchering\" — Fake Crypto Exchange Multi-Dominio NOTAS",
+  "desc": "Investigación técnica de una red de estafa tipo Pig Butchering con rotación rápida de dominios, WebSocket con Workerman PHP, API con captcha roto y certificados falsos. Incluye IoCs, diagramas de infraestructura y referencias al FBI, DOJ y Europol.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "fakewealth-cmdxcapital.html",
+  "date": "",
+  "title": "Operación FakeWealth: Inteligencia de Amenazas sobre cmdxcapital NOTAS",
+  "desc": "Investigación de threat intelligence sobre una red de fraude financiero con infraestructura en Cloudflare y Google Cloud. Crash de Laravel con appDebug:true en producción, bypass de captcha, migración de wallets Bitcoin y spoofing de Companies House UK.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "operation-general-jp-silentwarn.html",
+  "date": "",
+  "title": "Operaciones General JP y SilentWarn: Dos Campañas de Phishing Conectadas NOTAS",
+  "desc": "Investigación de threat intelligence sobre dos campañas de phishing activas. General JP: redirección multi-capa, Google Cloud Storage, Filemail API y kit PHP con exfiltración a Telegram. SilentWarn: React + EmailJS + SMTPjs, geofencing para Vietnam. IoCs, patrones de infraestructura y correlación con investigaciones previas.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "assembly.html",
+  "date": "",
+  "title": "Assembly para Ingeniería Inversa (RE) NOTAS",
+  "desc": "Referencia de consulta rápida: stack frames, variables globales/locales, clases vs structs, malloc/new, pilas, colas, listas enlazadas, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64) y heurísticas para identificación de funciones.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "web-api-pentesting2024.html",
+  "date": "",
+  "title": "Pentesting a Web API Financiera: Token Reuse, IDOR y Fuga de Datos NOTAS",
+  "desc": "Auditoría de seguridad ofensiva freelance a una Web API del sector financiero. Ingeniería inversa de APK, bypass de certificate pinning, token reuse con JWT, IDOR y extracción automatizada de datos sensibles.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "exploit-development-ot-awl-arm.html",
+  "date": "",
+  "title": "Exploit Development en Entornos OT: Del AWL al Shellcode en PLC Siemens, ROP sobre ARM/MIPS y Bypass de Sandbox ARTÍCULO",
+  "desc": "Cierre del ciclo entre reversing de AWL/MC7/MC7+ y exploit development. Análisis del ecosistema de herramientas (JEB Decompiler, rz-libmc7, Ghidra). Caso central: CVE-2020-15782 (Claroty Team82), sandbox escape con ejecución de código nativo ARM/MIPS en kernel ADONIS. Cuatro workshops prácticos: shellcode AWL, ROP sobre MC7, fuzzing de Modbus/S7comm con AFL++, y cadena completa drive-by → sandbox escape → modificación física de salidas en S7-1200. Guía de laboratorio ICS con costos, red OT segmentada e integración con túnel ofuscado.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "exploit-development-lab.html",
+  "date": "",
+  "title": "Laboratorio de Exploit Development: Arquitectura del Kernel, Binarios y ROP en la Práctica ARTÍCULO",
+  "desc": "Bitácora de un mes de laboratorio intensivo. Windows Internals, drivers KMDF/UMDF, formatos PE/ELF/DEX, Assembly x86/AMD64/ARM64, shellcode injection, ROP con cadena funcional en 64 bits, y disección de cuatro CVEs reales en Chrome V8 y WebRTC. Incluye laboratorio práctico con VirtualBox, INetSim, fakedns y plan de retoma con diez tareas priorizadas.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "myPracticalShellcodeC2.html",
+  "date": "",
+  "title": "De la Shellcode Artesanal al C2 Builder NOTAS",
+  "desc": "Evolución técnica de un dropper de shellcode en C/Assembly (WinExec/ExitProcess) a un framework de malware con panel C2 en C#. Incluye compendio extenso de técnicas: inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, XOR encryption, API hashing, y persistencia.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "assembly.html",
+  "date": "",
+  "title": "Assembly para Ingeniería Inversa: Guía de Referencia Rápida ARTÍCULO",
+  "desc": "Stack frames, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64), estructuras en memoria, heurísticas de identificación de funciones y patrones de desensamblado para threat analysts y exploit developers.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "evasion-estatica-asm-mirai.html",
+  "date": "",
+  "title": "Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM ARTÍCULO",
+  "desc": "Polimorfismo manual en Assembly x86 para evadir firmas YARA. Stub descifrador en NASM, generador de claves dinámicas en C++, y propuesta de infraestructura DGA mutante con validación Denuvo-like. De 16/64 a 0/65 en VirusTotal.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "evasion-estatica-asm-mirai.html",
+  "date": "",
+  "title": "Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM ARTÍCULO",
+  "desc": "De 16/64 a 0/65 en VirusTotal sin packers ni crypters. Polimorfismo manual en Assembly, stub descifrador en NASM con fórmula ((A^B)+(C-1))-(D+1), propuesta de arquitectura DGA mutante con validación Denuvo-like, 8 diagramas y correlación MITRE ATT&CK.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "myPracticalShellcodeC2.html",
+  "date": "",
+  "title": "De la Shellcode Artesanal al C2 Builder NOTAS",
+  "desc": "Evolución técnica de un dropper de shellcode en C/Assembly (WinExec/ExitProcess) a un framework de malware con panel C2 en C#. Incluye compendio extenso de técnicas: inyección clásica, DLL injection, APC injection, thread hijacking, API hooking, XOR encryption, API hashing, y persistencia.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "infraestructura-tunel-ofuscado.html",
+  "date": "",
+  "title": "Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial NOTAS",
+  "desc": "Diseño de túnel privado con udp2raw (faketcp + XOR), enmascaramiento de salida con redsocks + SOCKS5 residencial, DNS blindado con dnscrypt-proxy (DoH) y automatización completa del despliegue en bash.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "exploit-development-ot-awl-arm.html",
+  "date": "",
+  "title": "Exploit Development OT: Del AWL al Shellcode en PLC Siemens, ROP sobre ARM/MIPS y Bypass de Sandbox ARTÍCULO",
+  "desc": "Caso central CVE-2020-15782 (Claroty Team82). Cuatro workshops: shellcode AWL, ROP sobre MC7, fuzzing de Modbus/S7comm, y cadena completa drive-by → sandbox escape. Guía de laboratorio ICS con costos y red OT segmentada.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "plc.html",
+  "date": "",
+  "title": "PLC Siemens S5/S7: Arquitectura, MC7, Seguridad OT y Hallazgos en Infraestructuras Venezolanas NOTAS",
+  "desc": "Investigación extendida: fundamentos de STEP5/AWL, transición a STEP7, máquina virtual MC7, ingeniería inversa de bytecodes, hallazgos en Venalum y CorpoElec, y exploración de shellcode para PLCs.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "infra-soc.html",
+  "date": "",
+  "title": "Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización NOTAS",
+  "desc": "Documentación completa del diseño, despliegue y operación de un laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo con Wazuh, Zabbix, Prometheus y Grafana.",
+  "badge": "NOTAS"
+ },
+ {
+  "href": "exploit-development-ot-awl-arm.html",
+  "date": "",
+  "title": "Exploit Development en Entornos OT: Del AWL al Shellcode en PLC Siemens, ROP sobre ARM/MIPS y Bypass de Sandbox ARTÍCULO",
+  "desc": "Cierre del ciclo entre reversing de AWL/MC7/MC7+ y exploit development. JEB Decompiler, rz-libmc7, Ghidra. CVE-2020-15782 (Claroty Team82): sandbox escape con ejecución nativa ARM/MIPS en kernel ADONIS. Cuatro workshops y guía de laboratorio ICS.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "saint-grail-go.html",
+  "date": "",
+  "title": "SAINT GRAIL: De Python a Go, Resultados Concretos y el Futuro del Bug Hunting Autónomo ARTÍCULO",
+  "desc": "Migración a Go: rendimiento extremo, concurrencia nativa y dos PoCs funcionales generados por IA. TOCTOU en Chromium y CRC Bypass en 7-Zip (9.20–25.01). Código fuente y PoCs públicos en GitHub.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "saint-grail.html",
+  "date": "",
+  "title": "SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA ARTÍCULO",
+  "desc": "Sistema que integra DeepSeek, DeepWiki y un agente híbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB, grafo interactivo en vanilla JS, dashboard con control de tokens y ciclo de investigación asistida.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "exploit-development-lab.html",
+  "date": "",
+  "title": "Laboratorio de Exploit Development: Arquitectura del Kernel, Binarios y ROP en la Práctica ARTÍCULO",
+  "desc": "Bitácora de un mes de laboratorio. Windows Internals, drivers KMDF, formatos PE/ELF/DEX, Assembly x86/AMD64/ARM64, shellcode, ROP en 64 bits, y disección de CVEs reales en Chrome V8 y WebRTC. Incluye laboratorio con VirtualBox, INetSim y fakedns.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "evasion-estatica-asm-mirai.html",
+  "date": "",
+  "title": "Evasión Estática a Bajo Nivel: Destruyendo Firmas de Mirai con Aritmética en ASM ARTÍCULO",
+  "desc": "Cómo pasé una muestra real de Mirai de 16/64 a 0/65 en VirusTotal sin packers ni crypters. Polimorfismo manual en Assembly, stub descifrador en NASM con fórmula aritmética dinámica, y propuesta de arquitectura de entrega mutante con DGA.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "analystty.html",
+  "date": "",
+  "title": "analystty — Automatización de Triage PE con Python, Capstone y pefile ARTÍCULO",
+  "desc": "Herramienta que extrae imports, detecta TTPs, desensambla la sección .text y genera breakpoints para x64dbg de forma automática. Incluye caso real con un Dropper multi-etapa y API Hashing.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "myPracticalShellcodeC2.html",
+  "date": "",
+  "title": "De winshellcode a BugBuilder: Compendio de Técnicas de Inyección y C2 en Windows ARTÍCULO",
+  "desc": "Tres años de evolución documentados. Más de 20 técnicas: inyección clásica, APC, thread hijacking, API hooking, cifrado XOR, API hashing y persistencia. Incluye panel C2 estructurado.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "plc.html",
+  "date": "",
+  "title": "Ingeniería Inversa de PLC Siemens MC7: Deficiencia Estructural de Logs en Infraestructuras Críticas ARTÍCULO",
+  "desc": "Laboratorio de reversing sobre la máquina virtual MC7 y el lenguaje AWL. Correlación de volcado hexadecimal con rizin. Ausencia total de registros de auditoría en sistemas reales.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "assembly.html",
+  "date": "",
+  "title": "Assembly para Ingeniería Inversa: Guía de Referencia Rápida ARTÍCULO",
+  "desc": "Stack frames, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64), estructuras en memoria, heurísticas de identificación de funciones y patrones de desensamblado.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "caza-autonoma-e2e-serie.html",
+  "date": "",
+  "title": "Caza Autónoma E2E con IA Local: 5 Cadenas RCE Reales, Divulgación Completa SERIE",
+  "desc": "Cinco cadenas de ejecución de código verificadas extremo a extremo: CoovaChilli, wifidog, libuhttpd, librtmp+mini_httpd y la suite Webmin/Usermin/accel-ppp/CUPS. Pipeline, sinks línea a línea, PoC y evidencia, publicados como divulgación responsable.",
+  "badge": "SERIE"
+ },
+ {
+  "href": "coovachilli-eap-identity-rce.html",
+  "date": "",
+  "title": "CoovaChilli: RCE via EAP-Identity → conup (CWE-78) ARTÍCULO",
+  "desc": "Un payload en el EAP-Response/Identity pre-auth viaja sin sanitizar por la cadena EAP→RADIUS→env→script y acaba en un eval. RCE root o low-priv según el deployment. Validación E2E con ASAN+gdb.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "wifidog-host-header-rce.html",
+  "date": "",
+  "title": "wifidog: RCE root via cabecera Host (CWE-78) ARTÍCULO",
+  "desc": "Un request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh,-c) que construye iptables. Reverse shell root verificada. Sink en fw_iptables.c:596 → util.c:96.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "libuhttpd-date2unix-stackoverflow.html",
+  "date": "",
+  "title": "libuhttpd: Stack Overflow en date2unix (CWE-121) ARTÍCULO",
+  "desc": "Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "autopsia-librtmp-minihttpd.html",
+  "date": "",
+  "title": "Análisis: librtmp AMF3 + mini_httpd htpasswd ARTÍCULO",
+  "desc": "Dos primitivas reales: OOB read en el decoder AMF3 de librtmp y command injection en htpasswd de mini_httpd. La lección de cuándo una primitiva alcanza impacto real.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "suite-webmin-usermin-accelppp-cups.html",
+  "date": "",
+  "title": "Suite de scripting servers: Webmin, Usermin, accel-ppp y CUPS ARTÍCULO",
+  "desc": "Cuatro sinks de inyección en la familia miniserv + L2TP + CUPS, y el bypass de confianza X-SSL-Client-* con su alcance real (requiere 3 prerequisitos no por defecto).",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "sherlock-caza-autonoma-ia-local.html",
+  "date": "",
+  "title": "Sherlock: Caza Autónoma de Vulnerabilidades con Modelos Locales de IA — Siete Hallazgos en un Mes SERIE",
+  "desc": "Centro de la serie: arquitectura del sistema de caza autónomo sobre hardware local, metodología de triage y validación doble, política de divulgación graduada e índice de los siete hallazgos confirmados contra 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.",
+  "badge": "SERIE"
+ },
+ {
+  "href": "7zip-isfolderencrypted-oob-read.html",
+  "date": "",
+  "title": "7-Zip: Heap Out-of-Bounds Read en IsFolderEncrypted por Re-parse Divergente de CodersData ARTÍCULO",
+  "desc": "El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes en 7-Zip 26.00–26.02. Desync byte a byte, diagrama dual-parser, PoC estructural y evidencia ASAN + valgrind en x86/x64.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "ffmpeg-demuxers-dos-vpk-vqf-smacker.html",
+  "date": "",
+  "title": "FFmpeg: Tres Demuxers, Un Mismo Pecado — SIGFPE en VPK, Memory Leak en VQF y Hang en Smacker ARTÍCULO",
+  "desc": "Tres bugs de DoS hallados por fuzzing autónomo: división por cero con 21 bytes (CWE-369, parcheada en 8.1.2), leak escalable hasta ~677 MB por archivo (CWE-401) y bucle de 13,5M frames con un input de 105 bytes (CWE-400). Tabla comparativa y descarte de hipótesis.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "libwebp-vp8l-lossless-decode-dos.html",
+  "date": "",
+  "title": "libwebp: DoS por Área de Imagen No Validada en el Decoder Lossless VP8L ARTÍCULO",
+  "desc": "Un WebP lossless de 34 bytes declara hasta 16384×16384 píxeles sin comprobar MAX_IMAGE_AREA, justo el guardia que el path lossy sí aplica. Análisis de la asimetría entre motores, amplificación 34 B → 256M píxeles y evidencia reproducible.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "pcre2-jit-compile-hang-recursion.html",
+  "date": "",
+  "title": "PCRE2: Hang en la Compilación JIT por Recursión (?0) dentro de un Negative Lookahead ARTÍCULO",
+  "desc": "El intérprete compila el patrón en 0 ms; pcre2_jit_compile se cuelga eternamente en get_framesize. Diagnóstico diferencial JIT vs intérprete para demostrar que el bug vive en la compilación, no en el matching. Crítico para WAFs y filtros de regex externas.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "libarchive-cab-lzx-uninitialized-memory.html",
+  "date": "",
+  "title": "libarchive: Uninitialized Heap Read en CAB/LZX Cazado con Patch-Diffing ARTÍCULO",
+  "desc": "Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y la clasificación honesta de una carrera perdida (DUP-RACE).",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "threat-hunter-recollection.html",
+  "date": "",
+  "title": "Threat Hunter Recollection: Bitácora de 5 Investigaciones Reales de Caza ARTÍCULO",
+  "desc": "Un año de laboratorio resumido: rastreo OSINT de infraestructuras criminales, análisis de fraude con Lumma Stealer, y deconstrucción completa de la Kill Chain de NetSupport RAT.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "pigbutchering-bybsusd.html",
+  "date": "",
+  "title": "Deconstrucción de Red de Pig Butchering: Exchange Falso en Vue3 con WebSocket ARTÍCULO",
+  "desc": "Análisis forense de un exchange falso con frontend Vue3 y WebSocket en tiempo real alojado en Hong Kong. El backend entrega la clave del captcha en el propio JSON.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "fakewealth-cmdxcapital.html",
+  "date": "",
+  "title": "Caso cmdxcapital: Fuga de Datos en Laravel por appDebug Activo ARTÍCULO",
+  "desc": "El modo depuración de Laravel en producción expuso consultas SQL, tokens y rutas del servidor. Diez dominios satélite bajo Cloudflare y smurfing hacia wallets Bitcoin Bech32.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "operation-general-jp-silentwarn.html",
+  "date": "",
+  "title": "Operaciones General JP y SilentWarn: Dos Campañas de Phishing Conectadas ARTÍCULO",
+  "desc": "General JP: kit PHP clásico con exfiltración a Telegram. SilentWarn: SPA en React sobre Cloudflare Pages con bloqueo de DevTools y geofencing a Vietnam.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "infraestructura-tunel-ofuscado.html",
+  "date": "",
+  "title": "Bypass de DPI con WireGuard + udp2raw: Túnel TCP Falso simulando HTTPS ARTÍCULO",
+  "desc": "Arquitectura de túnel WireGuard encapsulado en TCP falso mediante udp2raw, enmascaramiento de tráfico a través de proxy residencial, y blindaje DNS con dnscrypt-proxy.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "infra-soc.html",
+  "date": "",
+  "title": "Laboratorio SOC/Honeypot: Arquitectura de Aislamiento y Automatización Blue Team ARTÍCULO",
+  "desc": "Diseño y despliegue de laboratorio defensivo con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo con Wazuh y Grafana.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "web-api-pentesting2024.html",
+  "date": "",
+  "title": "Pentesting a Web API Financiera: IDOR por Validación Incompleta de JWT ARTÍCULO",
+  "desc": "Auditoría freelance a una API financiera con Certificate Pinning, cifrado y ofuscación burlados por una falla IDOR. El backend validaba la firma JWT pero no la pertenencia del recurso.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "exploit-development-ot-awl-arm.html",
+  "date": "",
+  "title": "Exploit Development OT: Del AWL al Shellcode en PLC Siemens, ROP y Bypass de Sandbox ARTÍCULO",
+  "desc": "CVE-2020-15782, sandbox escape ARM/MIPS en kernel ADONIS. Cuatro workshops: shellcode AWL, ROP, fuzzing y cadena completa drive-by → proceso físico. Guía de laboratorio ICS.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "exploit-development-lab.html",
+  "date": "",
+  "title": "Laboratorio de Exploit Development: Kernel, Binarios y ROP ARTÍCULO",
+  "desc": "Windows Internals, drivers KMDF, Assembly, shellcode, ROP en 64 bits, CVEs reales diseccionados. Laboratorio práctico con VirtualBox, INetSim y fakedns. Plan de retoma con 10 tareas.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "evasion-estatica-asm-mirai.html",
+  "date": "",
+  "title": "Evasión Estática: Destruyendo Firmas de Mirai con Aritmética en ASM ARTÍCULO",
+  "desc": "De 16/64 a 0/65 en VirusTotal. Stub descifrador en NASM, claves dinámicas en C++, DGA mutante con validación Denuvo-like. 8 diagramas y correlación MITRE ATT&CK.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "arte-de-la-paciencia-sudo-cache.html",
+  "date": "",
+  "title": "El Arte de la Paciencia: Cómo un Script de 15 Líneas Puede Iniciar una Brecha ARTÍCULO",
+  "desc": "PoC que abusa del mecanismo de caché de sudo (T1548.003). Elevación a escenario real con ofuscación y evasión. Incluye reglas de auditd para detección Blue Team.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "myPracticalShellcodeC2.html",
+  "date": "",
+  "title": "De winshellcode a BugBuilder: Técnicas de Inyección y C2 en Windows ARTÍCULO",
+  "desc": "Más de 20 técnicas: inyección clásica, APC, thread hijacking, API hooking, XOR, API hashing y persistencia. Builder con panel C2 en C# y compilación automatizada de payloads.",
+  "badge": "ARTÍCULO"
+ },
+ {
+  "href": "infraestructura-tunel-ofuscado.html",
+  "date": "",
+  "title": "Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial ARTÍCULO",
+  "desc": "Túnel WireGuard encapsulado en TCP falso mediante udp2raw. Enmascaramiento con redsocks + SOCKS5 residencial. DNS blindado con dnscrypt-proxy. Despliegue en 90s.",
+  "badge": "ARTÍCULO"
+ }
+]

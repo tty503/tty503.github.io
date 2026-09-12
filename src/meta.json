@@ -1,0 +1,312 @@
+{
+  "site": {
+    "url": "https://tty503.com",
+    "name": "tty503 — Christian Márquez",
+    "lang": "es",
+    "time": "2026-09-12T00:00:00Z",
+    "ga": "G-RZVNG112YY"
+  },
+  "social": [
+    ["GitHub", "https://github.com/tty503"],
+    ["LinkedIn", "https://linkedin.com/in/tty503"],
+    ["X / Twitter", "https://x.com/tty_503"],
+    ["RSS", "https://tty503.com/sitemap.xml"]
+  ],
+  "pages": {
+    "coovachilli-eap-identity-rce": {
+      "title": "CoovaChilli RCE pre-auth: EAP-Identity → conup (CWE-78)",
+      "desc": "Payload en EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en un eval. RCE validado con ASAN+gdb. PoC, sink y evidencia E2E.",
+      "date": "2026-09-02",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-78", "RCE pre-auth", "Captive Portal", "PoC"],
+      "badge": "rce",
+      "read": "18 min",
+      "related": ["wifidog-host-header-rce", "libuhttpd-date2unix-stackoverflow", "suite-webmin-usermin-accelppp-cups"],
+      "series": "caza-autonoma-e2e-serie"
+    },
+    "wifidog-host-header-rce": {
+      "title": "wifidog RCE root: cabecera Host → iptables (CWE-78)",
+      "desc": "Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.",
+      "date": "2026-09-02",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-78", "RCE root", "iptables", "Reverse shell"],
+      "badge": "rce",
+      "read": "17 min",
+      "related": ["coovachilli-eap-identity-rce", "libuhttpd-date2unix-stackoverflow", "autopsia-librtmp-minihttpd"],
+      "series": "caza-autonoma-e2e-serie"
+    },
+    "libuhttpd-date2unix-stackoverflow": {
+      "title": "libuhttpd: stack overflow en date2unix (CWE-121)",
+      "desc": "Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.",
+      "date": "2026-09-02",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-121", "Stack Overflow", "HTTP", "RIP control"],
+      "badge": "rce",
+      "read": "16 min",
+      "related": ["coovachilli-eap-identity-rce", "wifidog-host-header-rce", "autopsia-librtmp-minihttpd"],
+      "series": "caza-autonoma-e2e-serie"
+    },
+    "autopsia-librtmp-minihttpd": {
+      "title": "librtmp AMF3 + mini_httpd htpasswd: primitivas reales sin cadena a RCE",
+      "desc": "OOB read en el decoder AMF3 de librtmp y command injection en htpasswd de mini_httpd. Cuándo una primitiva real no llega a ejecución de código: análisis honesto del alcance.",
+      "date": "2026-09-02",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-125", "CWE-78", "librtmp", "mini_httpd"],
+      "badge": "infra",
+      "read": "12 min",
+      "related": ["suite-webmin-usermin-accelppp-cups", "wifidog-host-header-rce", "libuhttpd-date2unix-stackoverflow"],
+      "series": "caza-autonoma-e2e-serie"
+    },
+    "suite-webmin-usermin-accelppp-cups": {
+      "title": "Suite de scripting servers: Webmin, Usermin, accel-ppp y CUPS",
+      "desc": "Cuatro sinks de inyección en la familia miniserv + L2TP + CUPS, y el bypass de confianza X-SSL-Client-* con su alcance real: tres prerrequisitos que no son default.",
+      "date": "2026-09-02",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-78", "Trust bypass", "Scripting servers", "Webmin"],
+      "badge": "rce",
+      "read": "20 min",
+      "related": ["autopsia-librtmp-minihttpd", "coovachilli-eap-identity-rce", "wifidog-host-header-rce"],
+      "series": "caza-autonoma-e2e-serie"
+    },
+    "caza-autonoma-e2e-serie": {
+      "title": "Caza autónoma E2E con IA local: 5 cadenas RCE reales",
+      "desc": "Índice de la serie: CoovaChilli, wifidog, libuhttpd, librtmp+mini_httpd y Webmin/Usermin/accel-ppp/CUPS. Pipeline, sinks línea a línea, PoC, evidencia ASAN y la doctrina de la divulgación responsable.",
+      "date": "2026-09-02",
+      "cat": "Serie",
+      "tags": ["Bug Hunting", "RCE", "Divulgación responsable", "E2E"],
+      "badge": "rce",
+      "read": "25 min",
+      "related": ["sherlock-caza-autonoma-ia-local", "libarchive-cab-lzx-uninitialized-memory", "7zip-isfolderencrypted-oob-read"]
+    },
+    "sherlock-caza-autonoma-ia-local": {
+      "title": "Sherlock: caza autónoma de vulnerabilidades con IA local",
+      "desc": "Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con validación doble e índice de siete hallazgos contra 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.",
+      "date": "2026-08-21",
+      "cat": "Serie",
+      "tags": ["Bug Hunting", "IA Local", "Fuzzing", "Vulnerability Research"],
+      "badge": "rce",
+      "read": "20 min",
+      "related": ["7zip-isfolderencrypted-oob-read", "ffmpeg-demuxers-dos-vpk-vqf-smacker", "libwebp-vp8l-lossless-decode-dos"]
+    },
+    "7zip-isfolderencrypted-oob-read": {
+      "title": "7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente",
+      "desc": "El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes en 7-Zip 26.00–26.02. Desync byte a byte, doble parser, PoC estructural y evidencia ASAN + valgrind.",
+      "date": "2026-08-21",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-125", "Heap OOB", "7-Zip", "Desync"],
+      "badge": "rce",
+      "read": "18 min",
+      "related": ["libarchive-cab-lzx-uninitialized-memory", "ffmpeg-demuxers-dos-vpk-vqf-smacker", "sherlock-caza-autonoma-ia-local"]
+    },
+    "ffmpeg-demuxers-dos-vpk-vqf-smacker": {
+      "title": "FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)",
+      "desc": "Tres bugs de DoS por fuzzing autónomo: división por cero con 21 bytes (CWE-369, parcheada), leak escalable hasta ~677 MB (CWE-401) y bucle de 13,5M frames con input de 105 bytes (CWE-400).",
+      "date": "2026-08-21",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-369", "CWE-401", "CWE-400", "FFmpeg", "DoS"],
+      "badge": "dos",
+      "read": "16 min",
+      "related": ["libwebp-vp8l-lossless-decode-dos", "pcre2-jit-compile-hang-recursion", "sherlock-caza-autonoma-ia-local"]
+    },
+    "libwebp-vp8l-lossless-decode-dos": {
+      "title": "libwebp: DoS por área de imagen no validada en VP8L lossless",
+      "desc": "Un WebP lossless de 34 bytes declara hasta 16384×16384 píxeles sin comprobar MAX_IMAGE_AREA, el guardia que el path lossy sí aplica. Amplificación 34 B → 256M píxeles con evidencia reproducible.",
+      "date": "2026-08-21",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-400", "DoS", "libwebp", "Amplificación"],
+      "badge": "dos",
+      "read": "12 min",
+      "related": ["ffmpeg-demuxers-dos-vpk-vqf-smacker", "pcre2-jit-compile-hang-recursion", "sherlock-caza-autonoma-ia-local"]
+    },
+    "pcre2-jit-compile-hang-recursion": {
+      "title": "PCRE2: hang en compilación JIT por recursión (?0) en negative lookahead",
+      "desc": "El intérprete compila el patrón en 0 ms; pcre2_jit_compile se cuelga eternamente en get_framesize. Diagnóstico diferencial JIT vs intérprete: el bug vive en la compilación, no en el matching.",
+      "date": "2026-08-21",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-400", "PCRE2", "JIT", "Regex"],
+      "badge": "dos",
+      "read": "13 min",
+      "related": ["ffmpeg-demuxers-dos-vpk-vqf-smacker", "libwebp-vp8l-lossless-decode-dos", "sherlock-caza-autonoma-ia-local"]
+    },
+    "libarchive-cab-lzx-uninitialized-memory": {
+      "title": "libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing",
+      "desc": "Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y una clasificación honesta: DUP-RACE.",
+      "date": "2026-08-21",
+      "cat": "Vulnerability Research",
+      "tags": ["CWE-457", "libarchive", "Patch-diffing", "LZX"],
+      "badge": "rce",
+      "read": "11 min",
+      "related": ["7zip-isfolderencrypted-oob-read", "ffmpeg-demuxers-dos-vpk-vqf-smacker", "sherlock-caza-autonoma-ia-local"]
+    },
+    "analystty": {
+      "title": "analystty: triage automatizado de malware PE con Python",
+      "desc": "Herramienta que extrae imports, detecta TTPs con MITRE ATT&CK, desensambla la sección .text y genera breakpoints para x64dbg automáticamente. Stack: Capstone, pefile, malapi.json. Caso real: un dropper con API hashing.",
+      "date": "2026-05-15",
+      "cat": "Herramientas propias",
+      "tags": ["Python", "Malware Analysis", "Capstone", "Automatización"],
+      "badge": "ti",
+      "read": "12 min",
+      "related": ["threat-hunter-recollection", "myPracticalShellcodeC2", "evasion-estatica-asm-mirai"]
+    },
+    "evasion-estatica-asm-mirai": {
+      "title": "Evasión estática en ASM: romper firmas de Mirai sin packers",
+      "desc": "De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con aritmética dinámica y arquitectura de entrega mutante con DGA.",
+      "date": "2026-06-01",
+      "cat": "Malware Analysis",
+      "tags": ["Assembly x86", "YARA evasion", "Mirai", "Polimorfismo"],
+      "badge": "ti",
+      "read": "25 min",
+      "related": ["analystty", "threat-hunter-recollection", "infraestructura-tunel-ofuscado"]
+    },
+    "threat-hunter-recollection": {
+      "title": "Threat Hunter Recollection: cinco investigaciones reales de caza",
+      "desc": "Bitácora de un año de caza: mapeo OSINT de una red de estafa piramidal, fraude con Lumma Stealer, deconstrucción de NetSupport RAT y un dropper multi-etapa. El hilo metodológico que conecta las cinco.",
+      "date": "2026-05-24",
+      "cat": "Threat Intelligence",
+      "tags": ["Threat Hunting", "Malware Analysis", "OSINT", "Reversing"],
+      "badge": "ti",
+      "read": "45 min",
+      "related": ["pigbutchering-bybsusd", "fakewealth-cmdxcapital", "operation-general-jp-silentwarn"]
+    },
+    "pigbutchering-bybsusd": {
+      "title": "Pig butchering: deconstrucción de un exchange falso en Vue3 con WebSocket",
+      "desc": "Análisis forense de un exchange falso con frontend Vue3, WebSocket real-time en Hong Kong y el backend que entrega la clave del captcha en el propio JSON. IoCs, diagramas y referencias FBI, DOJ y Europol.",
+      "date": "2026-05-26",
+      "cat": "Threat Intelligence",
+      "tags": ["Pig Butchering", "OSINT", "Crypto scam", "Forense"],
+      "badge": "ti",
+      "read": "30 min",
+      "related": ["fakewealth-cmdxcapital", "operation-general-jp-silentwarn", "threat-hunter-recollection"]
+    },
+    "fakewealth-cmdxcapital": {
+      "title": "cmdxcapital: fuga de datos en Laravel por appDebug activo",
+      "desc": "El modo depuración de Laravel en producción expuso consultas SQL, tokens y rutas del servidor. Diez dominios satélite bajo Cloudflare, bypass de captcha y smurfing hacia wallets Bitcoin Bech32.",
+      "date": "2025-10-15",
+      "cat": "Threat Intelligence",
+      "tags": ["Threat Intelligence", "Fraude financiero", "Blockchain", "Laravel"],
+      "badge": "ti",
+      "read": "60 min",
+      "related": ["pigbutchering-bybsusd", "operation-general-jp-silentwarn", "threat-hunter-recollection"]
+    },
+    "operation-general-jp-silentwarn": {
+      "title": "General JP y SilentWarn: dos campañas de phishing conectadas",
+      "desc": "General JP: redirección multi-capa, Google Cloud Storage y kit PHP con exfiltración a Telegram. SilentWarn: SPA React con geofencing a Vietnam. IoCs, patrones de infraestructura y correlación entre campañas.",
+      "date": "2025-06-15",
+      "cat": "Threat Intelligence",
+      "tags": ["Phishing", "OSINT", "Infraestructura", "Threat Intelligence"],
+      "badge": "ti",
+      "read": "15 min",
+      "related": ["pigbutchering-bybsusd", "fakewealth-cmdxcapital", "threat-hunter-recollection"]
+    },
+    "infraestructura-tunel-ofuscado": {
+      "title": "Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial",
+      "desc": "Túnel WireGuard encapsulado en TCP falso mediante udp2raw, enmascaramiento con redsocks + SOCKS5 residencial y DNS blindado con dnscrypt-proxy. Arquitectura completa y despliegue automatizado.",
+      "date": "2026-05-22",
+      "cat": "Infraestructura",
+      "tags": ["WireGuard", "udp2raw", "DPI bypass", "Redes"],
+      "badge": "infra",
+      "read": "30 min",
+      "related": ["infra-soc", "saint-grail-go", "exploit-development-lab"]
+    },
+    "infra-soc": {
+      "title": "Laboratorio SOC con honeypots: aislamiento y automatización",
+      "desc": "Laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo: Wazuh, Zabbix, Prometheus y Grafana. Arquitectura y operación completas.",
+      "date": "2026-05-24",
+      "cat": "Infraestructura",
+      "tags": ["Blue Team", "SOC", "Honeypot", "IaC"],
+      "badge": "infra",
+      "read": "35 min",
+      "related": ["infraestructura-tunel-ofuscado", "web-api-pentesting2024", "plc"]
+    },
+    "web-api-pentesting2024": {
+      "title": "Pentesting a web API financiera: IDOR por validación incompleta de JWT",
+      "desc": "Auditoría freelance a una API financiera con certificate pinning, cifrado y ofuscación burlados por una falla IDOR: el backend validaba la firma JWT pero no la pertenencia del recurso. Extracción automatizada de datos.",
+      "date": "2024-08-15",
+      "cat": "Pentesting",
+      "tags": ["Pentesting", "Web API", "JWT", "IDOR"],
+      "badge": "infra",
+      "read": "25 min",
+      "related": ["infra-soc", "arte-de-la-paciencia-sudo-cache", "saint-grail"]
+    },
+    "exploit-development-ot-awl-arm": {
+      "title": "Exploit development OT: del AWL al shellcode en PLC Siemens",
+      "desc": "De reversing de AWL/MC7/MC7+ al exploit development: CVE-2020-15782 (Claroty Team82), sandbox escape con ejecución nativa ARM/MIPS en kernel ADONIS, ROP sobre MC7 y cuatro workshops sobre S7-1200.",
+      "date": "2026-06-05",
+      "cat": "Exploit Development",
+      "tags": ["OT Security", "PLC Siemens", "Shellcode", "Sandbox escape"],
+      "badge": "infra",
+      "read": "90 min",
+      "related": ["plc", "exploit-development-lab", "evasion-estatica-asm-mirai"]
+    },
+    "plc": {
+      "title": "PLC Siemens S5/S7 por dentro: AWL, bytecode MC7 y el silencio forense",
+      "desc": "Fundamentos de STEP5/AWL, transición a STEP7, la máquina virtual MC7, ingeniería inversa de bytecodes, hallazgos en infraestructuras venezolanas y la ausencia estructural de logs de auditoría en ICS.",
+      "date": "2026-05-14",
+      "cat": "Seguridad OT",
+      "tags": ["PLC Siemens", "Ingeniería Inversa", "MC7", "Infraestructura crítica"],
+      "badge": "infra",
+      "read": "40 min",
+      "related": ["exploit-development-ot-awl-arm", "infra-soc", "assembly"]
+    },
+    "assembly": {
+      "title": "Assembly x86/x64 para ingeniería inversa: guía de campo",
+      "desc": "Stack frames, variables globales y locales, clases vs structs, malloc/new, pilas y listas enlazadas, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64) y heurísticas para identificar funciones en Ghidra.",
+      "date": "2026-05-14",
+      "cat": "Guías",
+      "tags": ["Assembly", "Ingeniería Inversa", "Calling conventions", "Ghidra"],
+      "badge": "guide",
+      "read": "120 min",
+      "related": ["exploit-development-lab", "analystty", "plc"]
+    },
+    "myPracticalShellcodeC2": {
+      "title": "De winshellcode a BugBuilder: inyección y C2 en Windows",
+      "desc": "Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API hashing, persistencia) y un builder con panel C2 en C#.",
+      "date": "2026-05-22",
+      "cat": "Malware Development",
+      "tags": ["Shellcode", "Windows Internals", "C2", "C#"],
+      "badge": "ti",
+      "read": "120 min",
+      "related": ["exploit-development-lab", "evasion-estatica-asm-mirai", "analystty"]
+    },
+    "exploit-development-lab": {
+      "title": "Laboratorio de exploit development: kernel de Windows y ROP",
+      "desc": "Bitácora de un mes de laboratorio: Windows internals, drivers KMDF/UMDF, formatos PE/ELF/DEX, Assembly x86/AMD64/ARM64, shellcode, ROP en 64 bits y disección de CVEs reales en Chrome V8 y WebRTC.",
+      "date": "2026-06-04",
+      "cat": "Exploit Development",
+      "tags": ["Windows Internals", "ROP", "Shellcode", "Binary exploitation"],
+      "badge": "infra",
+      "read": "90 min",
+      "related": ["myPracticalShellcodeC2", "assembly", "evasion-estatica-asm-mirai"]
+    },
+    "arte-de-la-paciencia-sudo-cache": {
+      "title": "El arte de la paciencia: un script de 15 líneas puede iniciar una brecha",
+      "desc": "PoC que abusa del mecanismo de caché de sudo (T1548.003), elevación a escenario real con ofuscación y reglas de auditd para detección Blue Team.",
+      "date": "2026-05-29",
+      "cat": "Red Team",
+      "tags": ["Privilege escalation", "MITRE ATT&CK", "sudo", "Bash"],
+      "badge": "infra",
+      "read": "15 min",
+      "related": ["web-api-pentesting2024", "infra-soc", "exploit-development-lab"]
+    },
+    "saint-grail": {
+      "title": "SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA",
+      "desc": "Sistema que integra DeepSeek, DeepWiki y un agente híbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB y grafo interactivo.",
+      "date": "2026-06-25",
+      "cat": "Herramientas propias",
+      "tags": ["AI", "Bug Hunting", "DeepSeek", "Open Source"],
+      "badge": "guide",
+      "read": "25 min",
+      "related": ["saint-grail-go", "sherlock-caza-autonoma-ia-local", "analystty"]
+    },
+    "saint-grail-go": {
+      "title": "SAINT GRAIL en Go: resultados concretos y bug hunting autónomo",
+      "desc": "Migración a Go por rendimiento y concurrencia nativa: dos PoCs funcionales generados por IA — TOCTOU en Chromium y CRC bypass en 7-Zip (9.20–25.01). Código y PoCs públicos.",
+      "date": "2026-07-05",
+      "cat": "Herramientas propias",
+      "tags": ["Go", "Bug Hunting", "PoC", "AI"],
+      "badge": "guide",
+      "read": "15 min",
+      "related": ["saint-grail", "sherlock-caza-autonoma-ia-local", "7zip-isfolderencrypted-oob-read"]
+    }
+  }
+}

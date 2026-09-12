@@ -1,0 +1,164 @@
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Un patrón regex de ~693 bytes con una <b>backreference recursiva <code>(?0)</code> dentro de un negative lookahead <code>(?!…)</code></b> cuelga a <code>pcre2_jit_compile</code> para siempre en <code>get_framesize</code> (CWE-400).</li>
+    <li>El mismo patrón en modo interpretado: <b>compila en 0 ms</b> y el match termina limpio con rc=-1. El fallo es exclusivo del backend JIT — no es ReDoS.</li>
+    <li>Causa: la pasada de dimensionado de frames recorre la recursividad total sin memoizar, <code>get_framesize</code> (<code>pcre2_jit_compile.c:2224</code>) nunca converge.</li>
+    <li>Superficie real: servicios que <b>compilan regex de terceros</b> (WAFs, motores de búsqueda, filtros de logs). Sin parche confirmado al cierre.</li>
+  </ul>
+</aside>
+
+<details class="toc-card" open>
+  <summary>/pcre2_jit_getframesize · <span class="tw">9</span> secciones</summary>
+  <ol>
+    <li><a href="#p00">Resumen Técnico</a></li>
+    <li><a href="#p01">Contexto: quién compila regex ajenas</a></li>
+    <li><a href="#p02">La construcción venenosa: (?0) dentro de (?!…)</a></li>
+    <li><a href="#p03">El experimento diferencial: intérprete vs JIT</a></li>
+    <li><a href="#p04">Anatomía del hang: get_framesize</a></li>
+    <li><a href="#p05">Descarte de hipótesis alternativas</a></li>
+    <li><a href="#p06">Acotación e impacto realista</a></li>
+    <li><a href="#p07">Mitigación</a></li>
+    <li><a href="#p08">Conclusión</a></li>
+  </ol>
+</details>
+
+<h2 id="p00"><span class="idx">01.</span> Resumen Técnico</h2>
+<div class="tbl-wrap">
+  <table>
+    <tbody>
+      <tr><th>Objetivo</th><td>PCRE2 10.48 — fase de compilación JIT (<code>pcre2_jit_compile.c</code>)</td></tr>
+      <tr><th>Vulnerabilidad</th><td>Recursión interna sin terminación en <code>get_framesize</code> (<code>pcre2_jit_compile.c:2224</code>) ante una backreference recursiva <code>(?0)</code> anidada en un negative lookahead <code>(?!…)</code></td></tr>
+      <tr><th>CWE</th><td>CWE-400 (Uncontrolled Resource Consumption)</td></tr>
+      <tr><th>Severidad</th><td><b>LOW</b> — consumo indefinido de CPU durante la compilación; sin corrupción de memoria</td></tr>
+      <tr><th>Disparador</th><td>Patrón regex de ~693 bytes; la compilación JIT no termina (timeout reproducible 3/3)</td></tr>
+      <tr><th>Dato clave</th><td>El mismo patrón en modo interpretado: compile OK + match rc=-1 en 0.000 s → el fallo es específico del compilador JIT</td></tr>
+      <tr><th>Validación</th><td>Doble herramienta: harness JIT instrumentado (timeout) + binario de control sin JIT (éxito inmediato)</td></tr>
+      <tr><th>Estado fix upstream</th><td>Sin confirmación de parche al cierre — divulgación graduada: clase de construcción documentada, patrón completo reservado</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="p01"><span class="idx">02.</span> Contexto: quién compila regex ajenas</h2>
+<p>PCRE2 es la biblioteca de expresiones regulares que respiran medio internet: PHP, Apache, nginx vía módulos, miles de productos embebidos. Su modo JIT traduce los patrones a código máquina nativo para acelerar el matching — una victoria de rendimiento que pagan especialmente los servicios donde cada microsegundo cuenta.</p>
+<p>Y ahí está el matiz que hace interesante este hallazgo: hay una clase entera de sistemas que <b>compilan patrones escritos por usuarios o derivados de ellos</b>. Un WAF que traduce reglas de filtrado, un motor de búsqueda que acepta queries avanzadas, un firewall de aplicaciones que recompila firmas dinámicas, un SaaS de logs con filtros personalizables. En todos ellos, la fase de compilación es superficie de ataque de primera categoría: recibe texto semiestructurado del exterior y lo procesa con lógica compleja. La mayoría de auditorías miran el <i>matching</i> (backtracking catastrófico, ReDoS); este bug demuestra que el <i>compilador</i> también puede ser el punto de estrangulamiento.</p>
+
+<h2 id="p02"><span class="idx">03.</span> La construcción venenosa: (?0) dentro de (?!…)</h2>
+<p>Dos piezas del lenguaje regex se combinan aquí. La primera, <code>(?0)</code>, es una backreference recursiva: «todo el patrón completo», una referencia a sí mismo. La segunda, <code>(?!…)</code>, es un negative lookahead: coincide solo si lo que sigue <i>no</i> encaja con su interior. Por separado, ambas están perfectamente definidas y el intérprete las maneja sin despeinarse.</p>
+<p>El problema aparece cuando la recursividad total del patrón vive <i>dentro</i> del lookahead negativo. Para generar código nativo, el compilador JIT necesita saber cuánto espacio de frames necesita cada subexpresión — y calcularlo exige recorrer la estructura de la recursión. Con <code>(?0)</code> anidada en <code>(?!…)</code>, ese recorrido entra en un ciclo que no alcanza condición de parada: la función <code>get_framesize</code> vuelve sobre el mismo subárbol una y otra vez, y la compilación nunca termina.</p>
+<div class="code-wrap"><span class="lang">text</span><pre class="code"><code><span class="syn-c"># Forma de la construcción (esqueleto conceptual — el patrón real,</span>
+<span class="syn-c"># de ~693 B, se reserva hasta disponer de parche upstream)</span>
+^(?! <span class="syn-c"># lookahead negativo...</span>
+     ...anclajes... (?<span class="syn-n">0</span>) ...anclajes...   <span class="syn-c"># ...que contiene la recursiva total (?0)</span>
+   )
+...resto del patrón...
+
+<span class="syn-c"># Comportamiento observado:</span>
+pcre2_compile       → OK    <span class="syn-c"># árbol sintáctico válido, sin quejas</span>
+match (intérprete)  → rc=-1 <span class="syn-c"># termina limpio en 0.000 s: no hay match, como corresponde</span>
+pcre2_jit_compile   → HANG  <span class="syn-c"># get_framesize no regresa jamás</span></code></pre></div>
+<p>Fíjense en el dato más incómodo del caso: <b>el árbol sintáctico es legítimo</b>. No hay trampa sintáctica ni cuantificador absurdo; es una combinación semánticamente válida cuya <i>traducción a máquina</i> es lo que no acaba. Eso explica por qué pasa los checks normales de entrada y por qué el fallo se esconde tan bien.</p>
+
+<h2 id="p03"><span class="idx">04.</span> El experimento diferencial: intérprete vs JIT</h2>
+<p>Cuando un fuzzer reporta un timeout contra un target JIT-enabled, la primera sospecha natural es backtracking catastrófico: el clásico ReDoS donde el matching explota exponencialmente. Pero un buen diagnóstico exige aislar la variable. El sistema montó el experimento controlado que separa ambos mundos:</p>
+<figure class="figure">
+  <div style="overflow-x:auto;">
+    <svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama del experimento diferencial: el mismo patrón se compila OK en ambos modos, pero el intérprete termina en 0 ms mientras el compilador JIT queda colgado en get_framesize" style="min-width:720px; width:100%; height:auto;">
+      <defs>
+        <marker id="parrW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a3a3a3"/></marker>
+        <marker id="parrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4ade80"/></marker>
+        <marker id="parrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ef4444"/></marker>
+      </defs>
+      <style>
+        .ttl { fill:#f5f5f5; font:600 13px 'JetBrains Mono',monospace; }
+        .psub { fill:#888888; font:11px 'Inter',sans-serif; }
+        .pcell { fill:#181818; stroke:#333333; }
+        .pboxg { fill:#0d1a0d; stroke:#4ade80; stroke-dasharray:3 2; }
+        .pboxr { fill:#1c1010; stroke:#ef4444; stroke-dasharray:3 2; }
+        .pbtxt { fill:#e5e5e5; font:600 12px 'JetBrains Mono',monospace; }
+        .pgtxt { fill:#4ade80; font:600 11px 'JetBrains Mono',monospace; }
+        .prtxt { fill:#ef4444; font:600 11px 'JetBrains Mono',monospace; }
+      </style>
+      <rect x="330" y="20" width="240" height="48" rx="6" class="pcell"/>
+      <text x="450" y="40" text-anchor="middle" class="pbtxt">patrón (?!(...(?0)...))</text>
+      <text x="450" y="58" text-anchor="middle" class="psub">693 B · árbol sintáctico VÁLIDO</text>
+      <path d="M420 68 Q320 104 250 138" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#parrW)"/>
+      <path d="M480 68 Q580 104 650 138" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#parrW)"/>
+      <rect x="90" y="140" width="320" height="56" rx="6" class="pcell"/>
+      <text x="250" y="162" text-anchor="middle" class="pbtxt">pcre2_compile() → OK</text>
+      <text x="250" y="182" text-anchor="middle" class="psub">árbol intermedio aceptado en ambos builds</text>
+      <rect x="490" y="140" width="320" height="56" rx="6" class="pcell"/>
+      <text x="650" y="162" text-anchor="middle" class="pbtxt">pcre2_compile() → OK</text>
+      <text x="650" y="182" text-anchor="middle" class="psub">mismo árbol, misma validación</text>
+      <path d="M250 196 L250 232" stroke="#4ade80" stroke-width="1.5" fill="none" marker-end="url(#parrG)"/>
+      <path d="M650 196 L650 232" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#parrR)"/>
+      <rect x="90" y="234" width="320" height="76" rx="6" class="pboxg"/>
+      <text x="250" y="256" text-anchor="middle" class="pgtxt">✓ MODO INTERPRETADO</text>
+      <text x="250" y="276" text-anchor="middle" class="psub">match ejecutado: rc=-1 (sin coincidencia)</text>
+      <text x="250" y="294" text-anchor="middle" class="pgtxt">dt = 0.000 s — termina limpio</text>
+      <rect x="490" y="234" width="320" height="76" rx="6" class="pboxr"/>
+      <text x="650" y="256" text-anchor="middle" class="prtxt">✗ pcre2_jit_compile()</text>
+      <text x="650" y="276" text-anchor="middle" class="psub">get_framesize (pcre2_jit_compile.c:2224)</text>
+      <text x="650" y="294" text-anchor="middle" class="prtxt">recursión sin condición de parada → HANG</text>
+      <path d="M250 310 L250 342" stroke="#4ade80" stroke-width="1.5" fill="none" marker-end="url(#parrG)"/>
+      <path d="M650 310 Q650 330 520 352" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#parrR)"/>
+      <text x="250" y="366" text-anchor="middle" class="pgtxt">el runtime NO es el problema</text>
+      <rect x="430" y="344" width="360" height="40" rx="20" class="pboxr"/>
+      <text x="610" y="369" text-anchor="middle" class="prtxt">VEREDICTO: bug del COMPILADOR JIT (CWE-400)</text>
+    </svg>
+  </div>
+  <figcaption class="figcap">Figura 1 — Diagnóstico diferencial: la única variable que cambia entre ambas columnas es el backend. Si el hang fuera del matching, la rama izquierda también se colgaría. No lo hace: el bug vive exclusivamente en la traducción a código nativo.</figcaption>
+</figure>
+
+<h2 id="p04"><span class="idx">05.</span> Anatomía del hang: get_framesize</h2>
+<p>El compilador JIT de PCRE2 trabaja en varias pasadas; una de ellas dimensiona los frames de ejecución — cuánta memoria local necesitará cada rama del patrón — recorriendo recursivamente la estructura compilada. Esa función es <code>get_framesize</code>, y el stack capturado durante el hang la señala inequívocamente:</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Tool A — harness JIT instrumentado (timeout reproducible 3/3)</span>
+$ ./pcre2_fuzzer_jit -runs=<span class="syn-n">1</span> -timeout=<span class="syn-n">3</span> poc_jit_hang.bin
+...
+==<span class="syn-n">…</span>== ERROR: libFuzzer: timeout after <span class="syn-n">3</span> seconds
+<span class="syn-c"># stack (gdb attach):</span>
+#<span class="syn-n">0</span>  <span class="syn-f">get_framesize</span>  pcre2_jit_compile.c:<span class="syn-n">2224</span>   <span class="syn-c"># ← bucle caliente</span>
+#<span class="syn-n">1</span>  ...             <span class="syn-c"># marcos de la pasada de dimensionado</span>
+#…
+#<span class="syn-n">N</span>  LLVMFuzzerTestOneInput</code></pre></div>
+<p>La lectura técnica del síntoma: <code>get_framesize</code> visita el nodo de la recursiva total <code>(?0)</code> desde dentro del contexto del lookahead, y el cálculo de tamaño vuelve a requerir dimensionar el patrón completo — incluido, de nuevo, el lookahead. Cada nivel de análisis genera otro; ninguna tabla marca el subárbol como «ya medido». Es una recursión estructuralmente infinita: no crece el stack hasta desbordar porque cada ciclo reutiliza marcos equivalentes, simplemente <i>nunca converge</i>.</p>
+<figure class="figure">
+  <img src="img/pcre2-jit-compile-hang-timeout-getframesize-evidencia.png" alt="Terminal mostrando el timeout del fuzzer JIT de PCRE2 con el stack detenido en get_framesize, pcre2_jit_compile.c línea 2224" loading="lazy">
+  <figcaption class="figcap">Evidencia A — Harness JIT: timeout tras 3 segundos, reproducible 3/3, con el stack caliente en get_framesize (pcre2_jit_compile.c:2224).</figcaption>
+</figure>
+
+<h2 id="p05"><span class="idx">06.</span> Descarte de hipótesis alternativas</h2>
+<p>La fortaleza del hallazgo está en lo que quedó fuera. Tres explicaciones rivales, tres pruebas de descarte:</p>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Hipótesis alternativa</th><th>Prueba</th><th>Resultado del descarte</th></tr></thead>
+    <tbody>
+      <tr><td>Backtracking catastrófico en runtime (ReDoS clásico)</td><td>Ejecutar el match sin JIT con el mismo patrón</td><td>rc=-1 en 0.000 s: el matching no es el problema; el hang ocurre antes, en compile</td></tr>
+      <tr><td>Límite de tamaño legítimo (patrón «demasiado grande»)</td><td>Oss-fuzz reduce cuantificadores grandes en sus corpus</td><td>El trigger es la estructura recursiva, no el volumen: patrones cortos equivalentes reproducen el ciclo</td></tr>
+      <tr><td>Falso positivo del harness</td><td>Repro manual 3/3 + stack consistente en gdb</td><td>Bug real, determinista y localizado en una función concreta</td></tr>
+    </tbody>
+  </table>
+</div>
+<figure class="figure">
+  <img src="img/pcre2-control-sin-jit-compilacion-ok-evidencia.png" alt="Terminal mostrando el control sin JIT: el mismo patrón compila correctamente y el match devuelve rc=-1 en 0 milisegundos" loading="lazy">
+  <figcaption class="figcap">Evidencia B — Control experimental: build sin JIT con el mismo patrón. Compila limpio y el match termina en 0.000 s (rc=-1). Esta imagen es la mitad que convierte un crash report en un diagnóstico.</figcaption>
+</figure>
+
+<h2 id="p06"><span class="idx">07.</span> Acotación e impacto realista</h2>
+<ul>
+  <li><b>Sin corrupción de memoria</b>: el proceso no crashea ni escribe fuera de límites; simplemente no avanza. La severidad depende de qué tan caro sea recuperar el worker.</li>
+  <li><b>Requiere compilar regex externas</b>: el escenario de explotación exige que la aplicación pase patrones controlados por terceros a <code>pcre2_jit_compile</code>. Quien solo usa patrones propios internos no está expuesto.</li>
+  <li><b>Determinista y acotado</b>: la construcción disparadora es precisa y verificable; no es un ataque probabilístico ni requiere volumen.</li>
+</ul>
+<p>El perfil de víctima ideal: servicios multiusuario donde el patrón llega desde fuera — WAFs con reglas dinámicas, motores de búsqueda con sintaxis avanzada, plataformas de logs con filtros personalizados, IDEs web que validan regex de usuario en vivo. En todos ellos, un patrón de setecientos bytes convierte un thread de trabajo en un zombie de CPU permanente: no crashea, así que los supervisores de procesos no lo reinician; simplemente deja de responder mientras consume su núcleo asignado.</p>
+
+<h2 id="p07"><span class="idx">08.</span> Mitigación</h2>
+<ul>
+  <li><b>Mantenedores</b>: memoizar el cálculo de frames por subárbol ya visitado (tabla de subárboles medidos), y tratar la recursiva total dentro de aserciones de ancho cero como caso especial con límite de profundidad.</li>
+  <li><b>Operadores</b>: envolver toda compilación JIT de patrones externos en un presupuesto temporal duro (thread aparte + deadline + abort); rechazar de entrada patrones que combinen recursivas totales con lookarounds si el caso de uso no los exige.</li>
+  <li><b>Desarrolladores de aplicaciones</b>: auditar dónde llegan las regex de usuario. Si la respuesta es «al JIT», esa frontera necesita sandboxing tanto como cualquier parser de archivos.</li>
+</ul>
+
+<h2 id="p08"><span class="idx">09.</span> Conclusión</h2>
+<p>Este hallazgo vale menos por el impacto individual y más por el método: <b>un experimento diferencial bien montado transforma una observación ambigua en un diagnóstico quirúrgico</b>. Sin la rama de control — el mismo patrón, sin JIT, terminando en cero milisegundos — el bug habría quedado archivado como «timeout extraño» en algún issue tracker. Con ella, apunta exactamente a una función, una línea y una causa estructural.</p>
+<p>La lección transferible a cualquier equipo de seguridad: cuando algo se cuelga, pregúntense siempre <i>en qué fase</i> se cuelga. Parseo, compilación, optimización, ejecución: cada fase tiene dueño distinto, superficies distintas y fixes distintos. El backtracking catastrófico acapara los titulares de ReDoS, pero los compiladores de regex — esa capa invisible entre el texto y la máquina — merecen el mismo escrutinio.</p>

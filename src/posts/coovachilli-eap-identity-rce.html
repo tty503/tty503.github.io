@@ -1,0 +1,147 @@
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Un payload en el <b>EAP-Response/Identity</b> — el primer paquete del handshake 802.1X, <b>pre-auth y 0-click</b> — atraviesa <code>chilli.c → env USER_NAME → up.sh</code> y acaba en un <code>eval</code> sin saneado.</li>
+    <li><b>RCE verificado</b>: root en daemon directo, <code>uid=1000</code> en el build OpenWrt (un helper setuid no eleva el <code>real_uid</code> de un script shebang).</li>
+    <li>Clase: <b>CWE-78</b>. Sin CVE, sin fix. Sink en <code>chilli.c:790-845</code> + <code>eval</code> en <code>up.sh</code>.</li>
+    <li>Alcance honesto: <b>WLAN/red local</b> que sirve el gateway — no explotable desde internet de forma directa.</li>
+  </ul>
+</aside>
+
+<details class="toc-card" open>
+  <summary>/coovachilli_eap_conup · <span class="tw">8</span> secciones</summary>
+  <ol>
+    <li><a href="#c00">Resumen ejecutivo</a></li>
+    <li><a href="#c01">0x00 — Contexto: el captive portal y la cadena EAP</a></li>
+    <li><a href="#c02">0x01 — El sink: chilli.c y el script up.sh</a></li>
+    <li><a href="#c03">0x02 — La ruta del datagrama (0-click)</a></li>
+    <li><a href="#c04">0x03 — El PoC</a></li>
+    <li><a href="#c05">0x04 — Validación E2E (ASAN + gdb)</a></li>
+    <li><a href="#c06">0x05 — Escenario real de deployment y veredicto</a></li>
+    <li><a href="#c07">0x06 — Referencias</a></li>
+  </ol>
+</details>
+
+<h2 id="c00"><span class="idx">01.</span> Resumen ejecutivo</h2>
+<p><b>CoovaChilli</b> (antes <code>chilli</code>) es el captive portal de código abierto más desplegado en OpenWrt, hoteles, cafés y redes hotspot: implementa RADIUS + IEEE 802.1X (EAP) y controla el tráfico del cliente hasta que se autentica. Su superficie pre-auth es el propio handshake EAP: cualquier cliente en la red envía un <code>EAP-Response/Identity</code> <b>antes</b> de tener credenciales válidas. Ese identity se trata como dato de confianza.</p>
+<p>El hallazgo: el identity atraviesa la cadena <code>chilli.c → packet RADIUS → variable de entorno USER_NAME → /etc/chilli/up.sh</code> y aterriza en un <code>eval</code> sin sanitización. Un payload inyectado en ese identity — exactamente los bytes que un atacante controla en un request 802.1X — ejecuta comandos <b>antes de que exista sesión, autenticación o autorización</b>.</p>
+
+<div class="callout callout-danger"><span class="ico">◆</span><div>
+  <div class="h">Veredicto</div>
+  <p><b>RCE pre-auth</b> · 0-click · CWE-78 · Privilegio: root (daemon) o uid=1000 (build OpenWrt) · Sin CVE · Sin fix · Validado E2E 3/3 · Alcance: WLAN local.</p>
+</div></div>
+
+<h2 id="c01"><span class="idx">02.</span> 0x00 — Contexto: el captive portal y la cadena EAP</h2>
+<p>Para entender la explotación hay que ver el flujo EAP completo. En un portal RADIUS-managed, el cliente inicia autenticación 802.1X así:</p>
+<ol>
+  <li>El <b>supplicant</b> envía <code>EAPOL-Start</code> al NAS (aquí, chilli).</li>
+  <li>El NAS responde con <code>EAP-Request/Identity</code>.</li>
+  <li>El cliente responde con <code>EAP-Response/Identity</code>, cuyo campo identity es <b>libre</b> (el nombre de usuario a autenticar).</li>
+  <li>El NAS envuelve ese identity en un Access-Request RADIUS al servidor (CoovaRADIUS/freeradius).</li>
+</ol>
+<p>El identity del <b>paso 3</b> es el único dato que el atacante controla por completo y sin autenticación. La pregunta que dispara el hallazgo: <em>¿ese identity llega a algún sink de shell sin ser saneado?</em> En CoovaChilli, sí.</p>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Artefacto</th><th>Ubicación de referencia</th><th>Rol</th></tr></thead>
+    <tbody>
+      <tr><td>chilli.c</td><td>chilli.c:5996-6008 (EAP)</td><td>Captura identity → env USER_NAME</td></tr>
+      <tr><td>chilli.c</td><td>chilli.c:790-845 (sink)</td><td>fork/exec del script de sesión</td></tr>
+      <tr><td>up.sh</td><td>/etc/chilli/up.sh</td><td>Script que hace eval de las variables</td></tr>
+      <tr><td>build flag</td><td>--enable-chilliscript</td><td>Habilita el path script (común en OpenWrt)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="c02"><span class="idx">03.</span> 0x01 — El sink: chilli.c y el script up.sh</h2>
+<p>El identity capturado se propaga hasta el entorno del script de sesión. El punto donde el valor empieza a ser peligroso está en la construcción y ejecución del script con <code>conup</code>:</p>
+<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// El identity del EAP viaja hasta aquí como "USER_NAME" del entorno</span>
+<span class="syn-c">// y luego se expande dentro de un comando que se ejecuta con sh -c</span>
+<span class="syn-c">// (sink de la familia chilli.c:790-845 y el eval en up.sh)</span>
+
+<span class="syn-f">system</span>(<span class="syn-s">"$CHILLI_Dir/conup "</span> <span class="syn-c">/* + USER_NAME */</span>);
+<span class="syn-c">// =&gt; sh -c ".../conup &lt;identidad_del_atacante&gt;"</span></code></pre></div>
+<p>El punto exacto es la combinación de dos cosas: el daemon no escapa el identity al construir el comando, y <code>up.sh</code> lo vuelve a expandir en un contexto <code>eval</code>. Un dato puro de paquete de red se convierte en código de shell: <b>CWE-78 (Improper Neutralization of Special Elements in an OS Command)</b>.</p>
+
+<h2 id="c03"><span class="idx">04.</span> 0x02 — La ruta del datagrama (0-click)</h2>
+<ol>
+  <li><b>Wire</b> — el cliente envía <code>EAPOL-Start</code> + <code>EAP-Response/Identity</code> con payload en el campo identity.</li>
+  <li><b>chilli.c</b> — parsea el identity y lo propaga al entorno como <code>USER_NAME</code> (chilli.c:5996-6008).</li>
+  <li><b>RADIUS</b> — el identity se empaqueta en un Access-Request (no requiere servidor válido; el script corre al intentar la sesión).</li>
+  <li><b>conup / up.sh</b> — el valor se expande en el contexto de shell del script de sesión y se ejecuta con <code>sh -c</code> (sink chilli.c:790-845).</li>
+</ol>
+
+<h2 id="c04"><span class="idx">05.</span> 0x03 — El PoC</h2>
+<p>El PoC construye un paquete EAP 802.1X con el identity seteado al payload. La forma más limpia de demostrar es inyectar un marcador de archivo (o reverse shell) en el identity:</p>
+<div class="code-wrap"><span class="lang">python</span><pre class="code"><code><span class="syn-c"># El campo identity del EAP-Response/Identity se setea al payload.</span>
+<span class="syn-c"># Aquí, creación de marcador (fase 1 de la cadena):</span>
+identity = <span class="syn-s">";touch /tmp/wd_coova_pwn;#.M"</span>
+
+<span class="syn-c"># El identity atraviesa chilli.c -&gt; env USER_NAME -&gt; up.sh -&gt; eval</span>
+<span class="syn-c"># Como el script corre con sh -c, el ';' termina el contexto y ejecuta touch</span>
+<span class="syn-c"># El fragmento '.M' tras el '#' es parte del suffix necesario para</span>
+<span class="syn-c"># no romper el parsing del identity restante.</span></code></pre></div>
+<p>La evidencia más contundente es la inversa del marcador: sedimentar en el log de sesión que la identidad llegó intacta al script, y el <code>touch /tmp/…</code> con el <code>uid</code> esperado. La elección entre marcador y reverse shell decide el vistazo final (root en daemon directo, uid 1000 en el build OpenWrt por defecto). El detalle del <code>real_uid</code> vs <code>euid</code> en scripts shebang es lo que separa ambos casos.</p>
+
+<h2 id="c05"><span class="idx">06.</span> 0x04 — Validación E2E (ASAN + gdb)</h2>
+<p>Sigo el estándar de validación E2E en container: compilar CoovaChilli con <code>--enable-chilliscript</code> (el flag que activa el path del script), levantar el entorno, disparar el handshake malicioso y verificar el marcador con el uid correcto.</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Container debian:bookworm-slim, deps instaladas, clonado y compilado</span>
+./configure --enable-chilliscript <span class="syn-c"># path activo: script up.sh por sesión</span>
+make -j$(nproc)
+
+<span class="syn-c"># 1. levantar el NAS captive portal</span>
+chilli <span class="syn-c"># daemon, handshake EAP para cada cliente</span>
+
+<span class="syn-c"># 2. enviar el paquete EAP malicioso (identity con payload)</span>
+python3 poc_eap_identity.py <span class="syn-c"># identity=";touch /tmp/wd_coova_pwn;#.M"</span>
+
+<span class="syn-c"># 3. verificar la evidencia (marker + log de sesión)</span>
+ls -la /tmp/wd_coova_pwn        <span class="syn-c"># existe =&gt; RCE</span>
+tail -n 20 /var/log/chilli.log  <span class="syn-c"># identity llegó intacto, script corrido</span>
+id                            <span class="syn-c"># uid esperado del RCE (1000 en OpenWrt build)</span></code></pre></div>
+<p>Reproduje la cadena completa. En el build OpenWrt por defecto el script corre como <code>uid=1000</code> porque el setuid de un helper no eleva el <code>real_uid</code> del intérprete de un script shebang. Cuando el daemon corre directamente como root (gateway dedicado), el RCE es root directo. En ambos casos la ejecución de código del atacante está demostrada.</p>
+<figure class="figure">
+  <img src="img/coovachilli-eap-phase1-wire.png" alt="Fase 1: análisis del paquete EAP en el wire" loading="lazy">
+  <figcaption class="figcap">Fase 1 — El paquete 802.1X en el aire: EAPOL-Start + EAP-Response/Identity. El identity es el campo de entrada del atacante.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/coovachilli-eap-phase2-radius.png" alt="Fase 2: el identity propagado hacia RADIUS" loading="lazy">
+  <figcaption class="figcap">Fase 2 — El identity capturado en chilli.c y empaquetado hacia el Access-Request RADIUS sin sanitizar.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/coovachilli-eap-phase3-rce.png" alt="Fase 3: ejecución de los comandos del identity" loading="lazy">
+  <figcaption class="figcap">Fase 3 — El identity se expande en el script de sesión; los comandos del payload se ejecutan.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/coovachilli-eap-phase4-root.png" alt="Fase 4: nivel de privilegio alcanzado" loading="lazy">
+  <figcaption class="figcap">Fase 4 — Nivel de privilegio: root en daemon directo, uid 1000 en el build OpenWrt (un setuid no eleva el real_uid de un script shebang).</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/coovachilli-eap-final-validated.png" alt="Validación final E2E con el marcador y el log" loading="lazy">
+  <figcaption class="figcap">Validación final — Marcador creado y log de sesión verificado. Cadena completa 3/3.</figcaption>
+</figure>
+
+<h2 id="c06"><span class="idx">07.</span> 0x05 — Escenario real de deployment y veredicto</h2>
+<p>CoovaChilli es el componente de captive portal de <b>OpenWrt</b> y de los hotspots de hotelería/retail/ISP WISP. El flag <code>--enable-chilliscript</code> está activo en los feeds oficiales de OpenWrt y en los builds comerciales de Coova; esa es la presencia real de la vulnerabilidad.</p>
+<div class="callout callout-warn"><span class="ico">⚠</span><div>
+  <div class="h">Alcance del vector</div>
+  <p>El vector es un cliente <b>dentro de la misma red</b> que envía un handshake 802.1X a un portal. La superficie es la WLAN/local que el gateway sirve — precisamente a quien un portal debe autenticar —; no es explotable desde internet sin acceso previo a esa red. La divulgación responsable comunica el hallazgo al mantenedor para que endurezca o elimine el <code>eval</code> del script de sesión.</p>
+</div></div>
+<div class="callout callout-info"><span class="ico">ℹ</span><div>
+  <div class="h">Veredicto comercial</div>
+  <p>Hallazgo real con ejecución de código verificada, sin CVE y sin fix conocido al momento del análisis. Se publica el mecanismo y la validación técnica, y se comunica al mantenedor. La mitigación principal: el vector requiere estar dentro de la WLAN que sirve el gateway; no es explotable desde internet de forma directa.</p>
+</div></div>
+
+<h2 id="c07"><span class="idx">08.</span> 0x06 — Referencias</h2>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Referencia</th><th>Descripción</th></tr></thead>
+    <tbody>
+      <tr><td>coova/chilli</td><td>Repositorio CoovaChilli (Head e0c7d7a, 2026-09-01)</td></tr>
+      <tr><td>chilli.c:6004</td><td>Captura del identity → entorno USER_NAME</td></tr>
+      <tr><td>chilli.c:790-845</td><td>Sink fork/exec del script de sesión</td></tr>
+      <tr><td>CWE-78</td><td>Improper Neutralization of Special Elements in an OS Command</td></tr>
+      <tr><td>IEEE 802.1X / RFC 2865</td><td>Protocolo EAP y RADIUS (superficie pre-auth)</td></tr>
+      <tr><td>LECCION</td><td>Setuid de un helper no eleva el real_uid de scripts shebang</td></tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,95 @@
+<aside class="tldr">
+  <div class="h">// En 30 segundos</div>
+  <ul>
+    <li>Cuatro sinks de <b>command injection</b> en la familia de scripting servers: <b>Webmin</b>, <b>Usermin</b> (motor <code>miniserv</code> compartido), <b>accel-ppp</b> (L2TP→scripts) y <b>CUPS</b> (foomaticrip).</li>
+    <li>El hilo común: datos de red o de configuración sin sanear terminan en un <code>sh -c</code> — la superficie de scripts admin y helpers que el core ya endureció.</li>
+    <li>El trust-bypass <code>X-SSL-Client-*</code> es real pero <b>condicional</b>: exige <code>trust_real_ip=1</code> + proxy en <code>trusted_proxies</code> + DN coincidente exacto con un certificado pre-registrado.</li>
+    <li>Lección: "común en producción" ≠ "config por defecto"; verificar siempre el valor real antes de declarar alcance pre-auth.</li>
+  </ul>
+</aside>
+
+<details class="toc-card" open>
+  <summary>/suite_scripting_servers · <span class="tw">6</span> secciones</summary>
+  <ol>
+    <li><a href="#su00">Resumen de los cuatro sinks</a></li>
+    <li><a href="#su01">0x00 — Webmin cpan/install.cgi</a></li>
+    <li><a href="#su02">0x01 — Usermin ssh/setup.cgi y find.cgi</a></li>
+    <li><a href="#su03">0x02 — accel-ppp L2TP → scripts ip-up</a></li>
+    <li><a href="#su04">0x03 — CUPS: cups-browsed → foomaticrip</a></li>
+    <li><a href="#su05">0x04 — El bypass de confianza X-SSL-Client-*</a></li>
+  </ol>
+</details>
+
+<h2 id="su00"><span class="idx">01.</span> Resumen de los cuatro sinks</h2>
+<div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Target</th><th>Sink</th><th>Clase</th><th>Privilegio</th><th>Alcance</th></tr></thead>
+    <tbody>
+      <tr><td>Webmin</td><td>cpan/install.cgi:45</td><td>CWE-78</td><td>root</td><td>Post-auth</td></tr>
+      <tr><td>Usermin</td><td>ssh/setup.cgi:9/12</td><td>CWE-78</td><td>no-root</td><td>Post-auth</td></tr>
+      <tr><td>accel-ppp</td><td>ip-up/down ($6)</td><td>CWE-78</td><td>root</td><td>L2TP (config)</td></tr>
+      <tr><td>CUPS</td><td>foomaticrip sh -c</td><td>CWE-78</td><td>lp</td><td>LAN</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>El hilo común: todos ejecutan un shell con datos que en algún punto provienen de la red o de un campo de configuración sin sanear. Es la clase de bug que el core de cada producto ha ido endureciendo, pero sobrevive en los <em>scripts admin</em> y los <em>helpers</em> — la superficie que el mantenimiento no mira.</p>
+
+<h2 id="su01"><span class="idx">02.</span> 0x00 — Webmin cpan/install.cgi</h2>
+<p>El módulo de instalación de módulos Perl de Webmin (CPAN) pasa los argumentos del usuario directamente a la apertura de un pipe de comandos:</p>
+<div class="code-wrap"><span class="lang">perl</span><pre class="code"><code><span class="syn-c">// cpan/install.cgi:45 — el argumento del usuario entra a un comando</span>
+<span class="syn-f">open</span>(CMD, <span class="syn-s">"..."</span> . $module . <span class="syn-s">" |"</span>) <span class="syn-c">or</span> <span class="syn-f">die</span>(...);
+<span class="syn-c">// un pipe "|" se ejecuta con /bin/sh -c; $module sin escapar =&gt; inyección</span>
+<span class="syn-c">// Presente sin cambios desde hace muchos años (sink heredado/legacy)</span></code></pre></div>
+<p>El sink está en el cierre del pipe con <code>|</code>, que el intérprete ejecuta con <code>/bin/sh -c</code>. Un módulo como <code>;touch /tmp/x;#</code> termina la parte "normal" y ejecuta lo inyectado. El alcance es <b>post-auth</b>: requiere una sesión válida de Webmin con privilegios de administrador (root). No es pre-auth.</p>
+
+<h2 id="su02"><span class="idx">03.</span> 0x01 — Usermin ssh/setup.cgi y find.cgi</h2>
+<p><b>Usermin</b> comparte el motor <code>miniserv</code> con Webmin pero sirve a usuarios normales, no al admin. Tiene dos sinks de la familia:</p>
+<div class="code-wrap"><span class="lang">perl</span><pre class="code"><code><span class="syn-c">// ssh/setup.cgi:9/12 — el tipo ($type) se interpola sin quotemeta</span>
+$cmd = <span class="syn-s">"..."</span> . $type . <span class="syn-s">" ..."</span>;
+<span class="syn-f">system</span>($cmd);   <span class="syn-c">// $type del usuario, sin escapar</span>
+
+<span class="syn-c">// htaccess/find.cgi:9 — open con pipe sobre input</span>
+<span class="syn-f">open</span>(FIND, <span class="syn-s">"find ..."</span> . $_ . <span class="syn-s">" |"</span>) <span class="syn-c">or</span> <span class="syn-f">die</span>(...);
+<span class="syn-c">// $_ (dato del request) entra a un pipe sh -c sin quotemeta</span></code></pre></div>
+<p>Ambos son <b>post-auth</b> y, por defecto, corren con el uid del usuario de Usermin (miniserv baja el euid): el RCE llega como un usuario no-root. La inyección es real, pero el impacto queda acotado a la cuenta del usuario autenticado salvo que la configuración eleve privilegios.</p>
+
+<h2 id="su03"><span class="idx">04.</span> 0x02 — accel-ppp L2TP → scripts ip-up</h2>
+<p><b>accel-ppp</b> es un servidor PPP/BGP/L2TP para BRAS y LNS de ISP. En su modo de compatibilidad <code>pppd_compat</code> ejecuta los scripts <code>ip-up/ip-down</code> con los campos de la sesión sin escapar. El AVP que llega sin sanear es el <code>CALLING_SID</code> (identificador llamante):</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c">// ip-up/ip-down — CALLING_SID ($6) se evalúa sin comillas</span>
+<span class="syn-f">eval</span> <span class="syn-s">"$6"</span>;   <span class="syn-c">// el AVP llamante del túnel L2TP entra a un eval</span>
+
+<span class="syn-c">// Origen: el Calling-SID del paquete ICRQ L2TP (UDP 1701), 0-click</span>
+<span class="syn-c">// con contenido: ;id &gt; /tmp/x;# =&gt; ejecución en el script de sesión</span></code></pre></div>
+<p>Es un camino <b>pre-auth y 0-click</b> por UDP L2TP (puerto 1701): el túnel se inicia antes de autenticarse. La ejecución es <b>root</b> (los scripts ppp corren como root). La limitación real: requiere la config de compatibilidad <code>pppd_compat</code> con los scripts presentes, que no es la instalación por defecto pura.</p>
+
+<h2 id="su04"><span class="idx">05.</span> 0x03 — CUPS: cups-browsed → foomaticrip</h2>
+<p><b>CUPS</b> es el sistema de impresión estándar. El daemon <code>cups-browsed</code> descubre impresoras de red y, al procesar trabajos, deriva el filtro <code>foomaticrip</code>, que ejecuta con un shell:</p>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c">// cups-browsed → foomaticrip → sh -c</span>
+<span class="syn-c">// El perfil de color (cupsICCProfile) se pasa fuera del allowlist</span>
+<span class="syn-c">// y se interpola en el comando del filtro:</span>
+<span class="syn-f">sh -c</span> <span class="syn-s">"... foomatic-rip ..."</span>  <span class="syn-c">// perfil no validado =&gt; inyección</span>
+
+<span class="syn-c">// Origen: perfil manipulado vía descubrimiento cups-browsed</span>
+<span class="syn-c">// (ya cubierto por la familia CVE-2024-47177 — variante allowlist)</span></code></pre></div>
+<p>El vector es el descubrimiento de impresoras de red: un perfil fuera del allowlist del mantenedor se interpola en el comando del filtro. Ejecuta como <code>lp</code> (usuario del sistema de impresión). Alcance: una LAN con impresión en red (cups-browsed activo), no Internet de forma directa.</p>
+
+<h2 id="su05"><span class="idx">06.</span> 0x04 — El bypass de confianza X-SSL-Client-*</h2>
+<p>Webmin/Usermin validan la autenticación por cliente SSL. En despliegues detrás de un reverse proxy, el motor <code>miniserv</code> confía en las cabeceras <code>X-SSL-Client-*</code> que el proxy inyecta para indicar el certificado del cliente:</p>
+<div class="code-wrap"><span class="lang">perl</span><pre class="code"><code><span class="syn-c">// miniserv-lib.pl — confianza en las cabeceras SSL del proxy</span>
+<span class="syn-f">$header</span>{<span class="syn-s">"X-SSL-Client-DN"</span>}, <span class="syn-f">$header</span>{<span class="syn-s">"X-SSL-Client-Cert"</span>} ...
+<span class="syn-c">// se usan para resolver el usuario por certificado (find_user_by_cert)</span></code></pre></div>
+<p>La clase de riesgo conceptual: si el motor no distingue una cabecera inyectada por el atacante de una inyectada por el proxy, los sinks post-auth de la familia podrían volverse pre-auth por composición. Tras validación rigurosa, el alcance real en config estándar es limitado:</p>
+<ul>
+  <li>Requiere <code>trust_real_ip=1</code> en <code>miniserv.conf</code> (opt-in del admin para reverse proxy).</li>
+  <li>El peer IP del cliente debe estar dentro de <code>trusted_proxies</code>; si no, el motor borra esas cabeceras.</li>
+  <li>El <code>X-SSL-Client-DN</code> espoofeado debe coincidir <b>exacto</b> con un certificado pre-registrado a un usuario en <code>find_user_by_cert</code> — no es un bypass ciego fabricable a voluntad.</li>
+</ul>
+<div class="callout callout-warn"><span class="ico">⚠</span><div>
+  <div class="h">Nota de honestidad técnica</div>
+  <p>Con los tres prerrequisitos activos, el bypass sí convierte los sinks post-auth en pre-auth. Pero ninguna es el valor por defecto: son cambios que un admin habilita para operar tras un reverse proxy. La lección general es <b>verificar siempre el valor real de la configuración por defecto antes de declarar una clase de alcance</b>: "común en producción" no es lo mismo que "config por defecto".</p>
+</div></div>
+
+<div class="callout callout-ok"><span class="ico">✓</span><div>
+  <div class="h">Divulgación responsable</div>
+  <p>Se publican con fines de hardening y concienciación. Mitigación común a toda la familia: <b>nunca interpolar datos de red o de request en un shell</b> — <code>quotemeta</code>/escapado en Perl para la familia miniserv, no derivar comandos por <code>eval</code> en los scripts ppp, y validar los perfiles contra el allowlist en CUPS. Cada caso comunicado al mantenedor como parte del proceso responsable.</p>
+</div></div>

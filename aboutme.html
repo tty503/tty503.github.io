@@ -1,757 +1,310 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="hat.png">
-    <link rel="apple-touch-icon" href="hat.png">    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    
-    <!-- ==================== SEO CORE OPTIMIZADO ==================== -->
-    <title>Christian Márquez (tty503) — Offensive Security Tooling & DevSecOps Engineer | Threat Intelligence, Ingeniería Inversa y Seguridad OT</title>
-    <meta name="description" content="Christian Márquez (tty503): Ingeniero de herramientas ofensivas y Threat Hunter. Especialista en ingeniería inversa (Ghidra, Radare2, x64dbg, JADX), desarrollo de agentes de IA para bug hunting (SAINT GRAIL con DeepSeek), threat intelligence aplicada a fraudes financieros, seguridad OT/PLC Siemens, y automatización de infraestructura defensiva (Proxmox, Wazuh, Ansible, QEMU/KVM). Trayectoria autodidacta desde 2012 operando desde Venezuela.">
-    <meta name="keywords" content="Christian Marquez, tty503, offensive security tooling, DevSecOps, threat hunter, malware analysis, ingeniería inversa, reversing, Ghidra, x64dbg, JADX, PLC Siemens, seguridad OT, SAINT GRAIL, DeepSeek, DeepWiki, AI bug hunting, threat intelligence, Pig Butchering, crypto scam, OSINT, Proxmox, Wazuh, Ansible, QEMU, KVM, Flatseal, Mullvad, Kleopatra, VS Codium, Assembly x86, ARM64, Venezuela, consultor ciberseguridad">
-    <meta name="author" content="Christian Márquez">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-    <link rel="canonical" href="https://tty503.com/aboutme.html">
-    <meta name="theme-color" content="#050505">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#08090c">
+<meta name="color-scheme" content="dark">
+<title>Christian Márquez (tty503) — Sobre mí | Reversing, Exploit Dev y Seguridad OT</title>
+<meta name="description" content="Ruta completa de Christian Márquez (tty503): de firmware de microcontroladores a threat intelligence, ingeniería inversa, exploit development y seguridad OT/PLC. Trayectoria autodidacta desde 2012 desde Venezuela.">
+<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/aboutme.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Christian Márquez (tty503) — Sobre mí | Reversing, Exploit Dev y Seguridad OT">
+<meta property="og:description" content="Ruta completa de Christian Márquez (tty503): de firmware de microcontroladores a threat intelligence, ingeniería inversa, exploit development y seguridad OT/PLC. Trayectoria autodidacta desde 2012 desde Venezuela.">
+<meta property="og:url" content="https://tty503.com/aboutme.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
 
-    <!-- Open Graph -->
-    <meta property="og:locale" content="es_ES">
-    <meta property="og:type" content="profile">
-    <meta property="og:title" content="Christian Márquez (tty503) — Offensive Security Tooling & DevSecOps Engineer">
-    <meta property="og:description" content="Ingeniero de herramientas ofensivas y Threat Hunter. Construyo multiplicadores de fuerza bajo la filosofía Unix/KISS. Del reversing de malware al diseño de agentes de IA para bug hunting. Trayectoria autodidacta desde 2012.">
-    <meta property="og:url" content="https://tty503.com/aboutme.html">
-    <meta property="og:site_name" content="tty503 — Christian Márquez">
-    <meta property="og:image" content="https://tty503.com/p1.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Christian Márquez - Offensive Security Tooling, Ingeniería Inversa y Seguridad OT">
-    <meta property="profile:first_name" content="Christian">
-    <meta property="profile:last_name" content="Márquez">
-    <meta property="profile:username" content="tty503">
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@tty_503">
-    <meta name="twitter:creator" content="@tty_503">
-    <meta name="twitter:title" content="Christian Márquez (tty503) — Offensive Security Tooling & DevSecOps Engineer">
-    <meta name="twitter:description" content="Construyo multiplicadores de fuerza: reversing, agentes de IA para bug hunting, threat intelligence y seguridad OT. Trayectoria autodidacta desde Venezuela.">
-    <meta name="twitter:image" content="https://tty503.com/p1.jpg">
-    <meta name="twitter:image:alt" content="Christian Márquez - tty503">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="Christian Márquez (tty503) — Sobre mí | Reversing, Exploit Dev y Seguridad OT">
+<meta name="twitter:description" content="Ruta completa de Christian Márquez (tty503): de firmware de microcontroladores a threat intelligence, ingeniería inversa, exploit development y seguridad OT/PLC. Trayectoria autodidacta desd">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-    <!-- Schema JSON-LD: Person + hasOccupation + knowsAbout -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Christian Márquez",
-      "alternateName": ["tty503", "Christian Marquez"],
-      "url": "https://tty503.com/aboutme.html",
-      "image": "https://tty503.com/p1.jpg",
-      "sameAs": [
-        "https://linkedin.com/in/tty503",
-        "https://github.com/tty503",
-        "https://x.com/tty_503"
-      ],
-      "jobTitle": "Offensive Security Tooling & DevSecOps Engineer",
-      "description": "Ingeniero de herramientas ofensivas y Threat Hunter autodidacta. Diseña arquitecturas de agentes híbridos de IA para bug hunting (SAINT GRAIL + DeepSeek), realiza ingeniería inversa de malware y APKs (Ghidra, x64dbg, JADX), audita infraestructuras críticas OT/PLC Siemens, y despliega laboratorios SOC con Proxmox, Wazuh y Ansible. Opera desde Venezuela con un enfoque de control absoluto del entorno operativo (Flatseal, QEMU/KVM, Mullvad, Kleopatra).",
-      "hasOccupation": {
-        "@type": "Occupation",
-        "name": "Offensive Security Tooling & DevSecOps Engineer",
-        "skills": "Malware Analysis, Reverse Engineering, Threat Intelligence, Python, Bash, Ghidra, Radare2, x64dbg, JADX, Capstone, Proxmox, QEMU/KVM, Docker, Flatseal, Wazuh, Ansible, Terraform, WireGuard, Mullvad, Kleopatra, PLC Siemens, OT Security, Assembly x86, ARM64, OSINT, Blockchain Forensics, AI Agent Development, DeepSeek Integration"
-      },
-      "knowsAbout": [
-        "Malware Analysis",
-        "Reverse Engineering",
-        "Threat Intelligence",
-        "OT Security",
-        "PLC Siemens S5/S7",
-        "SCADA Security",
-        "DevSecOps",
-        "Python",
-        "Bash",
-        "Ghidra",
-        "Radare2",
-        "x64dbg",
-        "JADX",
-        "Capstone",
-        "Proxmox",
-        "QEMU/KVM",
-        "Docker",
-        "Flatseal",
-        "Wazuh",
-        "Ansible",
-        "Terraform",
-        "WireGuard",
-        "Mullvad VPN",
-        "Kleopatra GnuPG",
-        "Assembly x86",
-        "ARM64",
-        "OSINT",
-        "Blockchain Forensics",
-        "Pig Butchering",
-        "Crypto Scam Investigation",
-        "AI Agent Development",
-        "DeepSeek Integration",
-        "DeepWiki",
-        "Venezuela",
-        "Critical Infrastructure Protection"
-      ]
-    }
-    </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-base: #030303;
-            --bg-surface: #0a0a0a;
-            --bg-card: #111111;
-            --border-subtle: #222222;
-            --border-hover: #444444;
-            --text-primary: #f5f5f5;
-            --text-secondary: #a3a3a3;
-            --text-muted: #666666;
-            --accent: #ffffff;
-            --accent-green: #4ade80;
-            --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            line-height: 1.8;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            min-height: 100vh;
-        }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        .top-bar {
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--border-subtle);
-            background: var(--bg-surface);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(12px);
-            background: rgba(10, 10, 10, 0.85);
-        }
-        .top-bar-inner { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .back-link { color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: var(--transition-smooth); display: inline-flex; align-items: center; gap: 0.4rem; }
-        .back-link:hover { color: var(--text-primary); }
-        .page-label { color: var(--text-muted); font-size: 0.8rem; }
-        .story-container { max-width: 800px; margin: 0 auto; padding: 4rem 2rem 6rem; }
-        .story-header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 2rem; }
-        .story-header h1 { font-size: 2.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
-        .story-subtitle { color: var(--text-muted); font-size: 1rem; }
-
-        /* ==================== DASHBOARD DE KPIs ==================== */
-        .kpi-dashboard {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin: 2.5rem 0;
-        }
-        .kpi-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            padding: 1.2rem 1rem;
-            text-align: center;
-            transition: var(--transition-smooth);
-        }
-        .kpi-card:hover {
-            border-color: var(--border-hover);
-            background: #181818;
-        }
-        .kpi-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--accent-green);
-            line-height: 1.2;
-            margin-bottom: 0.3rem;
-        }
-        .kpi-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-        @media (max-width: 600px) {
-            .kpi-dashboard {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.7rem;
-                margin: 2rem 0;
-            }
-            .kpi-card { padding: 1rem 0.8rem; }
-            .kpi-number { font-size: 1.5rem; }
-            .kpi-label { font-size: 0.7rem; }
-        }
-
-        /* ==================== STACK TÉCNICO VISUAL ==================== */
-        .stack-section {
-            margin: 2.5rem 0;
-            padding: 1.5rem 2rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-        }
-        .stack-section h3 {
-            font-size: 1rem;
-            color: var(--text-primary);
-            margin-bottom: 1.2rem;
-            font-weight: 600;
-        }
-        .stack-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.2rem;
-        }
-        .stack-category h4 {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-        .stack-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-        }
-        .stack-tag {
-            background: transparent;
-            color: var(--text-secondary);
-            padding: 0.25rem 0.6rem;
-            border-radius: 3px;
-            font-size: 0.75rem;
-            border: 1px solid var(--border-subtle);
-            font-weight: 500;
-            transition: var(--transition-smooth);
-        }
-        .stack-tag:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
-        @media (max-width: 600px) {
-            .stack-section { padding: 1.2rem 1rem; margin: 2rem 0; }
-            .stack-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .stack-tag { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
-        }
-
-        /* ==================== ENTORNO DE OPERACIONES ==================== */
-        .environment-section {
-            margin: 2.5rem 0;
-            padding: 1.5rem 2rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-        }
-        .environment-section h3 {
-            font-size: 1rem;
-            color: var(--text-primary);
-            margin-bottom: 1.2rem;
-            font-weight: 600;
-        }
-        .environment-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.2rem;
-        }
-        .environment-category h4 {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-        .environment-category p {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-        .environment-category strong {
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-        @media (max-width: 600px) {
-            .environment-section { padding: 1.2rem 1rem; margin: 2rem 0; }
-            .environment-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .environment-category p { font-size: 0.8rem; }
-        }
-
-        .narrative-image { margin: 2rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-subtle); transition: var(--transition-smooth); }
-        .narrative-image:hover { border-color: var(--border-hover); }
-        .narrative-image img { width: 100%; height: auto; display: block; filter: grayscale(30%) contrast(1.05); transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
-        .narrative-image:hover img { filter: grayscale(0%) contrast(1.1); }
-        .narrative-image .image-caption { padding: 0.8rem 1.2rem; background: var(--bg-card); color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border-subtle); }
-        .narrative-image .image-caption strong { color: var(--text-secondary); font-weight: 500; }
-        .phase { margin-bottom: 3.5rem; padding-left: 1.5rem; border-left: 2px solid var(--border-subtle); transition: border-color 0.4s; }
-        .phase:hover { border-left-color: var(--border-hover); }
-        .phase-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
-        .phase-number { font-size: 0.85rem; color: var(--accent-green); font-weight: 600; letter-spacing: 1px; white-space: nowrap; }
-        .phase-title { font-size: 1.4rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.3px; }
-        .phase-years { font-size: 0.9rem; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
-        .phase-content p { color: var(--text-secondary); font-size: 1rem; margin-bottom: 1.2rem; line-height: 1.9; }
-        .phase-content p:last-child { margin-bottom: 0; }
-        .phase-content strong { color: var(--text-primary); font-weight: 600; }
-        .phase-content em { color: var(--text-secondary); font-style: italic; }
-        .phase-content a { color: var(--accent-green); text-decoration: none; font-weight: 500; transition: var(--transition-smooth); }
-        .phase-content a:hover { text-decoration: underline; }
-        .highlight-quote {
-            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px;
-            padding: 1.5rem 2rem; margin: 2rem 0; color: var(--text-primary); font-style: italic;
-            font-size: 1rem; line-height: 1.7; position: relative;
-        }
-        .highlight-quote::before { content: '"'; position: absolute; top: -0.5rem; left: 1rem; font-size: 3rem; color: var(--border-hover); font-family: Georgia, serif; line-height: 1; }
-        .image-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
-        .image-pair .narrative-image { margin: 0; }
-        .story-divider { border: none; border-top: 1px solid var(--border-subtle); margin: 3rem 0; }
-        .story-footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border-subtle); color: var(--text-muted); font-size: 0.85rem; }
-        .story-footer a { color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: var(--transition-smooth); }
-        .story-footer a:hover { color: var(--text-primary); }
-        .portfolio-link {
-            display: inline-block;
-            margin-top: 0.5rem;
-            color: var(--accent-green);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            padding: 0.4rem 1rem;
-            border-radius: 4px;
-            transition: var(--transition-smooth);
-        }
-        .portfolio-link:hover { background: rgba(74, 222, 128, 0.05); color: var(--accent-green); }
-
-        /* ==================== CTA PARA RECLUTADORES ==================== */
-        .cta-recruiter {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 6px;
-            padding: 2rem;
-            margin: 3rem 0 2rem;
-            text-align: center;
-        }
-        .cta-recruiter h3 {
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            margin-bottom: 0.8rem;
-            font-weight: 600;
-        }
-        .cta-recruiter p {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            margin-bottom: 1.2rem;
-            line-height: 1.7;
-        }
-        .cta-links {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.7rem 1.5rem;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-decoration: none;
-            transition: var(--transition-smooth);
-            border: 1px solid var(--border-subtle);
-            color: var(--text-secondary);
-            background: transparent;
-        }
-        .cta-btn:hover {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.03);
-        }
-        .cta-btn.primary {
-            border-color: rgba(74, 222, 128, 0.3);
-            color: var(--accent-green);
-        }
-        .cta-btn.primary:hover {
-            background: rgba(74, 222, 128, 0.05);
-            border-color: var(--accent-green);
-        }
-        @media (max-width: 600px) {
-            .cta-recruiter { padding: 1.5rem 1rem; margin: 2rem 0 1.5rem; }
-            .cta-links { flex-direction: column; align-items: center; }
-            .cta-btn { width: 100%; justify-content: center; }
-        }
-
-        @media (max-width: 600px) {
-            .top-bar { padding: 1rem 1.2rem; }
-            .story-container { padding: 2.5rem 1.2rem 4rem; }
-            .story-header h1 { font-size: 1.6rem; }
-            .phase { padding-left: 1rem; margin-bottom: 2.5rem; }
-            .phase-title { font-size: 1.2rem; }
-            .phase-header { flex-direction: column; gap: 0.2rem; }
-            .phase-years { margin-left: 0; }
-            .highlight-quote { padding: 1.2rem 1.5rem; margin: 1.5rem 0; }
-            .image-pair { grid-template-columns: 1fr; gap: 1rem; }
-            .narrative-image .image-caption { font-size: 0.7rem; padding: 0.6rem 0.9rem; }
-        }
-    </style>
 </head>
 <body>
+<div class="bg-fx"></div>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
+<main class="post">
+  <header class="post-head">
+    <div class="post-tags"><span class="chip on">Sobre mí</span><span class="chip">Ruta completa</span><span class="chip">2012 → hoy</span></div>
+    <h1>Mi Ruta Completa</h1>
+    <p class="lede">De la curiosidad infantil a la ingeniería de herramientas ofensivas, threat intelligence y seguridad OT — una trayectoria autodidacta que atraviesa el firmware, el Assembly, la shellcode, el reversing de malware y los PLCs Siemens.</p>
+    <div class="post-meta"><span>📍 Venezuela</span><span>⏱ 12+ años de práctica continua</span><span>🧩 autodidacta</span></div>
+  </header>
 
-    <div class="top-bar">
-        <div class="top-bar-inner">
-            <a href="index.html" class="back-link mono">← Volver al portafolio</a>
-            <span class="page-label mono">tty503_aboutme</span>
-        </div>
+  <article class="post-body">
+
+    <h2 id="kpis"><span class="idx">01.</span> Resumen en números</h2>
+    <div class="stats">
+      <div class="stat"><span class="num">10+</span><span class="lbl">campañas de fraude y malware deconstruidas</span></div>
+      <div class="stat"><span class="num">8</span><span class="lbl">herramientas propias desarrolladas y documentadas</span></div>
+      <div class="stat"><span class="num">4</span><span class="lbl">laboratorios de infraestructura táctica desplegados</span></div>
+      <div class="stat"><span class="num">12+</span><span class="lbl">años de práctica autodidacta continua</span></div>
     </div>
 
-    <article class="story-container">
-        
-        <header class="story-header">
-            <h1>Mi Ruta Completa</h1>
-            <p class="story-subtitle mono">De la curiosidad infantil a la ingeniería de herramientas ofensivas, threat intelligence y seguridad OT</p>
-        </header>
-
-        <!-- ==================== DASHBOARD DE KPIs ==================== -->
-        <div class="kpi-dashboard">
-            <div class="kpi-card">
-                <div class="kpi-number mono">10+</div>
-                <div class="kpi-label">Campañas de fraude y malware deconstruidas</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-number mono">8</div>
-                <div class="kpi-label">Herramientas propias desarrolladas y documentadas</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-number mono">4</div>
-                <div class="kpi-label">Laboratorios de infraestructura táctica desplegados</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-number mono">12+</div>
-                <div class="kpi-label">Años de práctica autodidacta continua</div>
-            </div>
+    <h2 id="stack"><span class="idx">02.</span> Stack técnico</h2>
+    <div class="grid grid-4">
+      <div class="card">
+        <div class="t">Reverse Engineering</div>
+        <div class="d" style="margin:0.8rem 0;">
+          <div class="chips">
+            <span class="chip">Ghidra</span><span class="chip">Radare2 / rizin</span><span class="chip">x64dbg</span><span class="chip">JADX</span><span class="chip">Capstone</span><span class="chip">pefile</span><span class="chip">Assembly x86/ARM64</span>
+          </div>
         </div>
-
-        <!-- ==================== STACK TÉCNICO VISUAL ==================== -->
-        <div class="stack-section">
-            <h3 class="mono">/stack_técnico</h3>
-            <div class="stack-grid">
-                <div class="stack-category">
-                    <h4 class="mono">Reverse Engineering</h4>
-                    <div class="stack-tags">
-                        <span class="stack-tag">Ghidra</span>
-                        <span class="stack-tag">Radare2 / rizin</span>
-                        <span class="stack-tag">x64dbg</span>
-                        <span class="stack-tag">JADX</span>
-                        <span class="stack-tag">Capstone</span>
-                        <span class="stack-tag">pefile</span>
-                        <span class="stack-tag">Assembly x86/ARM64</span>
-                    </div>
-                </div>
-                <div class="stack-category">
-                    <h4 class="mono">Infraestructura & DevOps</h4>
-                    <div class="stack-tags">
-                        <span class="stack-tag">Proxmox VE</span>
-                        <span class="stack-tag">QEMU/KVM</span>
-                        <span class="stack-tag">Docker / Podman</span>
-                        <span class="stack-tag">Flatseal</span>
-                        <span class="stack-tag">Ansible</span>
-                        <span class="stack-tag">Terraform</span>
-                        <span class="stack-tag">WireGuard</span>
-                    </div>
-                </div>
-                <div class="stack-category">
-                    <h4 class="mono">Defensa & Monitoreo</h4>
-                    <div class="stack-tags">
-                        <span class="stack-tag">Wazuh</span>
-                        <span class="stack-tag">Zabbix</span>
-                        <span class="stack-tag">Grafana</span>
-                        <span class="stack-tag">T-Pot</span>
-                        <span class="stack-tag">OPNsense</span>
-                        <span class="stack-tag">Tailscale</span>
-                    </div>
-                </div>
-                <div class="stack-category">
-                    <h4 class="mono">Automatización & Scripting</h4>
-                    <div class="stack-tags">
-                        <span class="stack-tag">Python</span>
-                        <span class="stack-tag">Bash</span>
-                        <span class="stack-tag">C</span>
-                        <span class="stack-tag">FastAPI / Flask</span>
-                        <span class="stack-tag">SQLAlchemy</span>
-                        <span class="stack-tag">Postman</span>
-                    </div>
-                </div>
-            </div>
+      </div>
+      <div class="card">
+        <div class="t">Infraestructura &amp; DevOps</div>
+        <div class="d" style="margin:0.8rem 0;">
+          <div class="chips">
+            <span class="chip">Proxmox VE</span><span class="chip">QEMU/KVM</span><span class="chip">Docker / Podman</span><span class="chip">Flatseal</span><span class="chip">Ansible</span><span class="chip">Terraform</span><span class="chip">WireGuard</span>
+          </div>
         </div>
-
-        <!-- ==================== NUEVO: ENTORNO DE OPERACIONES ==================== -->
-        <div class="environment-section">
-            <h3 class="mono">/entorno_de_operaciones</h3>
-            <div class="environment-grid">
-                <div class="environment-category">
-                    <h4 class="mono">🔐 OpSec & Control de Entorno</h4>
-                    <p>
-                        <strong>Mullvad VPN</strong> — túnel permanente con política estricta de no registros.<br>
-                        <strong>Kleopatra (GnuPG)</strong> — gestión diaria de llaves PGP para firma de código e integridad de artefactos.<br>
-                        <strong>Flatseal</strong> — control granular de permisos, red y sistema de archivos para cada aplicación Flatpak.<br>
-                        <strong>Timeshift</strong> — backups integrales a nivel de sistema antes de pruebas críticas.<br>
-                        <strong>Bleachbit</strong> — saneamiento automatizado de metadatos, cachés y trazas de ejecución.
-                    </p>
-                </div>
-                <div class="environment-category">
-                    <h4 class="mono">💻 Desarrollo & Reversa</h4>
-                    <p>
-                        <strong>VS Codium</strong> — editor principal con telemetría de Microsoft completamente eliminada.<br>
-                        <strong>Mousepad</strong> — editor ligero para scripts rápidos y edición directa de configuración.<br>
-                        <strong>JADX</strong> — descompilador de APKs y bytecode Java/Dex para auditoría de apps móviles.<br>
-                        <strong>Postman</strong> — testing exhaustivo de endpoints REST, simulación de vectores de ataque contra APIs.<br>
-                        <strong>GitHub Desktop</strong> — control de versiones y despliegue continuo de herramientas de investigación.
-                    </p>
-                </div>
-                <div class="environment-category">
-                    <h4 class="mono">🧪 Laboratorios & Aislamiento</h4>
-                    <p>
-                        <strong>Virtual Machine Manager (QEMU/KVM)</strong> — virtualización nativa a nivel de kernel para laboratorios de malware con rendimiento casi bare-metal.<br>
-                        <strong>Docker</strong> — entornos reproducibles y aislados para desarrollo y despliegue de microservicios.<br>
-                        <strong>Obsidian</strong> — grafos de conocimiento en Markdown, base metodológica para la taxonomía de amenazas de SAINT GRAIL.<br>
-                        <strong>Firefox / Chromium / Chrome</strong> — testing cruzado de vectores de ataque web y rendimiento gráfico en motores Gecko y Blink.
-                    </p>
-                </div>
-            </div>
+      </div>
+      <div class="card">
+        <div class="t">Defensa &amp; Monitoreo</div>
+        <div class="d" style="margin:0.8rem 0;">
+          <div class="chips">
+            <span class="chip">Wazuh</span><span class="chip">Zabbix</span><span class="chip">Grafana</span><span class="chip">T-Pot</span><span class="chip">OPNsense</span><span class="chip">Tailscale</span>
+          </div>
         </div>
-
-        <figure class="narrative-image">
-            <img src="img/trayectoria-barco-luna-inicio-viaje.jpg" alt="Barco navegando bajo la luna — El inicio del viaje técnico" loading="lazy">
-            <figcaption class="image-caption"><strong>El viaje comienza.</strong> Así como los navegantes se orientaban por las estrellas, mis primeras preguntas sobre cómo funcionaban los sistemas fueron la luz que guió todo lo que vino después.</figcaption>
-        </figure>
-
-        <!-- FASE 1 -->
-        <section class="phase">
-            <div class="phase-header">
-                <span class="phase-number mono">FASE 1</span>
-                <h2 class="phase-title">La Chispa y los Fundamentos</h2>
-                <span class="phase-years mono">2012 – 2014</span>
-            </div>
-            <div class="phase-content">
-                <p>Todo comenzó en 2012 con una pregunta: <strong>"¿cómo funciona esto realmente?"</strong>. Siendo apenas un estudiante de primaria, los lenguajes de scripting como Batch y VBScript fueron mi primer contacto con las instrucciones de E/S, las estructuras de control de flujo y el concepto de variables. No escribí nada relevante en aquel momento, pero esos primeros pasos establecieron una base sólida que luego resultaría fundamental.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-texto-pixelado-reflexion.jpg" alt="Texto pixelado retro reflexionando sobre decisiones y pensamientos" loading="lazy">
-                    <figcaption class="image-caption"><strong>La mente corre libremente.</strong> Esas preguntas existenciales sobre las decisiones, los pensamientos y el control sobre lo que hacemos me acompañaban mientras descubría el mundo de la programación.</figcaption>
-                </figure>
-                
-                <p>La película <em>Hackers</em> (1995), que vi por casualidad en Space Channel, y la fascinación por casos históricos como Melissa e ILoveYou, me dieron un objetivo claro: <strong>entender cómo era posible infectar sistemas</strong>. Quería comprender la mecánica detrás de lo que veía en pantalla. Esa curiosidad por el malware —qué lo hacía funcionar, cómo se propagaba, cómo evadía defensas— fue el primer indicio de lo que años después se convertiría en mi enfoque profesional.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-collage-glitch-codigo.jpg" alt="Collage glitch con vela y código getHiddenObservers" loading="lazy">
-                    <figcaption class="image-caption"><strong>this->getHiddenObservers();</strong> — La búsqueda de lo que no se ve a simple vista. Desde niño, siempre quise entender los mecanismos ocultos detrás de cada sistema.</figcaption>
-                </figure>
-
-                <p>Mi padre fue el facilitador inconsciente de este viaje. Él introdujo la primera computadora en casa alrededor de 2006 y me enseñó los conceptos básicos sobre sistemas operativos y configuración de programas. <strong>Esos primeros años me enseñaron que la mejor forma de aprender es haciendo</strong>, incluso si eso significaba romper cosas en el proceso. Y vaya que rompí varias computadoras del hogar.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-editor-hexadecimal-distorsionado.jpg" alt="Editor hexadecimal distorsionado con fragmentos de código y figura con paraguas" loading="lazy">
-                    <figcaption class="image-caption"><strong>Los bytes crudos.</strong> Mi primer contacto visual con un editor hexadecimal. Aunque entonces no entendía nada, esa ventana a las entrañas del binario me resultaba hipnótica. Años después, ese mismo formato —opcodes en hexadecimal— se convertiría en mi lenguaje de trabajo diario.</figcaption>
-                </figure>
-
-                <div class="highlight-quote">
-                    ¿Cómo sabe la computadora a dónde mover el puntero del mouse? ¿Qué provoca que al pulsar la tecla 'A' se muestre en pantalla? Esas preguntas me mantenían despierto de noche. Quería entender la capa más baja, donde el software toca el silicio.
-                </div>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-poster-distopico-lost-wormhole.jpg" alt="Lost Wormhole - Wrong House: póster distópico de casa en llamas" loading="lazy">
-                    <figcaption class="image-caption"><strong>LOST WORMHOLE — WRONG HOUSE.</strong> A veces, la curiosidad te lleva a lugares equivocados. Pero incluso esos desvíos —romper la computadora de casa, trastear sin saber— fueron lecciones necesarias.</figcaption>
-                </figure>
-            </div>
-        </section>
-
-        <!-- FASE 2 -->
-        <section class="phase">
-            <div class="phase-header">
-                <span class="phase-number mono">FASE 2</span>
-                <h2 class="phase-title">Exploración y Ampliación del Espectro</h2>
-                <span class="phase-years mono">2014 – 2018</span>
-            </div>
-            <div class="phase-content">
-                <p>El descubrimiento de los compiladores y de <strong>C/C++</strong> en 2014 marcó un punto de inflexión. Entender la diferencia entre un intérprete y un compilador me abrió las puertas a un nuevo nivel de comprensión técnica. Poco después, la adopción de <strong>GNU/Linux</strong> expandió mi panorama por completo. Empecé a programar de verdad: manipulación de bits en C, contadores de población con tablas de consulta generadas en tiempo de compilación, empaquetado y desempaquetado de bytes, funciones para verificar el estado de bits individuales. <strong>Entender cómo la computadora representa y manipula datos a nivel binario fue el primer paso real hacia la ingeniería inversa</strong>, aunque en ese momento no lo supiera.</p>
-
-                <div class="image-pair">
-                    <figure class="narrative-image">
-                        <img src="img/c-bitwise-popcount-tabla-lookup.jpg" alt="Código C para conteo de bits con tabla de consulta" loading="lazy">
-                        <figcaption class="image-caption"><strong>Population Count en C.</strong> Tabla de consulta de 256 elementos generada con macros anidadas. Descomposición de un entero en sus cuatro bytes usando shift y máscaras AND.</figcaption>
-                    </figure>
-                    <figure class="narrative-image">
-                        <img src="img/c-bitwise-funciones-estado-bits.jpg" alt="Funciones C para verificar estado de bits individuales" loading="lazy">
-                        <figcaption class="image-caption"><strong>isItEnabled_On / isItDisabled_On.</strong> Funciones para verificar el estado de bits individuales usando máscaras de desplazamiento y operadores AND.</figcaption>
-                    </figure>
-                </div>
-
-                <div class="image-pair">
-                    <figure class="narrative-image">
-                        <img src="img/c-bitwise-empaquetado-bytes-serializacion.jpg" alt="Algoritmo C para empaquetado de bytes" loading="lazy">
-                        <figcaption class="image-caption"><strong>Byte packing.</strong> Consolidación de cuatro caracteres independientes en una variable de 32 bits usando desplazamiento y OR inclusivo.</figcaption>
-                    </figure>
-                    <figure class="narrative-image">
-                        <img src="img/c-bitwise-desempaquetado-bytes-deserializacion.jpg" alt="Algoritmo C para desempaquetado de bytes" loading="lazy">
-                        <figcaption class="image-caption"><strong>Byte unpacking.</strong> El proceso inverso: extraer bytes individuales de un entero de 32 bits para reconstruir la cadena original.</figcaption>
-                    </figure>
-                </div>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-escritorio-reversing-hopper-nasm.jpg" alt="Escritorio Windows retro con herramientas de reversing: Hopper, NASM, LordPE, CFF Explorer" loading="lazy">
-                    <figcaption class="image-caption"><strong>El arsenal temprano.</strong> Hopper Disassembler, NASM, LordPE, CFF Explorer, PEView. Las primeras herramientas de reversing que empecé a coleccionar, junto a las flags de mis primeros retos. Así se empieza: desensamblando binarios a mano, instrucción por instrucción.</figcaption>
-                </figure>
-
-                <p>Este período fue de una exploración deliberadamente amplia. Pasé por el desarrollo web, de videojuegos, móvil y de sistemas embebidos. Probé decenas de distribuciones Linux y caí —como muchos— en el "fandom radical" de algunas tecnologías. <strong>Lejos de ser tiempo perdido, esta fase de sobresaturación me obligó a desarrollar una capacidad crítica para evaluar herramientas de manera objetiva</strong>, reconocer patrones entre distintas áreas y, crucialmente, entender qué ramas no eran para mí.</p>
-
-                <div class="image-pair">
-                    <figure class="narrative-image">
-                        <img src="img/trayectoria-vscode-mitre-attack-yara-descifrado.jpg" alt="VS Code con estructura MITRE ATT&CK, reglas Yara y código de descifrado en C" loading="lazy">
-                        <figcaption class="image-caption"><strong>Estructura y método.</strong> Organización de muestras por técnicas MITRE ATT&amp;CK, reglas Yara para BazarBackdoor, y rutinas de descifrado. La exploración caótica empezaba a tomar forma de metodología.</figcaption>
-                    </figure>
-                    <figure class="narrative-image">
-                        <img src="img/trayectoria-capstone-desensamblando-malware.jpg" alt="Script gladiador.py usando Capstone para desensamblar malware; carpeta Dvju_2020-2022" loading="lazy">
-                        <figcaption class="image-caption"><strong>gladiador.py</strong> — Script en Python con Capstone desensamblando opcodes de arquitectura x86. La carpeta <code>Dvju_2020-2022</code> contiene muestras reales de ransomware analizadas.</figcaption>
-                    </figure>
-                </div>
-
-                <p>Alrededor de 2014-2015 escribí mi primer malware en C. La historia es simple: un familiar insistente desde una cuenta falsa de Facebook. Le seguí la corriente varios días y luego preparé un programa que creaba múltiples hilos, esperaba un rato y mostraba mensajes en pantalla hasta sobrecargar la memoria. Sin mecanismos de persistencia ni evasión de AVs —no eran necesarios—. Comprimido en un RAR autoextraíble con un señuelo, cumplió su propósito. <strong>Fue divertido, pero sobre todo fue una lección práctica temprana sobre cómo el software puede afectar sistemas reales</strong>.</p>
-
-                <p>Por esa misma época desarrollé un keylogger que recopilaba pulsaciones en archivos diarios y las enviaba a un servidor No-IP que tenía configurado. <strong>Nunca le di un uso malicioso</strong>; solo lo probé en las computadoras de casa de mi abuelo. Era pura curiosidad técnica: entender cómo funcionaba el hooking de teclado y la exfiltración de datos a nivel de sistema operativo.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-bbs-syscalls-linux-peb.jpg" alt="BBS Seknet con hilos sobre syscalls Linux, PEB, evasión de firewall chino" loading="lazy">
-                    <figcaption class="image-caption"><strong>BBJ (Seknet).</strong> El BBS donde discutíamos sobre syscalls en Linux, el PEB de Windows, cómo evadir el Gran Firewall chino, y sistemas de archivos distribuidos. La comunidad técnica fue esencial en esta etapa.</figcaption>
-                </figure>
-
-                <p>En 2017 conocí a un grupo de personas con intereses similares. Juntos creamos <strong>ReldSec</strong>, un blog de ciberseguridad donde publicábamos artículos técnicos. Al menos dos del equipo continuaron formándose profesionalmente en pentesting. Para mí, fue el primer ensayo real de colaboración, divulgación técnica y trabajo en equipo.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-ghidra-desensamblando-binario.jpg" alt="Ghidra CodeBrowser desensamblando strings1.exe con flags y MessageBox" loading="lazy">
-                    <figcaption class="image-caption"><strong>Ghidra CodeBrowser.</strong> Desensamblando <code>strings1.exe</code>. Las flags visibles en el código y el MessageBox "We've been compromised!" — esos momentos de hallazgo que hacen adictivo el reversing.</figcaption>
-                </figure>
-
-                <p>Años después, la nostalgia por aquellos espacios de intercambio real —mucho más íntimos y exigentes que las redes sociales masivas— me llevó a retomar la idea del BBS junto a <strong>@DtxdF</strong> y <strong>@syntaxerr0rs</strong>. Diseñamos la arquitectura sobre <strong>tres pilares fundamentales</strong>: descentralización con mirrors, pasarela mediante bot de Telegram, y <strong>firmas PGP para validar la identidad</strong> de cada miembro. El BBS tomó forma sobre <strong>TOR</strong>, reforzando el compromiso con la privacidad y la resistencia a la censura. Fue, en esencia, un laboratorio de infraestructura resiliente aplicada a la colaboración entre pares.</p>
-            </div>
-        </section>
-
-        <hr class="story-divider">
-
-        <!-- FASE 3 -->
-        <section class="phase">
-            <div class="phase-header">
-                <span class="phase-number mono">FASE 3</span>
-                <h2 class="phase-title">El Crisol: Especialización y Propósito</h2>
-                <span class="phase-years mono">2019 – Presente</span>
-            </div>
-            <div class="phase-content">
-                <p>La entrada a la universidad en 2019 y el posterior aislamiento de la pandemia en 2020 actuaron como un catalizador forzoso. Lejos de casa, pagando arriendo y sin una red de confianza cercana, mi ciclo de sueño —ya dañado de antes— se invirtió por completo. <strong>Pasaba las madrugadas explorando Arch Linux, obsesionado con las optimizaciones y el minimalismo</strong>. Incluso intenté montar un Linux From Scratch (LFS) varias veces sin éxito. Esas noches, lejos de ser improductivas, refinaron mi comprensión del sistema operativo a nivel fundamental.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-openbsd-ansible-virtualbox.jpg" alt="VirtualBox con OpenBSD, Ansible cookbooks en GitHub, ping exitoso" loading="lazy">
-                    <figcaption class="image-caption"><strong>OpenBSD + Ansible + VirtualBox.</strong> Playbooks para configurar una ThinkPad con OpenBSD. Máquina virtual respondiendo ping exitosamente. Las noches de pandemia tenían esta estética.</figcaption>
-                </figure>
-
-                <p>Fue en ese contexto —2020, en pleno encierro— cuando descubrí <strong>VX-Underground</strong>. El hallazgo reavivó algo que llevaba años latente. Después de mucho tiempo en el "limbo" técnico, recordé por qué había empezado todo esto. <strong>Quería dedicarme al análisis de malware y la investigación en seguridad. Era mi meta final.</strong></p>
-
-                <p>Decidí enfocarme. Necesitaba dominar la ingeniería inversa, y para ello necesitaba aprender <strong>Assembly</strong>. Pivoté entre Intel 8086, MIPS, x86 y x86_64, comparando NASM, FASM y MASM. Fue un proceso arduo de lectura y comprensión de las diferencias entre arquitecturas RISC y CISC, entre la sintaxis AT&T e Intel, y entre los modos de direccionamiento. Esas notas terminaron convirtiéndose en la <a href="assembly.html">guía de Assembly para Ingeniería Inversa</a> que hoy forma parte del portafolio.</p>
-
-                <p>La shellcode fue el siguiente paso lógico. Recuerdo la primera vez que logré ejecutar <code>calc.exe</code> desde un buffer en la pila. Era un Windows Embedded de 32 bits corriendo en una máquina virtual con apenas 3 GB de RAM disponibles. El depurador mostraba los opcodes en hexadecimal y sus instrucciones equivalentes en x86: <code>xor ecx, ecx</code>, <code>push ecx</code>, <code>mov eax, esp</code>, <code>call ebx</code>, <code>jmp eax</code>. Esa progresión —desde entender la microarquitectura de una pila de llamadas hasta abstraer toda esa lógica en una fábrica automatizada de binarios— quedó documentada en el artículo <a href="myPracticalShellcodeC2.html">De la Shellcode Artesanal al C2 Builder</a>, donde recorro tres años de evolución en desarrollo de software de seguridad ofensiva.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/laboratorio-debug-shellcode-x86-windows.jpg" alt="Laboratorio forense con Windows Embedded 7, depurador y shellcode x86" loading="lazy">
-                    <figcaption class="image-caption"><strong>Shellcode en Windows Embedded.</strong> Depurador de línea de comandos mostrando opcodes x86 — <code>xor ecx, ecx</code>, <code>push ecx</code>, <code>call ebx</code>, <code>jmp eax</code> — junto a las herramientas Flare y Boxstarter. Así se veía mi laboratorio en 2022.</figcaption>
-                </figure>
-
-                <p>En 2022, <strong>los microcontroladores PIC</strong> se cruzaron en mi camino. Quería profundizar en la programación a bajo nivel y entender cómo el software interactúa directamente con el hardware. Esta decisión resultó providencial: poco después conseguí mi <strong>primer empleo como desarrollador de firmware en CENDIT</strong>, donde programé microcontroladores PIC 18 y 24 para proyectos médicos y educativos. Implementé protocolos I2C y UART, y documenté algoritmos en LaTeX y PlantUML.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-laboratorio-electronica-osciloscopio.jpg" alt="Laboratorio de electrónica con osciloscopio, multímetro, fuentes y cables" loading="lazy">
-                    <figcaption class="image-caption"><strong>El laboratorio en CENDIT.</strong> Osciloscopio digital, multímetro, fuentes de poder, cables por todas partes. Donde el software se encuentra con el hardware y un error de código puede freír un componente real. Esta experiencia con sistemas embebidos fue la base para entender, años después, la seguridad en entornos OT/PLC.</figcaption>
-                </figure>
-
-                <div class="highlight-quote">
-                    Hay una diferencia entre entender un sistema y comprenderlo. Entender es saber qué hace. Comprender es saber qué hará antes de que lo haga. Esa diferencia se mide en capas: desde el silicio hasta la nube, desde el registro del procesador hasta el túnel ofuscado que enmascara el tráfico, desde el PLC que controla un actuador físico hasta el SIEM que correlaciona eventos en tiempo real. Pocas disciplinas exigen ese rango. Esta es una de ellas.
-                </div>
-
-                <p>Luego vino lo que llamo <strong>"el período de la ambición"</strong>. Dejé el empleo como desarrollador de firmware para tomar una oportunidad como desarrollador Backend. ¿La razón? Necesitaba capital para comprar mejor equipo y seguir practicando. En menos de dos meses pude adquirir una computadora adecuada. Pero el costo fue alto: me había desviado de mi objetivo principal. Luego, arriesgué mi estabilidad laboral por un proyecto paralelo con un amigo que no llegó a concretarse. Mi rendimiento bajó, mi contrato no fue renovado y volví al desempleo.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-agente-c2-windows-laboratorio.jpg" alt="Máquina virtual C2-Setup1 con agente de comando y control en Windows" loading="lazy">
-                    <figcaption class="image-caption"><strong>C2-Setup1.</strong> El proyecto paralelo que relato en esta fase. Máquina virtual con agente C2 funcional — <code>shell whoami</code> retornando <code>marquez-pc\marquez</code>. La ambición materializada en código.</figcaption>
-                </figure>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-debian-inetsim-low-memory.jpg" alt="Meme sobre 3GB de RAM y máquina virtual Debian-INetSim en modo Low Memory" loading="lazy">
-                    <figcaption class="image-caption"><strong>3GB de RAM.</strong> "Es difícil tener tres máquinas virtuales trabajando simultáneamente con solo 3GB de RAM, pero se hace el esfuerzo." — 30 de agosto de 2022. La realidad material del aprendizaje autodidacta.</figcaption>
-                </figure>
-
-                <p><strong>Ese tropiezo me enseñó más que muchos éxitos.</strong> Aprendí a distinguir entre ambición calculada y dispersión. Aprendí que no basta con tener las habilidades; hay que mantener el enfoque. Y sobre todo, aprendí a levantarme.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-estatuas-marmol-montana.jpg" alt="Paisaje urbano con estatuas de mármol y montaña al fondo" loading="lazy">
-                    <figcaption class="image-caption"><strong>El entorno.</strong> La ciudad, la montaña, los espacios que me rodearon durante la etapa universitaria. El contexto físico también moldea la mente técnica.</figcaption>
-                </figure>
-
-                <p>Desde entonces, mantuve las prácticas de análisis de malware. Empecé una serie de notas sobre <strong>Assembly aplicado a ingeniería inversa</strong>, experimentando con la generación de código de los compiladores. Desarrollé pruebas de concepto de builders y variantes de malware con fines investigativos. Inicié una línea de investigación sobre exploits y comencé a documentarlo todo de forma sistemática. También empecé a estudiar <strong>ruso</strong> de forma autodidacta —irónicamente, se me hizo más fácil que el inglés— y tomé un curso universitario de seis meses que me dejó en un nivel A1-A2.</p>
-
-                <figure class="narrative-image">
-                    <img src="img/trayectoria-perfil-foro-seguridad-2016.jpg" alt="Perfil Kr0pl0its en foro de seguridad, registrado en 2016" loading="lazy">
-                    <figcaption class="image-caption"><strong>Kr0pl0its.</strong> Mi perfil en un viejo foro, registrado el 5 de agosto de 2016. "Concéntrate en el momento. Siente, no pienses, usa tu instinto." — Qui-Gon Jinn.</figcaption>
-                </figure>
-
-                <p>Hoy, cada proyecto —desde herramientas de triage automatizado como <strong>analystty</strong> hasta investigaciones de threat intelligence como la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, las <a href="operation-general-jp-silentwarn.html">Operaciones General JP y SilentWarn</a> o la <a href="pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a>— es un paso firme hacia la maestría técnica. Ya no salto de rama en rama: construyo sobre una base sólida y diversa que pocos recorridos profesionales pueden ofrecer. <strong>Del firmware al threat hunting, del Assembly al SIEM, del PLC al honeypot: cada capa que he habitado me da una perspectiva que los especialistas unidimensionales no pueden replicar.</strong></p>
-            </div>
-        </section>
-
-        <hr class="story-divider">
-
-        <!-- AHORA -->
-        <section class="phase" style="border-left-color: rgba(74, 222, 128, 0.3);">
-            <div class="phase-header">
-                <span class="phase-number mono" style="color: var(--text-primary);">AHORA</span>
-                <h2 class="phase-title">En qué estoy trabajando</h2>
-            </div>
-            <div class="phase-content">
-                <p>Actualmente mi investigación se centra en cuatro líneas principales que se alimentan entre sí:</p>
-                <p>
-                    <strong>→ Threat Intelligence & OSINT:</strong> Investigaciones de fraude financiero transfronterizo, mapeo de infraestructura criminal, correlación de wallets en blockchain y análisis de campañas de Pig Butchering. Documentadas en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, las <a href="operation-general-jp-silentwarn.html">Operaciones General JP y SilentWarn</a> y el análisis de <a href="pigbutchering-bybsusd.html">bybsusd.com</a>. Cada investigación incluye IoCs, TTPs y correlación con amenazas documentadas por la industria.<br>
-                    <strong>→ Ingeniería Inversa & Pentesting:</strong> Análisis estático y dinámico de malware con Ghidra, x64dbg y Radare2. Auditorías de seguridad a Web APIs financieras (<a href="web-api-pentesting2024.html">Pentesting a Web API Financiera</a>), bypass de certificate pinning, token reuse con JWT, IDOR y desarrollo de herramientas propias como <a href="analystty.html">analystty</a> para automatizar el triage de binarios PE.<br>
-                    <strong>→ Seguridad OT/PLC & Infraestructura Crítica:</strong> Análisis de bajo nivel de autómatas Siemens S5/S7, máquina virtual MC7, ingeniería inversa de bytecodes, protocolos industriales sin autenticación y hallazgos en infraestructuras críticas venezolanas como Venalum y CorpoElec (<a href="plc.html">PLC Siemens S5/S7</a>). En un país donde la infraestructura eléctrica y de telecomunicaciones se ha convertido en terreno de disputa, entender cómo proteger —o auditar— los controladores que gobiernan subestaciones y plantas no es académico: es estratégico.<br>
-                    <strong>→ Infraestructura Resiliente & Blue Team:</strong> Laboratorio SOC/Honeypot funcional con Proxmox, Wazuh, Zabbix, Grafana y despliegue IaC con Terraform y Ansible (<a href="infra-soc.html">infra-soc.html</a>). Túneles ofuscados con WireGuard sobre TCP falso (<a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada</a>), segmentación con OPNsense, Tailscale y Podman rootless. Cuando las redes nacionales están bajo vigilancia o sufren interferencias, mantener canales de comunicación seguros y resistentes a la interceptación deja de ser un ejercicio de laboratorio.
-                </p>
-                <p>Mi ruta no ha sido lineal. He pasado del firmware de microcontroladores al análisis de amenazas persistentes avanzadas, de la shellcode artesanal a la automatización de infraestructura completa, del PLC que controla un actuador físico al SIEM que correlaciona eventos en tiempo real. <strong>Esa amplitud —operar con soltura desde el registro del procesador hasta la topología de una red ofuscada— es lo que define mi enfoque.</strong> No me especializo en una capa: entiendo cómo se conectan todas, y eso me permite trazar vectores de ataque y defensa que otros pasan por alto.</p>
-                <p><strong>Estoy tratando activamente de ser mejor —técnica y personalmente—, de retomar el camino con más claridad que nunca, y de alcanzar el objetivo que me tracé hace más de una década.</strong></p>
-                <a href="index.html" class="portfolio-link mono">Ver portafolio completo →</a>
-            </div>
-        </section>
-
-        <!-- ==================== CTA PARA RECLUTADORES ==================== -->
-        <div class="cta-recruiter">
-            <h3 class="mono">/¿Buscas a alguien que construya las herramientas en lugar de solo usarlas?</h3>
-            <p>Si tu equipo necesita un perfil que entienda la amenaza desde el opcode hasta la infraestructura del adversario —y que diseñe sus propios multiplicadores de fuerza con IA—, hablemos.</p>
-            <div class="cta-links">
-                <a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer" class="cta-btn primary mono">LinkedIn →</a>
-                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer" class="cta-btn mono">GitHub →</a>
-                <a href="index.html" class="cta-btn mono">Portafolio →</a>
-            </div>
+      </div>
+      <div class="card">
+        <div class="t">Automatización &amp; Scripting</div>
+        <div class="d" style="margin:0.8rem 0;">
+          <div class="chips">
+            <span class="chip">Python</span><span class="chip">Bash</span><span class="chip">C</span><span class="chip">FastAPI / Flask</span><span class="chip">SQLAlchemy</span><span class="chip">Postman</span>
+          </div>
         </div>
+      </div>
+    </div>
 
-    </article>
+    <h2 id="entorno"><span class="idx">03.</span> Entorno de operaciones</h2>
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="t">🔐 OpSec &amp; Control de Entorno</div>
+        <p class="d" style="margin-top:0.7rem;"><b>Mullvad VPN</b> — túnel permanente con política estricta de no registros.<br>
+        <b>Kleopatra (GnuPG)</b> — gestión diaria de llaves PGP para firma de código e integridad de artefactos.<br>
+        <b>Flatseal</b> — control granular de permisos, red y sistema de archivos para cada Flatpak.<br>
+        <b>Timeshift</b> — backups integrales a nivel de sistema antes de pruebas críticas.<br>
+        <b>Bleachbit</b> — saneamiento automatizado de metadatos, cachés y trazas de ejecución.</p>
+      </div>
+      <div class="card">
+        <div class="t">💻 Desarrollo &amp; Reversa</div>
+        <p class="d" style="margin-top:0.7rem;"><b>VS Codium</b> — editor principal con telemetría de Microsoft eliminada.<br>
+        <b>Mousepad</b> — editor ligero para scripts rápidos y configuración directa.<br>
+        <b>JADX</b> — descompilador de APKs y bytecode Java/Dex para auditoría de apps móviles.<br>
+        <b>Postman</b> — testing exhaustivo de endpoints REST, simulación de vectores contra APIs.<br>
+        <b>GitHub Desktop</b> — control de versiones y despliegue de herramientas de investigación.</p>
+      </div>
+      <div class="card">
+        <div class="t">🧪 Laboratorios &amp; Aislamiento</div>
+        <p class="d" style="margin-top:0.7rem;"><b>Virtual Machine Manager (QEMU/KVM)</b> — virtualización nativa a nivel de kernel para laboratorios de malware casi bare-metal.<br>
+        <b>Docker</b> — entornos reproducibles para desarrollo y despliegue.<br>
+        <b>Obsidian</b> — grafos de conocimiento en Markdown, base de la taxonomía de amenazas de SAINT GRAIL.<br>
+        <b>Firefox / Chromium / Chrome</b> — testing cruzado de vectores web en motores Gecko y Blink.</p>
+      </div>
+    </div>
 
-    <footer class="story-footer">
-        <p><a href="index.html">← Volver al portafolio principal</a></p>
-        <p style="margin-top: 0.5rem;">© <span id="current-year"></span> Christian Márquez — Offensive Security Tooling & DevSecOps Engineer | Venezuela</p>
-    </footer>
+    <figure class="figure">
+      <img src="img/trayectoria-barco-luna-inicio-viaje.jpg" alt="Barco navegando bajo la luna — El inicio del viaje técnico" loading="lazy">
+      <figcaption class="figcap">El viaje comienza. Así como los navegantes se orientaban por las estrellas, mis primeras preguntas sobre cómo funcionaban los sistemas fueron la luz que guió todo lo que vino después.</figcaption>
+    </figure>
 
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-    </script>
+    <h2 id="fase1"><span class="idx">04.</span> Fase 1 — La Chispa y los Fundamentos <span class="mono" style="font-size:0.75rem;color:var(--text-mute);">2012 – 2014</span></h2>
+    <p>Todo comenzó en 2012 con una pregunta: <b>«¿cómo funciona esto realmente?»</b>. Siendo apenas un estudiante de primaria, los lenguajes de scripting como Batch y VBScript fueron mi primer contacto con las instrucciones de E/S, las estructuras de control de flujo y el concepto de variables. No escribí nada relevante en aquel momento, pero esos primeros pasos establecieron una base sólida que luego resultaría fundamental.</p>
 
+    <figure class="figure">
+      <img src="img/trayectoria-texto-pixelado-reflexion.jpg" alt="Texto pixelado retro reflexionando sobre decisiones y pensamientos" loading="lazy">
+      <figcaption class="figcap">La mente corre libremente. Esas preguntas existenciales sobre las decisiones, los pensamientos y el control sobre lo que hacemos me acompañaban mientras descubría el mundo de la programación.</figcaption>
+    </figure>
+
+    <p>La película <em>Hackers</em> (1995), que vi por casualidad en Space Channel, y la fascinación por casos históricos como Melissa e ILoveYou, me dieron un objetivo claro: <b>entender cómo era posible infectar sistemas</b>. Quería comprender la mecánica detrás de lo que veía en pantalla. Esa curiosidad por el malware —qué lo hacía funcionar, cómo se propagaba, cómo evadía defensas— fue el primer indicio de lo que años después se convertiría en mi enfoque profesional.</p>
+
+    <figure class="figure">
+      <img src="img/trayectoria-collage-glitch-codigo.jpg" alt="Collage glitch con vela y código getHiddenObservers" loading="lazy">
+      <figcaption class="figcap"><code>this-&gt;getHiddenObservers();</code> — La búsqueda de lo que no se ve a simple vista. Desde niño, siempre quise entender los mecanismos ocultos detrás de cada sistema.</figcaption>
+    </figure>
+
+    <p>Mi padre fue el facilitador inconsciente de este viaje. Él introdujo la primera computadora en casa alrededor de 2006 y me enseñó los conceptos básicos sobre sistemas operativos y configuración de programas. <b>Esos primeros años me enseñaron que la mejor forma de aprender es haciendo</b>, incluso si eso significaba romper cosas en el proceso. Y vaya que rompí varias computadoras del hogar.</p>
+
+    <figure class="figure">
+      <img src="img/trayectoria-editor-hexadecimal-distorsionado.jpg" alt="Editor hexadecimal distorsionado con fragmentos de código y figura con paraguas" loading="lazy">
+      <figcaption class="figcap">Los bytes crudos. Mi primer contacto visual con un editor hexadecimal. Aunque entonces no entendía nada, esa ventana a las entrañas del binario me resultaba hipnótica. Años después, ese mismo formato —opcodes en hexadecimal— se convertiría en mi lenguaje de trabajo diario.</figcaption>
+    </figure>
+
+    <blockquote>¿Cómo sabe la computadora a dónde mover el puntero del mouse? ¿Qué provoca que al pulsar la tecla 'A' se muestre en pantalla? Esas preguntas me mantenían despierto de noche. Quería entender la capa más baja, donde el software toca el silicio.</blockquote>
+
+    <figure class="figure">
+      <img src="img/trayectoria-poster-distopico-lost-wormhole.jpg" alt="Lost Wormhole - Wrong House: póster distópico de casa en llamas" loading="lazy">
+      <figcaption class="figcap">LOST WORMHOLE — WRONG HOUSE. A veces, la curiosidad te lleva a lugares equivocados. Pero incluso esos desvíos —romper la computadora de casa, trastear sin saber— fueron lecciones necesarias.</figcaption>
+    </figure>
+
+    <h2 id="fase2"><span class="idx">05.</span> Fase 2 — Exploración y Ampliación del Espectro <span class="mono" style="font-size:0.75rem;color:var(--text-mute);">2014 – 2018</span></h2>
+    <p>El descubrimiento de los compiladores y de <b>C/C++</b> en 2014 marcó un punto de inflexión. Entender la diferencia entre un intérprete y un compilador me abrió las puertas a un nuevo nivel de comprensión técnica. Poco después, la adopción de <b>GNU/Linux</b> expandió mi panorama por completo. Empecé a programar de verdad: manipulación de bits en C, contadores de población con tablas de consulta generadas en tiempo de compilación, empaquetado y desempaquetado de bytes, funciones para verificar el estado de bits individuales. <b>Entender cómo la computadora representa y manipula datos a nivel binario fue el primer paso real hacia la ingeniería inversa</b>, aunque en ese momento no lo supiera.</p>
+
+    <div class="grid grid-2">
+      <figure class="figure">
+        <img src="img/c-bitwise-popcount-tabla-lookup.jpg" alt="Código C para conteo de bits con tabla de consulta" loading="lazy">
+        <figcaption class="figcap">Population Count en C. Tabla de consulta de 256 elementos generada con macros anidadas. Descomposición de un entero en sus cuatro bytes usando shift y máscaras AND.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/c-bitwise-funciones-estado-bits.jpg" alt="Funciones C para verificar estado de bits individuales" loading="lazy">
+        <figcaption class="figcap">isItEnabled_On / isItDisabled_On. Funciones para verificar el estado de bits individuales usando máscaras de desplazamiento y operadores AND.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/c-bitwise-empaquetado-bytes-serializacion.jpg" alt="Algoritmo C para empaquetado de bytes" loading="lazy">
+        <figcaption class="figcap">Byte packing. Consolidación de cuatro caracteres independientes en una variable de 32 bits usando desplazamiento y OR inclusivo.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/c-bitwise-desempaquetado-bytes-deserializacion.jpg" alt="Algoritmo C para desempaquetado de bytes" loading="lazy">
+        <figcaption class="figcap">Byte unpacking. El proceso inverso: extraer bytes individuales de un entero de 32 bits para reconstruir la cadena original.</figcaption>
+      </figure>
+    </div>
+
+    <figure class="figure">
+      <img src="img/trayectoria-escritorio-reversing-hopper-nasm.jpg" alt="Escritorio Windows retro con herramientas de reversing: Hopper, NASM, LordPE, CFF Explorer" loading="lazy">
+      <figcaption class="figcap">El arsenal temprano. Hopper Disassembler, NASM, LordPE, CFF Explorer, PEView. Las primeras herramientas de reversing que empecé a coleccionar, junto a las flags de mis primeros retos. Así se empieza: desensamblando binarios a mano, instrucción por instrucción.</figcaption>
+    </figure>
+
+    <p>Este período fue de una exploración deliberadamente amplia. Pasé por el desarrollo web, de videojuegos, móvil y de sistemas embebidos. Probé decenas de distribuciones Linux y caí —como muchos— en el "fandom radical" de algunas tecnologías. <b>Lejos de ser tiempo perdido, esta fase de sobresaturación me obligó a desarrollar una capacidad crítica para evaluar herramientas de manera objetiva</b>, reconocer patrones entre distintas áreas y, crucialmente, entender qué ramas no eran para mí.</p>
+
+    <div class="grid grid-2">
+      <figure class="figure">
+        <img src="img/trayectoria-vscode-mitre-attack-yara-descifrado.jpg" alt="VS Code con estructura MITRE ATT&CK, reglas Yara y código de descifrado en C" loading="lazy">
+        <figcaption class="figcap">Estructura y método. Organización de muestras por técnicas MITRE ATT&amp;CK, reglas Yara para BazarBackdoor, y rutinas de descifrado. La exploración caótica empezaba a tomar forma de metodología.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="img/trayectoria-capstone-desensamblando-malware.jpg" alt="Script gladiador.py usando Capstone para desensamblar malware; carpeta Dvju_2020-2022" loading="lazy">
+        <figcaption class="figcap">gladiador.py — Script en Python con Capstone desensamblando opcodes de arquitectura x86. La carpeta <code>Dvju_2020-2022</code> contiene muestras reales de ransomware analizadas.</figcaption>
+      </figure>
+    </div>
+
+    <p>Alrededor de 2014-2015 escribí mi primer malware en C. La historia es simple: un familiar insistente desde una cuenta falsa de Facebook. Le seguí la corriente varios días y luego preparé un programa que creaba múltiples hilos, esperaba un rato y mostraba mensajes en pantalla hasta sobrecargar la memoria. Sin mecanismos de persistencia ni evasión de AVs —no eran necesarios—. Comprimido en un RAR autoextraíble con un señuelo, cumplió su propósito. <b>Fue divertido, pero sobre todo fue una lección práctica temprana sobre cómo el software puede afectar sistemas reales</b>.</p>
+
+    <p>Por esa misma época desarrollé un keylogger que recopilaba pulsaciones en archivos diarios y las enviaba a un servidor No-IP que tenía configurado. <b>Nunca le di un uso malicioso</b>; solo lo probé en las computadoras de casa de mi abuelo. Era pura curiosidad técnica: entender cómo funcionaba el hooking de teclado y la exfiltración de datos a nivel de sistema operativo.</p>
+
+    <figure class="figure">
+      <img src="img/trayectoria-bbs-syscalls-linux-peb.jpg" alt="BBS Seknet con hilos sobre syscalls Linux, PEB, evasión de firewall chino" loading="lazy">
+      <figcaption class="figcap">BBJ (Seknet). El BBS donde discutíamos sobre syscalls en Linux, el PEB de Windows, cómo evadir el Gran Firewall chino, y sistemas de archivos distribuidos. La comunidad técnica fue esencial en esta etapa.</figcaption>
+    </figure>
+
+    <p>En 2017 conocí a un grupo de personas con intereses similares. Juntos creamos <b>ReldSec</b>, un blog de ciberseguridad donde publicábamos artículos técnicos. Al menos dos del equipo continuaron formándose profesionalmente en pentesting. Para mí, fue el primer ensayo real de colaboración, divulgación técnica y trabajo en equipo.</p>
+
+    <figure class="figure">
+      <img src="img/trayectoria-ghidra-desensamblando-binario.jpg" alt="Ghidra CodeBrowser desensamblando strings1.exe con flags y MessageBox" loading="lazy">
+      <figcaption class="figcap">Ghidra CodeBrowser. Desensamblando <code>strings1.exe</code>. Las flags visibles en el código y el MessageBox "We've been compromised!" — esos momentos de hallazgo que hacen adictivo el reversing.</figcaption>
+    </figure>
+
+    <p>Años después, la nostalgia por aquellos espacios de intercambio real —mucho más íntimos y exigentes que las redes sociales masivas— me llevó a retomar la idea del BBS junto a <b>@DtxdF</b> y <b>@syntaxerr0rs</b>. Diseñamos la arquitectura sobre <b>tres pilares fundamentales</b>: descentralización con mirrors, pasarela mediante bot de Telegram, y <b>firmas PGP para validar la identidad</b> de cada miembro. El BBS tomó forma sobre <b>TOR</b>, reforzando el compromiso con la privacidad y la resistencia a la censura. Fue, en esencia, un laboratorio de infraestructura resiliente aplicada a la colaboración entre pares.</p>
+
+    <hr style="border:0;border-top:1px solid var(--line);margin:2.8rem 0;">
+
+    <h2 id="fase3"><span class="idx">06.</span> Fase 3 — El Crisol: Especialización y Propósito <span class="mono" style="font-size:0.75rem;color:var(--text-mute);">2019 – Presente</span></h2>
+    <p>La entrada a la universidad en 2019 y el posterior aislamiento de la pandemia en 2020 actuaron como un catalizador forzoso. Lejos de casa, pagando arriendo y sin una red de confianza cercana, mi ciclo de sueño —ya dañado de antes— se invirtió por completo. <b>Pasaba las madrugadas explorando Arch Linux, obsesionado con las optimizaciones y el minimalismo</b>. Incluso intenté montar un Linux From Scratch (LFS) varias veces sin éxito. Esas noches, lejos de ser improductivas, refinaron mi comprensión del sistema operativo a nivel fundamental.</p>
+
+    <figure class="figure">
+      <img src="img/trayectoria-openbsd-ansible-virtualbox.jpg" alt="VirtualBox con OpenBSD, Ansible cookbooks en GitHub, ping exitoso" loading="lazy">
+      <figcaption class="figcap">OpenBSD + Ansible + VirtualBox. Playbooks para configurar una ThinkPad con OpenBSD. Máquina virtual respondiendo ping exitosamente. Las noches de pandemia tenían esta estética.</figcaption>
+    </figure>
+
+    <p>Fue en ese contexto —2020, en pleno encierro— cuando descubrí <b>VX-Underground</b>. El hallazgo reavivó algo que llevaba años latente. Después de mucho tiempo en el "limbo" técnico, recordé por qué había empezado todo esto. <b>Quería dedicarme al análisis de malware y la investigación en seguridad. Era mi meta final.</b></p>
+
+    <p>Decidí enfocarme. Necesitaba dominar la ingeniería inversa, y para ello necesitaba aprender <b>Assembly</b>. Pivoté entre Intel 8086, MIPS, x86 y x86_64, comparando NASM, FASM y MASM. Fue un proceso arduo de lectura y comprensión de las diferencias entre arquitecturas RISC y CISC, entre la sintaxis AT&amp;T e Intel, y entre los modos de direccionamiento. Esas notas terminaron convirtiéndose en la <a href="assembly.html">guía de Assembly para Ingeniería Inversa</a> que hoy forma parte del portafolio.</p>
+
+    <p>La shellcode fue el siguiente paso lógico. Recuerdo la primera vez que logré ejecutar <code>calc.exe</code> desde un buffer en la pila. Era un Windows Embedded de 32 bits corriendo en una máquina virtual con apenas 3 GB de RAM disponibles. El depurador mostraba los opcodes en hexadecimal y sus instrucciones equivalentes en x86: <code>xor ecx, ecx</code>, <code>push ecx</code>, <code>mov eax, esp</code>, <code>call ebx</code>, <code>jmp eax</code>. Esa progresión —desde entender la microarquitectura de una pila de llamadas hasta abstraer toda esa lógica en una fábrica automatizada de binarios— quedó documentada en el artículo <a href="myPracticalShellcodeC2.html">De la Shellcode Artesanal al C2 Builder</a>, donde recorro tres años de evolución en desarrollo de software de seguridad ofensiva.</p>
+
+    <figure class="figure">
+      <img src="img/laboratorio-debug-shellcode-x86-windows.jpg" alt="Laboratorio forense con Windows Embedded 7, depurador y shellcode x86" loading="lazy">
+      <figcaption class="figcap">Shellcode en Windows Embedded. Depurador de línea de comandos mostrando opcodes x86 — <code>xor ecx, ecx</code>, <code>push ecx</code>, <code>call ebx</code>, <code>jmp eax</code> — junto a las herramientas Flare y Boxstarter. Así se veía mi laboratorio en 2022.</figcaption>
+    </figure>
+
+    <p>En 2022, <b>los microcontroladores PIC</b> se cruzaron en mi camino. Quería profundizar en la programación a bajo nivel y entender cómo el software interactúa directamente con el hardware. Esta decisión resultó providencial: poco después conseguí mi <b>primer empleo como desarrollador de firmware en CENDIT</b>, donde programé microcontroladores PIC 18 y 24 para proyectos médicos y educativos. Implementé protocolos I2C y UART, y documenté algoritmos en LaTeX y PlantUML.</p>
+
+    <figure class="figure">
+      <img src="img/trayectoria-laboratorio-electronica-osciloscopio.jpg" alt="Laboratorio de electrónica con osciloscopio, multímetro, fuentes y cables" loading="lazy">
+      <figcaption class="figcap">El laboratorio en CENDIT. Osciloscopio digital, multímetro, fuentes de poder, cables por todas partes. Donde el software se encuentra con el hardware y un error de código puede freír un componente real. Esta experiencia con sistemas embebidos fue la base para entender, años después, la seguridad en entornos OT/PLC.</figcaption>
+    </figure>
+
+    <blockquote>Hay una diferencia entre entender un sistema y comprenderlo. Entender es saber qué hace. Comprender es saber qué hará antes de que lo haga. Esa diferencia se mide en capas: desde el silicio hasta la nube, desde el registro del procesador hasta el túnel ofuscado que enmascara el tráfico, desde el PLC que controla un actuador físico hasta el SIEM que correlaciona eventos en tiempo real. Pocas disciplinas exigen ese rango. Esta es una de ellas.</blockquote>
+
+    <p>Luego vino lo que llamo <b>"el período de la ambición"</b>. Dejé el empleo como desarrollador de firmware para tomar una oportunidad como desarrollador Backend. ¿La razón? Necesitaba capital para comprar mejor equipo y seguir practicando. En menos de dos meses pude adquirir una computadora adecuada. Pero el costo fue alto: me había desviado de mi objetivo principal. Luego, arriesgué mi estabilidad laboral por un proyecto paralelo con un amigo que no llegó a concretarse. Mi rendimiento bajó, mi contrato no fue renovado y volví al desempleo.</p>
+
+    <figure class="figure">
+      <img src="img/trayectoria-agente-c2-windows-laboratorio.jpg" alt="Máquina virtual C2-Setup1 con agente de comando y control en Windows" loading="lazy">
+      <figcaption class="figcap">C2-Setup1. El proyecto paralelo que relato en esta fase. Máquina virtual con agente C2 funcional — <code>shell whoami</code> retornando <code>marquez-pc\marquez</code>. La ambición materializada en código.</figcaption>
+    </figure>
+
+    <figure class="figure">
+      <img src="img/trayectoria-debian-inetsim-low-memory.jpg" alt="Meme sobre 3GB de RAM y máquina virtual Debian-INetSim en modo Low Memory" loading="lazy">
+      <figcaption class="figcap">3GB de RAM. "Es difícil tener tres máquinas virtuales trabajando simultáneamente con solo 3GB de RAM, pero se hace el esfuerzo." — 30 de agosto de 2022. La realidad material del aprendizaje autodidacta.</figcaption>
+    </figure>
+
+    <p><b>Ese tropiezo me enseñó más que muchos éxitos.</b> Aprendí a distinguir entre ambición calculada y dispersión. Aprendí que no basta con tener las habilidades; hay que mantener el enfoque. Y sobre todo, aprendí a levantarme.</p>
+
+    <figure class="figure">
+      <img src="img/trayectoria-estatuas-marmol-montana.jpg" alt="Paisaje urbano con estatuas de mármol y montaña al fondo" loading="lazy">
+      <figcaption class="figcap">El entorno. La ciudad, la montaña, los espacios que me rodearon durante la etapa universitaria. El contexto físico también moldea la mente técnica.</figcaption>
+    </figure>
+
+    <p>Desde entonces, mantuve las prácticas de análisis de malware. Empecé una serie de notas sobre <b>Assembly aplicado a ingeniería inversa</b>, experimentando con la generación de código de los compiladores. Desarrollé pruebas de concepto de builders y variantes de malware con fines investigativos. Inicié una línea de investigación sobre exploits y comencé a documentarlo todo de forma sistemática. También empecé a estudiar <b>ruso</b> de forma autodidacta —irónicamente, se me hizo más fácil que el inglés— y tomé un curso universitario de seis meses que me dejó en un nivel A1-A2.</p>
+
+    <figure class="figure">
+      <img src="img/trayectoria-perfil-foro-seguridad-2016.jpg" alt="Perfil Kr0pl0its en foro de seguridad, registrado en 2016" loading="lazy">
+      <figcaption class="figcap">Kr0pl0its. Mi perfil en un viejo foro, registrado el 5 de agosto de 2016. "Concéntrate en el momento. Siente, no pienses, usa tu instinto." — Qui-Gon Jinn.</figcaption>
+    </figure>
+
+    <p>Hoy, cada proyecto —desde herramientas de triage automatizado como <b>analystty</b> hasta investigaciones de threat intelligence como la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, las <a href="operation-general-jp-silentwarn.html">Operaciones General JP y SilentWarn</a> o la <a href="pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a>— es un paso firme hacia la maestría técnica. Ya no salto de rama en rama: construyo sobre una base sólida y diversa que pocos recorridos profesionales pueden ofrecer. <b>Del firmware al threat hunting, del Assembly al SIEM, del PLC al honeypot: cada capa que he habitado me da una perspectiva que los especialistas unidimensionales no pueden replicar.</b></p>
+
+    <hr style="border:0;border-top:1px solid var(--line);margin:2.8rem 0;">
+
+    <h2 id="ahora"><span class="idx">07.</span> Ahora — En qué estoy trabajando</h2>
+    <p>Actualmente mi investigación se centra en cuatro líneas principales que se alimentan entre sí:</p>
+    <p>
+      <b>→ Threat Intelligence &amp; OSINT:</b> Investigaciones de fraude financiero transfronterizo, mapeo de infraestructura criminal, correlación de wallets en blockchain y análisis de campañas de Pig Butchering. Documentadas en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth</a>, las <a href="operation-general-jp-silentwarn.html">Operaciones General JP y SilentWarn</a> y el análisis de <a href="pigbutchering-bybsusd.html">bybsusd.com</a>. Cada investigación incluye IoCs, TTPs y correlación con amenazas documentadas por la industria.<br>
+      <b>→ Ingeniería Inversa &amp; Pentesting:</b> Análisis estático y dinámico de malware con Ghidra, x64dbg y Radare2. Auditorías de seguridad a Web APIs financieras (<a href="web-api-pentesting2024.html">Pentesting a Web API Financiera</a>), bypass de certificate pinning, token reuse con JWT, IDOR y desarrollo de herramientas propias como <a href="analystty.html">analystty</a> para automatizar el triage de binarios PE.<br>
+      <b>→ Seguridad OT/PLC &amp; Infraestructura Crítica:</b> Análisis de bajo nivel de autómatas Siemens S5/S7, máquina virtual MC7, ingeniería inversa de bytecodes, protocolos industriales sin autenticación y hallazgos en infraestructuras críticas venezolanas como Venalum y CorpoElec (<a href="plc.html">PLC Siemens S5/S7</a>). En un país donde la infraestructura eléctrica y de telecomunicaciones se ha convertido en terreno de disputa, entender cómo proteger —o auditar— los controladores que gobiernan subestaciones y plantas no es académico: es estratégico.<br>
+      <b>→ Infraestructura Resiliente &amp; Blue Team:</b> Laboratorio SOC/Honeypot funcional con Proxmox, Wazuh, Zabbix, Grafana y despliegue IaC con Terraform y Ansible (<a href="infra-soc.html">infra-soc.html</a>). Túneles ofuscados con WireGuard sobre TCP falso (<a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada</a>), segmentación con OPNsense, Tailscale y Podman rootless. Cuando las redes nacionales están bajo vigilancia o sufren interferencias, mantener canales de comunicación seguros y resistentes a la interceptación deja de ser un ejercicio de laboratorio.
+    </p>
+    <p>Mi ruta no ha sido lineal. He pasado del firmware de microcontroladores al análisis de amenazas persistentes avanzadas, de la shellcode artesanal a la automatización de infraestructura completa. <b>Esa amplitud —operar con soltura desde el registro del procesador hasta la topología de una red ofuscada— es lo que define mi enfoque.</b> No me especializo en una capa: entiendo cómo se conectan todas, y eso me permite trazar vectores de ataque y defensa que otros pasan por alto.</p>
+    <p><b>Estoy tratando activamente de ser mejor —técnica y personalmente—, de retomar el camino con más claridad que nunca, y de alcanzar el objetivo que me tracé hace más de una década.</b></p>
+    <p style="margin-top:1.6rem;"><a class="btn btn-primary" href="index.html">Ver portafolio completo →</a></p>
+
+    <h2 id="cta"><span class="idx">08.</span> ¿Buscas a alguien que construya las herramientas en lugar de solo usarlas?</h2>
+    <p>Si tu equipo necesita un perfil que entienda la amenaza desde el opcode hasta la infraestructura del adversario —y que diseñe sus propios multiplicadores de fuerza con IA—, hablemos.</p>
+    <p style="display:flex;gap:0.7rem;flex-wrap:wrap;margin-top:1.4rem;">
+      <a class="btn btn-primary" href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn →</a>
+      <a class="btn btn-ghost" href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub →</a>
+      <a class="btn btn-ghost" href="index.html">Portafolio →</a>
+    </p>
+
+  </article>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ProfilePage","name":"Christian M\u00e1rquez (tty503) \u2014 Sobre m\u00ed | Reversing, Exploit Dev y Seguridad OT","url":"https://tty503.com/aboutme.html","author":{"@type":"Person","name":"Christian Márquez"}}
+</script>
 </body>
 </html>
