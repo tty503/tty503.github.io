@@ -201,10 +201,10 @@ def build_generic(slug, body_path, title, desc, jsonld_type="WebPage", extra_bod
 
 def build_index():
     body = (ROOT / "pages" / "index.html").read_text(encoding="utf-8")
-    title = "Christian Márquez (tty503) — Threat Intelligence, Reversing y Exploit Development"
-    desc = ("Christian Márquez (tty503): especialista en threat intelligence, ingeniería inversa de malware, "
-            "exploit development y seguridad OT/PLC. Cadenas RCE pre-auth verificadas, análisis de malware a nivel de "
-            "bytes y deconstrucción de infraestructuras de fraude financiero, desde Venezuela.")
+    title = "Christian Márquez (tty503) — Security Researcher · Reversing & Exploit Development"
+    desc = ("Christian Márquez (tty503): security researcher autodidacta. Vulnerability research con cadenas "
+            "RCE pre-auth verificadas, ingeniería inversa de binarios y malware, exploit development y threat "
+            "intelligence — documentado byte a byte, desde Venezuela.")
     canon = f"{BASE}/"
     jl = """<script type="application/ld+json">
 {
@@ -216,7 +216,7 @@ def build_index():
   "url": "https://tty503.com",
   "image": "https://tty503.com/p1.jpg",
   "sameAs": ["https://github.com/tty503", "https://linkedin.com/in/tty503", "https://x.com/tty_503"],
-  "jobTitle": "Threat Intelligence Specialist · Reverse Engineer · Exploit Developer · OT Security Researcher",
+  "jobTitle": "Security Researcher — Reverse Engineering & Exploit Development",
   "worksFor": { "@type": "Organization", "name": "tty503 Independent Consultant" },
   "knowsAbout": [
     "Threat Intelligence", "Malware Analysis", "Reverse Engineering", "Exploit Development",
@@ -269,7 +269,7 @@ def main():
     (SITE / "aboutme.html").write_text(
         build_generic("aboutme.html", "pages/about.html",
                       "Christian Márquez (tty503) — Sobre mí | Reversing, Exploit Dev y Seguridad OT",
-                      "Ruta completa de Christian Márquez (tty503): de firmware de microcontroladores a threat intelligence, ingeniería inversa, exploit development y seguridad OT/PLC. Trayectoria autodidacta desde 2012 desde Venezuela.",
+                      "Christian Márquez (tty503): security researcher. Vulnerability research (RCE pre-auth), reversing, exploit development, malware analysis y threat intelligence — documentado desde el byte. Autodidacta desde 2012, Venezuela.",
                       jsonld_type="ProfilePage"), encoding="utf-8")
     print("ok aboutme.html")
     (SITE / "404.html").write_text(

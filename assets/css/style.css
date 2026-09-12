@@ -121,6 +121,14 @@ img { max-width: 100%; height: auto; }
 .hero .lead { max-width: 720px; color: var(--text-dim); font-size: clamp(1rem, 1.6vw, 1.15rem); line-height: 1.75; margin-bottom: 2rem; }
 .hero .lead b, .hero .lead strong { color: var(--text); font-weight: 600; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; margin-bottom: 2.4rem; }
+
+/* Avatar (foto de perfil) */
+.avatar {
+  display: block; width: 96px; height: 96px; object-fit: cover; border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.035), 0 22px 50px -22px rgba(0, 0, 0, 0.75);
+  margin-bottom: 1.5rem;
+}
 .btn {
   display: inline-flex; align-items: center; gap: 0.5rem;
   padding: 0.7rem 1.25rem; border-radius: 999px;
