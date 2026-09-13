@@ -1,198 +1,31 @@
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>Continuación directa de <b>SAINT GRAIL</b>: migración del orquestador de <b>Python a Go</b> por rendimiento, concurrencia real y memoria — el prototipo en Flask tocó techo al escalar nodos y JSONs.</li>
-    <li>Go gana: JSON tipado <b>~15× más rápido</b>, goroutines de ~2 KB para paralelismo nativo sin GIL, <b>60-70% menos RAM</b> (crítico al correr Ollama/Llama 3.2B local), parser AST con <span class="mono">tree-sitter</span> y binario único estático.</li>
-    <li>Resultado tangible: <b>dos PoCs funcionales</b> generados por el agente y validados manualmente — <b>TOCTOU en el DownloadManager de Chromium</b> (suplantación de archivo descargado) y <b>CRC bypass + SFX en 7-Zip</b> (9.20 – 25.01, user-assisted RCE con persistencia en Startup).</li>
-    <li>Todo el output (scripts + README) público en <span class="mono">github.com/tty503/saint-grail-pocs-output</span>.</li>
-    <li>Camino hacia 2026: modelos locales uncensored (Dolphin-Mistral), memoria Qdrant, fuzzing por cobertura (AFL++/libFuzzer) y encadenado automático RCE → SBX → LPE.</li>
+    <li>Continuación de <a href="saint-grail.html">SAINT GRAIL</a>: migración del orquestador de <b>Python a Go</b> por rendimiento, concurrencia real y memoria — el prototipo Flask tocó techo al escalar nodos y JSONs.</li>
+    <li>Go gana: JSON tipado <b>~15× más rápido</b>, goroutines de ~2 KB (sin GIL), <b>60-70% menos RAM</b> (crítico con Ollama/Llama 3.2B local), parser AST con <b>tree-sitter</b> y binario único estático.</li>
+    <li>Resultado tangible: <b>dos PoCs funcionales</b> validados manualmente — <b>TOCTOU en el DownloadManager de Chromium</b> y <b>CRC bypass + SFX en 7-Zip</b> (9.20–25.01, user-assisted RCE con persistencia en Startup).</li>
+    <li>Output público en <code>github.com/tty503/saint-grail-pocs-output</code>.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/índice · <span class="tw">8</span> secciones</summary>
-  <ol>
-    <li><a href="#a00">Retomando el camino</a></li>
-    <li><a href="#a01">¿Por qué migrar a Go?</a></li>
-    <li><a href="#a02">Arquitectura en Go</a></li>
-    <li><a href="#a03">Resultados concretos: dos PoCs funcionales</a></li>
-    <li><a href="#a04">Galería de capturas</a></li>
-    <li><a href="#a05">Explicación detallada de los PoCs</a></li>
-    <li><a href="#a06">Estado actual y próximos pasos</a></li>
-    <li><a href="#a07">Referencias y enlaces</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>El prototipo Flask funcionaba pero escalaba mal: serialización JSON, memoria y GIL frenaban el ciclo de investigación. La reescritura en Go convirtió el orquestador en un motor de alto rendimiento que libera CPU/RAM para el agente y la ejecución de PoCs. La prueba de fuego son los dos PoCs funcionales generados por el agente y validados a mano: un TOCTOU en el DownloadManager de Chromium y un CRC-bypass con SFX en 7-Zip.</p>
 
-<h2 id="a00"><span class="idx">01.</span> Retomando el camino</h2>
-<p>Hace unas semanas publiqué <a href="saint-grail.html">SAINT GRAIL</a>, la plataforma modular para investigación ofensiva hecha en Python con Flask, SurrealDB y un agente híbrido DeepSeek + DeepWiki. El prototipo era funcional, pero rápidamente se topó con los límites del enfoque: al escalar vectores, nodos y datos JSON entre módulos, el cuello de botella se hizo evidente. <b>Latencia de serialización, consumo de memoria y la imposibilidad de paralelismo real (GIL)</b> empezaron a frenar el ciclo de investigación.</p>
-<p>La respuesta fue <b>Go</b> — no por moda, sino por razones técnicas muy concretas. Y los resultados no tardaron.</p>
-<div class="callout callout-info"><span class="ico">🔁</span><div>
-  <div class="h">Contexto</div>
-  <p>Este es la continuación directa de <a href="saint-grail.html">SAINT GRAIL: una plataforma modular para investigación de seguridad ofensiva con IA</a>. Si no has leído el anterior, te recomiendo hacerlo para entender el origen.</p>
+<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
+<div class="tbl-wrap">
+  <table>
+    <tbody>
+      <tr><th>Migración</th><td>Flask → Go (orquestador)</td></tr>
+      <tr><th>Ganancias</th><td>JSON ~15× · goroutines ~2 KB · −60-70% RAM</td></tr>
+      <tr><th>Parser</th><td>tree-sitter AST &lt;4K tokens</td></tr>
+      <tr><th>PoC 1</th><td>TOCTOU — DownloadManager de Chromium</td></tr>
+      <tr><th>PoC 2</th><td>CRC bypass + SFX 7-Zip (9.20–25.01) · RCE asistida · Startup</td></tr>
+      <tr><th>Output</th><td><code>github.com/tty503/saint-grail-pocs-output</code></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="callout callout-info"><span class="ico">📊</span><div>
+  <div class="h">Veredicto</div>
+  <p>Continuación con resultados concretos y verificables (dos PoCs validados, output público). Roadmap a 2026: modelos locales uncensored, Qdrant, fuzzing por cobertura y encadenado automático RCE→SBX→LPE.</p>
 </div></div>
-
-<h2 id="a01"><span class="idx">02.</span> ¿Por qué migrar a Go?</h2>
-<p>Reescribir el orquestador implicó cientos de líneas, adaptar la concurrencia y rediseñar la interacción con la base de datos. Los beneficios superaron el esfuerzo:</p>
-<ul>
-  <li><b>Rendimiento en serialización JSON:</b> Python convierte cada clave en dict dinámico; Go, con <span class="mono">structs</span> tipados, parsea y rearma JSON hasta <b>15 veces más rápido</b>, reduciendo la latencia en el intercambio de nodos y aristas entre agente y API.</li>
-  <li><b>Concurrencia nativa sin bloqueos:</b> las <span class="mono">goroutines</span> consumen ~2 KB y ejecutan miles de tareas simultáneas sin overhead de hilos: decenas de vectores en paralelo, consultas DeepWiki mientras corren PoCs y sync P2P sin bloqueos.</li>
-  <li><b>Menor consumo de memoria:</b> entre <b>60% y 70% menos RAM</b> que Python en alto volumen — crítico al ejecutar <b>Ollama/Llama 3.2B</b> en la misma máquina: libera recursos para la inferencia del LLM.</li>
-  <li><b>Parser AST eficiente:</b> con <span class="mono">tree-sitter</span>, extrae contexto de código fuente (funciones, dependencias, comentarios) en menos de 4K tokens, reduciendo alucinaciones y acelerando la validación de DeepWiki.</li>
-  <li><b>Binario único y portabilidad:</b> Go compila a un solo binario estático sin dependencias de Python — despliegue de workers P2P sin líos de versiones de librerías.</li>
-</ul>
-<p><b>Go convierte el orquestador en un motor de alto rendimiento que libera CPU y RAM para lo que importa: la inteligencia del agente y la ejecución de exploits.</b></p>
-<figure class="figure">
-  <img src="img/saint-grail-go-cli-status-tiempo-real.jpg" alt="Consola CLI del orquestador en Go mostrando en tiempo real el estado del agente, el progreso global y el presupuesto de tokens" loading="lazy">
-  <figcaption class="figcap">CLI en Go — estado del agente, progreso global y presupuesto de tokens en tiempo real.</figcaption>
-</figure>
-
-<h2 id="a02"><span class="idx">03.</span> Arquitectura en Go</h2>
-<p>Misma filosofía modular, mucho más desacoplada: el orquestador central (<span class="mono">orchestrator.go</span>) coordina todos los subsistemas mediante canales y goroutines.</p>
-<div class="code-wrap"><span class="lang">go</span><pre class="code"><code><span class="syn-c">// Estructura simplificada del orquestador en Go</span>
-<span class="syn-k">type</span> <span class="syn-f">Orchestrator</span> <span class="syn-k">struct</span> {
-    store       storage.GraphStore
-    llm         llm.Router        <span class="syn-c">// enruta entre DeepSeek, Ollama, etc.</span>
-    deepwiki    *deepwiki.Client
-    fuzzing     *fuzzing.Fuzzer
-    executor    *executor.BinaryExecutor
-    tracker     *utils.ExploitTracker
-    vectorSem   <span class="syn-k">chan</span> <span class="syn-k">struct</span>{}     <span class="syn-c">// semáforo para concurrencia</span>
-    wg          sync.WaitGroup
-}</code></pre></div>
-<ul>
-  <li><b>Router LLM:</b> múltiples proveedores (DeepSeek, Ollama, pronto Claude) con conmutación en caliente.</li>
-  <li><b>Parser AST:</b> <span class="mono">tree-sitter</span> para C++ y JavaScript, extrayendo contexto relevante de los repositorios objetivo.</li>
-  <li><b>Fuzzing inteligente:</b> mutación guiada por patrones CVE y feedback de cobertura (cuando está disponible).</li>
-  <li><b>Executor:</b> ejecuta binarios con entradas tipo stdin/file/argv y detecta crashes por señales y ASAN.</li>
-  <li><b>Exploit Tracker:</b> registra el progreso RCE → SBX → LPE por target, con ventanas de reintento y persistencia.</li>
-</ul>
-<p>El bucle principal opera en <b>ciclos de 5 segundos</b> ejecutando en paralelo: escaneo de PoCs/logs, procesamiento de vectores pendientes (DeepWiki + LLM), fuzzing automático, pruebas de primitivas y calibración de prompts. Cada target se procesa de forma independiente; el semáforo <span class="mono">vectorSem</span> limita la concurrencia para no saturar el sistema.</p>
-<figure class="figure">
-  <img src="img/saint-grail-go-dashboard-workflow-tiempo-real.jpg" alt="Dashboard principal de SAINT GRAIL en Go mostrando fases y estado global actualizado en tiempo real" loading="lazy">
-  <figcaption class="figcap">Dashboard con la nueva API en Go — datos actualizados en tiempo real.</figcaption>
-</figure>
-
-<h2 id="a03"><span class="idx">04.</span> Resultados concretos: dos PoCs funcionales</h2>
-<p>La migración no solo mejoró el rendimiento: el sistema generó <b>dos pruebas de concepto funcionales</b>, descubiertas automáticamente durante los ciclos de investigación/fuzzing y validadas manualmente después.</p>
-<h3>PoC #1: TOCTOU en el DownloadManager de Chromium</h3>
-<p><b>Vulnerabilidad:</b> condición de carrera TOCTOU (time-of-check-time-of-use) en el gestor de descargas. Dos descargas con el mismo nombre, iniciadas casi simultáneamente, pueden colisionar y hacer que una trunque a la otra: Chromium reporta ambas como completadas, pero en disco solo queda un archivo.</p>
-<p><b>Impacto:</b> suplantación de archivos descargados — un atacante puede reemplazar un binario legítimo por uno malicioso durante la descarga y la víctima lo ejecutará confiando en el gestor.</p>
-<p><b>Cómo lo encontró:</b> el agente identificó la ventana de sincronización entre el hilo UI y el hilo de descarga vía parser AST + análisis del flujo; generó el vector, validó con DeepWiki y creó un PoC en Python que demostraba la colisión.</p>
-<div class="callout callout-warn"><span class="ico">⏱️</span><div>
-  <div class="h">Nota sobre la inestabilidad</div>
-  <p>La carrera depende del timing y la carga del sistema. Con SSD rápido la colisión es menos probable; en HDD o con payloads grandes (50 MB+) la probabilidad aumenta significativamente.</p>
-</div></div>
-<h3>PoC #2: CRC bypass + SFX en 7-Zip</h3>
-<p><b>Vulnerabilidad:</b> bypass de integridad (CRC) en el formato 7z. Eliminando el bloque <span class="mono">kCRC</span> del header, la bandera <span class="mono">CrcDefined</span> pasa a <span class="mono">false</span> y la extracción corre sin verificar el CRC. Combinado con el mecanismo SFX, se ejecuta código arbitrario al ejecutar el autoextraíble.</p>
-<p><b>Impacto:</b> ejecución de código asistida por el usuario (user-assisted RCE) y persistencia a nivel de usuario (Startup folder). Afecta 7-Zip 9.20 – 25.01 en Windows.</p>
-<p><b>Cómo lo encontró:</b> durante un ciclo de fuzzing sobre el formato 7z, el agente generó un archivo malformado que pasaba <span class="mono">7z t</span>; al analizar el código fuente vía DeepWiki + AST identificó que el CRC del folder se omitía sin el bloque <span class="mono">kCRC</span>, y construyó automáticamente un SFX con el payload embebido.</p>
-<p>El bypass de integridad permite distribuir un archivo malicioso que parece legítimo, y SFX asegura la ejecución sin interacción adicional; la persistencia en Startup convierte el ataque en una amenaza duradera, ideal para spear-phishing o droppers.</p>
-<div class="callout callout-ok"><span class="ico">✅</span><div>
-  <div class="h">Validación en vivo</div>
-  <p>Ejecuté <span class="mono">poc_7zip.py</span> en Debian y generó un <span class="mono">KB5012345_Installer.exe</span> que, al ejecutarse en Windows, lanza <span class="mono">calc.exe</span>. El .7z embebido pasa <span class="mono">7z t</span> sin errores.</p>
-</div></div>
-<h3>El sistema detrás de los PoCs</h3>
-<p>No son scripts aislados: son el resultado directo del flujo de SAINT GRAIL. El orquestador orquesta descubrimiento, validación y generación de exploits de forma autónoma; cada PoC incluye un <span class="mono">README.md</span> con hallazgo, mecanismo e instrucciones.</p>
-<p>Código, PoCs y orquestador, públicos en: <b><a href="https://github.com/tty503/saint-grail-pocs-output" target="_blank" rel="noopener noreferrer">github.com/tty503/saint-grail-pocs-output</a></b></p>
-<figure class="figure">
-  <img src="img/saint-grail-go-poc-ejecucion-terminal-verificacion.jpg" alt="Ejecución del PoC en terminal y verificación del archivo generado en /tmp" loading="lazy">
-  <figcaption class="figcap">Ejecución del PoC y verificación del archivo generado en <span class="mono">/tmp</span>.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/saint-grail-go-motor-ejecucion-poc-navegador.jpg" alt="Motor de ejecución de PoCs en el navegador mostrando el progreso en tiempo real" loading="lazy">
-  <figcaption class="figcap">Motor de ejecución de PoCs en el navegador — progreso en tiempo real.</figcaption>
-</figure>
-
-<h2 id="a04"><span class="idx">05.</span> Galería de capturas</h2>
-<figure class="figure">
-  <img src="img/saint-grail-go-vista-jerarquica-fases-grafo.jpg" alt="Disposición jerárquica del grafo con fases, vectores y brechas; detalle de la FASE_3 (UAF Entry)" loading="lazy">
-  <figcaption class="figcap">Vista jerárquica del grafo — detalle de FASE_3 (UAF Entry).</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/saint-grail-go-grafo-fuerza-mapeo-mitre.jpg" alt="Layout de fuerza del grafo mostrando nodos interconectados con la inspección del nodo V05 y su técnica MITRE ATT&CK" loading="lazy">
-  <figcaption class="figcap">Grafo de fuerza — inspección del nodo V05 con su técnica MITRE ATT&amp;CK asociada.</figcaption>
-</figure>
-
-<h2 id="a05"><span class="idx">06.</span> Explicación detallada de los PoCs</h2>
-<h3>Chromium TOCTOU: anatomía de la carrera</h3>
-<p>El PoC explota la separación entre el hilo de UI (decide el nombre del archivo) y el hilo de descarga (lo crea físicamente). En condiciones normales, si el archivo existe Chromium añade sufijos incrementales <span class="mono">(1)</span>, <span class="mono">(2)</span>… El fallo aparece cuando dos descargas con idéntico nombre pasan la verificación al mismo tiempo.</p>
-<ol>
-  <li>Se inyecta un HTML con dos <span class="mono">&lt;a&gt;</span> ocultos en iframes, ambos apuntando a descargas diferentes con el mismo atributo <span class="mono">download</span>.</li>
-  <li>Mediante <span class="mono">BroadcastChannel</span> se sincronizan ambos contextos: cada iframe confirma que está listo y dispara el clic al recibir la orden.</li>
-  <li>Ambas descargas arrancan en el mismo instante, sorteando la verificación de existencia y forzando la colisión en <span class="mono">DownloadFileImpl::Initialize</span>.</li>
-  <li>Se monitorizan los eventos vía Chrome DevTools Protocol (CDP) para contar cuántas se reportan completadas y cuántos archivos reales aparecen en disco.</li>
-</ol>
-<div class="code-wrap"><span class="lang">javascript</span><pre class="code"><code><span class="syn-c">// Fragmento del HTML inyectado: sincronización vía BroadcastChannel</span>
-<span class="syn-k">const</span> bc = <span class="syn-k">new</span> BroadcastChannel(<span class="syn-s">"race"</span>);
-bc.onmessage = (e) => {
-  <span class="syn-k">if</span> (e.data === <span class="syn-s">"FIRE"</span>) {
-    document.getElementById(<span class="syn-s">"d"</span>).click();
-  }
-};</code></pre></div>
-<p><b>Métrica de éxito:</b> CDP reporta ≥2 descargas completadas pero en disco hay exactamente 1 archivo. Se verifica el SHA256 del superviviente: si corresponde al payload malicioso (B), la suplantación es efectiva.</p>
-<h3>7-Zip CRC bypass: disección del formato y el parche</h3>
-<p>El formato 7z organiza la información en bloques: el <i>NextHeader</i> define los <i>folders</i> (unidades de compresión) y, opcionalmente, un bloque <span class="mono">kCRC</span> con el CRC32 esperado de cada folder.</p>
-<ol>
-  <li><b>Localizar el bloque <span class="mono">kCRC</span></b> en el NextHeader: identificador <span class="mono">0x0A</span> seguido de un byte (0x01 = todos los folders comparten CRC, 0x00 = vector de bits).</li>
-  <li><b>Eliminar el bloque completo</b> (identificador + flags + datos). El array <span class="mono">FolderCRCs</span> queda vacío y <span class="mono">CrcDefined = false</span>.</li>
-  <li><b>Recalcular los CRCs del header</b> para que el archivo siga siendo sintácticamente válido: <span class="mono">NextHeaderCRC</span> (CRC32 del nuevo header) y <span class="mono">StartHeaderCRC</span> (CRC32 de los bytes 12-31).</li>
-</ol>
-<div class="code-wrap"><span class="lang">python</span><pre class="code"><code><span class="syn-c"># Fragmento del parche: eliminación de kCRC y recálculo</span>
-pos = header.find(<span class="syn-s">b"\x0a\x01"</span>)  <span class="syn-c"># Caso AllAreDefined=1</span>
-<span class="syn-k">if</span> pos >= 0:
-    <span class="syn-k">del</span> header[pos:pos+6]   <span class="syn-c"># NID(1) + flag(1) + CRC32(4)</span>
-<span class="syn-c"># Recalcular NextHeaderCRC</span>
-next_crc = calc_crc32(header)
-struct.pack_into(<span class="syn-s">"&lt;I"</span>, new_data, 28, next_crc)</code></pre></div>
-<p>Tras el parche, <span class="mono">7z t</span> devuelve OK (la estructura sigue siendo correcta). Al extraer, <span class="mono">_calcCrc</span> se evalúa como <span class="syn-k">false</span> y la verificación nunca corre: <span class="mono">CloseFile()</span> devuelve <span class="mono">S_OK</span> aunque los datos no coincidan con el CRC original (inexistente).</p>
-<h3>Construcción del SFX malicioso</h3>
-<p>Para pasar de la debilidad a ejecución de código se usa el modo SFX: un ejecutable formado por tres partes concatenadas:</p>
-<ol>
-  <li><b>Stub SFX (<span class="mono">7z.sfx</span>):</b> un PE pequeño con la lógica de extracción.</li>
-  <li><b>Archivo .7z parcheado:</b> el payload empaquetado sin CRC.</li>
-  <li><b>Config SFX:</b> bloque de texto con <span class="mono">RunProgram</span> y, opcionalmente, <span class="mono">Directory</span> para persistencia.</li>
-</ol>
-<div class="code-wrap"><span class="lang">python</span><pre class="code"><code><span class="syn-c"># Construcción del SFX en el PoC</span>
-<span class="syn-k">with</span> open(output_exe, <span class="syn-s">"wb"</span>) <span class="syn-k">as</span> f:
-    f.write(stub_data)          <span class="syn-c"># 7z.sfx</span>
-    f.write(archive_patched)    <span class="syn-c"># .7z sin CRC</span>
-    f.write(sfx_config)         <span class="syn-c"># RunProgram="payload.bat"</span></code></pre></div>
-<p>La opción <span class="mono">--persistence</span> cambia la config para incluir <span class="mono">Directory="%APPDATA%\...\Startup"</span>: el payload se copia a la carpeta de inicio automático, garantizando ejecución en cada arranque.</p>
-<div class="callout callout-info"><span class="ico">🧬</span><div>
-  <div class="h">Nota sobre la cadena de explotación</div>
-  <p>Bypass de integridad + SFX permite distribuir un «instalador de seguridad» que extrae y ejecuta código arbitrario sin levantar sospechas: sin modificar tamaños ni estructura de directorios, el .7z contenido es indistinguible de uno legítimo a nivel de firma.</p>
-</div></div>
-<p>Ambos PoCs están públicos en <a href="https://github.com/tty503/saint-grail-pocs-output" target="_blank" rel="noopener noreferrer">saint-grail-pocs-output</a>, con scripts completos, instrucciones y referencias a las secciones exactas del código fuente de Chromium y 7-Zip que confirman las vulnerabilidades.</p>
-
-<h2 id="a06"><span class="idx">07.</span> Estado actual y próximos pasos</h2>
-<p>La versión Go es funcional y ha demostrado su capacidad generando dos PoCs reales. Áreas en marcha:</p>
-<ul>
-  <li><b>Modelos locales uncensored:</b> rama con Dolphin-Mistral via Ollama para generar exploits sin censura, reduciendo la dependencia de APIs externas.</li>
-  <li><b>Memoria persistente con Qdrant:</b> vectores embebidos para payloads exitosos y patrones de crashes, con aprendizaje de experiencia pasada.</li>
-  <li><b>Calibración automática de prompts:</b> <span class="mono">calibrator.go</span> ajusta prompts según los fallos de los PoCs.</li>
-  <li><b>Frontend:</b> migración del grafo/dashboard a SPA React + D3 (el HTML/JS actual sigue funcionando).</li>
-</ul>
-<p>Desafíos pendientes de mayor calado:</p>
-<ul>
-  <li><b>Detección en tiempo real</b> ante nuevos commits de los repos objetivo (hoy: ciclos programados).</li>
-  <li><b>Fuzzing guiado por cobertura</b> con AFL++ o libFuzzer para dirigir mutaciones a zonas no exploradas.</li>
-  <li><b>Explotación automática de cadena completa (RCE → SBX → LPE):</b> el encadenado de primitivas hoy es manual; se está diseñando un módulo que las una.</li>
-  <li><b>Más fuentes de inteligencia</b> (CVE feeds, boletines, exploit-db) además de DeepWiki.</li>
-  <li><b>RL (DreamerV2)</b> experimental: ajustar función de recompensa y entorno para priorizar vectores prometedores.</li>
-  <li><b>Red P2P robusta:</b> autenticación, cifrado E2E y reequilibrio de carga entre workers.</li>
-  <li><b>Pruebas de estabilidad</b> de varios días, documentación type wiki y auditoría/cumplimiento corporativo.</li>
-</ul>
-<p>Objetivo a medio plazo: <b>publicar el código completo como open-source</b> cuando la documentación y los tests cubran lo crítico. Mientras tanto, el repo de PoCs y el blog son el canal.</p>
-<div class="callout callout-warn"><span class="ico">📅</span><div>
-  <div class="h">¿Cuándo estará disponible?</div>
-  <p>Apuntando a <b>finales de 2026</b> para una beta pública: estabilizar el orquestador, completar la integración con modelos locales y documentar el flujo para otros investigadores.</p>
-</div></div>
-
-<h2 id="a07"><span class="idx">08.</span> Referencias y enlaces</h2>
-<ul>
-  <li><a href="saint-grail.html">SAINT GRAIL: plataforma modular para investigación ofensiva con IA</a> — artículo anterior.</li>
-  <li><a href="https://github.com/tty503/saint-grail-pocs-output" target="_blank" rel="noopener noreferrer">Repositorio de PoCs generados</a> — scripts y documentación de los hallazgos.</li>
-  <li><a href="https://go.dev" target="_blank" rel="noopener noreferrer">Go</a> — lenguaje del orquestador.</li>
-  <li><a href="https://tree-sitter.github.io/tree-sitter/" target="_blank" rel="noopener noreferrer">Tree-sitter</a> — parser AST para extraer contexto de código.</li>
-  <li><a href="https://github.com/ollama/ollama" target="_blank" rel="noopener noreferrer">Ollama</a> — ejecución local de modelos LLM.</li>
-</ul>

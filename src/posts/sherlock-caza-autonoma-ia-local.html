@@ -1,144 +1,30 @@
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li><b>Sherlock</b> es mi experimento de <b>caza de bugs autónoma con IA local</b>: un motor sin refusals y sin red que convirtió la cacería manual SAINT GRAIL en un loop automatizado de <b>barrido → triaje → PoC</b>.</li>
-    <li>Corre 100% en mi Mac (MLX / Metal). Coste marginal por ejecución ≈ 0. Cero fuga de material: nada sale de la máquina.</li>
-    <li>Regla clave: <b>dos herramientas por ola</b>. Dos procesos independientes, metodología divergente, veredicto cruzado por un juez.</li>
-    <li>Política de severidad honesta: <b>ELIMINADO ≠ ELIMINADO ≠ CRASH ≠ RCE</b>. Cada hallazgo pasa una cadena de verificación real.</li>
-    <li>Cosecha: 201 hallazgos, 8 comprobados, <b>4 candidatos a CVE</b>, 1 PoC E2E.</li>
+    <li><b>SHERLOCK</b>: motor de caza de bugs autónomo con IA 100% local (MLX/Metal en Mac), sin conexión a la nube y con coste de inferencia ≈ <b>0</b>.</li>
+    <li>Disciplina de orquestación: <b>máximo 2 herramientas por ola</b> (evita derivas) + un <b>juez</b> que audita cada veredicto antes de cerrar.</li>
+    <li>Cosecha reportada: <b>201 hallazgos</b>, <b>8 comprobados</b>, <b>4 candidatos a CVE</b> y <b>1 PoC E2E</b>.</li>
+    <li>Filosofía de honestidad: severidad medida, no publicitada.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/sherlock_caza_ia · <span class="tw">9</span> secciones</summary>
-  <ol>
-    <li><a href="#s00">Resumen ejecutivo</a></li>
-    <li><a href="#s01">De SAINT GRAIL a Sherlock</a></li>
-    <li><a href="#s02">Por qué un motor local</a></li>
-    <li><a href="#s03">La arquitectura (simplificada)</a></li>
-    <li><a href="#s04">Cómo caza: el ciclo</a></li>
-    <li><a href="#s05">La regla de las dos herramientas</a></li>
-    <li><a href="#s06">Política de severidad</a></li>
-    <li><a href="#s07">Qué cosechó</a></li>
-    <li><a href="#s08">Lecciones y siguientes pasos</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>SHERLOCK es el motor que soporta las cacerías de la serie local: un agente que barre código, propone candidatos con archivo:línea y re-audita sus propias conclusiones dentro de un presupuesto de herramientas por ola. La regla de 2 herramientas obliga a pensar el siguiente paso en vez de enumerarlo, y el juez independiente evita que el optimismo del hallazgo cierre la ola sin verificación.</p>
+<p>El resultado agregado (201 hallazgos → 8 comprobados → 4 candidatos CVE → 1 PoC E2E) ilustra el embudo real de la caza: la mayoría del output es ruido; lo que sobrevive al juez y al E2E es material.</p>
 
-<h2 id="s00"><span class="idx">01.</span> Resumen ejecutivo</h2>
-<p><b>Sherlock</b> es el heredero directo de <a href="saint-grail.html">SAINT GRAIL</a>. Donde SAINT GRAIL fue una cacería artesanal que me costó meses y quemó presupuesto remoto, Sherlock es el intento de <b>automatizar el ciclo entero</b> — elección de target, barrido de sinks, triaje de candidatos y esbozo de PoC — corriendo sobre un modelo local sin refusals y sin límite de tokens.</p>
-<p>El resultado no es un producto: es una <b>metodología validada sobre industria crítica</b> — SCADA, firewalls, proxies, servidores web — con una cosecha medible que incluye 4 candidatos a CVE y un PoC end-to-end. Es también un manifiesto práctico de por qué el futuro de la ofensiva de producto pasa por el <b>DIY y el control total del proceso</b>: baratos, silenciosos y adictivamente productivos.</p>
-
-<div class="callout callout-ok"><span class="ico">✔</span><div>
-  <div class="h">Qué es (y qué no)</div>
-  <p>Sherlock es un <b>loop de caza con IA local</b>: barre árboles de código, genera candidatos con file:line+bytes y los tria con veredictos honestos. No es un agente autónomo que reporta a brokers sin intervención: la divulgación y la maduración final siguen siendo decisión humana.</p>
-</div></div>
-
-<h2 id="s01"><span class="idx">02.</span> De SAINT GRAIL a Sherlock</h2>
-<p>SAINT GRAIL demostró que el cazador paciente gana: sobre stacks enterprise enormes se pueden aislar primitivas reales con disciplina, adversarial constante y documentación obsesiva. Lo que NO demostró es sostenibilidad — cardio de 6 meses, presupuesto de tokens remotos significativo y una cola de "revisar a mano" que crecía más rápido que yo.</p>
-<p>La reversa fue obvia: <em>si el método funciona, el método se puede ejecutar.</em> Sherlock toma el pipeline de SAINT GRAIL y lo reimplementa como un sistema: mismo rigor de evidencia, misma política de severidad, pero con dos diferencias que lo cambian todo:</p>
-<ul>
-  <li><b>Motor local sin refusals.</b> Sin filtro, sin política, sin fuga. El cazador discute con la máquina como con un colega, no como con un guardián.</li>
-  <li><b>Coste marginal ≈ 0.</b> El barrido de un repositorio completo cuesta electricidad, no tokens. La curiosidad deja de tener precio.</li>
-</ul>
-
-<h2 id="s02"><span class="idx">03.</span> Por qué un motor local</h2>
-<p>Los motores remotos me dieron dos problemas estructurales. El primero, de <b>diseño</b>: cazar requiere plantear hipótesis de ataque que un asistente genérico tiende a rechazar o moralizar. El segundo, de <b>proceso</b>: cada consulta remota era un coste marginal y un posible rastro. Ninguno de los dos es tolerable en un loop que debe repetirse cientos de veces por semana.</p>
-<p>La solución práctica: un modelo de 14B cuantizado sobre <b>MLX en Metal</b>, sirviendo <code>/v1/chat/completions</code>, con un prompt lo suficientemente caretado para emular a un senior de reverse engineering. No es el razonamiento más profundo del mercado, pero es <b>100% mío, 100% local y 100% sin fricción</b>.</p>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># El motor local: un solo comando y la capacidad de caza está disponible</span>
-omlx serve --model cazador-sr-14b <span class="syn-c"># MLX / Metal, /v1/chat/completions</span>
-curl -s http://127.0.0.1:8000/v1/models <span class="syn-c"># listo</span></code></pre></div>
-<div class="callout callout-info"><span class="ico">ℹ</span><div>
-  <div class="h">Sin refusals, sin fuga</div>
-  <p>No hay nada en el camino entre el cazador y la hipótesis. Ninguna consulta, ningún fragmento de target y ningún candidato salen de la máquina. La seguridad del proceso se decide con el interruptor de corriente, no con una policy de terceros.</p>
-</div></div>
-
-<h2 id="s03"><span class="idx">04.</span> La arquitectura (simplificada)</h2>
-<p>El sistema tiene cuatro piezas y un único maestro:</p>
-<div class="code-wrap"><span class="lang">text</span><pre class="code"><code>┌────────────────────┐
-│      maestro        │  decide target/olas, vigila el presupuesto
-└─────────┬──────────┘
-          │
-   ┌──────▼──────┐
-   │   casilla   │  barrido de sinks/file:line con familias de ataque
-   └──────┬──────┘
-          │ eventos (candidato, veredicto, gasto)
-   ┌──────▼──────┐
-   │  cosecha    │  cola de hallazgos en bruto para verificación humana
-   └─────────────┘</code></pre></div>
-<ul>
-  <li><b>Maestro</b> — decide el target de la ola, lanza herramientas, recolecta eventos y aplica la política de severidad.</li>
-  <li><b>Casilla</b> — el "cazador" que barre el árbol (glob/grep) y propone candidatos con file:line y bytes.</li>
-  <li><b>Modelo</b> — el razonamiento: hipótesis de ataque, triaje, redacción de PoC. Local, sin red.</li>
-  <li><b>Cosecha</b> — la cola persistente de hallazgos que esperan verificación manual.</li>
-</ul>
-
-<h2 id="s04"><span class="idx">05.</span> Cómo caza: el ciclo</h2>
-<p>Cada ola sobre un target sigue el mismo ciclo, tomado literalmente de SAINT GRAIL:</p>
-<ol>
-  <li><b>Pre-selección</b> — el maestro elige target y superficie con criterios explícitos (in-scope, internet-facing, prioridad del stack).</li>
-  <li><b>Barrido</b> — la casilla recorre sinks por familia de ataque: comandos del sistema, sprintf/format, asignaciones a memoria, caminos de entrada no auth.</li>
-  <li><b>Hipótesis</b> — cada candidato se describe como mecanismo: entrada → transformación → sink, con file:line y bytes.</li>
-  <li><b>Triaje</b> — se cruzan veredictos (regla de las dos herramientas) y se clasifican por la política de severidad.</li>
-  <li><b>Verificación manual</b> — solo lo que sobrevive sale de la cosecha para repro real en sanbox.</li>
-</ol>
-
-<h2 id="s05"><span class="idx">06.</span> La regla de las dos herramientas</h2>
-<p>La mayor fuente de ruido en la IA es la <b>exuberancia</b>: proponer candidatos plausibles pero falsos. Sherlock la ataca con una regla estructural: cada ola lanza <b>dos procesos de análisis independientes</b>, con metodología divergente, y un juez cruza sus veredictos.</p>
+<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
 <div class="tbl-wrap">
   <table>
-    <thead><tr><th>Herramienta</th><th>Ángulo</th><th>Fallo típico que caza</th></tr></thead>
     <tbody>
-      <tr><td>A — sinks</td><td>De la entrada al sink (dataflow)</td><td>Remite a sinks sin camino de entrada real</td></tr>
-      <tr><td>B — clases</td><td>De la clase de bug a la superficie</td><td>Enfoca en código muerto o condicional no-default</td></tr>
-      <tr><td>Juez</td><td>Cruce + veredicto honesto</td><td>Convergencias falsas, duplicados, exageraciones</td></tr>
+      <tr><th>Motor</th><td>IA local — MLX/Metal (Mac), sin red, coste ≈ 0</td></tr>
+      <tr><th>Regla núcleo</th><td>≤2 herramientas por ola + juez de veredicto</td></tr>
+      <tr><th>Cosecha</th><td>201 hallazgos · 8 comprobados · 4 candidatos CVE · 1 PoC E2E</td></tr>
+      <tr><th>Relación</th><td>Motor usado por la <a href="caza-autonoma-e2e-serie.html">serie E2E</a></td></tr>
     </tbody>
   </table>
 </div>
-<p>Los dos procesos solo conversan al final (para no condicionarse); el juez descarta lo que no converge o no sobrevive al escrutinio cruzado. Es el mismo principio del adversarial, pero automatizado y barato.</p>
 
-<h2 id="s06"><span class="idx">07.</span> Política de severidad</h2>
-<p>Una cacería local pura se llena de falsos positivos en cuanto el modelo mide su propio éxito. La política de severidad es el freno que impide que eso ocurra — y es idéntica a la que me gobierno en SAINT GRAIL:</p>
-<div class="tbl-wrap">
-  <table>
-    <thead><tr><th>Nivel</th><th>Significado</th><th>Requisito</th></tr></thead>
-    <tbody>
-      <tr><td>CRASH</td><td>Fallo reproducible</td><td>Sanbox, ASAN/gdb, captura</td></tr>
-      <tr><td>CRASH</td><td>Escritura fuera de límites demostrada</td><td>ASAN + triaje del trace</td></tr>
-      <tr><td>ELIMINADO</td><td>El candidato no sobrevive la verificación</td><td>Motivo exacto, con línea</td></tr>
-      <tr><td>ELIMINADO</td><td>El candidato sobrevive pero no madura</td><td>Documentado, con residual</td></tr>
-      <tr><td>RCE real</td><td>Ejecución de código con PoC E2E</td><td>Repro 3/3 + evidencia</td></tr>
-    </tbody>
-  </table>
-</div>
-<p>La regla operativa: <b>ningún hallazgo cambia de nivel sin que la verificación lo acompañe</b>. Un candidato puede pasar de la cosecha a la verificación manual, pero jamás al reporte sin repro. "ELIMINADO" no es eufemismo: es el estado que significa que la metodología está funcionando.</p>
-
-<h2 id="s07"><span class="idx">08.</span> Qué cosechó</h2>
-<p>12 semanas de olas (2/semana), 21 targets industrial/enterprise, toda la cosecha con política de severidad aplicada:</p>
-<div class="tbl-wrap">
-  <table>
-    <thead><tr><th>Target</th><th>Sinks identificados</th><th>Candidatos</th><th>Veredicto</th></tr></thead>
-    <tbody>
-      <tr><td>SCADA RTU — modbus stack</td><td>1,080</td><td>59</td><td>Triaje manual: 3 vivos, 0 madurados</td></tr>
-      <tr><td>FW vendor — VPN/web portal</td><td>214</td><td>13</td><td>1 PoC E2E (0-click)</td></tr>
-      <tr><td>Proxy — filtrado URL/SSL</td><td>1,900</td><td>64</td><td>Triaje manual: en curso</td></tr>
-      <tr><td>Load balancer/ADC</td><td>0</td><td>0</td><td>Descarte total (sin sinks aparentes)</td></tr>
-      <tr><td>Servidor web — estándar</td><td>89,000</td><td>65</td><td>4 sobreviven quirúrgicamente</td></tr>
-    </tbody>
-  </table>
-</div>
-<p><b>201 hallazgos en bruto → 8 verificados en sandbox → 4 candidatos a CVE → 1 PoC E2E 0-click.</b> La tasa de conversión cruda parece mala; lo que la hace notable es el coste de producirla: prácticamente cero, y con la disciplina puesta en el filtro final, no en el volumen.</p>
-<div class="callout callout-ok"><span class="ico">ü</span><div>
-  <div class="h">El 0-click</div>
-  <p>El PoC E2E que maduró es un flujo 0-click sobre un componente default de un firewall: el payload viaja en la primera interacción del protocolo y ejecuta tras cruzar el parser. Es el resultado directo del pipeline "entrada → transformación → sink" sin atajos.</p>
+<div class="callout callout-info"><span class="ico">📊</span><div>
+  <div class="h">Veredicto</div>
+  <p>Proyecto metodológico: demuestra que un motor local sin coste puede sostener el ciclo candidato→comprobación→madurado con el embudo honesto de rigor. El valor está en el pipeline y sus gates, no en la cifra bruta.</p>
 </div></div>
-
-<h2 id="s08"><span class="idx">09.</span> Lecciones y siguientes pasos</h2>
-<p>La cosecha técnica importa menos que lo que el experimento enseña sobre el método:</p>
-<ul>
-  <li><b>El volumen mide el barrido, no el éxito.</b> 89k sinks en un servidor web no son 89k bugs: son 89k sitios donde la clase de bug podría vivir. El filtro final es lo único que cotiza.</li>
-  <li><b>Dos herramientas, una verdad.</b> La regla de las dos herramientas bajó el ruido un orden de magnitud respecto a la primera semana en solitario.</li>
-  <li><b>El motor local reordena la economía de la curiosidad.</b> Cuando cada hipótesis cuesta céntimos, el cazador explora ramas que jamás exploraría con presupuesto remoto.</li>
-  <li><b>La política de severidad es el producto.</b> Sin la cadena CRASH→ELIMINADO→RCE el sistema produce ruido; con ella produce candidatos auditables.</li>
-</ul>
-<p><b>Siguientes pasos:</b> industrializar la casilla (más métodos de barrido vía embeddings), subir el razonamiento a 32B con el mismo motor, y acoplar la cosecha a un verificador dinámico real (ASAN/gdb) para que el filtro "verificado" no requiera tanto triaje a mano. El objetivo declarado: <b>una cadena RCE completa madurada con el loop entero automatizado</b>, sin que un humano toque un terminal hasta el momento de decidir.</p>
-<p>Sherlock <a href="saint-grail.html">es la continuación natural de SAINT GRAIL</a> — y también su respuesta: el método que funcionó a mano ya tiene una versión que corre sola, en casa, en silencio y sin límites.</p>

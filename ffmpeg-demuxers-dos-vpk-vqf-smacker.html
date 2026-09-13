@@ -35,7 +35,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 
 </head>
@@ -48,221 +48,46 @@
   <div class="post-tags"><span class="chip">CWE-369</span><span class="chip">CWE-401</span><span class="chip">CWE-400</span><span class="chip">FFmpeg</span><span class="chip">DoS</span></div>
   <h1>FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)</h1>
   <p class="lede">Tres bugs de DoS por fuzzing autónomo: división por cero con 21 bytes (CWE-369, parcheada), leak escalable hasta ~677 MB (CWE-401) y bucle de 13,5M frames con input de 105 bytes (CWE-400).</p>
-  <div class="post-meta"><span>📅 2026-08-21</span><span>⏱ 16 min</span><span>🏷 Vulnerability Research</span></div>
+  <div class="post-meta"><span>2026-08-21</span><span>16 min</span><span>Vulnerability Research</span></div>
 </header>
 <article class="post-body">
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>Tres DoS en demuxers de FFmpeg hallados por fuzzing autónomo: <b>SIGFPE en VPK</b> (división por cero, CWE-369, <b>parcheada en 8.1.2</b>), <b>memory leak escalable en VQF</b> (CWE-401, <b>sin parche</b>) y <b>bucle de 13,5M frames en Smacker</b> (CWE-400, <b>sin parche</b>).</li>
+    <li>Tres DoS en demuxers de FFmpeg hallados por fuzzing autónomo: <b>SIGFPE en VPK</b> (CWE-369, <b>parcheada en 8.1.2</b>), <b>memory leak escalable en VQF</b> (CWE-401, sin parche) y <b>bucle de 13,5M frames en Smacker</b> (CWE-400, sin parche).</li>
     <li>PoCs ridículamente pequeños: <b>21 B · 13 B · 105 B</b>. Patrón común: el header del contenedor se parsea antes de validarse.</li>
-    <li>VPK: <code>last_block_size / nb_channels</code> con <code>nb_channels=0</code> → IDIV → crash determinista. VQF: <code>av_malloc(tag_len)</code> sin <code>av_free</code> en error path, fuga medida hasta ~677 MB/archivo. Smacker: check <code>frames &lt; 0xFFFFFF</code> que no contrasta contra el tamaño del archivo.</li>
+    <li>VPK: <code>last_block_size / nb_channels</code> con <code>nb_channels=0</code> → IDIV → crash determinista. VQF: <code>av_malloc(tag_len)</code> sin <code>av_free</code> en error path (≈667 MB/archivo). Smacker: check de frames que no contrasta contra el tamaño del archivo.</li>
     <li>Verificación doble herramienta + descarte de 8 hipótesis alternativas. Divulgación graduada en los dos casos abiertos.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/ffmpeg_demuxers_dos · <span class="tw">9</span> secciones</summary>
-  <ol>
-    <li><a href="#f00">Resumen Técnico</a></li>
-    <li><a href="#f01">Por qué los demuxers son una mina</a></li>
-    <li><a href="#f02">El patrón común: parsear antes de validar</a></li>
-    <li><a href="#f03">VPK — División por cero (CWE-369) · Parcheada</a></li>
-    <li><a href="#f04">VQF — Memory leak escalable (CWE-401) · Sin parche</a></li>
-    <li><a href="#f05">Smacker — Bucle de 13,5M frames (CWE-400) · Sin parche</a></li>
-    <li><a href="#f06">Metodología: dos herramientas y ocho hipótesis alternativas</a></li>
-    <li><a href="#f07">Impacto realista y mitigación</a></li>
-    <li><a href="#f08">Conclusión</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>Fuzzing de demuxers de FFmpeg: tres contenedores antiguos (VPK, VQF, Smacker) comparten el mismo pecado — <b>parsean el header antes de validarlo</b>. VPK divide por un canal que puede ser cero (SIGFPE determinista, ya corregida en 8.1.2); VQF reserva longitud de tag según el campo del archivo y, si el parse falla, no libera (fuga ~677 MB por fichero); Smacker decide iterar 13,5M de frames sin contrastar contra el tamaño real del archivo.</p>
+<p>Metodología: dos herramientas de fuzzing independientes, descarte por binaria de 8 hipótesis alternativas y reproducción de las tres clases con PoCs de decenas de bytes.</p>
 
-<h2 id="f00"><span class="idx">01.</span> Resumen Técnico</h2>
+<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
 <div class="tbl-wrap">
   <table>
-    <thead><tr><th>#</th><th>Demuxer</th><th>Bug</th><th>CWE</th><th>PoC</th><th>Efecto</th><th>Estado fix</th></tr></thead>
     <tbody>
-      <tr>
-        <td>A</td><td><code>libavformat/vpk.c</code></td>
-        <td>División por cero en <code>vpk_read_packet</code> (<code>vpk.c:89</code>)</td>
-        <td>CWE-369</td><td>21 B</td>
-        <td>SIGFPE → crash determinista del proceso (repro 3/3)</td>
-        <td><b>Parcheada en 8.1.2</b></td>
-      </tr>
-      <tr>
-        <td>B</td><td><code>libavformat/vqf.c</code></td>
-        <td><code>av_malloc(tag_len)</code> sin <code>av_free</code> en error path (<code>vqf.c:64</code>)</td>
-        <td>CWE-401</td><td>13 B</td>
-        <td>Leak que escala con <code>tag_len</code>: medido hasta ~677 MB por archivo</td>
-        <td><b>Sin parche en 8.1.2</b></td>
-      </tr>
-      <tr>
-        <td>C</td><td><code>libavformat/smacker.c</code></td>
-        <td>Bucle <code>for(i&lt;frames)</code> sin validar contra tamaño del archivo (<code>smacker.c:225</code>)</td>
-        <td>CWE-400</td><td>105 B</td>
-        <td>Hang de CPU procesando 13.565.951 frames lógicos (timeout 3/3)</td>
-        <td><b>Sin parche en 8.1.2</b></td>
-      </tr>
+      <tr><th>VPK</th><td>SIGFPE · <code>vpk.c:89</code> · <b>CWE-369</b> · PoC 21 B · <b>patcheada en 8.1.2</b></td></tr>
+      <tr><th>VQF</th><td>Memory leak · <code>vqf.c:64</code> · <b>CWE-401</b> · PoC 13 B · ~677 MB/archivo · sin parche</td></tr>
+      <tr><th>Smacker</th><td>Bucle 13,5M frames · <b>CWE-400</b> · PoC 105 B · sin parche</td></tr>
+      <tr><th>Patrón</th><td>Header parseado antes de validarse (nunca quiérelo al revés)</td></tr>
+      <tr><th>Validación</th><td>2 herramientas + descarte de 8 hipótesis</td></tr>
     </tbody>
   </table>
 </div>
-<p>Las tres pruebas se validaron con la regla de las dos herramientas (sanitizer + confirmador independiente) y descarte sistemático de hipótesis alternativas. Todas afectaban la rama 7.1.1 al momento del hallazgo; el fix de VPK llegó después en 8.1.2.</p>
 
-<h2 id="f01"><span class="idx">02.</span> Por qué los demuxers son una mina</h2>
-<p>FFmpeg es el traductor universal de medios: servidores de streaming, pipelines de transcodificación, generadores de miniaturas, analizadores forenses, bots de Telegram y Discord — todos terminan confiando sus entradas a <code>libavformat</code>. Y el primer contacto con cualquier archivo es siempre el mismo: el <b>demuxer</b>, que lee el header del contenedor y decide qué hacer con el resto.</p>
-<p>Ese primer contacto es crítico porque ocurre <i>antes</i> de cualquier decodificación costosa y <i>antes</i> de que el sistema tenga motivos para desconfiar. Formatos exóticos como VPK (paquetes de sonido de videojuegos), VQF (audio TwinVQ de los 90) o Smacker (vídeo FMV de juegos DOS) tienen parsers menos transitados que MP4 o MKV, y menos tránsito suele significar menos ojos. El fuzzing autónomo no distingue formatos fashion de formatos olvidados: los barre todos con la misma vara.</p>
-
-<h2 id="f02"><span class="idx">03.</span> El patrón común: parsear antes de validar</h2>
-<p>Los tres bugs pertenecen a clases distintas (aritmética, gestión de recursos, complejidad algorítmica) pero nacen de la misma decisión de diseño: <b>confiar en campos del header controlados por el atacante sin contrastarlos ni entre sí ni contra el tamaño real del input</b>.</p>
-<figure class="figure">
-  <div style="overflow-x:auto;">
-    <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama: un header malformado entra al demuxer y se ramifica en tres fallos distintos según el campo confiado" style="min-width:760px; width:100%; height:auto;">
-      <defs>
-        <marker id="arrW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a3a3a3"/></marker>
-        <marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ef4444"/></marker>
-        <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#f59e0b"/></marker>
-        <marker id="arrO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#fb923c"/></marker>
-      </defs>
-      <style>
-        .box { fill:#181818; stroke:#333333; rx:6; }
-        .boxr { fill:#1c1010; stroke:#ef4444; }
-        .boxa { fill:#1a1508; stroke:#f59e0b; }
-        .boxo { fill:#190f08; stroke:#fb923c; }
-        .t1 { fill:#f5f5f5; font:600 12px 'JetBrains Mono',monospace; }
-        .t2 { fill:#888888; font:10px 'JetBrains Mono',monospace; }
-        .lbl { fill:#666666; font:11px 'JetBrains Mono',monospace; }
-        .flow { stroke:#a3a3a3; stroke-width:1.5; fill:none; }
-      </style>
-      <rect x="330" y="24" width="240" height="52" rx="6" class="box"/>
-      <text x="450" y="46" text-anchor="middle" class="t1">input malformado</text>
-      <text x="450" y="64" text-anchor="middle" class="t2">21 B · 13 B · 105 B — solo headers</text>
-      <path class="flow" d="M370 76 Q300 120 220 150" marker-end="url(#arrW)"/>
-      <path class="flow" d="M450 76 L450 150" marker-end="url(#arrW)"/>
-      <path class="flow" d="M530 76 Q600 120 680 150" marker-end="url(#arrW)"/>
-      <rect x="90" y="152" width="230" height="86" rx="6" class="boxr"/>
-      <text x="205" y="176" text-anchor="middle" class="t1">VPK · vpk.c:89</text>
-      <text x="205" y="196" text-anchor="middle" class="t2">nb_channels = 0 confiado</text>
-      <text x="205" y="214" text-anchor="middle" class="t2">last_block_size / nb_channels</text>
-      <text x="205" y="230" text-anchor="middle" class="t2">→ IDIV → SIGFPE (crash)</text>
-      <path d="M205 238 L205 268" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#arrR)"/>
-      <rect x="110" y="270" width="190" height="34" rx="17" fill="none" stroke="#ef4444"/>
-      <text x="205" y="292" text-anchor="middle" class="t1" fill="#ef4444">CRASH · CWE-369</text>
-      <rect x="335" y="152" width="230" height="86" rx="6" class="boxa"/>
-      <text x="450" y="176" text-anchor="middle" class="t1">VQF · vqf.c:64</text>
-      <text x="450" y="196" text-anchor="middle" class="t2">tag_len confiado → av_malloc</text>
-      <text x="450" y="214" text-anchor="middle" class="t2">error path sin av_free</text>
-      <text x="450" y="230" text-anchor="middle" class="t2">→ leak escala hasta ~677 MB</text>
-      <path d="M450 238 L450 268" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#arrA)"/>
-      <rect x="352" y="270" width="196" height="34" rx="17" fill="none" stroke="#f59e0b"/>
-      <text x="450" y="292" text-anchor="middle" class="t1" fill="#f59e0b">LEAK · CWE-401</text>
-      <rect x="580" y="152" width="230" height="86" rx="6" class="boxo"/>
-      <text x="695" y="176" text-anchor="middle" class="t1">SMK2 · smacker.c:225</text>
-      <text x="695" y="196" text-anchor="middle" class="t2">frames = 13565951 confiado</text>
-      <text x="695" y="214" text-anchor="middle" class="t2">for(i &lt; frames) sin techo</text>
-      <text x="695" y="230" text-anchor="middle" class="t2">vs 105 B reales de archivo</text>
-      <path d="M695 238 L695 268" stroke="#fb923c" stroke-width="1.5" fill="none" marker-end="url(#arrO)"/>
-      <rect x="607" y="270" width="176" height="34" rx="17" fill="none" stroke="#fb923c"/>
-      <text x="695" y="292" text-anchor="middle" class="t1" fill="#fb923c">HANG · CWE-400</text>
-      <text x="450" y="350" text-anchor="middle" class="lbl">Tres clases de bug, una misma causa raíz: el header se parsea antes de validarse.</text>
-    </svg>
-  </div>
-  <figcaption class="figcap">Figura 1 — La familia al completo: un input minúsculo entra al demuxer; cada parser convierte su campo no validado en un modo de fallo distinto.</figcaption>
-</figure>
-
-<h2 id="f03"><span class="idx">04.</span> VPK — División por cero (CWE-369) · Parcheada</h2>
-<p>El formato VPK guarda audio por bloques. Al leer un paquete, el demuxer calcula el tamaño del último bloque dividiendo entre el número de canales declarado en el header. Si ese número llega a cero — y nada en el código lo impide — la instrucción de división entera de x86 (<code>IDIV</code>) lanza una excepción aritmética que mata el proceso:</p>
-<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// libavformat/vpk.c:89 (rama vulnerable)</span>
-<span class="syn-f">size</span> = last_block_size / par-&gt;ch_layout.<span class="syn-f">nb_channels</span>;   <span class="syn-c">// nb_channels == 0 → SIGFPE</span>
-
-<span class="syn-c"># Fix aplicado upstream en 8.1.2:</span>
-<span class="syn-k">if</span> (par-&gt;ch_layout.<span class="syn-f">nb_channels</span> &lt;= <span class="syn-n">0</span>)
-    <span class="syn-k">return</span> AVERROR_INVALIDDATA;</code></pre></div>
-<p>El PoC completo cabe en lo que tarda en parpadear un cursor: <b>21 bytes</b> con el magic <code>VPK</code> y <code>nb_channels=0</code>. Como este caso sí está parcheado en la versión estable actual, aquí va el volcado íntegro capturado durante la validación:</p>
-<div class="code-wrap"><span class="lang">hex</span><pre class="code"><code><span class="syn-c"># poc_vpk_fpe.bin (21 bytes)</span>
-<span class="syn-n">204b 5056 f872 b900 01ff 72f8 5650 4b29 2a20 5320 53</span></code></pre></div>
-<figure class="figure">
-  <img src="img/ffmpeg-vpk-demuxer-sigfpe-divide-by-zero-asan-evidencia.png" alt="Terminal mostrando el reporte de AddressSanitizer: FPE on unknown address en vpk_read_packet, libavformat/vpk.c:89" loading="lazy">
-  <figcaption class="figcap">Evidencia A — ASAN: «FPE on unknown address» en vpk_read_packet (libavformat/vpk.c:89:46). Reproducido 3/3 ejecuciones consecutivas; gdb confirmó el divisor exacto.</figcaption>
-</figure>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Confirmación independiente con gdb (build instrumentada)</span>
-$ gdb -batch -ex run --args fuzz_target -runs=<span class="syn-n">1</span> poc_vpk_fpe.bin
-Program received signal SIGFPE, Arithmetic exception.
-<span class="syn-f">vpk_read_packet</span> (...) at libavformat/vpk.c:<span class="syn-n">89</span>
-<span class="syn-n">89</span>:    size = last_block_size / par-&gt;ch_layout.<span class="syn-f">nb_channels</span>;
-(gdb) p par-&gt;ch_layout.<span class="syn-f">nb_channels</span>
-$<span class="syn-n">1</span> = <span class="syn-n">0</span></code></pre></div>
-
-<h2 id="f04"><span class="idx">05.</span> VQF — Memory leak escalable (CWE-401) · Sin parche</h2>
-<p>Los metadatos del formato VQF usan etiquetas longitud-valor donde la longitud (<code>tag_len</code>) viene en el propio header. El helper <code>add_metadata</code> reserva esa cantidad con <code>av_malloc</code> y, si la lectura posterior falla — algo trivial de forzar declarando un <code>tag_len</code> mayor que el archivo —, devuelve error <b>sin liberar el buffer</b>:</p>
-<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// libavformat/vqf.c:64 — camino del leak (esqueleto)</span>
-<span class="syn-k">static int</span> <span class="syn-f">add_metadata</span>(...) {
-    ptr = <span class="syn-f">av_malloc</span>(tag_len);              <span class="syn-c">// adquisición controlada por el header</span>
-    <span class="syn-k">if</span> (<span class="syn-f">avio_read</span>(pb, ptr, len) != len)    <span class="syn-c">// falla si len &gt; bytes disponibles</span>
-        <span class="syn-k">return</span> AVERROR(EIO);               <span class="syn-c">// ← return SIN av_free(ptr) → CWE-401</span>
-}
-<span class="syn-c">// caller: vqf_read_header (vqf.c:173)</span></code></pre></div>
-<p>Lo que convierte un leak mundano en un problema operativo es la <b>escalabilidad</b>: <code>tag_len</code> es un entero del header, así que cada archivo malformado puede ordenar reservas enormes antes de fallar. En las mediciones, metadata gigante produjo fugas medidas entre 285 MB y 677 MB por archivo — el techo teórico ronda el gigabyte. Un servicio que procese archivos subidos por usuarios puede ser agotado de memoria con una cola modesta de archivos de trece bytes.</p>
-<figure class="figure">
-  <img src="img/ffmpeg-vqf-addmetadata-memory-leak-leaksanitizer-evidencia.png" alt="Terminal mostrando el reporte de LeakSanitizer: bloque asignado en av_malloc dentro de add_metadata vqf.c:64 sin liberar, con caller vqf_read_header vqf.c:173" loading="lazy">
-  <figcaption class="figcap">Evidencia B — LeakSanitizer: bloque originado en av_malloc de add_metadata (libavformat/vqf.c:64:11), caller vqf_read_header (vqf.c:173:19). Valgrind confirmó el mismo malloc-sin-free de forma independiente.</figcaption>
-</figure>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Divulgación graduada</div>
-  <p>Este bug sigue abierto en 8.1.2. Publicamos el mecanismo completo y la evidencia, pero no el binario del PoC ni su receta byte a byte: basta la descripción para que el mantenedor reproduzca y corrija, y evitamos servir munición lista mientras no exista parche.</p>
+<div class="callout callout-warn"><span class="ico">🛰</span><div>
+  <div class="h">Veredicto</div>
+  <p>Tres DoS locales reproducibles (abrir el fichero). Ninguno escala a RCE en las pruebas; uno ya parcheado (N-day), dos abiertos con divulgación graduada. Valor: documentación de clase + metodología fuzzing de demuxers.</p>
 </div></div>
-
-<h2 id="f05"><span class="idx">06.</span> Smacker — Bucle de 13,5 millones de frames (CWE-400) · Sin parche</h2>
-<p>El demuxer Smacker lee el contador <code>frames</code> del header y reserva tablas iterando hasta ese valor. Existe un check — <code>frames &lt; 0xFFFFFF</code> — pensado precisamente para cortar valores absurdos, pero tiene una rendija aritmética: <b>compara contra una constante, no contra el tamaño del archivo</b>. Declarar 13.565.951 frames (menos de 16M) pasa el check sin despeinarse, y luego el parser intenta dar 13,5 millones de vueltas procesando tablas… alimentado por un archivo de <b>105 bytes</b>.</p>
-<div class="code-wrap"><span class="lang">text</span><pre class="code"><code><span class="syn-c">// Header del PoC (poc_smk_hang.bin, 105 B)</span>
-magic   = <span class="syn-n">SMK2</span>
-width   = <span class="syn-n">0</span>
-height  = <span class="syn-n">0xFE000000</span>
-frames  = <span class="syn-n">13565951</span>      <span class="syn-c"># 13.5M &lt; 0xFFFFFF → el check existente NO aplica</span>
-fps     = <span class="syn-n">0</span>
-
-<span class="syn-c">// libavformat/smacker.c:225</span>
-<span class="syn-k">for</span> (i = <span class="syn-n">0</span>; i &lt; smk-&gt;<span class="syn-f">frames</span>; i++)   <span class="syn-c">// 13.5M iteraciones sobre 105 B de input</span>
-    ...                               <span class="syn-c">// → CPU al 100%, hang indefinido</span></code></pre></div>
-<p>La regla de oro que falta aquí es simple: <i>ningún contador derivado del header puede superar proporcionalmente el tamaño del input</i>. Trece millones de frames exigen, como mínimo, trece millones de estructuras de tabla en algún sitio; si el archivo pesa 105 bytes, alguien miente.</p>
-<figure class="figure">
-  <img src="img/ffmpeg-smacker-readheader-frames-loop-timeout-evidencia.png" alt="Terminal mostrando el timeout de libFuzzer tras ejecutar el PoC Smacker: SUMMARY libFuzzer timeout, con stack de gdb apuntando a smacker_read_header smacker.c:225" loading="lazy">
-  <figcaption class="figcap">Evidencia C — libFuzzer: «SUMMARY: libFuzzer: timeout» con el PoC de 105 B (magic SMK2), reproducible 3/3. gdb situó el stack caliente en smacker_read_header (smacker.c:225).</figcaption>
-</figure>
-
-<h2 id="f06"><span class="idx">07.</span> Metodología: dos herramientas y ocho hipótesis alternativas</h2>
-<p>Cada hallazgo pasó por el mismo embudo antes de ganarse su ficha: reproducción determinista (3/3), doble herramienta de verificación y descarte explícito de explicaciones alternativas. Las hipótesis que el sistema evaluó y mató por cada caso:</p>
-<div class="tbl-wrap">
-  <table>
-    <thead><tr><th>Caso</th><th>Hipótesis alternativa</th><th>Prueba de descarte</th></tr></thead>
-    <tbody>
-      <tr><td rowspan="3">VPK</td><td>Falso positivo del fuzzer</td><td>Repro manual 3/3 + stack en gdb</td></tr>
-      <tr><td>Comportamiento by design</td><td>Un VPK válido declara nb_channels ≥ 1; el header malformado lo fuerza a 0</td></tr>
-      <tr><td>Artefacto de build instrumentada</td><td>SIGFPE es señal de hardware (IDIV), no del sanitizer</td></tr>
-      <tr><td rowspan="3">VQF</td><td>Ruido de LeakSanitizer</td><td>Valgrind detectó el mismo malloc sin free</td></tr>
-      <tr><td>Solo ocurre con inputs raros del corpus</td><td>El error path se alcanza con cualquier tag_len &gt; tamaño disponible</td></tr>
-      <tr><td>Leak acotado e irrelevante</td><td>Medición directa: 285–677 MB de fuga por archivo con tag_len grande</td></tr>
-      <tr><td rowspan="2">Smacker</td><td>El check de frames protege</td><td>13.5M &lt; 16M: el umbral existente no cubre este rango</td></tr>
-      <tr><td>El loop termina pronto por EOF</td><td>Ninguna salida anticipada: timeout sostenido 3/3 con CPU saturada</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<h2 id="f07"><span class="idx">08.</span> Impacto realista y mitigación</h2>
-<p>Ninguno de los tres es corrupción de memoria, pero los tres rompen la disponibilidad — la tercera pata de la tríada — y lo hacen con inputs ridículamente pequeños. El escenario común: servicios multiusuario que demuxan contenido externo (plataformas de vídeo bajo demanda con transcodificación automática, analizadores de malware que procesan muestras, bots que generan previsualizaciones). En todos ellos, un worker muerto por SIGFPE, un pool agotado por leaks acumulativos o un hilo colgado eternamente en un bucle se traducen en latencia para todos los usuarios.</p>
-<ul>
-  <li><b>Mantenedores</b>: replicar el fix de VPK (<code>nb_channels &lt;= 0 → invalid data</code>) como patrón; añadir liberación en todos los return intermedios de <code>add_metadata</code>; validar contadores de Smacker contra el tamaño real del stream, no contra constantes mágicas.</li>
-  <li><b>Operadores</b>: aislar el proceso de demuxing (un proceso por archivo, límites de memoria y tiempo duros, cgroups); los tres fallos mueren solos si el sandbox mata al worker sin contagio.</li>
-  <li><b>Usuarios finales</b>: riesgo bajo en reproductores de escritorio — el crash cuesta reiniciar el reproductor — pero relevante en cualquier servidor que acepte archivos de terceros.</li>
-</ul>
-
-<h2 id="f08"><span class="idx">09.</span> Conclusión</h2>
-<p>Agrupar estos tres hallazgos en un solo artículo es deliberado: por separado parecen anécdotas de formatos exóticos; juntos dibujan una <b>debilidad estructural del proceso de parseo de headers</b> que se repite en demuxer tras demuxer. Es exactamente el tipo de patrón que un sistema de caza autónomo explora bien: no busca un bug, busca la forma en que una base de código piensa mal y la empuja hasta que se rompe en cada esquina posible.</p>
-<p>Para quien audite parsers propios, las tres preguntas que estos casos obligan a hacerse: ¿qué campos del header uso en aritmética sin verificar? ¿qué reservo que pueda quedar huérfano en un error path? ¿qué bucle cuya duración depende del input carece de techo? Si alguna respuesta incomoda, hay un PoC de veintiún bytes esperando a ser escrito.</p>
 </article>
 <section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="libwebp-vp8l-lossless-decode-dos.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>12 min</span></div><div class="t">libwebp: DoS por área de imagen no validada en VP8L lossless</div><div class="d">Un WebP lossless de 34 bytes declara hasta 16384×16384 píxeles sin comprobar MAX_IMAGE_AREA, el guardia que el path loss</div><span class="badge badge-dos">Vulnerability Research</span></a><a class="card" href="pcre2-jit-compile-hang-recursion.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>13 min</span></div><div class="t">PCRE2: hang en compilación JIT por recursión (?0) en negative lookahead</div><div class="d">El intérprete compila el patrón en 0 ms; pcre2_jit_compile se cuelga eternamente en get_framesize. Diagnóstico diferenci</div><span class="badge badge-dos">Vulnerability Research</span></a><a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>20 min</span></div><div class="t">Sherlock: caza autónoma de vulnerabilidades con IA local</div><div class="d">Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con valid</div><span class="badge badge-rce">Serie</span></a></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
 <div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>
