@@ -1,163 +1,31 @@
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>Mismo archivo CAB, dos binarios: el <b>snapshot de bsdtar 3.8.9</b> extrae leyendo un <em>history guard</em> del decoder <b>LZX</b> que nadie inicializó (CWE-457); el build con el fix upstream lo rechaza con <code>LZX_CORRUPT</code>.</li>
-    <li>Método: <b>patch-diffing como radar</b> — un commit upstream del 08-08 endureció el path CAB/LZX, y la revisión periódica del snapshot reveló que el fix no estaba en él.</li>
-    <li>Validación A/B: mismo input, única variable = el parche. Vulnerable <code>rc=0</code> (extrae bajo ASAN <code>use-of-uninitialized-value</code>); parcheado <code>rc=1</code> (-25, LZX_CORRUPT).</li>
-    <li>Clasificación honesta: <b>DUP-RACE</b> — el fix ya existía una semana antes de la detección. El activo duradero es el método, no el CVE.</li>
+    <li>Mismo archivo CAB, dos binarios: el snapshot de <b>bsdtar 3.8.9</b> extrae leyendo un <em>history guard</em> del decoder <b>LZX</b> que nadie inicializó (CWE-457); el build con fix lo rechaza con <code>LZX_CORRUPT</code>.</li>
+    <li>Método: <b>patch-diffing como radar</b> — un commit upstream del 08-08 endureció el path CAB/LZX y la revisión periódica del snapshot reveló que el fix no estaba.</li>
+    <li>Validación A/B: mismo input, única variable = el parche. Vulnerable <code>rc=0</code> (ASAN <code>use-of-uninitialized-value</code>); parcheado <code>rc=1</code> (-25).</li>
+    <li>Clasificación honesta: <b>DUP-RACE</b> — el fix ya existía una semana antes. El activo duradero es el método, no el CVE.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/libarchive_patchdiff · <span class="tw">9</span> secciones</summary>
-  <ol>
-    <li><a href="#a00">Resumen Técnico</a></li>
-    <li><a href="#a01">Contexto: snapshots que envejecen mal</a></li>
-    <li><a href="#a02">El método: patch-diffing como radar</a></li>
-    <li><a href="#a03">Anatomía: el history guard sin inicializar</a></li>
-    <li><a href="#a04">El experimento A/B</a></li>
-    <li><a href="#a05">La clasificación honesta: DUP-RACE</a></li>
-    <li><a href="#a06">Acotación: por qué es LOW</a></li>
-    <li><a href="#a07">Lecciones metodológicas</a></li>
-    <li><a href="#a08">Conclusión</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>bsdtar extrae un CAB LZX leyendo como <em>guardián</em> un valor de memoria no inicializada. Al recibir el mismo CAB, el snapshot vulnerable procede (rc=0) y el build parcheado lo rechaza como corrupto — la diferencia es un commit de endurecimiento previo. Se documenta como <b>DUP-RACE</b>: el fix se anticipó por otra vía, pero el hallazgo verifica la validez del método radar de patch-diffing sobre snapshots.</p>
 
-<h2 id="a00"><span class="idx">01.</span> Resumen Técnico</h2>
+<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
 <div class="tbl-wrap">
   <table>
     <tbody>
-      <tr><th>Objetivo</th><td>libarchive / bsdtar 3.8.9 — path de extracción CAB con compresión LZX</td></tr>
-      <tr><th>Vulnerabilidad</th><td>Uninitialized heap read del <em>history guard</em> del decoder LZX (<code>lzx_read_blocks</code>) durante la extracción</td></tr>
-      <tr><th>CWE</th><td>CWE-457 (Use of Uninitialized Variable) · VRT: MCR (read)</td></tr>
-      <tr><th>Severidad</th><td><b>LOW</b> — solo lectura de valores no controlados directamente; sin escalada a escritura</td></tr>
-      <tr><th>Detección</th><td>Divergencia post-snapshot: fix upstream del 2026-08-08 ausente en el snapshot del target</td></tr>
-      <tr><th>Método</th><td>Patch-diffing + comparación A/B con el mismo input CAB sobre dos builds de bsdtar</td></tr>
-      <tr><th>Resultado A/B</th><td>Build vulnerable: <code>rc=0</code>, extrae (con lectura no inicializada). Build parcheado: <code>rc=1</code> (-25, LZX_CORRUPT)</td></tr>
+      <tr><th>Target</th><td>libarchive / bsdtar 3.8.9 — CAB + compresión LZX</td></tr>
+      <tr><th>Clase</th><td>Use of Uninitialized Variable — <b>CWE-457</b></td></tr>
+      <tr><th>Sink</th><td><code>lzx_read_blocks</code> (history guard) durante la extracción</td></tr>
       <tr><th>Validación</th><td>ASAN (<code>use-of-uninitialized-value</code>) + valgrind <code>--track-origins=yes</code></td></tr>
-      <tr><th>Clasificación</th><td>DUP-RACE — el fix llegó por otra vía dentro de la ventana de análisis; se documenta como caso metodológico</td></tr>
+      <tr><th>A/B</th><td>Vulnerable rc=0 · Parcheado rc=1 (LZX_CORRUPT)</td></tr>
+      <tr><th>Clasificación</th><td>DUP-RACE — fix upstream anterior a la detección</td></tr>
     </tbody>
   </table>
 </div>
 
-<h2 id="a01"><span class="idx">02.</span> Contexto: snapshots que envejecen mal</h2>
-<p>Analizar un target serio exige construirlo: compilar la versión concreta, instrumentarla, fijar su entorno. Esa construcción es un <b>snapshot</b> — y desde el momento en que existe, empieza a envejecer. Upstream sigue vivo: commits, hardening, fixes. Cada día que pasa, tu snapshot fiel deja de serlo un poco más.</p>
-<p>Esta historia nace de esa tensión. El sistema Sherlock mantiene un snapshot de libarchive 3.8.9 para sus campañas de fuzzing sobre formatos de archivo. Durante la revisión periódica contra upstream apareció un commit del <b>2026-08-08</b> que tocaba justo el camino CAB/LZX que el snapshot ejercita: un hardening frente a lectura de memoria no inicializada en el history guard del decoder LZX. Pregunta inmediata: ¿el snapshot contiene ese fix? Respuesta corta: no. Pregunta larga: ¿qué significa eso en la práctica? El resto del artículo es la respuesta.</p>
-
-<h2 id="a02"><span class="idx">03.</span> El método: patch-diffing como radar</h2>
-<p>El patch-diffing suele asociarse a martes de parches de grandes vendors: comparar binarios antes/después para localizar la vulnerabilidad corregida. Pero tiene un uso inverso igual de potente para quien caza con targets propios: <b>usar los commits upstream como radar de zonas calientes</b>. Si el proyecto acaba de blindar una ruta de código, esa ruta era frágil ayer — y cualquier versión viva sin el parche lo sigue siendo hoy.</p>
-<figure class="figure">
-  <div style="overflow-x:auto;">
-    <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Línea temporal del patch-diffing: snapshot 3.8.9 construido, fix upstream el 08-08, revisión del 15-08 detecta la divergencia y el A/B la confirma" style="min-width:720px; width:100%; height:auto;">
-      <defs>
-        <marker id="carrW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a3a3a3"/></marker>
-        <marker id="carrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#f59e0b"/></marker>
-        <marker id="carrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ef4444"/></marker>
-        <marker id="carrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4ade80"/></marker>
-      </defs>
-      <style>
-        .ttl { fill:#f5f5f5; font:600 12px 'JetBrains Mono',monospace; }
-        .csub { fill:#888888; font:11px 'Inter',sans-serif; }
-        .ccell { fill:#181818; stroke:#333333; }
-        .ccellr { fill:#1c1010; stroke:#ef4444; }
-        .cbtxt { fill:#e5e5e5; font:600 11px 'JetBrains Mono',monospace; }
-        .crtxt { fill:#ef4444; font:600 11px 'JetBrains Mono',monospace; }
-        .catxt { fill:#f59e0b; font:600 11px 'JetBrains Mono',monospace; }
-        .cgtxt { fill:#4ade80; font:600 11px 'JetBrains Mono',monospace; }
-      </style>
-      <line x1="60" y1="70" x2="850" y2="70" stroke="#333333" stroke-width="2"/>
-      <circle cx="130" cy="70" r="6" fill="#60a5fa"/>
-      <rect x="60" y="92" width="200" height="64" rx="6" class="ccell"/>
-      <text x="160" y="114" text-anchor="middle" class="ttl">Snapshot 3.8.9</text>
-      <text x="160" y="132" text-anchor="middle" class="csub">build ASAN propio · target de fuzzing</text>
-      <text x="160" y="148" text-anchor="middle" class="csub">sin el hardening futuro</text>
-      <circle cx="450" cy="70" r="6" fill="#f59e0b"/>
-      <rect x="350" y="92" width="200" height="64" rx="6" class="ccell"/>
-      <text x="450" y="114" text-anchor="middle" class="catxt">Fix upstream · 08-08</text>
-      <text x="450" y="132" text-anchor="middle" class="csub">history guard LZX validado</text>
-      <text x="450" y="148" text-anchor="middle" class="csub">path CAB/LZX endurecido</text>
-      <circle cx="700" cy="70" r="6" fill="#ef4444"/>
-      <rect x="610" y="92" width="220" height="64" rx="6" class="ccellr"/>
-      <text x="720" y="114" text-anchor="middle" class="crtxt">Revisión · 15-08</text>
-      <text x="720" y="132" text-anchor="middle" class="csub">diff snapshot ↔ upstream:</text>
-      <text x="720" y="148" text-anchor="middle" class="csub">¡el fix NO está en el snapshot!</text>
-      <path d="M130 76 L130 90" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#carrW)"/>
-      <path d="M450 76 L450 90" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#carrA)"/>
-      <path d="M700 76 L700 90" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#carrR)"/>
-      <path d="M450 156 Q450 190 300 210" stroke="#f59e0b" stroke-width="1.5" fill="none" marker-end="url(#carrA)"/>
-      <path d="M720 156 Q720 195 540 214" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#carrR)"/>
-      <rect x="150" y="212" width="330" height="72" rx="6" class="ccell"/>
-      <text x="315" y="234" text-anchor="middle" class="ttl">Experimento A/B</text>
-      <text x="315" y="252" text-anchor="middle" class="csub">mismo CAB LZX → bsdtar 3.8.9 vs bsdtar parcheado</text>
-      <text x="315" y="270" text-anchor="middle" class="csub">ASAN + valgrind como jueces</text>
-      <rect x="520" y="218" width="310" height="60" rx="6" class="ccellr"/>
-      <text x="675" y="240" text-anchor="middle" class="crtxt">Divergencia confirmada</text>
-      <text x="675" y="260" text-anchor="middle" class="csub">vulnerable extrae (rc=0) · parcheado rechaza (rc=1)</text>
-    </svg>
-  </div>
-  <figcaption class="figcap">Figura 1 — Cronología del hallazgo: el commit upstream del 08-08 funciona como aviso; la revisión semanal del snapshot lo convierte en hipótesis; el A/B la transforma en hecho medible.</figcaption>
-</figure>
-
-<h2 id="a03"><span class="idx">04.</span> Anatomía: el history guard sin inicializar</h2>
-<p>El algoritmo LZX — el que comprimían los instaladores de Windows y los ficheros CAB antiguos — mantiene un <em>historial</em> de ventana: los últimos kilobytes de salida descomprimida, que las instrucciones de match reutilizan como diccionario. Para acelerar la decodificación, la implementación de libarchive lleva controles auxiliares sobre ese historial; uno de ellos es el <b>history guard</b>, que decide cuándo el estado del historial es válido.</p>
-<p>El problema: en ciertas secuencias de bloques CAB malformadas, el guard se <em>consulta</em> antes de haber sido <em>escrito</em>. El heap entrega lo que había en esas direcciones — basura de usos anteriores — y el decoder toma decisiones de decodificación basadas en ella. Formalmente es CWE-457: comportamiento dependiente de valores no inicializados. En la práctica observada, la consecuencia visible era que archivos que deberían ser rechazados como corruptos se «decodificaban» hasta el final, consumiendo la basura como si fuera estado legítimo.</p>
-<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c"># Forma del defecto (semántica del fix upstream del 08-08)</span>
-
-<span class="syn-c"># ANTES (snapshot 3.8.9):</span>
-<span class="syn-k">if</span> (guard &amp;&amp; ...)        <span class="syn-c"># guard puede llegar aquí SIN inicializar</span>
-    ...procesar bloque...  <span class="syn-c"># decisión tomada sobre basura del heap</span>
-
-<span class="syn-c"># DESPUÉS (upstream parcheado):</span>
-<span class="syn-k">if</span> (!history_valid)      <span class="syn-c"># estado explícito + inicialización garantizada</span>
-    <span class="syn-k">return</span> -<span class="syn-n">25</span>;           <span class="syn-c"># LZX_CORRUPT: rechazo limpio del stream</span></code></pre></div>
-<p>Los sanitarios lo confirman con precisión quirúrgica: AddressSanitizer reporta <code>use-of-uninitialized-value</code> en el camino del guard durante <code>lzx_read_blocks</code>, y valgrind con <code>--track-origins=yes</code> remonta el valor hasta su origen: una asignación de heap cuyo contenido nunca se escribió antes de leerse.</p>
-
-<h2 id="a04"><span class="idx">05.</span> El experimento A/B</h2>
-<p>La validación mínima de una divergencia es comparar los dos mundos con todo lo demás constante: mismo input CAB que recorre el path del history guard, misma invocación de extracción, única variable = el parche.</p>
-<figure class="figure">
-  <img src="img/libarchive-cab-lzx-uninit-read-ab-evidencia.png" alt="Terminal mostrando la comparación A/B: bsdtar 3.8.9 extrae el CAB con rc=0 mientras el build parcheado devuelve rc=1 con error LZX_CORRUPT, seguido de la confirmación de valgrind" loading="lazy">
-  <figcaption class="figcap">Evidencia A/B — El mismo CAB ante dos builds: el snapshot vulnerable extrae silenciosamente (con lectura no inicializada bajo ASAN/valgrind); el parcheado corta con «corrupt history guard». Captura regenerada a partir del log original de validación con rutas de entorno redactadas.</figcaption>
-</figure>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Resumen del protocolo A/B (2026-08-15)</span>
-<span class="syn-c"># A — snapshot vulnerable (bsdtar ASAN 3.8.9)</span>
-$ bsdtar-asan-3.8.9 -xvf poc_cab_lzx_history.cab ; echo rc=$?
-poc_lzx.bin   extraído
-rc=<span class="syn-n">0</span>                          <span class="syn-c"># éxito aparente...</span>
-<span class="syn-c">#   stderr ASAN: use-of-uninitialized-value (history guard)</span>
-
-<span class="syn-c"># B — build parcheado (fix upstream 08-08)</span>
-$ bsdtar-patched -xvf poc_cab_lzx_history.cab ; echo rc=$?
-bsdtar: LZX decoder error: corrupt history guard
-rc=<span class="syn-n">1</span>                          <span class="syn-c"># (-25, LZX_CORRUPT): rechazo correcto</span>
-
-<span class="syn-c"># Origen confirmado de forma independiente:</span>
-$ valgrind --track-origins=yes bsdtar-asan-3.8.9 -xf poc_cab_lzx_history.cab
-==<span class="syn-n">…</span>== Conditional jump or move depends on uninitialised value(s)
-==<span class="syn-n">…</span>==  Uninitialised value was created by a heap allocation</code></pre></div>
-<p>La asimetría de veredictos es el resultado completo: <b>un archivo que el código correcto considera corrupto atraviesa el código vulnerable sin levantar sospechas</b>. Ese es exactamente el tipo de silencio que un read no inicializado produce — y el tipo de señal que un A/B bien montado vuelve audible.</p>
-
-<h2 id="a05"><span class="idx">06.</span> La clasificación honesta: DUP-RACE</h2>
-<p>Aquí el sistema aplicó una regla que vale tanto para humanos como para agentes: <b>verificar la fecha del fix antes de reclamar prioridad</b>. El hardening upstream databa del 08-08 — una semana antes de la detección —, lo que sitúa el descubrimiento dentro de una carrera perdida: alguien reportó el problema primero y upstream ya lo había cerrado. El hallazgo se archiva como <b>DUP-RACE</b>: real, reproducible, pero duplicado respecto a la línea temporal oficial.</p>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Por qué publicarlo aun siendo dup-race</div>
-  <p>Tres razones. Primera: el valor metodológico — el patch-diffing como radar — sobrevive al destino del bug concreto. Segunda: millones de sistemas siguen ejecutando builds sin el fix; saber que el path existe ayuda a operadores a priorizar actualizaciones de libarchive. Tercera: la honestidad taxonómica es parte del contrato de esta serie; un dup-race documentado enseña más que un hallazgo inflado.</p>
+<div class="callout callout-warn"><span class="ico">🛰</span><div>
+  <div class="h">Veredicto</div>
+  <p>No es un 0-day: es un caso metodológico. El patch-diffing sobre snapshots demostró detectar divergencias reales; el valor entregado es ese método, no un CVE sellable.</p>
 </div></div>
-
-<h2 id="a06"><span class="idx">07.</span> Acotación: por qué es LOW</h2>
-<ul>
-  <li><b>Solo lectura</b>: el defecto consume valores no inicializados para decidir flujo interno; no hay primitiva de escritura ni corrupción de estructuras adyacentes.</li>
-  <li><b>Valores no controlados directamente</b>: el atacante condiciona <em>que</em> se lea basura, pero no <em>qué</em> basura — el contenido depende del estado previo del heap, no de bytes elegidos del input.</li>
-  <li><b>Efecto observable limitado</b>: aceptación de streams corruptos y decisiones internas contaminadas; sin fuga directa de datos al output en el escenario observado. Escalarlo a info-leak exigiría encadenarlo con superficies adicionales que este análisis no persiguió.</li>
-</ul>
-
-<h2 id="a07"><span class="idx">08.</span> Lecciones metodológicas</h2>
-<p>Más allá del CWE, este caso dejó tres reglas operativas al sistema:</p>
-<ol>
-  <li><b>La fecha del fix importa tanto como el fix</b>: una divergencia detectada días después del commit upstream casi siempre es carrera perdida; reconocerlo rápido ahorra semanas de maduración inútil y protege la credibilidad del programa.</li>
-  <li><b>El A/B con build ASAN es la validación mínima</b>: una divergencia solo afirmada por diff de código es una hipótesis; con dos binarios y un input, es un experimento. La diferencia entre ambos estados es la diferencia entre creer y saber.</li>
-  <li><b>Los commits upstream son inteligencia gratuita</b>: cada hardening señala una debilidad histórica y delimita las versiones vivas que aún la padecen. Revisarlos periódicamente convierte el repositorio ajeno en sensor propio.</li>
-</ol>
-
-<h2 id="a08"><span class="idx">09.</span> Conclusión</h2>
-<p>No todos los hallazgos terminan en CVE propio, y está bien que sea así. Este caso demuestra que un sistema de caza maduro también sabe <b>perder carreras con elegancia</b>: detectar la divergencia, medirla, clasificarla honestamente y extraer de ella el activo duradero — el método. El history guard de LZX ya está protegido upstream; el patch-diffing como radar, en cambio, apenas empieza a dar sus primeros resultados.</p>
-<p>Para operadores, el recordatorio práctico: si vuestra distribución todavía sirve builds de libarchive sin el hardening de agosto, los CAB malformados pueden atravesar vuestro extractor con éxito aparente. Actualizar no es burocracia; es cerrar puertas que otros ya saben dónde están.</p>

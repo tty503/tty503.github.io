@@ -1,165 +1,32 @@
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li><b>34 bytes</b> bastan para que un servidor de imágenes pase segundos — o minutos — decodificando una foto que no existe: DoS por <b>área de imagen no validada</b> en el decoder lossless <b>VP8L</b> de libwebp (CWE-400).</li>
+    <li><b>34 bytes</b> bastan para que un servidor de imágenes pase segundos o minutos decodificando una foto que no existe: DoS por <b>área de imagen no validada</b> en el decoder lossless <b>VP8L</b> de libwebp (CWE-400).</li>
     <li>El path lossy (VP8) comprueba <code>width × height</code> contra <code>MAX_IMAGE_AREA</code>; el lossless acepta hasta <b>16384×16384</b> sin mirar el área total. Dos caminos gemelos, dos estándares.</li>
-    <li><code>ReadImageInfo</code> (<code>vp8l_dec.c:1764</code>) no consulta el guardia → coste de decode ∝ ~256M píxeles declarados → timeout reproducible 3/3.</li>
-    <li>Validación doble: libFuzzer (timeout 3 s) + control <code>timeout(1)</code> sin instrumentación (rc=124). Sin parche conocido al cierre.</li>
+    <li>Causa: <code>ReadImageInfo</code> (<code>vp8l_dec.c:1764</code>) no consulta el guardia → coste ∝ ~256M píxeles declarados → timeout reproducible 3/3.</li>
+    <li>Validación doble: libFuzzer (timeout 3 s) + <code>timeout(1)</code> de shell sin instrumentar (rc=124). Sin parche conocido al cierre.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/libwebp_vp8l_area · <span class="tw">9</span> secciones</summary>
-  <ol>
-    <li><a href="#l00">Resumen Técnico</a></li>
-    <li><a href="#l01">Contexto: libwebp está en todas partes</a></li>
-    <li><a href="#l02">La asimetría lossy vs lossless</a></li>
-    <li><a href="#l03">Anatomía: la cadena que nadie frena</a></li>
-    <li><a href="#l04">El PoC de 34 bytes</a></li>
-    <li><a href="#l05">Evidencia de validación</a></li>
-    <li><a href="#l06">Acotación: por qué es LOW</a></li>
-    <li><a href="#l07">Impacto realista y mitigación</a></li>
-    <li><a href="#l08">Conclusión</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>libwebp es el decoder de imágenes de la web moderna (Chrome, CDNs, servidores). Su decoder lossless VP8L asigna buffers según las dimensiones declaradas en el header pero, al contrario que el camino lossy VP8, <b>no valida el área total</b> (<code>width × height</code>) contra <code>MAX_IMAGE_AREA</code>. Un WebP de 34 bytes que declara 16384×16384 fuerza un decode cuyo coste crece con los ~256M de píxeles declarados: el hilo del servidor se atasca.</p>
+<p>La asimetría lossy/vlossless es el dato de diseño clave: el guardia existe y funciona en un camino; simplemente nunca se pegó en el otro. Reproducción determinista 3/3 con ambas herramientas de validación independientes.</p>
 
-<h2 id="l00"><span class="idx">01.</span> Resumen Técnico</h2>
+<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
 <div class="tbl-wrap">
   <table>
     <tbody>
-      <tr><th>Objetivo</th><td>libwebp 1.4.0 — decoder lossless <b>VP8L</b> (<code>vp8l_dec.c</code>)</td></tr>
-      <tr><th>Vulnerabilidad</th><td>Ausencia de validación de área de imagen (<code>width × height</code>) antes de asignar buffers y procesar filas</td></tr>
-      <tr><th>CWE</th><td>CWE-400 (Uncontrolled Resource Consumption) · VRT: recurso/CPU</td></tr>
-      <tr><th>Severidad</th><td><b>LOW</b> — consumo de CPU, sin corrupción de memoria</td></tr>
-      <tr><th>Disparador</th><td>WebP lossless de <b>34 bytes</b> declarando dimensiones gigantes (≤16384×16384)</td></tr>
-      <tr><th>Efecto</th><td>Decode con coste ∝ área declarada → timeout reproducible 3/3 con límite de 3 s</td></tr>
-      <tr><th>Causa raíz</th><td><code>ReadImageInfo</code> (<code>VP8LDecodeImage</code>, vp8l_dec.c:1764) no consulta <code>MAX_IMAGE_AREA</code>; el path lossy sí lo hace</td></tr>
-      <tr><th>Validación</th><td>Doble herramienta: libFuzzer (timeout instrumentado) + <code>timeout</code> de shell como control independiente (exit 124)</td></tr>
-      <tr><th>Estado fix upstream</th><td>Sin parche conocido al cierre — divulgación graduada: mecanismo completo, receta byte a byte reservada</td></tr>
+      <tr><th>Target</th><td>libwebp 1.4.0 · decoder lossless <b>VP8L</b></td></tr>
+      <tr><th>Clase</th><td>Uncontrolled Resource Consumption — <b>CWE-400</b></td></tr>
+      <tr><th>Disparador</th><td>WebP lossless de <b>34 B</b> con dimensiones ≤16384×16384</td></tr>
+      <tr><th>Causa</th><td><code>ReadImageInfo</code> (<code>vp8l_dec.c:1764</code>) sin chequeo <code>MAX_IMAGE_AREA</code></td></tr>
+      <tr><th>Efecto</th><td>Timeout reproducible 3/3 (CPU) · LOW</td></tr>
+      <tr><th>Fix</th><td>Sin parche conocido al cierre</td></tr>
     </tbody>
   </table>
 </div>
 
-<h2 id="l01"><span class="idx">02.</span> Contexto: libwebp está en todas partes</h2>
-<p>Cada navegador, cada CDN moderna, cada servicio de optimización de imágenes y cada app móvil que muestra fotos pasa por libwebp en algún momento. Su modo <b>lossless</b> (chunk <code>VP8L</code>) promete compresión sin pérdida rivalizando con PNG, y es precisamente el modo elegido para capturas, iconos y gráficos.</p>
-<p>La historia reciente de la biblioteca — CVEs que resonaron en libvpx — demostró hasta qué punto el ecosistema entero hereda sus bugs. Este hallazgo es más modesto en impacto pero igual de revelador sobre el proceso: <i>la memoria de los CVEs pasados no garantiza que todos los caminos del código hayan aprendido la misma lección</i>.</p>
-
-<h2 id="l02"><span class="idx">03.</span> La asimetría lossy vs lossless</h2>
-<p>El formato WebP tiene dos motores de decodificación: el predictivo con pérdida (<code>VP8</code>, heredado de WebM) y el entrópico sin pérdida (<code>VP8L</code>). Ambos terminan entregando píxeles al mismo cliente, pero nacieron de linajes distintos y eso se nota en sus defensas: el path lossy comprueba que el producto <code>width × height</code> no supere el límite razonable de la biblioteca (<code>MAX_IMAGE_AREA</code>) antes de comprometerse; el lossless lee anchura y altura del header y arranca sin preguntar cuántos píxeles implica esa multiplicación.</p>
-<figure class="figure">
-  <div style="overflow-x:auto;">
-    <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparativa: el path lossy valida el área de imagen antes de decodificar, el path lossless VP8L no lo hace y procede con dimensiones gigantes" style="min-width:720px; width:100%; height:auto;">
-      <defs>
-        <marker id="larrW" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a3a3a3"/></marker>
-        <marker id="larrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#4ade80"/></marker>
-        <marker id="larrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ef4444"/></marker>
-      </defs>
-      <style>
-        .ttl { fill:#f5f5f5; font:600 13px 'JetBrains Mono',monospace; }
-        .lsub { fill:#888888; font:11px 'Inter',sans-serif; }
-        .lboxg { fill:#0d1a0d; stroke:#4ade80; stroke-dasharray:3 2; }
-        .lboxr { fill:#1c1010; stroke:#ef4444; stroke-dasharray:3 2; }
-        .lcell { fill:#181818; stroke:#333333; }
-        .lbtxt { fill:#e5e5e5; font:600 11px 'JetBrains Mono',monospace; }
-        .lgtxt { fill:#4ade80; font:600 11px 'JetBrains Mono',monospace; }
-        .lrtxt { fill:#ef4444; font:600 11px 'JetBrains Mono',monospace; }
-      </style>
-      <rect x="340" y="18" width="220" height="46" rx="6" class="lcell"/>
-      <text x="450" y="38" text-anchor="middle" class="lbtxt">header WebP</text>
-      <text x="450" y="54" text-anchor="middle" class="lsub">width=16000 · height=16000 (34 B)</text>
-      <path d="M420 64 Q330 96 250 122" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#larrW)"/>
-      <path d="M480 64 Q570 96 650 122" stroke="#a3a3a3" stroke-width="1.5" fill="none" marker-end="url(#larrW)"/>
-      <rect x="90" y="124" width="320" height="70" rx="6" class="lboxg"/>
-      <text x="250" y="148" text-anchor="middle" class="lgtxt">✓ PATH LOSSY (VP8)</text>
-      <text x="250" y="168" text-anchor="middle" class="lsub">if (width * height &gt; MAX_IMAGE_AREA)</text>
-      <text x="250" y="184" text-anchor="middle" class="lsub">→ rechazo temprano · coste O(1)</text>
-      <path d="M250 194 L250 224" stroke="#4ade80" stroke-width="1.5" fill="none" marker-end="url(#larrG)"/>
-      <text x="250" y="248" text-anchor="middle" class="lgtxt">error limpio, proceso sano</text>
-      <rect x="490" y="124" width="320" height="70" rx="6" class="lboxr"/>
-      <text x="650" y="148" text-anchor="middle" class="lrtxt">✗ PATH LOSSLESS (VP8L)</text>
-      <text x="650" y="168" text-anchor="middle" class="lsub">ReadImageInfo: dims ≤ 16384 c/u → OK</text>
-      <text x="650" y="184" text-anchor="middle" class="lsub">ningún check de area · coste O(área)</text>
-      <path d="M650 194 L650 224" stroke="#ef4444" stroke-width="1.5" fill="none" marker-end="url(#larrR)"/>
-      <text x="650" y="248" text-anchor="middle" class="lrtxt">DecodeImageData → ProcessRows → EmitRows</text>
-      <rect x="490" y="266" width="320" height="52" rx="6" class="lboxr"/>
-      <text x="650" y="288" text-anchor="middle" class="lrtxt">256M píxeles fantasma · CPU 100%</text>
-      <text x="650" y="306" text-anchor="middle" class="lsub">timeout &gt; 3 s reproducible 3/3</text>
-      <text x="250" y="300" text-anchor="middle" class="lsub">256M píxeles nunca se procesan:</text>
-      <text x="250" y="316" text-anchor="middle" class="lsub">el check existe y funciona.</text>
-    </svg>
-  </div>
-  <figcaption class="figcap">Figura 1 — Mismo header mentiroso, dos destinos. A la izquierda, el path con pérdida rechaza en tiempo constante. A la derecha, el lossless convierte 34 bytes en millones de operaciones de emisión de filas.</figcaption>
-</figure>
-
-<h2 id="l03"><span class="idx">04.</span> Anatomía: la cadena que nadie frena</h2>
-<p>El recorrido desde la API pública hasta el bucle caro deja ver exactamente dónde se coló el agujero:</p>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Cadena de llamadas observada en el stack del hang</span>
-LLVMFuzzerTestOneInput   (fuzz_webp_decode.c:<span class="syn-n">9</span>)
-  → <span class="syn-f">Decode</span>               (webp_dec.c:<span class="syn-n">631</span>)
-    → <span class="syn-f">DecodeInto</span>         (webp_dec.c:<span class="syn-n">511</span>)
-      → <span class="syn-f">VP8LDecodeImage</span>   (vp8l_dec.c:<span class="syn-n">1764</span>)
-        → ReadImageInfo   <span class="syn-c"># acepta width×height ≤ 16384² SIN check de área ← aquí falta el guardia</span>
-        → <span class="syn-f">DecodeImageData</span> (vp8l_dec.c:<span class="syn-n">1206</span>)
-          → <span class="syn-f">ProcessRows</span>   (vp8l_dec.c:<span class="syn-n">837</span>)
-            → <span class="syn-f">EmitRows</span>     (vp8l_dec.c:<span class="syn-n">654</span>)
-              → ConvertBGRAToRGBA_SSE2 (lossless_sse2.c)   <span class="syn-c"># tiempo ∝ píxeles declarados</span></code></pre></div>
-<p>El check ausente tiene forma trivialmente conocida — el mismo patrón que su gemelo lossy ya aplica —:</p>
-<div class="code-wrap"><span class="lang">c</span><pre class="code"><code><span class="syn-c">// Guardia esperada en el path VP8L (presente en el path lossy):</span>
-<span class="syn-k">if</span> ((uint64_t)width * height &gt; MAX_IMAGE_AREA)
-    <span class="syn-k">return</span> VP8_STATUS_OUT_OF_MEMORY;</code></pre></div>
-<p>Nótese el detalle que importa al corregir: la multiplicación debe hacerse en aritmética de 64 bits o con comprobación previa, porque <code>16384 × 16384 = 268.435.456</code> cabe justo en 32 bits — pero variantes con dimensiones máximas distintas podrían desbordar la propia comprobación. Los fixes apresurados que multiplican en 32 bits crean la siguiente generación de bugs.</p>
-
-<h2 id="l04"><span class="idx">05.</span> El PoC de 34 bytes</h2>
-<p>El archivo trampa sigue la anatomía mínima de un WebP lossless: cabecera RIFF con el chunk <code>VP8L</code>, y dentro de él, el bit de firma lossless seguido de los campos de anchura, altura y versión codificados en la tabla de bits inicial. Lo único que importa es la pareja dimensional: valores cercanos al tope permitido por el formato, cuya multiplicación produce cientos de millones de píxeles «virtuales» que el decoder intentará materializar fila a fila.</p>
-<div class="code-wrap"><span class="lang">text</span><pre class="code"><code><span class="syn-c"># Estructura conceptual (receta completa reservada hasta parche upstream)</span>
-RIFF....            <span class="syn-c"># contenedor estándar</span>
-  VP8L....          <span class="syn-c"># chunk lossless</span>
-    firma 0x2f      <span class="syn-c"># bit de formato lossless</span>
-    width-1  = 14 bits  <span class="syn-c"># valor alto declarado</span>
-    height-1 = 14 bits  <span class="syn-c"># valor alto declarado</span>
-    alpha/version...<span class="syn-c"># resto del mini-header</span>
-<span class="syn-c"># Total: 34 bytes. Coste de decode declarado: ~256M píxeles.</span></code></pre></div>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Divulgación graduada</div>
-  <p>Al publicar este análisis no conocemos parche upstream aplicado. Publicamos el mecanismo, la cadena de llamadas y la estructura del archivo, pero no el binario ni el volcado hexadecimal completo: suficiente para reproducir, auditar y corregir, sin servir el disparador listo para usar.</p>
+<div class="callout callout-warn"><span class="ico">🛰</span><div>
+  <div class="h">Veredicto</div>
+  <p>DoS de CPU reproducible en una librería ubicua, disparado por un fichero diminuto. Clasificado LOW (sin corrupción de memoria); documentado con divulgación graduada. Candidato a cadena si se empareja con un servicio que decodifica imágenes sin límite de tiempo.</p>
 </div></div>
-
-<h2 id="l05"><span class="idx">06.</span> Evidencia de validación</h2>
-<p>Para un DoS temporal, la doble herramienta toma otra forma: el fuzzer instrumentado detecta el exceso de tiempo, y un control sin instrumentación — el clásico <code>timeout(1)</code> de shell — confirma que el hang pertenece al decode real, no al harness.</p>
-<figure class="figure">
-  <img src="img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png" alt="Terminal mostrando libFuzzer reportando timeout tras 3 segundos al decodificar el WebP lossless de 34 bytes" loading="lazy">
-  <figcaption class="figcap">Evidencia A — libFuzzer: «ERROR: libFuzzer: timeout after 3 seconds» sobre el PoC de 34 B. Reproducido 3/3 ejecuciones.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/libwebp-vp8l-decodeimage-stack-hang.png" alt="Stack de gdb detenido en la cadena DecodeImageData, ProcessRows y EmitRows del decoder VP8L durante el hang" loading="lazy">
-  <figcaption class="figcap">Evidencia B — Stack del hang capturado con gdb: DecodeImageData (vp8l_dec.c:1206) → ProcessRows (:837) → EmitRows (:654) → conversión SSE2. El bucle de emisión de filas es el consumidor de CPU.</figcaption>
-</figure>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Tool B — control independiente sin instrumentación</span>
-$ timeout <span class="syn-n">3</span> ./fuzz_webp_decode -runs=<span class="syn-n">1</span> poc_34b.webp ; echo rc=$?
-rc=<span class="syn-n">124</span>   <span class="syn-c"># 124 = killed by timeout: el decode no termina solo</span>
-
-<span class="syn-c"># Contraste con una imagen legítima equivalente (sanity check)</span>
-$ timeout <span class="syn-n">3</span> ./fuzz_webp_decode -runs=<span class="syn-n">1</span> foto_normal.webp ; echo rc=$?
-Executed <span class="syn-n">1</span> inputs... rc=<span class="syn-n">0</span>   <span class="syn-c"># decode correcto en milisegundos</span></code></pre></div>
-
-<h2 id="l06"><span class="idx">07.</span> Acotación: por qué es LOW</h2>
-<ul>
-  <li><b>Sin corrupción de memoria</b>: los buffers se asignan correctamente según las dimensiones; el problema es cuánto tarda el trabajo declarado, no que escriba donde no debe.</li>
-  <li><b>Límite estructural del formato</b>: 16384×16384 acota el peor caso (~268M píxeles); no hay crecimiento indefinido como en un bucle infinito puro.</li>
-  <li><b>Requiere contexto de servicio</b>: un reproductor local pierde unos segundos; el daño serio exige un servicio que decode imágenes de terceros sin límites propios.</li>
-</ul>
-<div class="callout callout-ok"><span class="ico">✔</span><div>
-  <div class="h">El valor del hallazgo</div>
-  <p>Más allá del impacto individual, este caso entrega al sistema una firma reutilizable: «comparar defensas entre paths gemelos». Donde dos implementaciones resuelven el mismo problema, cualquier control presente en una y ausente en la otra es candidato automático a hallazgo. Esa heurística ya está alimentando nuevas campañas de análisis.</p>
-</div></div>
-
-<h2 id="l07"><span class="idx">08.</span> Impacto realista y mitigación</h2>
-<p>El escenario de explotación natural es cualquier servicio que decodifique WebP subido por usuarios: plataformas que generan miniaturas, antivirus y DLP que reconstruyen imágenes para analizarlas, apps de mensajería que preprocesan stickers. Con concurrencia, cada archivo de 34 bytes ocupa un worker durante segundos; una cola pequeña de ellos degrada el servicio entero.</p>
-<ul>
-  <li><b>Mantenedores</b>: replicar el guardia de <code>MAX_IMAGE_AREA</code> del path lossy en <code>ReadImageInfo</code>, con multiplicación segura en 64 bits.</li>
-  <li><b>Operadores</b>: imponer límites en la capa de servicio — dimensiones máximas verificadas sobre el header antes de llamar a la librería, presupuesto de CPU por archivo, workers aislados con reinicio automático.</li>
-  <li><b>Usuarios finales</b>: riesgo prácticamente nulo en navegadores modernos, que ya limitan dimensiones antes de invocar al decoder.</li>
-</ul>
-
-<h2 id="l08"><span class="idx">09.</span> Conclusión</h2>
-<p>Los sistemas grandes no fallan por ignorancia global sino por inconsistencia local: alguien aprendió la lección del área máxima en un camino del código y nadie la llevó al otro. Treinta y cuatro bytes son suficientes para notar la diferencia. La próxima vez que audites un parser con múltiples modos, compara sus modos entre sí — la lista de controles que uno tiene y el otro no suele leerse como una lista de hallazgos pendientes.</p>

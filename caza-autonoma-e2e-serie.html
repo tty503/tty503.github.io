@@ -35,7 +35,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 
 </head>
@@ -48,100 +48,47 @@
   <div class="post-tags"><span class="chip">Bug Hunting</span><span class="chip">RCE</span><span class="chip">Divulgación responsable</span><span class="chip">E2E</span></div>
   <h1>Caza autónoma E2E con IA local: 5 cadenas RCE reales</h1>
   <p class="lede">Índice de la serie: CoovaChilli, wifidog, libuhttpd, librtmp+mini_httpd y Webmin/Usermin/accel-ppp/CUPS. Pipeline, sinks línea a línea, PoC, evidencia ASAN y la doctrina de la divulgación responsable.</p>
-  <div class="post-meta"><span>📅 2026-09-02</span><span>⏱ 25 min</span><span>🏷 Serie</span></div>
+  <div class="post-meta"><span>2026-09-02</span><span>25 min</span><span>Serie</span></div>
 </header>
 <article class="post-body">
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>Índice de la serie <b>caza autónoma con IA local</b>: seis hallazgos validados E2E en firmware/daemons de red.</li>
-    <li><b>RCE verificado</b> en <b>CoovaChilli</b>, <b>wifidog</b> y <b>libuhttpd</b>; suite <b>Webmin/Usermin/accel-ppp/CUPS</b> post-auth + trust-bypass; <b>librtmp/mini_httpd</b> solo primitivas.</li>
-    <li>Doctrina: <b>sin crash reproducible no hay hallazgo</b>; cada fase de la cadena deja un marker y un log re-verificable.</li>
-    <li>Publicado como <b>divulgación responsable</b>: mecanismo, sink y cadena, sin exploit listo para producción.</li>
+    <li>Índice de la serie: <b>caza de bugs autónoma con IA local</b> (motor en Metal, sin red, coste ≈ 0) con validación E2E de cada hallazgo.</li>
+    <li>Serie de 6 hallazgos: <b>RCE verificados</b> en CoovaChilli, wifidog y libuhttpd; <b>suite Webmin</b> (post-auth + trust-bypass condicional); <b>librtmp/mini_httpd</b> como primitivas.</li>
+    <li>Doctrina aplicada: sin crash reproducible no hay hallazgo; gates pre-auth/default-config/internet-facing aplicados antes de madurar.</li>
+    <li>Divulgación responsable: cada caso con su estado de fix y su alcance honesto.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/indice_de_la_serie · <span class="tw">5</span> secciones</summary>
-  <ol>
-    <li><a href="#s00">Todos los hallazgos en una tabla</a></li>
-    <li><a href="#s01">La doctrina de caza</a></li>
-    <li><a href="#s02">El pipeline de validación E2E</a></li>
-    <li><a href="#s03">Primitivas vs productos: el umbral real</a></li>
-    <li><a href="#s04">Los posts individuales</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>Esta serie documenta el pipeline completo de una cacería de vulnerabilidades ejecutada por un agente de IA local: selección de targets, barrido por familias de ataque, análisis adversarial de cada candidato y <b>validación E2E con reproducción en el entorno</b>. Cada entrega enlaza a la investigación individual con su archivo:línea, evidencia y clasificación.</p>
+<p>El resultado neto sobre la serie: tres RCE pre-auth demostrados (2 con reverse shell root), una suite de sinks post-auth documentados y dos primitivas de bajo impacto — cada uno con su truthful scope.</p>
 
-<h2 id="s00"><span class="idx">01.</span> Todos los hallazgos en una tabla</h2>
-<p>Fotografía completa del ciclo. Todos pasaron la validación técnica E2E con evidencia reproducible.</p>
+<h2 id="r01"><span class="idx">02.</span> Mapa de la serie</h2>
 <div class="tbl-wrap">
   <table>
-    <thead><tr><th>Target</th><th>Clase</th><th>Vector</th><th>Privilegio</th><th>Alcance</th></tr></thead>
     <tbody>
-      <tr><td>CoovaChilli</td><td>CWE-78</td><td>EAP-Identity → conup</td><td>root / low-priv</td><td>WLAN local</td></tr>
-      <tr><td>wifidog</td><td>CWE-78</td><td>Host header → iptables</td><td>root</td><td>Config no por defecto</td></tr>
-      <tr><td>libuhttpd</td><td>CWE-121</td><td>If-Modified-Since → date2unix</td><td>low-priv</td><td>Local / toolchain</td></tr>
-      <tr><td>librtmp</td><td>CWE-125</td><td>AMF3 invoke</td><td>crash/leak</td><td>OOB read</td></tr>
-      <tr><td>mini_httpd htpasswd</td><td>CWE-78</td><td>argv[1] → system()</td><td>CLI local</td><td>Utilidad CLI</td></tr>
-      <tr><td>Webmin cpan</td><td>CWE-78</td><td>args → open(CMD,\|)</td><td>root</td><td>Post-auth</td></tr>
-      <tr><td>Usermin find.cgi</td><td>CWE-78</td><td>open(FIND,\|)</td><td>root</td><td>Post-auth</td></tr>
-      <tr><td>CUPSF</td><td>CWE-78</td><td>cupsICCProfile → foomaticrip</td><td>lp</td><td>LAN</td></tr>
+      <tr><th>Target</th><th>Resultado</th><th>Estado</th></tr>
+      <tr><td>CoovaChilli</td><td>RCE pre-auth 0-click (CWE-78)</td><td>abierto</td></tr>
+      <tr><td>wifidog</td><td>RCE pre-auth 1 request, root</td><td>abierto</td></tr>
+      <tr><td>libuhttpd</td><td>Stack overflow, control de flujo</td><td>abierto</td></tr>
+      <tr><td>Suite Webmin</td><td>4 sinks post-auth + trust-bypass</td><td>documentado</td></tr>
+      <tr><td>librtmp / mini_httpd</td><td>Info-leak + inyección local</td><td>documentado</td></tr>
     </tbody>
   </table>
 </div>
 
-<h2 id="s01"><span class="idx">02.</span> La doctrina de caza</h2>
-<p>El motor detrás de estos hallazgos no es un fuzzer genérico ni un escáner: es un pipeline multicapa con agentes de IA local que clasifica, audita, valida y documenta. La regla de oro es brutalmente simple: <b>sin crash reproducible no hay hallazgo</b>. Y el error de raíz que se corrigió fue la tentación del análisis estático puro (leer código y opinar) frente a la ingeniería inversa real (construir inputs que rompan el programa).</p>
-<div class="code-wrap"><span class="lang">txt</span><pre class="code"><code><span class="syn-c"># Las tácticas de caza que alimentaron los sinks de esta serie</span>
-<span class="syn-f">T1</span>  CVE→Variant Sweep  : tomar un CVE reciente, entender el fix, cazar la misma clase en otros paths
-<span class="syn-f">T6</span>  Helpers adjacent    : el core se endurece; los binarios de un solo propósito casi nunca
-<span class="syn-f">T7</span>  pppd/scripts admin  : scripts que el daemon ejecuta con campos del protocolo sin sanear
-<span class="syn-f">T8</span>  Trust-bypass family : headers/cookies de proxy → todos los sinks post-auth se vuelven candidatos
-<span class="syn-f">T9</span>  LTS embedded        : la rama dormida que master ya parcheó
-<span class="syn-f">T10</span> Heritage protocol   : bugs de 1994 copiados durante 30 años sin ser rehechos</code></pre></div>
-<p>Cada hallazgo de la serie nació de uno de estos patrones. CoovaChilli y la suite Webmin/Usermin son <b>T8</b> (confianza en la cadena EAP→RADIUS→script y en headers de proxy). wifidog y CUPS son <b>T7/T6</b> (scripts admin y helpers). La IA local procesa cientos de proyectos en paralelo y propone, pero la validación con sanitizers y la construcción de la cadena completa es lo único que separa un crash de un hallazgo. El sistema que lo ejecuta se documenta en la <a href="sherlock-caza-autonoma-ia-local.html">serie Sherlock</a>.</p>
-
-<h2 id="s02"><span class="idx">03.</span> El pipeline de validación E2E</h2>
-<p>El estándar para considerar "demostrado" un hallazgo es el <b>SOP de evidencia E2E en container</b>. Nada de "el código se ve vulnerable": cada fase de la cadena deja un marker y un log que se puede re-verificar. El patrón se aplicó igual en CoovaChilli, wifidog y libuhttpd.</p>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># La estructura canónica de validación (abreviada)</span>
-docker run -it --name &lt;target&gt;-e2e debian:12 bash
-<span class="syn-c"># 1. instalar deps, clonar y compilar el target (con ASAN en los C)</span>
-<span class="syn-c"># 2. escribir la suite que ejecuta la cadena y deja markers por fase</span>
-<span class="syn-c">#    .m_s01 .. .m_sNN  = cada eslabón (leak→write→control→pivot→log)</span>
-<span class="syn-c"># 3. capturar suite_output.log como evidencia final</span>
-<span class="syn-c"># 4. verificar el escenario REAL de deployment y el usuario del RCE</span>
-SUITE_RCE_DEFAULT=usuario_al_que_llega    <span class="syn-c"># p.ej. chilli:1000</span>
-SUITE_PIVOT_LOG=usuario_al_que_pivota     <span class="syn-c"># p.ej. root:0</span></code></pre></div>
-<p>Dos salidas del pipeline merecen mención por lo que enseñan. Un helper setuid root eleva el <code>euid</code> de un binario ELF pero <b>no</b> de un script con shebang, porque el kernel preserva el <code>real_uid</code> del intérprete; eso definió si un hallazgo terminaba en root o no. Y en libuhttpd, la dirección del stack difirió en <b>+0xC0 bytes</b> entre correr bajo <code>ptrace</code> (gdb) y correr nativo, y solo se resolvió reconstruyendo el layout en el run real.</p>
-
-<h2 id="s03"><span class="idx">04.</span> Primitivas vs productos: el umbral real</h2>
-<p>Una pregunta recurrente al evaluar estos hallazgos es si una librería (librtmp, libuhttpd) tiene el mismo valor que un producto. La línea divisoria honesta no es "es librería" ni "es producto", sino <b>"¿puedo demostrar ejecución de código en un escenario de despliegue real donde el código vulnerable sea alcanzable?"</b>.</p>
-<ul>
-  <li><b>RCE real demostrado</b> (ejecución de código, no solo crash): <a href="coovachilli-eap-identity-rce.html">CoovaChilli</a> (touch uid 0/1000), <a href="wifidog-host-header-rce.html">wifidog</a> (reverse shell root), <a href="libuhttpd-date2unix-stackoverflow.html">libuhttpd</a> (reverse shell low-priv), Webmin cpan (reverse shell), accel-ppp (markers root), CUPS (id/touch como lp).</li>
-  <li><b>Primitivas de solo lectura / N-day</b> sin cadena a RCE: <a href="autopsia-librtmp-minihttpd.html">librtmp</a> (OOB read AMF3, familia de CVE previos), <a href="autopsia-librtmp-minihttpd.html">mini_httpd</a> OOB read (heap underflow).</li>
-</ul>
-<p>CoovaChilli rindió una cadena completa con ejecución verificada; librtmp solo un leak. Esa diferencia —cadena a RCE frente a primitiva sin completar— define el interés real del hallazgo.</p>
-
-<h2 id="s04"><span class="idx">05.</span> Los posts individuales</h2>
-<p>Cada hallazgo tiene su análisis completo, con el sink línea a línea, PoCs y evidencias E2E.</p>
-<ul>
-  <li><a href="coovachilli-eap-identity-rce.html"><b>CoovaChilli: RCE vía EAP-Identity → conup (CWE-78)</b></a> — Un payload en el primer paquete pre-auth del handshake 802.1X viaja EAP→RADIUS→script sin sanitizar y acaba en un <code>eval</code>. RCE root o low-priv según deployment.</li>
-  <li><a href="wifidog-host-header-rce.html"><b>wifidog: RCE root vía cabecera Host (CWE-78)</b></a> — Un único request HTTP pre-auth con <code>Host</code> malicioso termina en un <code>execvp("/bin/sh","-c")</code> que construye iptables. Reverse shell root.</li>
-  <li><a href="libuhttpd-date2unix-stackoverflow.html"><b>libuhttpd: stack overflow en date2unix (CWE-121)</b></a> — Un header <code>If-Modified-Since</code> de 220 bytes desborda <code>buf[128]</code> y toma control del RIP con un decoder XOR in-stack.</li>
-  <li><a href="autopsia-librtmp-minihttpd.html"><b>librtmp AMF3 + mini_httpd htpasswd</b></a> — Dos primitivas reales: OOB read N-day en el decoder AMF3 y command injection CLI en htpasswd, con su cadena y limitaciones.</li>
-  <li><a href="suite-webmin-usermin-accelppp-cups.html"><b>Suite Webmin/Usermin/accel-ppp/CUPS</b></a> — Cuatro sinks de la familia de scripting servers + L2TP y CUPS, con el trust-bypass X-SSL-Client-* y su corrección de honestidad.</li>
-</ul>
-
-<div class="callout callout-info"><span class="ico">ℹ</span><div>
-  <div class="h">Sobre esta publicación</div>
-  <p>Todo el material se publica con fines de divulgación responsable: concienciación, hardening y análisis académico. Los detalles se presentan en su forma analítica —mecanismo, sink y cadena— sin distribuir un exploit listo para disparar contra producciones fuera de un proceso de divulgación. Los mantenedores de los targets afectados fueron contactados.</p>
+<div class="callout callout-info"><span class="ico">📊</span><div>
+  <div class="h">Veredicto</div>
+  <p>Serie que demuestra el método: la IA local genera candidatos y el pipeline E2E los convierte en hallazgos reales. Los RCE pre-auth de la serie son los que abren esta carpeta del portafolio.</p>
 </div></div>
 </article>
 <section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>20 min</span></div><div class="t">Sherlock: caza autónoma de vulnerabilidades con IA local</div><div class="d">Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con valid</div><span class="badge badge-rce">Serie</span></a><a class="card" href="libarchive-cab-lzx-uninitialized-memory.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>11 min</span></div><div class="t">libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing</div><div class="d">Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRU</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="7zip-isfolderencrypted-oob-read.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>18 min</span></div><div class="t">7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente</div><div class="d">El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes</div><span class="badge badge-rce">Vulnerability Research</span></a></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
 <div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

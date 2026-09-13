@@ -35,7 +35,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 
 </head>
@@ -48,331 +48,46 @@
   <div class="post-tags"><span class="chip">Threat Hunting</span><span class="chip">Malware Analysis</span><span class="chip">OSINT</span><span class="chip">Reversing</span></div>
   <h1>Threat Hunter Recollection: cinco investigaciones reales de caza</h1>
   <p class="lede">Bitácora de un año de caza: mapeo OSINT de una red de estafa piramidal, fraude con Lumma Stealer, deconstrucción de NetSupport RAT y un dropper multi-etapa. El hilo metodológico que conecta las cinco.</p>
-  <div class="post-meta"><span>📅 2026-05-24</span><span>⏱ 45 min</span><span>🏷 Threat Intelligence</span></div>
+  <div class="post-meta"><span>2026-05-24</span><span>45 min</span><span>Threat Intelligence</span></div>
 </header>
 <article class="post-body">
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>Nadie nace Threat Hunter: el perfil se fabrica caso a caso. Esta es la bitácora de cinco investigaciones reales que moldearon la metodología — con cada IoC, cada imagen y cada lección a la vista.</li>
-    <li><b>Estafa piramidal desmontada con OSINT</b>: un número sudafricano transformado en una red global vía VirusTotal Graph — dominios clonados, exchange falsos y una plantilla reciclada en un solo molde.</li>
-    <li><b>BEC alimentada por Lumma Stealer</b> → infraestructura robada en Kenia → crypto scam, con <b>blockchain forensics</b> siguiendo la wallet <code>bc1qxs8aunxd7kkdq8wz063r4tum2429s5llul33am</code>.</li>
-    <li><b>Dropper multi-etapa con API Hashing</b> (Nexilo-CC-Checker) diseccionado con Ghidra, volcado con Radare2 y triage automatizado con <a href="analystty.html">analystty</a>; y la <b>kill chain completa de NetSupport RAT</b>, del phishing de Druni al C2 rumano.</li>
+    <li>Bitácora de <b>cinco investigaciones reales</b> que forjaron la metodología de threat hunting — con IoCs, imágenes y lecciones.</li>
+    <li><b>Estafa piramidal</b> desmontada con OSINT: un número sudafricano → red global vía VirusTotal Graph (dominios clonados, exchanges falsos, plantilla reciclada).</li>
+    <li><b>BEC alimentada por Lumma Stealer</b> → infraestructura en Kenia → crypto scam, con blockchain forensics siguiendo la wallet <code>bc1qxs8aunxd7kkdq8wz063r4tum2429s5llul33am</code>.</li>
+    <li><b>Nexilo-CC-Checker</b> (dropper multi-etapa con API Hashing) en Ghidra/Radare2 + triage con <a href="analystty.html">analystty</a>; y la kill chain completa de <b>NetSupport RAT</b> (phishing Druni → C2 rumano).</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/threat_hunter_recollection · <span class="tw">9</span> secciones</summary>
-  <ol>
-    <li><a href="#a00">Resumen Técnico</a></li>
-    <li><a href="#a01">Por qué documento: la memoria del cazador</a></li>
-    <li><a href="#a02">Mapeando una red de estafa piramidal global</a></li>
-    <li><a href="#a03">Exponiendo una campaña multi-vector de fraude financiero</a></li>
-    <li><a href="#a04">Diseccionando Nexilo-CC-Checker</a></li>
-    <li><a href="#a05">Automatizando el triage con herramientas propias</a></li>
-    <li><a href="#a06">Deconstruyendo NetSupport RAT</a></li>
-    <li><a href="#a07">El hilo que lo conecta todo</a></li>
-    <li><a href="#a08">Referencias y enlaces</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>Nadie nace Threat Hunter: el perfil se construye caso a caso. Esta recopilación fija cinco investigaciones —de OSINT e infraestructura a malware y kill chain completa— con el detalle de cada IoC y la habilidad que cada caso consolidó. No es una colección de informes: es el plano de cómo se levanta el perfil desde cero.</p>
 
-<h2 id="a00"><span class="idx">01.</span> Resumen Técnico</h2>
+<h2 id="r01"><span class="idx">02.</span> Los cinco casos</h2>
 <div class="tbl-wrap">
   <table>
-    <thead>
-      <tr><th>#</th><th>Caso</th><th>Vector principal</th><th>Skill consolidada</th></tr>
-    </thead>
     <tbody>
-      <tr><td>01</td><td>Red de estafa piramidal global</td><td>Task scam vía WhatsApp/Telegram + pivoting sobre infraestructura</td><td>OSINT y mapeo de infraestructura</td></tr>
-      <tr><td>02</td><td>Fraude financiero multi-vector</td><td>Lumma Stealer → BEC → crypto scam</td><td>Threat intelligence y blockchain forensics</td></tr>
-      <tr><td>03</td><td>Nexilo-CC-Checker</td><td>Dropper multi-etapa con API Hashing y seis payloads</td><td>Ingeniería inversa estática y dinámica</td></tr>
-      <tr><td>04</td><td>Triage del dropper</td><td>dump.sh (Radare2) + analystty sobre Proxmox VE</td><td>Automatización del análisis</td></tr>
-      <tr><td>05</td><td>NetSupport RAT</td><td>Phishing suplantando a Druni → DLL Sideloading → C2</td><td>Análisis de kill chain completa</td></tr>
+      <tr><th>#</th><th>Caso</th><th>Skill consolidada</th></tr>
+      <tr><td>01</td><td>Red de estafa piramidal global</td><td>OSINT + mapeo de infraestructura</td></tr>
+      <tr><td>02</td><td>Fraude multi-vector (Lumma → BEC → crypto)</td><td>Threat intel + blockchain forensics</td></tr>
+      <tr><td>03</td><td>Nexilo-CC-Checker</td><td>Ingeniería inversa estática y dinámica</td></tr>
+      <tr><td>04</td><td>Triage con dump.sh + analystty</td><td>Automatización del análisis</td></tr>
+      <tr><td>05</td><td>NetSupport RAT (Druni → C2)</td><td>Kill chain completa</td></tr>
     </tbody>
   </table>
 </div>
 
-<h2 id="a01"><span class="idx">02.</span> Por qué documento: la memoria del cazador</h2>
-<p>Un cazador olvida rápido si no escribe. Cada investigación amontona IoCs, dominios, hashes e intuiciones que, sin registro, se pierden en cuestión de semanas. Y hay algo más valioso que cualquier indicador: la <b>habilidad</b> que cada caso deja grabada. Esta recopilación existe precisamente para fijar eso antes de que se disipe: no es una colección de informes, es el plano de cómo un perfil de caza se levanta desde cero en el laboratorio.</p>
-<p>Los cinco casos que siguen circularon primero como publicaciones independientes en LinkedIn y X bajo títulos como <em>La Red de Estafadores que Mapeé con VirusTotal</em>, <em>Exponiendo una Campaña Multi-Vector de Fraude Financiero</em>, <em>Análisis de Nexilo-CC-Checker</em>, <em>Detrás de Cámaras: Mi Triage</em> o <em>Deconstruyendo NetSupport RAT</em>. Juntos trazan la progresión real de capacidades que hoy sostienen mi trabajo: <b>OSINT, ingeniería inversa, análisis de malware, automatización de triage y threat intelligence aplicada</b>. Cada apartado cuenta el caso y remata con lo que me dejó.</p>
-
-<h2 id="a02"><span class="idx">03.</span> Mapeando una red de estafa piramidal global</h2>
-<p>Todo empezó con un mensaje que no pedía nada raro: un número sudafricano ofrecía dinero por «clasificar hoteles en Google Maps». Sospeché de inmediato, lo seguí hasta el final y fui publicando lo que encontraba en tiempo real en X. Aquella curiosidad destapó una operación de estafa piramidal de alcance global, con tentáculos en apuestas fraudulentas, exchanges falsos y robo de identidad corporativa. Fue mi bautismo de fuego en <b>OSINT aplicado a threat hunting</b>.</p>
-
-<h3 class="idx">Task scams: el contexto global</h3>
-<p>Las estafas de tareas son una plaga con cifras oficiales encima: según la FTC, solo en EE.UU. este formato provocó pérdidas cercanas a los <b>220 millones de dólares</b> durante el primer semestre de 2024. El guion nunca cambia: primero pagan micropagos para ganarse tu confianza; después exigen una «inversión» que jamás regresa. Lo que distingue a estas variantes es su disfraz perfecto de oferta legítima de teletrabajo.</p>
-
-<h3 class="idx">El vector de ingeniería social: WhatsApp, Telegram y un falso CEO</h3>
-<p>El contacto inicial llegó desde el número <code>+27610596209</code>, en Sudáfrica, un país cuyo mercado de SIM swapping medios como MyBroadband han señalado repetidamente como problemático. Por WhatsApp, con un español impecable, la víctima era informada de que «acababa de ser seleccionada para un empleo», alegando haber hallado su perfil en <b>Rekrute</b>, una plataforma de empleo francesa perfectamente legítima que había sufrido filtraciones previas.</p>
-<p>Superada la primera tarea de clasificación hotelera, entregaban un código para ascender de fase: pasar a hablar con la «Asistente» y el «CEO» por Telegram. Ahí estaba el salto de confianza: del chat informal de WhatsApp a la escenografía corporativa falsa montada en Telegram.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-26-perfil-falso-ceo-wtnbit.png" alt="Perfil falso del supuesto CEO de WTNBIT con logotipo corporativo robado de Poloniex" loading="lazy">
-  <figcaption class="figcap">El perfil del presunto gerente de WTNBIT, «Tadeo Ontiveros». El logotipo fue sustraído de Poloniex Exchange y superpuesto a una fotografía de archivo con traje: todo un montaje, y muy probablemente sin conocimiento de la persona cuya cara usan.</figcaption>
-</figure>
-<p>Al examinar el perfil del «CEO» los detalles se fueron apilando solos. El logotipo de la empresa inventada, <b>WTNBIT</b>, pertenecía en realidad a <b>Poloniex Exchange</b>, rebautizado sin más. A las víctimas les prometían pagos en USDT mediante «su plataforma»: un exchange falso construido por ellos mismos.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-29-phemex-logotipo-suplantado.jpg" alt="Logotipo de Phemex suplantado por la misma red de estafadores" loading="lazy">
-  <figcaption class="figcap">Phemex, otro exchange legítimo de criptomonedas cuyo branding reaparece suplantado dentro de esta misma red para dar apariencia de seriedad a sus sitios fraudulentos.</figcaption>
-</figure>
-<p>Los primeros movimientos de dinero corrían por bancos nacionales con importes pequeños, suficientes para construir confianza. Después llegaban las promesas de ganancias desorbitadas, siempre empujando a depositar en su plataforma de «exchange»; y una vez dentro, el dinero simplemente dejaba de existir. Era un esquema ponzi vestido de empleo remoto donde, en las rondas iniciales, eran las propias víctimas quienes pagaban a las víctimas.</p>
-
-<h3 class="idx">La revelación: infraestructura reciclada y pereza operacional</h3>
-<p>Al abrir el código fuente de la plataforma fraudulenta alojada en <code>vcimp[.]h21t[.]top</code> me encontré con un nivel de vagancia casi insultante. No había producto: había una plantilla HTML mal configurada reciclada para distintas marcas de fraude. Las mismas referencias a canales de Telegram, los mismos servicios de imágenes genéricos (<code>picsum.photos</code>) y las mismas hojas de estilo Bootstrap maliciosas servidas desde <code>lib.sinaapp.com</code> delataban un único grupo detrás de todas las operaciones.</p>
-<p>No ofuscaron absolutamente nada, así que recolecté datos sin resistencia. Di con otra copia del mismo exchange falso, algo más pulida estéticamente pero calcada en estructura, esta vez con el idioma por defecto en indonesio. El denominador común de todas ellas: hosting en Hong Kong.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-27-plataforma-falsa-vcimp-indonesio.jpeg" alt="Plataforma VCIMP falsa con idioma predefinido en indonesio" loading="lazy">
-  <figcaption class="figcap">La réplica VCIMP con idioma indonesio preseleccionado: mismo código fuente, misma estructura, distinto público objetivo. Campañas paralelas en varios idiomas operadas desde el mismo molde.</figcaption>
-</figure>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Comparativa con la industria: task scams y SIM swapping</div>
-  <p>Investigadores de DomainTools y ThousandGuards ya habían descrito cómo el clipboard poisoning y páginas CAPTCHA falsas sirven de vehículo para entregar malware como NetSupport RAT en campañas de task scams. Mi hallazgo aporta un matiz adicional: la misma plantilla reciclada sirve tanto para distintas víctimas como para distintos <em>nichos</em> de fraude (phishing laboral, crypto scam, apuestas ilegales). Esa transversalidad delata grupos criminalmente diversificados que explotan varias líneas de negocio ilícito sobre una sola columna vertebral técnica.</p>
+<div class="callout callout-info"><span class="ico">📊</span><div>
+  <div class="h">Veredicto</div>
+  <p>Portafolio de threat intel verificado con indicadores y trazabilidad. Los detalles por caso (grafo, wallet, decodificación) se resumen aquí; el análisis original profundiza cada investigación.</p>
 </div></div>
-<figure class="figure">
-  <img src="img/threat-hunter-25-virustotal-red-estafa-piramidal.jpeg" alt="Grafo de VirusTotal mostrando la red de estafa piramidal interconectada" loading="lazy">
-  <figcaption class="figcap">El grafo de VirusTotal que une toda la madeja: dominios de apuestas fraudulentas (1win.xyz, klinehappy.com), paneles administrativos expuestos (vcimp.h21t.top) y los números sudafricanos empleados en la ingeniería social.</figcaption>
-</figure>
-<p>El pivote con VirusTotal Graph sacó a la luz una infraestructura sorprendentemente amplia y sorprendentemente mal cuidada: series consecutivas de dominios clonados (<code>www.vcimpapp1.com</code> hasta <code>www.vcimpapp32.com</code>) resolviendo a IPs de Hong Kong con un error de base de datos MySQL expuesto a cualquiera.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-28-notas-shinyhunters-rekrute.png" alt="Notas de análisis vinculando el número sudafricano con la filtración de Rekrute por ShinyHunters" loading="lazy">
-  <figcaption class="figcap">Mis notas durante la investigación: la cadena entre el número sudafricano, la filtración de Rekrute atribuida a ShinyHunters y la reutilización de plantillas web que apuntan a los mismos canales de Telegram y backends.</figcaption>
-</figure>
-
-<h3 class="idx">La conexión con ShinyHunters y la filtración de Rekrute</h3>
-<p>¿Por qué justo Rekrute? Porque esa plataforma francesa de empleo arrastraba una filtración masiva de años atrás: entre las bases de datos que <b>ShinyHunters</b> filtró —y después vendió— en el mercado negro Empire figuraba precisamente la de Rekrute. Los estafadores no eligieron esa marca por azar: disponían de una base de personas buscando activamente empleo remoto, el cliente ideal para un task scam.</p>
-<p>El grafo de VirusTotal dejaba además un vínculo directo con ShinyHunters, citando coberturas de Cybernews, ZDNet y SecurityAffairs sobre sus filtraciones. La base comprometida que alimentaba el contactado de víctimas demostraba en la práctica cómo un breach puede convertirse en materia prima de fraudes masivos meses o incluso años después. Ese mismo patrón de fugas de información sobre infraestructura descuidada es el que crucé en la <a href="fakewealth-cmdxcapital.html">Operación FakeWealth contra cmdxcapital</a>, donde un <code>appDebug:true</code> en Laravel exponía consultas SQL, tokens y rutas internas del servidor.</p>
-<div class="callout callout-danger"><span class="ico">✕</span><div>
-  <div class="h">Conexión con ShinyHunters</div>
-  <p>Cruzar actores de amenaza con fraudes posteriores es, en esencia, el trabajo diario de un Threat Hunter: unir puntos que otros perciben como islas. La filtración de Rekrute no fue solo una pérdida de datos; fue el combustible de una operación de fraude aún viva mucho tiempo después del breach. Comprender el ciclo completo del dato filtrado —del robo a la monetización— es una competencia crítica de threat intelligence.</p>
-</div></div>
-
-<h3 class="idx">La vulnerabilidad reveladora: OpenSSH 7.4</h3>
-<p>Varios servidores de la red compartían una misma tarjeta de presentación: OpenSSH <b>7.4</b>, la versión publicada en diciembre de 2016 y cargada de CVEs conocidos. Al principio pareció una coincidencia irrelevante —servidores hongkoneses mezclando apuestas, exchanges falsos y portales de empleo trucho—, pero ese detalle técnico común confirmó lo obvio: una sola mano administraba todo. Aunque el fallo asociado se limitaba a enumeración de usuarios sin acceso remoto, la huella versional bastó para coser la red.</p>
-<p>Además compraban dominios a través de un servicio barato de reventa que aceptaba Bitcoin y USDT. Cuatro sitios del diagrama, cuando menos, compartían idéntico <code>index.html</code>: una plantilla genérica apuntando al mismo backend y saludando al mismo canal de Telegram. Sitios aislados, ninguno. La misma gente cambiándose el nombre.</p>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Lección aprendida: las migas de pan del adversario</div>
-  <p>Los ciberdelincuentes reciclan infraestructura y, al hacerlo, dejan rastro. Una consulta de Shodan por versión de OpenSSH, un vistazo al código de una plantilla o la correlación de canales de Telegram entre dominios pueden desnudar una red entera. La pereza operacional del adversario es el mejor aliado del cazador. El grafo completo está publicado en el <a href="https://www.linkedin.com/posts/tty503_ciberseguridad-seguridadinformaertica-phishing-share-7370947180028645376-CULY/" target="_blank" rel="noopener noreferrer">post original de LinkedIn</a> y el relato en vivo quedó en el hilo de <a href="https://x.com/tty_503/status/1888274753762283988" target="_blank" rel="noopener noreferrer">@tty_503</a>.</p>
-</div></div>
-<p>De este caso salió la idea que gobierna todos mis análisis posteriores: <b>la infraestructura es el talón de Aquiles del adversario</b>. Pivotar entre dominios, IPs, versiones de software y canales de Telegram no exige sofisticación alguna; exige curiosidad aplicada con método. Y funciona.</p>
-
-<h2 id="a03"><span class="idx">04.</span> Exponiendo una campaña multi-vector de fraude financiero</h2>
-<p>Semanas después de cerrar el caso piramidal, un cabo suelto en Telegram me condujo hacia una operación de otra liga. Aquí tocó aprender <b>análisis de infraestructura comprometida</b> y <b>rastreo financiero sobre blockchain</b> por las malas: siguiendo el dinero.</p>
-
-<h3 class="idx">El combustible: Lumma Stealer</h3>
-<p>El detonante fue un compromiso masivo de credenciales corporativas firmado por <b>Lumma Stealer</b>, un infostealer que se comercializa bajo modelo Malware-as-a-Service (MaaS). Su peligrosidad extra reside en que no se conforma con contraseñas: captura tokens 2FA y cookies de sesión, ampliando el radio de daño mucho más allá de un simple volcado de credenciales.</p>
-<p>En mayo de 2025 una operación internacional incautó 2.300 dominios de Lumma y dejó el ecosistema cojeando. Pero el MaaS demuestra una resiliencia notable: para julio de 2025 ya se detectaban signos de reactivación. Más tarde, Gen Threat Labs documentaría <b>Remus</b>, la variante de 64 bits de Lumma aparecida en febrero de 2026 e incorporando técnicas como EtherHiding para resolver sus C2.</p>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Lección de threat intelligence</div>
-  <p>Los takedowns duelen pero no matan. Lumma sobrevivió a perder 2.300 dominios porque su negocio —desarrolladores alquilando el malware a una red mundial de afiliados— no cuelga de ninguna infraestructura fija. Para un Threat Hunter esa lectura del <b>modelo económico del adversario</b> es tan necesaria como bloquear IoCs: sin ella, solo estás jugando al whack-a-mole.</p>
-</div></div>
-
-<h3 class="idx">BEC e infraestructura robada en África</h3>
-<p>Con las credenciales en la mano, los atacantes montaron un <b>Business Email Compromise (BEC)</b> apoyado en servidores de terceros comprometidos. Su escondite elegido: una VPS en Kenia con actividad visible en <b>Truehost Cloud</b> y <b>Cloudpap</b>.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-01-banner-esmtp-proxmox.jpeg" alt="Banner ESMTP de Proxmox Mail Gateway revelando la infraestructura de correo de los atacantes" loading="lazy">
-  <figcaption class="figcap">El banner del servidor no mintió: respuesta ESMTP de Proxmox en el puerto 26, evidenciando que el correo de la operación corría sobre Proxmox Mail Gateway en una VPS africana.</figcaption>
-</figure>
-<p>Escoger jurisdicciones con marcos regulatorios laxos no es casualidad ni mala suerte: es patrón. Diversas investigaciones de la industria coinciden en que los actores buscan países donde el derribo de un servidor cuesta semanas en lugar de horas.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-00-telegram-estafa-inversion.jpeg" alt="Cuenta de Telegram CMDX CAPITAL INVESTMENT COMPANY ofreciendo planes de inversión fraudulentos" loading="lazy">
-  <figcaption class="figcap">La cuenta «CMDX CAPITAL INVESTMENT COMPANY» vendiendo planes de inversión inexistentes. La ingeniería social hace de puente entre la infraestructura robada y la monetización final.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-04-sitio-fraudulento-geolocalizado.jpeg" alt="Sitio fraudulento cmdxcapital.com junto a su IP geolocalizada en Kenia" loading="lazy">
-  <figcaption class="figcap">cmdxcapital.com al descubierto junto a su IP geolocalizada en Kenia. Geolocalizar infraestructura es un arte menor que decide investigaciones enteras.</figcaption>
-</figure>
-
-<h3 class="idx">Siguiendo el dinero en la blockchain</h3>
-<p>La fase de cobro pasaba por billeteras cripto. La dirección Bitcoin <code>bc1qxs8aunxd7kkdq8wz063r4tum2429s5llul33am</code> registró movimiento entre el 8 y el 9 de septiembre de 2025. Esa destreza de <b>blockchain forensics</b> —leer transacciones sobre redes públicas para reconstruir patrones de fraude— es de las más solicitadas hoy en threat hunting, especialmente en ransomware y fraude financiero.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-02-rastreo-wallets-blockchain.jpeg" alt="Rastreo de wallets en USDT, Litecoin, Ethereum y Bitcoin utilizadas para monetizar el fraude" loading="lazy">
-  <figcaption class="figcap">El rastro del dinero: wallets en USDT, Litecoin, Ethereum y Bitcoin encargadas de la monetización. La transparencia de las blockchains públicas corta en ambos sentidos.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-03-iocs-dominios-clonados.jpeg" alt="Listado defanged de dominios fraudulentos de la campaña" loading="lazy">
-  <figcaption class="figcap">Dominios fraudulentos en formato defanged empleados por la misma campaña, incluidos stockmarketanalysis.live, apexreturns.live y vertexprimestock.com.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-05-vector-inicial-telegram.jpeg" alt="Cuenta de Telegram con número venezolano ofreciendo inversión fraudulenta" loading="lazy">
-  <figcaption class="figcap">La puerta de entrada: una cuenta de Telegram con número venezolano prometiendo oportunidades de inversión. La ingeniería social sigue siendo el punto de entrada universal.</figcaption>
-</figure>
-<div class="callout callout-danger"><span class="ico">✕</span><div>
-  <div class="h">Ciclo de ataque documentado</div>
-  <p><b>Lumma Stealer (credenciales) → BEC (infraestructura robada) → Crypto Scam (monetización)</b>. Este encadenamiento demuestra que detrás de un scam aparentemente burdo puede latir una operación seria de robo de activos corporativos. Publiqué los IoCs completos en el <a href="https://www.linkedin.com/posts/tty503_threatintelligence-ciberseguridad-bec-ugcPost-7385113809625088000-l8bP/" target="_blank" rel="noopener noreferrer">post original de LinkedIn</a>.</p>
-</div></div>
-
-<h2 id="a04"><span class="idx">05.</span> Diseccionando Nexilo-CC-Checker: un dropper multi-etapa</h2>
-<p>El tercer caso me metió de cabeza en el <b>reversing de malware</b>. Un binario de 14.4 MB que circulaba por canales de Telegram vendido como herramienta de carding resultó ser un dropper multi-etapa capaz de desplegar un arsenal de seis payloads distintos.</p>
-
-<h3 class="idx">Técnicas de evasión: API Hashing</h3>
-<p>Para esconder llamadas delicadas como <code>IsDebuggerPresent</code>, el binario recurrió a <b>API Hashing</b>: en lugar de declararlas en la tabla de importaciones, las resolvió en runtime mediante hashes —con la constante <code>0x2b992ddfa232</code> cargada en RAX— sin dejar cadenas reconocibles al análisis estático. Es una de las primeras murallas que todo analista aprende a saltarse, y Hasherezade la tiene documentada en profundidad. Mi <a href="myPracticalShellcodeC2.html">compendio de técnicas de inyección y evasión del C2 Builder</a> describe el mismo mecanismo desde la trinchera ofensiva: cómo se arma el API Hashing para burlar firmas estáticas.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-07-api-hashing-evasion-estatica.jpeg" alt="API Hashing: hash 0x2b992ddfa232 resuelto dinámicamente contra exportaciones de DLLs" loading="lazy">
-  <figcaption class="figcap">API Hashing en acción: el hash 0x2b992ddfa232 resuelto en runtime contra las exportaciones de las DLL del sistema. Contrastarlo con los análisis de Hasherezade sobre malware equivalente confirma cuán extendida está la técnica.</figcaption>
-</figure>
-<p>La función <code>FUN_140001010</code> marcaba el punto de no retorno de todo el dropper.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-06-dropper-ghidra-punto-no-retorno.jpeg" alt="Flujo de ejecución del dropper en Ghidra mostrando FUN_140001010 como punto de no retorno" loading="lazy">
-  <figcaption class="figcap">El punto de no retorno: FUN_140001010 dispara el despliegue completo. Saber localizar funciones bisagra así, dentro de Ghidra, es pan de cada día en análisis de malware.</figcaption>
-</figure>
-
-<h3 class="idx">La armada de payloads y la persistencia</h3>
-<p>El dropper sembraba seis payloads en <code>AppData\Roaming</code> con atributos <b>OCULTO + SISTEMA</b> y nombres calcados de procesos legítimos. Para sobrevivir al reinicio, se anclaba en la clave <code>Run</code> del Registro.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-08-instalacion-appdata-oculto-sistema.jpeg" alt="Instalación en AppData con SHGetFolderPathW y SetFileAttributesW flag 6" loading="lazy">
-  <figcaption class="figcap">La instalación silenciosa: SHGetFolderPathW, SetFileAttributesW con flag 6 (OCULTO + SISTEMA) y nombres de archivo diseñados para pasar desapercibidos.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-09-payloads-binarios-nuitka.jpeg" alt="Payloads desplegados incluyendo binario Nuitka de aproximadamente 12.8 MB" loading="lazy">
-  <figcaption class="figcap">Los payloads liberados: un binario Nuitka de ~12.8 MB (Python empaquetado) junto a los componentes auxiliares que completan la suite.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-13-registro-windows-clave-run-persistencia.jpeg" alt="Persistencia vía RegSetValueExA en la clave Run del Registro" loading="lazy">
-  <figcaption class="figcap">Persistencia clásica: RegSetValueExA escribiendo en la clave Run del Registro, técnica catalogada como T1547.001 en MITRE ATT&amp;CK y favorita histórica de familias enteras de malware.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-10-diagrama-ttps-dropper.jpeg" alt="Diagrama de secuencia de TTPs del dropper: evasión, dropping, instalación, camuflaje y ejecución" loading="lazy">
-  <figcaption class="figcap">El mapa TTP completo modelado como diagrama de secuencia: Evasión, Dropping, Instalación, Camuflaje y Ejecución. Documentar visualmente así es lo que permite traducir hallazgos a equipos no técnicos.</figcaption>
-</figure>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Comparativa con Maltiverse</div>
-  <p>La consulta posterior en Maltiverse ratificó la clasificación maliciosa y vinculó la muestra a familias como <b>Xworm, Svcstealer y Stealc</b>, con actividad de red atribuible a <b>RedLine Stealer y MetaStealer</b>. Que mi reversing manual converja con las detecciones automatizadas valida el análisis y subraya por qué conviene combinar ambas aproximaciones en lugar de elegir una.</p>
-</div></div>
-
-<h2 id="a05"><span class="idx">06.</span> Detrás de cámaras: automatizando el triage con herramientas propias</h2>
-<p>Analizar Nexilo-CC-Checker no fue sentarse a mirar. Con API Hashing de por medio, al binario hubo que arrancarle los secretos a la fuerza. Esa batalla es exactamente la que me enseñó a <b>automatizar el triage con herramientas hechas en casa</b>.</p>
-
-<h3 class="idx">El búnker: Proxmox VE</h3>
-<p>Todo análisis de malware con capacidades de evasión empieza por decidir dónde pelear. Yo trabajo sobre <b>Proxmox VE</b>: snapshots al instante, rollbacks limpios y aislamiento total. Ese mismo laboratorio queda descrito en la <a href="infraestructura-tunel-ofuscado.html">guía de infraestructura ofuscada con WireGuard y proxy residencial</a> que sostiene todas mis investigaciones.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-14-proxmox-entorno-aislado-analisis.jpeg" alt="Panel de Proxmox VE 9.0.3, nodo vms en 192.168.122.104" loading="lazy">
-  <figcaption class="figcap">Panel de Proxmox VE 9.0.3, nodo 'vms' en 192.168.122.104. Montar y gobernar entornos de análisis aislados es una de esas habilidades que las organizaciones dan por supuestas y pocas tienen realmente.</figcaption>
-</figure>
-
-<h3 class="idx">Forzando la mano: dump.sh</h3>
-<p>Escribí <code>dump.sh</code>, un script Bash que orquestaba la ejecución del binario bajo depuración con <b>Radare2</b> para volcar memoria de forma automática. El script se apoyaba en <code>functions_to_dump.txt</code>, un listado con las direcciones virtuales de memoria mapeadas módulo a módulo.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-11-script-dump-radare2-volcados.jpeg" alt="dump.sh automatizando volcados de memoria con Radare2" loading="lazy">
-  <figcaption class="figcap">dump.sh trabajando: dumps globales automatizados y extracción individual de funciones con Radare2. Automatizar no es capricho: es multiplicar tu alcance.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-12-volcados-masivos-funciones.jpeg" alt="Volcados completados junto al archivo functions_to_dump.txt con direcciones mapeadas" loading="lazy">
-  <figcaption class="figcap">A la izquierda, los volcados confirmados; a la derecha, functions_to_dump.txt con direcciones de memoria elegidas con bisturí.</figcaption>
-</figure>
-
-<h3 class="idx">analystty: la navaja suiza personal</h3>
-<p>Con los dumps sobre la mesa, <b>Ghidra</b> hizo el trabajo de decompilar a pseudo-C. Pero la verdadera palanca fue <b>analystty</b>, mi librería Python nacida originalmente para estudiar el ransomware Djvu y readaptada aquí para acelerar la detección de patrones maliciosos. La filosofía cabe en una frase: que la máquina haga lo repetitivo y el criterio humano quede para lo que de verdad importa.</p>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">El valor de las herramientas propias</div>
-  <p>En un mundo donde IDA Python y el scripting de Ghidra marcan el ritmo, construir tu propia herramienta como analystty acredita algo más grande que saber usar software: la capacidad de <b>resolver problemas de análisis escribiendo código</b>. Esa skill está desarrollada a fondo en <a href="analystty.html">analystty: automatizando el triage de malware PE con Python, Capstone y x64dbg</a>, y es justo la línea que separa a quien usa un arsenal de quien sabe fabricarlo.</p>
-</div></div>
-
-<h2 id="a06"><span class="idx">07.</span> Deconstruyendo NetSupport RAT: la kill chain completa</h2>
-<p>El quinto caso fue el más redondo en cuanto a <b>análisis de kill chain</b>: desde el correo de phishing hasta la conexión con el C2, sin saltarme ni un eslabón de la cadena de infección.</p>
-
-<h3 class="idx">Contexto global de NetSupport RAT</h3>
-<p>NetSupport Manager cerró 2024 como la séptima amenaza más prevalente. Cybereason documentó campañas repartiéndolo desde sitios WordPress con CAPTCHAs falsos, y ThousandGuards identificó combinaciones de clipboard poisoning con PowerShell ofuscado. Mi investigación se inscribe en ese contexto global pero suma un vector concreto: la suplantación de una marca española (Druni) respaldada por infraestructura nigeriana.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-15-phishing-suplantacion-druni.jpeg" alt="Correo de phishing suplantando a Druni detectado en Spam de Gmail" loading="lazy">
-  <figcaption class="figcap">El correo fraudulento descansando en la carpeta de Spam de Gmail. Detectar phishing desde tu propio buzón es el primer filtro de cualquier rutina de caza.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-16-spf-dkim-dmarc-autenticacion-correo.jpeg" alt="Cabeceras de autenticación: SPF PASS, DKIM PASS, DMARC FAIL" loading="lazy">
-  <figcaption class="figcap">Lectura de cabeceras: SPF PASS, DKIM PASS, DMARC FAIL. Dominar la autenticación de correo te permite desenmascarar suplantaciones aunque los filtros automáticos hayan pasado de largo.</figcaption>
-</figure>
-
-<h3 class="idx">Evasión y redirección</h3>
-<p>El enlace del correo conducía a un script <code>hreflon.htm</code> hospedado en <b>Google Cloud Storage</b>, abusando de la reputación de servicios de confianza para colarse ante SmartScreen. Apoyarse en nube legítima para servir carga hostil es una tendencia que ya han documentado múltiples investigadores.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-17-artefactos-forenses-listado.jpeg" alt="Artefactos forenses: .eml, file.ps1, hreflon.htm, index.html y archivos protegidos con contraseña" loading="lazy">
-  <figcaption class="figcap">Los artefactos recuperados de la campaña: el correo original en .eml, file.ps1, hreflon.htm, index.html y contenedores comprimidos con componentes maliciosos protegidos por contraseña.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-18-google-cloud-redireccion-phishing.jpeg" alt="Script hreflon.htm actuando como TDS desde Google Cloud Storage" loading="lazy">
-  <figcaption class="figcap">hreflon.htm haciendo de TDS: lee parámetros de la URL y despacha al dominio intermediario gremorygame.net.</figcaption>
-</figure>
-<p>El dominio de relevo <b>gremorygame[.]net</b> exhibía un inocente «Coming Soon» mientras el backend tramitaba la lógica maliciosa. Tapar la infraestructura tras fachadas inofensivas es un recurso que reaparece una y otra vez en campañas con oficio.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-21-pagina-senuelo-coming-soon.jpeg" alt="Página señuelo Coming Soon de gremorygame.net" loading="lazy">
-  <figcaption class="figcap">La fachada de gremorygame.net: una cortina perfectamente aburrida frente a las rutas hostiles del backend.</figcaption>
-</figure>
-
-<h3 class="idx">PowerShell ofuscado y DLL Sideloading</h3>
-<p>El script <code>file.ps1</code> apostó por ofuscación simple pero suficiente: trocear cadenas como <code>'iw'+'r'</code> para recomponer <code>Invoke-WebRequest</code> en memoria. El payload final ejecutó <b>DLL Sideloading</b> contra el ejecutable legítimo <code>client32.exe</code> de NetSupport Manager.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-19-powershell-ofuscado-file-ps1.jpeg" alt="file.ps1 con ofuscación de cadenas y ejecución fileless" loading="lazy">
-  <figcaption class="figcap">file.ps1 al detalle: ofuscación mínima y ejecución fileless. Leer y deshacer scripts hostiles es gimnasio diario del analista.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-20-netsupport-manager-dll-sideloading.jpeg" alt="Suite NetSupport Manager con client32.exe legítimo y DLLs troyanizadas" loading="lazy">
-  <figcaption class="figcap">La suite de NetSupport Manager: client32.exe intacto conviviendo con las DLL troyanizadas. Reconocer LOLBins y DLL Sideloading marca la diferencia entre un triage superficial y uno serio.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-22-authroot-lista-certificados.jpeg" alt="authroot.stl usado como camuflaje dentro de la carpeta de carga útil" loading="lazy">
-  <figcaption class="figcap">authroot.stl: una lista de certificados de Microsoft empleada como camuflaje. Saber distinguir el archivo legítimo usado de señuelo también es análisis de TTPs.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/threat-hunter-23-script-forense-sc-py.jpeg" alt="sc.py procesando 16 archivos del directorio hsmo generando reportes" loading="lazy">
-  <figcaption class="figcap">Mi script forense sc.py digiriendo 16 archivos y produciendo reportes individuales para cada DLL troyanizada.</figcaption>
-</figure>
-
-<h3 class="idx">La kill chain visualizada</h3>
-<p>El diagrama final cosecha todos los hallazgos en una sola imagen de la cadena de infección. Contar el ataque entero de un vistazo —esa aptitud de <b>comunicar técnica de forma visual</b>— es la que permite llevar inteligencia accionable a respuesta a incidentes y a direcciones que no van a leer un hexdump en su vida.</p>
-<figure class="figure">
-  <img src="img/threat-hunter-24-kill-chain-netsupport-rat-diagrama.jpeg" alt="Diagrama completo de la kill chain: de Druni al C2 de NetSupport RAT en Rumanía" loading="lazy">
-  <figcaption class="figcap">La campaña completa en un lienzo: del correo de phishing y Google Cloud Storage, pasando por el TDS y el PowerShell ofuscado, hasta el DLL Sideloading de NetSupport RAT y el beacon contra el C2 rumano (5.252.178.23).</figcaption>
-</figure>
-<div class="callout callout-danger"><span class="ico">✕</span><div>
-  <div class="h">IoCs clave de la campaña</div>
-  <ul>
-    <li>Dominio TDS: <code>gremorygame[.]net</code></li>
-    <li>Dominio de descarga: <code>techtalkcounty[.]com</code></li>
-    <li>C2 IP: <code>5.252.178.23</code> (Rumanía)</li>
-  </ul>
-</div></div>
-
-<h2 id="a07"><span class="idx">08.</span> El hilo que lo conecta todo: el perfil del Threat Hunter</h2>
-<p>Cinco casos, cinco vectores diferentes y un único denominador: <b>la metodología</b>. Si esta crónica prueba algo, es que un Threat Hunter no se decreta con certificaciones ni titulares: se consolida acumulando habilidades en el laboratorio y poniéndolas a prueba frente al adversario de verdad.</p>
-<p>Cada investigación fue un escalón en la escalera que hoy define mi perfil:</p>
-<ul>
-  <li><b>OSINT &amp; Infrastructure Mapping</b> — desarmar la red piramidal —del número sudafricano a los servidores hongkoneses con OpenSSH 7.4— me entrenó a pivotar sobre cada miga que deja el atacante.</li>
-  <li><b>Threat Intelligence &amp; Blockchain Forensics</b> — la campaña BEC me obligó a entender el ecosistema MaaS, seguir transacciones on-chain y conectar a ShinyHunters con fraudes financieros aún en marcha.</li>
-  <li><b>Ingeniería Inversa &amp; Análisis de Malware</b> — abrir en canal Nexilo-CC-Checker me dio el reverso estático y dinámico, de Ghidra al volcado de memoria con Radare2.</li>
-  <li><b>Automatización &amp; Desarrollo de Herramientas</b> — escribir dump.sh y analystty probó que puedo crear mi propio arsenal, no solo disparar el ajeno.</li>
-  <li><b>Análisis de Kill Chain Completa</b> — reconstruir NetSupport RAT del phishing al C2 me enseñó a narrar un ataque entero, de la ingeniería social a la persistencia.</li>
-</ul>
-<div class="callout callout-info"><span class="ico">▣</span><div>
-  <div class="h">Por qué este perfil es relevante</div>
-  <p>El threat hunting va mucho más allá de encontrar malware: consiste en enlazar puntos que otros ven separados. En entender que un teléfono sudafricano, una VPS keniata, un dropper en Telegram y un correo suplantando a Druni pueden pertenecer al mismo rompecabezas. En asumir que los IoCs caducan mientras las TTPs permanecen. En poder construir la herramienta cuando ninguna existente alcanza.</p>
-</div></div>
-<p>Frente a un ecosistema donde los actores mutan más deprisa que las defensas —Lumma esquivando takedowns masivos, NetSupport migrando al clipboard poisoning, task scams ramificándose hacia el criptofraude—, las organizaciones necesitan <b>cazadores que no solo manejen herramientas, sino que comprendan al adversario</b>.</p>
-<p>Esta recopilación es mi prueba. No pretende ser currículum: es el cuaderno de bitácora de alguien que sigue aprendiendo, construyendo y documentando. Porque la inteligencia de amenazas guardada en silencio es apenas un archivo en un disco; la que se contextualiza y comparte se convierte en <b>blindaje para toda la comunidad</b>.</p>
-<p>El laboratorio sigue encendido. Los canales de Telegram siguen vigilados. Las muestras siguen entrando. <b>La crónica continuará.</b></p>
-
-<h2 id="a08"><span class="idx">09.</span> Referencias y enlaces</h2>
-<ul>
-  <li><a href="https://x.com/tty_503/status/1888274753762283988" target="_blank" rel="noopener noreferrer">Hilo original en X: historia del ejercicio de OSINT de la red de estafa piramidal</a></li>
-  <li><a href="https://www.linkedin.com/posts/tty503_ciberseguridad-seguridadinformaertica-phishing-share-7370947180028645376-CULY/" target="_blank" rel="noopener noreferrer">Post original: la red de estafadores que mapeé con VirusTotal</a></li>
-  <li><a href="https://www.linkedin.com/posts/tty503_threatintelligence-ciberseguridad-bec-ugcPost-7385113809625088000-l8bP/" target="_blank" rel="noopener noreferrer">Post original: exponiendo una campaña multi-vector de fraude financiero</a></li>
-  <li><a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-clipper-ugcPost-7392043572163661824-AFeZ/" target="_blank" rel="noopener noreferrer">Post original: análisis de Nexilo-CC-Checker (mod-main)</a></li>
-  <li><a href="https://www.linkedin.com/posts/tty503_malwareanalysis-threatintelligence-proxmox-ugcPost-7392246317483315200-hz5X/" target="_blank" rel="noopener noreferrer">Post original: detrás de cámaras — mi triage de un dropper malicioso</a></li>
-  <li><a href="https://www.linkedin.com/posts/tty503_ciberseguridad-malwareanalysis-threatintel-ugcPost-7401771334181232640-FMcc/" target="_blank" rel="noopener noreferrer">Post original: deconstruyendo una campaña activa de NetSupport RAT</a></li>
-  <li><a href="https://www.bleepingcomputer.com/news/security/lummastealer-infections-surge-after-castleloader-malware-campaigns/" target="_blank" rel="noopener noreferrer">LummaStealer infections surge after CastleLoader campaigns — BleepingComputer</a></li>
-  <li><a href="https://www.cybereason.com/blog/net-support-rat-wordpress-clickfix" target="_blank" rel="noopener noreferrer">Deploying NetSupport RAT via WordPress &amp; ClickFix — Cybereason</a></li>
-  <li><a href="https://www.gendigital.com/blog/insights/research/remus-64bit-variant-of-lumma-stealer" target="_blank" rel="noopener noreferrer">Remus: the 64-bit variant of Lumma Stealer — Gen Threat Labs</a></li>
-  <li><a href="https://www.thousandguards.com/post/the-clipboard-falls-in-the-net-support-scam" target="_blank" rel="noopener noreferrer">The Clipboard Falls in the (Net)Support Scam — ThousandGuards</a></li>
-  <li><a href="https://maltiverse.com/intelligence/sample/d392b1d2ce4e86acc47487351c9f1bc779e421e70a44849d14b8cff69ece538f" target="_blank" rel="noopener noreferrer">Maltiverse Sample Analysis: Nexilo-CC-Checker-Updated.exe</a></li>
-  <li><a href="analystty.html">analystty: automatizando el triage de malware PE con Python, Capstone y x64dbg</a></li>
-  <li><a href="myPracticalShellcodeC2.html">De la shellcode artesanal al C2 Builder — compendio de técnicas de inyección</a></li>
-  <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura ofuscada: WireGuard sobre TCP falso + proxy residencial</a></li>
-  <li><a href="fakewealth-cmdxcapital.html">Operación FakeWealth: inteligencia de amenazas sobre cmdxcapital</a></li>
-  <li><a href="pigbutchering-bybsusd.html">Red de estafa Pig Butchering — fake crypto exchange multi-dominio</a></li>
-</ul>
 </article>
 <section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="pigbutchering-bybsusd.html"><span class="arrow">→</span><div class="meta"><span>2026-05-26</span><span>30 min</span></div><div class="t">Pig butchering: deconstrucción de un exchange falso en Vue3 con WebSocket</div><div class="d">Análisis forense de un exchange falso con frontend Vue3, WebSocket real-time en Hong Kong y el backend que entrega la cl</div><span class="badge badge-ti">Threat Intelligence</span></a><a class="card" href="fakewealth-cmdxcapital.html"><span class="arrow">→</span><div class="meta"><span>2025-10-15</span><span>60 min</span></div><div class="t">cmdxcapital: fuga de datos en Laravel por appDebug activo</div><div class="d">El modo depuración de Laravel en producción expuso consultas SQL, tokens y rutas del servidor. Diez dominios satélite ba</div><span class="badge badge-ti">Threat Intelligence</span></a><a class="card" href="operation-general-jp-silentwarn.html"><span class="arrow">→</span><div class="meta"><span>2025-06-15</span><span>15 min</span></div><div class="t">General JP y SilentWarn: dos campañas de phishing conectadas</div><div class="d">General JP: redirección multi-capa, Google Cloud Storage y kit PHP con exfiltración a Telegram. SilentWarn: SPA React co</div><span class="badge badge-ti">Threat Intelligence</span></a></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
 <div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

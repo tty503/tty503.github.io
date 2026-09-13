@@ -1,173 +1,31 @@
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li><b>SAINT GRAIL</b> es una plataforma modular para <b>documentar, visualizar y ejecutar investigaciones de seguridad ofensiva</b>: backend Flask + SurrealDB embebida, frontend de grafo interactivo (HTML5 Canvas + vanilla JS), dashboard administrativo y utilidades CLI.</li>
-    <li>Integra <b>DeepWiki</b> para generar preguntas contextuales sobre componentes concretos y <b>DeepSeek</b> para clasificar el riesgo de las respuestas — el «agente híbrido» donde IA y analista se complementan.</li>
-    <li>Respuestas de riesgo alto crean <b>automáticamente nodos <span class="mono">primitive</span></b>, generan un PoC y lo ejecutan, todo registrado en un grafo con taxonomía de nodos (phase ▢, vector ○, primitive △, barrier ◇, research ▭).</li>
-    <li>Diseño KISS + filosofía Unix: cada módulo con una responsabilidad única; orquestador <span class="mono">saint_grail.sh</span> con control del <b>presupuesto de tokens</b>.</li>
-    <li>Todas las capturas son de <b>prueba</b> (datos genéricos «GenericApp»); el proyecto aún no es público — comparto ideas, no código a medias.</li>
+    <li><b>SAINT GRAIL</b>: plataforma modular para <b>documentar, visualizar y ejecutar investigaciones ofensivas</b> — Flask + SurrealDB embebida, grafo interactivo (Canvas + vanilla JS), dashboard y CLI.</li>
+    <li>Integra <b>DeepWiki</b> para preguntas contextuales de componentes y <b>DeepSeek</b> para clasificar riesgo — el agente híbrido donde IA y analista se complementan.</li>
+    <li>Respuestas de riesgo alto crean <b>nodos primitive</b> automáticamente, generan y ejecutan un PoC, todo en un grafo con taxonomía (phase ▢, vector ○, primitive △, barrier ◇, research ▭).</li>
+    <li>KISS + filosofía Unix, orquestador con control de <b>presupuesto de tokens</b>. Capturas de prueba con datos "GenericApp"; no es público aún.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/índice · <span class="tw">7</span> secciones</summary>
-  <ol>
-    <li><a href="#a00">Motivación: el bug hunting no es un sprint</a></li>
-    <li><a href="#a01">¿Qué es SAINT GRAIL?</a></li>
-    <li><a href="#a02">Arquitectura y componentes</a></li>
-    <li><a href="#a03">El agente híbrido y DeepWiki</a></li>
-    <li><a href="#a04">Dashboard y flujo de trabajo</a></li>
-    <li><a href="#a05">Estado actual y próximos pasos</a></li>
-    <li><a href="#a06">Referencias y enlaces</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>SAINT GRAIL nació de la inquietud de multiplicar la capacidad de investigación: documentar cada paso, visualizar relaciones y acelerar con IA. La idea fundacional es que la IA no reemplaza al analista — lo potencia: genera vectores desde hallazgos open-source, clasifica respuestas y arma primitivas explotables en un grafo trazable.</p>
+<p>El proyecto está funcional pero no es público: las capturas mostradas usan un programa ficticio ("GenericApp") para no exponer investigación real.</p>
 
-<h2 id="a00"><span class="idx">01.</span> Motivación: el bug hunting no es un sprint</h2>
-<p>Durante años, colegas me han sugerido meterse de lleno al <b>bug hunting</b>. Y la idea es tentadora. Pero cualquiera que haya intentado vivir de esto sabe que <b>los años de investigación no siempre se traducen en ingresos estables</b>: fuga de cerebros hacia las FAANG, competencia feroz, y un solo bug puede llevarte semanas sin garantía de recompensa — la ecuación no es sencilla.</p>
-<p>La inquietud por explorar vulnerabilidades, sin embargo, nunca desapareció. Lo que necesitaba era <b>un sistema que multiplicara mi capacidad de investigación</b>: documentar cada paso, visualizar relaciones entre componentes e <b>integrar IA para acelerar el proceso</b>. Así nació SAINT GRAIL.</p>
-<div class="callout callout-info"><span class="ico">📊</span><div>
-  <div class="h">Nota sobre los datos</div>
-  <p>Todas las capturas y datos de este artículo son de <b>prueba</b>, usando un conjunto genérico (un programa ficticio llamado «GenericApp») para no exponer la investigación real. La plataforma es completamente funcional, pero los vectores, fases y primitivas visibles son placeholders.</p>
-</div></div>
-
-<h2 id="a01"><span class="idx">02.</span> ¿Qué es SAINT GRAIL?</h2>
-<p>Una <b>plataforma modular para documentar, visualizar y ejecutar investigaciones de seguridad ofensiva</b>. Combina API REST con SurrealDB embebida, frontend de grafo interactivo y utilidades CLI — todo editable directamente, sin dependencias de frameworks pesados. El objetivo: <b>un copiloto de investigación que no reemplace al analista, sino que lo potencie</b>.</p>
-<ul>
-  <li>Crear <b>vectores de ataque</b> a partir de hallazgos en proyectos open-source.</li>
-  <li>Generar <b>preguntas contextuales</b> con DeepWiki para profundizar en componentes específicos.</li>
-  <li>Clasificar respuestas con IA (DeepSeek en mis pruebas) y <b>crear automáticamente primitivas explotables</b>.</li>
-  <li>Ejecutar PoCs y registrar resultados en un ciclo de mejora continua.</li>
-  <li>Visualizar el progreso en un <b>grafo interactivo</b>: fases, vectores, brechas y primitivas.</li>
-</ul>
-<div class="callout callout-warn"><span class="ico">🔧</span><div>
-  <div class="h">¿Por qué no es público todavía?</div>
-  <p>El sistema aún no está lo bastante maduro para liberarlo como open-source: piezas por pulir, documentación y pruebas de estrés pendientes. Comparto los avances porque la comunidad puede beneficiarse de las ideas, aunque el código no esté listo para consumo masivo.</p>
-</div></div>
-
-<h2 id="a02"><span class="idx">03.</span> Arquitectura y componentes</h2>
-<p>La plataforma sigue <b>KISS (Keep It Simple, Stupid)</b> y la <b>filosofía Unix</b>: cada módulo tiene una responsabilidad única y se comunica por APIs bien definidas.</p>
-<div class="code-wrap"><span class="lang">tree</span><pre class="code"><code><span class="syn-c"># Árbol simplificado de SAINT GRAIL</span>
-saint-grail/
-├── api/                    <span class="syn-c"># Backend Flask + SurrealDB</span>
-│   ├── server.py           <span class="syn-c"># Arranque de la app Flask</span>
-│   ├── storage.py          <span class="syn-c"># Capa de persistencia (SurrealDB)</span>
-│   ├── llm.py              <span class="syn-c"># Cliente DeepSeek, token budget</span>
-│   ├── deepwiki.py         <span class="syn-c"># Generación de preguntas DeepWiki</span>
-│   └── routes/
-│       ├── agent.py        <span class="syn-c"># Agente híbrido (bucle DeepWiki)</span>
-│       ├── ingest.py       <span class="syn-c"># Ingesta de datos, PoC</span>
-│       └── ...
-├── graph/                  <span class="syn-c"># Frontend del grafo (HTML5 Canvas)</span>
-├── admin/                  <span class="syn-c"># Dashboard de administración</span>
-├── utils/                  <span class="syn-c"># Scripts auxiliares (fetch_commits, etc.)</span>
-├── config/
-│   └── saint-grail.conf    <span class="syn-c"># Configuración global (tokens, GitHub)</span>
-└── data/                   <span class="syn-c"># Base de datos SurrealDB + JSONs</span></code></pre></div>
-<h3>Backend y base de datos</h3>
-<p>La API usa <b>Flask</b> con <b>SurrealDB</b> en modo embebido: sin servidor de base de datos externo, todo en un archivo local. La taxonomía de nodos del grafo:</p>
+<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
 <div class="tbl-wrap">
   <table>
-    <thead><tr><th>Kind</th><th>Forma en el grafo</th><th>Descripción</th></tr></thead>
     <tbody>
-      <tr><td class="mono">phase</td><td>Cuadrado</td><td>Fases de la cadena de ataque</td></tr>
-      <tr><td class="mono">vector</td><td>Círculo</td><td>Vectores de ataque específicos</td></tr>
-      <tr><td class="mono">primitive</td><td>Triángulo</td><td>Primitivas explotables (addr_of, fake_obj, etc.)</td></tr>
-      <tr><td class="mono">barrier</td><td>Rombo</td><td>Brechas o bloqueantes</td></tr>
-      <tr><td class="mono">research</td><td>Rectángulo</td><td>Preguntas DeepWiki o referencias externas</td></tr>
+      <tr><th>Stack</th><td>Flask · SurrealDB embebida · Canvas/vanilla JS · CLI</td></tr>
+      <tr><th>IA</th><td>DeepWiki (preguntas) + DeepSeek (clasificación de riesgo)</td></tr>
+      <tr><th>Grafo</th><td>phase ▢ · vector ○ · primitive △ · barrier ◇ · research ▭</td></tr>
+      <tr><th>Estado</th><td>Funcional, no público · datos de prueba</td></tr>
+      <tr><th>Continuación</th><td>Migrado a Go → <a href="saint-grail-go.html">SAINT GRAIL Go</a></td></tr>
     </tbody>
   </table>
 </div>
-<p>La API expone CRUD de datos, ingesta de hallazgos desde DeepWiki, creación/ejecución de PoCs, sincronización P2P entre instancias y el ciclo completo del agente híbrido.</p>
-<figure class="figure">
-  <img src="img/saint-grail-arquitectura-componentes-api-dashboard.png" alt="Resumen detallado de la arquitectura de componentes de SAINT GRAIL: API, frontend, dashboard y utilidades" loading="lazy">
-  <figcaption class="figcap">Arquitectura de componentes — el resumen completo del sistema que este artículo desglosa.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/saint-grail-documentacion-api-endpoints-rest.png" alt="Interfaz Swagger mostrando los endpoints REST de la API de SAINT GRAIL" loading="lazy">
-  <figcaption class="figcap">Documentación Swagger de la API REST — los endpoints expuestos por el backend.</figcaption>
-</figure>
-<h3>Orquestador y línea de comandos</h3>
-<p>Todo se controla desde <span class="mono">saint_grail.sh</span>, un orquestador Bash que inicia servicios, muestra estado, ejecuta el agente y monitoriza el presupuesto de tokens de DeepSeek.</p>
-<figure class="figure">
-  <img src="img/saint-grail-consola-comandos-orquestador.png" alt="Menú de ayuda del script orquestador con todos los comandos disponibles de SAINT GRAIL" loading="lazy">
-  <figcaption class="figcap">Menú de ayuda del orquestador — todos los comandos disponibles desde la CLI.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/saint-grail-status-orquestador-presupuesto-tokens.png" alt="Estado en tiempo real del orquestador: API, presupuesto de tokens y ciclo de trabajo" loading="lazy">
-  <figcaption class="figcap">Estado en tiempo real — API, presupuesto de tokens y ciclo de trabajo del agente.</figcaption>
-</figure>
 
-<h2 id="a03"><span class="idx">04.</span> El agente híbrido y DeepWiki</h2>
-<p>La característica más potente: el <b>agente híbrido de investigación</b>, un ciclo donde la IA y el analista se complementan:</p>
-<ol>
-  <li><b>Selección automática:</b> el bucle toma el primer vector activo que no esté en un estado final.</li>
-  <li><b>Generación de preguntas DeepWiki:</b> <span class="mono">deepwiki.py</span> crea preguntas contextuales en español según componente, archivos de auditoría y tipo de vector. Ejemplo: <i>«En el canal IPC, ¿se validan los tamaños de los mensajes antes de asignar buffers? ¿Es posible enviar un mensaje manipulado que provoque corrupción de memoria?»</i></li>
-  <li><b>Intervención humana:</b> el nodo se pausa en <span class="mono">AWAITING_DEEPWIKI</span> y las preguntas aparecen en el dashboard; el analista investiga y responde.</li>
-  <li><b>Clasificación y acción:</b> <span class="mono">/api/agent/deepwiki/answer</span> clasifica el riesgo con DeepSeek (o por palabras clave si el presupuesto de tokens está agotado). Riesgo <b>alto</b> → nuevo nodo <span class="mono">primitive</span> automático, PoC generado y ejecutado.</li>
-</ol>
-<div class="callout callout-info"><span class="ico">🤖</span><div>
-  <div class="h">DeepSeek como LLM de pruebas</div>
-  <p>Usé <b>DeepSeek</b> (modelo gratuito con límite diario de tokens) para toda la integración. La plataforma es <b>agnóstica al proveedor</b>: cualquier API compatible con OpenAI se configura en <span class="mono">saint-grail.conf</span>.</p>
+<div class="callout callout-info"><span class="ico">📊</span><div>
+  <div class="h">Veredicto</div>
+  <p>Plataforma de investigación propia (copiloto de bug hunting) con arquitectura documentada. La continuación en Go ya produjo PoCs concretos — ver la siguiente entrega.</p>
 </div></div>
-<figure class="figure">
-  <img src="img/saint-grail-dashboard-flujo-hibrido-agentes.png" alt="Dashboard del flujo híbrido: preguntas DeepWiki pendientes, primitivas creadas y ejecución manual de PoCs" loading="lazy">
-  <figcaption class="figcap">Dashboard del flujo híbrido — preguntas DeepWiki pendientes, primitivas creadas y ejecución manual de PoCs.</figcaption>
-</figure>
-
-<h2 id="a04"><span class="idx">05.</span> Dashboard y flujo de trabajo</h2>
-<p>El dashboard es el centro de mando: todo el ciclo de investigación, desde la creación de vectores hasta la validación de integridad.</p>
-<h3>Visión general y progreso</h3>
-<p>La pantalla principal muestra el progreso global: fases desde «Reconocimiento» hasta «Escape Lógico», cada una con sus vectores y primitivas asociados.</p>
-<figure class="figure">
-  <img src="img/saint-grail-progreso-global-fases-dashboard.png" alt="Resumen del progreso de fases y estado de integración de nodos en el dashboard de SAINT GRAIL" loading="lazy">
-  <figcaption class="figcap">Progreso global — fases y estado de integración de nodos.</figcaption>
-</figure>
-<h3>Grafo interactivo</h3>
-<p>El frontend del grafo renderiza los nodos según su <span class="mono">kind</span> y los colorea por estado; el panel de detalles muestra auditoría, PoC, logs y preguntas DeepWiki respondidas.</p>
-<figure class="figure">
-  <img src="img/saint-grail-grafo-interfaz-principal-fases.png" alt="Grafo interactivo de SAINT GRAIL mostrando fases, vectores y el detalle del nodo seleccionado" loading="lazy">
-  <figcaption class="figcap">Grafo interactivo — fases, vectores y detalle del nodo seleccionado.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/saint-grail-detalle-tecnico-nodo-mitre.png" alt="Panel de detalle técnico de un nodo vector con auditoría, referencias MITRE y más" loading="lazy">
-  <figcaption class="figcap">Detalle técnico de un nodo — auditoría, referencias MITRE y más.</figcaption>
-</figure>
-<h3>Editor de datos y carga de JSON</h3>
-<figure class="figure">
-  <img src="img/saint-grail-editor-vectores-ataque.png" alt="Editor de datos de SAINT GRAIL: creación rápida de vectores de ataque y gestión de nodos" loading="lazy">
-  <figcaption class="figcap">Editor de datos — creación rápida de vectores y gestión de nodos.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/saint-grail-gestion-configuracion-json.png" alt="Panel de carga y descarga de datasets completos en formato JSON de SAINT GRAIL" loading="lazy">
-  <figcaption class="figcap">Carga/descarga JSON — importar y exportar datasets completos.</figcaption>
-</figure>
-<h3>Validación de integridad</h3>
-<p>Con el tiempo los nodos acumulan referencias a logs o commits que ya no existen; el panel valida y limpia <b>referencias rotas</b> para mantener la base consistente.</p>
-<figure class="figure">
-  <img src="img/saint-grail-panel-validacion-integridad-referencias.png" alt="Panel de validación de integridad que verifica y limpia referencias a logs inexistentes" loading="lazy">
-  <figcaption class="figcap">Validación de integridad — verificación y limpieza de referencias rotas.</figcaption>
-</figure>
-
-<h2 id="a05"><span class="idx">06.</span> Estado actual y próximos pasos</h2>
-<p>SAINT GRAIL ya es funcional en mi entorno de desarrollo: el agente híbrido genera preguntas, el dashboard permite responderlas, se crean primitivas automáticamente y los PoCs se ejecutan. <b>Aún no está listo para producción ni para un repo público.</b> Tareas pendientes:</p>
-<ul>
-  <li>Completar la <b>ejecución real de PoCs</b> (hoy simulada en muchos endpoints).</li>
-  <li>Migrar de los generadores Bash (<span class="mono">gen_*.sh</span>) a una estructura de proyecto estable — aunque han sido increíblemente útiles para prototipado rápido.</li>
-  <li>Mejorar la UI/UX del dashboard para hacer el flujo más intuitivo.</li>
-  <li>Añadir tests automatizados para el ciclo completo del agente híbrido.</li>
-  <li>Explorar integraciones con otros modelos más allá de DeepSeek.</li>
-</ul>
-<div class="callout callout-warn"><span class="ico">🚀</span><div>
-  <div class="h">¿Cuándo será público?</div>
-  <p>Cuando el código esté en un estado digno de compartir — no me gusta liberar proyectos a medias. Mientras tanto, este artículo y las actualizaciones del blog son el canal.</p>
-</div></div>
-<p>Lo que más me entusiasma es el potencial de <b>DeepWiki como fuente de contexto</b>: generar preguntas específicas sobre archivos de código, commits y componentes abre una investigación semi-automatizada que no he visto en otras herramientas. No se trata de reemplazar al analista, sino de <b>darle superpoderes</b>.</p>
-
-<h2 id="a06"><span class="idx">07.</span> Referencias y enlaces</h2>
-<ul>
-  <li><a href="https://deepseek.com" target="_blank" rel="noopener noreferrer">DeepSeek API</a> — modelo de lenguaje usado en las pruebas.</li>
-  <li><a href="https://surrealdb.com" target="_blank" rel="noopener noreferrer">SurrealDB</a> — base de datos multimodelo embebida.</li>
-  <li><a href="https://flask.palletsprojects.com" target="_blank" rel="noopener noreferrer">Flask</a> — microframework web para Python.</li>
-  <li>MITRE ATT&amp;CK — framework de tácticas y técnicas usado en la taxonomía de nodos.</li>
-  <li>Sigue la evolución en <a href="saint-grail-go.html">SAINT GRAIL en Go</a>.</li>
-</ul>

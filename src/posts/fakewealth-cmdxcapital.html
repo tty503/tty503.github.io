@@ -1,170 +1,32 @@
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>Campaña de fraude financiero bajo <b>cmdxcapital.com</b> con <b>10+ dominios satélite</b> tras Cloudflare — y un error que ninguna otra campaña había cometido: <b>APP_DEBUG=true en producción</b> (Laravel 8.83.25 / PHP 8.3.15) que expuso consultas SQL, tokens de sesión y la ruta absoluta del servidor.</li>
-    <li>El crash venía de <code>Swift_Transport_StreamBuffer.php:291</code> → <code>proc_open()</code> deshabilitada en php.ini al intentar enviar un <code>WelcomeEmail</code> con SwiftMailer durante el registro.</li>
-    <li><b>Trazabilidad total</b>: la marca hereda el historial de <b>Bremby (bremby.biz)</b> — 13 reportes de estafa, <b>$174,664 en depósitos fraudulentos</b>, mismo registrador (NameCheap), mismo CDN y misma plantilla HTML.</li>
-    <li>Captcha trivial (input oculto estático <code>captcha_confirmation=61416</code>), wallet BTC migrada a <b>Bech32 sin historial</b> (<code>bc1q…elsa</code>), suplantación de <b>Companies House UK N° 13699699</b> (disuelta 2023) y smurfing en USDT TRC20.</li>
+    <li>Campaña de fraude bajo <b>cmdxcapital.com</b> con <b>10+ dominios satélite</b> tras Cloudflare y un error inédito en el sector: <b>APP_DEBUG=true en producción</b> (Laravel 8.83.25 / PHP 8.3.15) que expuso SQL, tokens de sesión y la ruta absoluta del server.</li>
+    <li>Crash de <code>Swift_Transport_StreamBuffer.php:291</code> → <code>proc_open()</code> deshabilitada al enviar el <code>WelcomeEmail</code> en el registro.</li>
+    <li><b>Trazabilidad total</b>: la marca hereda a <b>Bremby (bremby.biz)</b> — 13 reportes, <b>$174,664 en depósitos</b>, mismo registrador (NameCheap), mismo CDN y plantilla.</li>
+    <li>Captcha trivial, wallet BTC emergente <code>bc1q…elsa</code>, suplantación de <b>Companies House UK N° 13699699</b> (disuelta 2023) y smurfing USDT TRC20.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/operacion_fakewealth · <span class="tw">9</span> secciones</summary>
-  <ol>
-    <li><a href="#a00">Resumen de inteligencia</a></li>
-    <li><a href="#a01">Ficha de la campaña</a></li>
-    <li><a href="#a02">Infraestructura y pivoting</a></li>
-    <li><a href="#a03">Fallos de OpSec como inteligencia</a></li>
-    <li><a href="#a04">Evasión de controles y automatización</a></li>
-    <li><a href="#a05">Blockchain y suplantación corporativa</a></li>
-    <li><a href="#a06">Correlación de actores</a></li>
-    <li><a href="#a07">Recomendaciones de caza</a></li>
-    <li><a href="#a08">Conclusión</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>La Operación FakeWealth documenta el ciclo completo de threat intel sobre una red de fraude financiero: mapeo de dominios satélite, correlación de wallets en blockchain y atribución por reutilización de plantillas. Los fallos de OpSec (debug mode en producción, captcha trivial, proc_open deshabilitada) sirven aquí como evidencia para entender al adversario, no como fin.</p>
+<p>Lo distintivo es la herencia de marca: cmdxcapital reutiliza el molde de Bremby, y los indicadores financieros (monto de depósitos, historial de reportes) permiten dimensionar el daño real de la campaña.</p>
 
-<h2 id="a00"><span class="idx">01.</span> Resumen de inteligencia</h2>
-<p>La <b>Operación FakeWealth</b> documenta el ciclo completo de inteligencia de amenazas aplicado a una red de fraude financiero: identificación de infraestructura, mapeo de dominios satélite, correlación de wallets en blockchain, atribución por reutilización de plantillas y explotación de fallos de OpSec para extraer inteligencia del backend. Las vulnerabilidades encontradas (debug mode de Laravel expuesto, bypass de captcha, <code>proc_open()</code> deshabilitada) no son el fin del análisis: son evidencias que alimentan la comprensión del adversario.</p>
-<div class="callout callout-danger"><span class="ico">⛔</span><div>
-  <div class="h">Campaña de fraude financiero activa</div>
-  <p>Fecha del informe: octubre 2025 – mayo 2026. La infraestructura sigue operativa. Se recomienda bloqueo inmediato de todos los IoCs listados.</p>
-</div></div>
-<p>Este caso tiene conexiones directas con otras investigaciones del portafolio: la metodología de mapeo de infraestructura es la misma de la <a href="pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a> (Cloudflare como escudo, rotación de dominios, plantillas recicladas); y el patrón de fuga por malas configuraciones es el mismo de la <a href="web-api-pentesting2024.html">auditoría a la Web API financiera con IDOR por validación incompleta de JWT</a>.</p>
-
-<h2 id="a01"><span class="idx">02.</span> Ficha de la campaña</h2>
+<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
 <div class="tbl-wrap">
   <table>
     <tbody>
-      <tr><th>Dominio core</th><td class="mono">cmdxcapital.com</td></tr>
-      <tr><th>Framework backend</th><td class="mono">Laravel 8.83.25 (PHP 8.3.15)</td></tr>
-      <tr><th>Ruta absoluta del servidor</th><td class="mono">/home/cmdxcapi/domains/cmdxcapital.com/public_html</td></tr>
-      <tr><th>Wallet BTC actual</th><td class="mono">bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</td></tr>
-      <tr><th>Entidad legal suplantada</th><td class="mono">Companies House UK N° 13699699 (disuelta 2023)</td></tr>
-      <tr><th>Plataforma predecesora</th><td class="mono">Bremby (bremby.biz) — $174,664 en depósitos, 13 reportes de estafa</td></tr>
-      <tr><th>Fallos de OpSec detectados</th><td>Debug mode expuesto, captcha trivial, <code>proc_open()</code> deshabilitada, queries SQL y tokens de sesión fugados</td></tr>
+      <tr><th>Dominio core</th><td><code>cmdxcapital.com</code></td></tr>
+      <tr><th>Backend</th><td>Laravel 8.83.25 (PHP 8.3.15) — debug expuesto</td></tr>
+      <tr><th>Wallet BTC</th><td><code>bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</code></td></tr>
+      <tr><th>Entidad suplantada</th><td>Companies House UK N° 13699699 (disuelta)</td></tr>
+      <tr><th>Predecesora</th><td>Bremby (bremby.biz) — $174,664 · 13 reportes</td></tr>
+      <tr><th>Periodo</th><td>oct 2025 – may 2026 · activa</td></tr>
     </tbody>
   </table>
 </div>
 
-<h2 id="a02"><span class="idx">03.</span> Infraestructura de red y pivoting</h2>
-<p>El mapeo de infraestructura es el primer pilar de la inteligencia de amenazas. La campaña se diversifica en una red de dominios satélite que funcionan como falsos brokers y portales de captación, tras <b>Cloudflare como CDN y proxy inverso</b> para ocultar el servidor de origen real.</p>
-<figure class="figure">
-  <img src="img/cmdxcapital-topologia-red-mapa-nodos.png" alt="Mapa de topología de red de la campaña cmdxcapital" loading="lazy">
-  <figcaption class="figcap">Topología — El servidor origen en cPanel (198.251.89.82, Frantech/BuyVM) se oculta tras los proxies inversos de Cloudflare; los subdominios de correo se enlazan con Google Cloud Workspace.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/cmdxcapital-grafo-infraestructura-cloudflare.png" alt="Grafo de infraestructura de la campaña cmdxcapital" loading="lazy">
-  <figcaption class="figcap">Grafo de la amenaza — Rangos DNS y CDN, host de origen y firmas criptográficas de los artefactos de la campaña, todo correlacionado en un solo mapa.</figcaption>
-</figure>
-<p>Los dominios satélite incluyen <span class="mono">apexreturns.live</span>, <span class="mono">vertexprimestock.com</span>, <span class="mono">nexusinveste.com</span> y al menos 10 dominios adicionales. Todos comparten la misma plantilla HTML, los mismos canales de Telegram y las mismas hojas de estilo Bootstrap — el mismo patrón de reciclaje que documenté en la <a href="pigbutchering-bybsusd.html">red bybsusd.com</a>, donde los atacantes rotaban dominios manteniendo el backend constante.</p>
-
-<h3>El eslabón anterior: Bremby (bremby.biz)</h3>
-<p>Esta campaña no nació de la nada. Es la iteración más reciente de una infraestructura de fraude que operó antes bajo la marca <b>Bremby</b>: clasificado <b>scam confirmado</b> por monitores públicos con <b>13 reportes de estafa</b>, <b>$174,664 en depósitos fraudulentos</b> y <b>$7,282 en listados</b>. Registrado en <b>NameCheap el 12/10/2020</b>, protegido bajo el mismo escudo Cloudflare (IPs <span class="mono">104.18.47.118</span>, <span class="mono">172.67.146.22</span>, <span class="mono">104.18.46.118</span>) que hoy usa cmdxcapital.</p>
-<p>Los planes fraudulentos de Bremby (un único plan del 5% mensual) eran monitoreados por 21 plataformas de rastreo HYIP — <span class="mono">invest-tracing.io</span>, <span class="mono">hyiptank.net</span>, <span class="mono">list4hyip.com</span>, <span class="mono">monetka.blog</span> —. Ese ecosistema de monitoreo es una mina de oro para el analyst: permite trazar la evolución completa de la campaña desde su encarnación anterior y confirmar que los atacantes simplemente reciclan la infraestructura, cambian la marca y reanudan operaciones.</p>
-<figure class="figure">
-  <img src="img/fraude-plantillas-clonadas-historial-web.jpg" alt="Historial de plantillas clonadas de CMDX Capital" loading="lazy">
-  <figcaption class="figcap">Reutilización visual — Foros financieros evidencian la reutilización de estructuras de plataformas previas (Bremby) bajo el mismo número de Companies House antes de migrar a CMDX Capital.</figcaption>
-</figure>
-<div class="callout callout-warn"><span class="ico">🗂</span><div>
-  <div class="h">Lección: trazabilidad de campañas vía monitores HYIP</div>
-  <p>InvestorsStartPage, hyiptank.net y list4hyip.com son fuentes de inteligencia subestimadas: registros históricos de dominios, depósitos, reportes y direcciones IP que permiten trazar una campaña a través de múltiples identidades. La correlación Bremby↔CMDX Capital no es especulativa: mismo registrador (NameCheap), mismo CDN (Cloudflare), mismo rango de IPs de origen y misma plantilla. Son la misma operación con distinto nombre.</p>
-</div></div>
-
-<h2 id="a03"><span class="idx">04.</span> Fallos de OpSec como fuente de inteligencia</h2>
-<p>En threat intelligence, los errores del adversario son una mina de oro. La más grave de esta campaña: <b>el modo de depuración de Laravel activado en producción</b>.</p>
-
-<h3>El crash de Laravel: proc_open() y SwiftMailer</h3>
-<p>Durante la automatización del endpoint de registro, la plataforma expuso un reporte de error completo del framework. La interfaz <b>Ignition</b> —diseñada para desarrollo— era accesible públicamente con <span class="mono">APP_DEBUG=true</span> y <span class="mono">APP_ENV=production</span>.</p>
-<figure class="figure">
-  <img src="img/laravel-ignition-appdebug-crash-produccion.jpg" alt="Interfaz Ignition de Laravel expuesta en cmdxcapital.com" loading="lazy">
-  <figcaption class="figcap">Ignition expuesto — <code>APP_DEBUG=true</code> en un servidor con <code>APP_ENV=production</code> en cmdxcapital.com/register.</figcaption>
-</figure>
-<p>El error se originaba en <span class="mono">Swift_Transport_StreamBuffer.php</span>, línea 291. El flujo forense: el usuario se registra, Laravel Fortify inserta en <span class="mono">users</span> y <span class="mono">crypto_accounts</span>, el sistema intenta despachar un <span class="mono">WelcomeEmail</span> mediante SwiftMailer, este invoca <span class="mono">proc_open()</span> para interactuar con sendmail y, al estar la función deshabilitada en php.ini, la aplicación crashea exponiendo todo.</p>
-<figure class="figure">
-  <img src="img/laravel-crash-produccion-diagrama-secuencia.png" alt="Diagrama de secuencia del crash de Laravel en producción" loading="lazy">
-  <figcaption class="figcap">Secuencia forense — POST /register → inserción en MySQL → colapso del framework al invocar proc_open() mediante SwiftMailer, exponiendo el stacktrace completo.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/swiftmailer-proc-open-stacktrace-laravel.jpg" alt="Stacktrace de SwiftMailer mostrando la llamada a proc_open()" loading="lazy">
-  <figcaption class="figcap">Stacktrace — <code>Swift_Transport_StreamBuffer</code> (línea 291) intentó invocar proc_open(); el servidor devolvió error fatal por las restricciones de hardening en php.ini.</figcaption>
-</figure>
-
-<h3>Inteligencia extraída del debug mode</h3>
-<p>Ignition no solo mostraba el error: exponía información que alimentó directamente la inteligencia sobre la campaña.</p>
-<figure class="figure">
-  <img src="img/laravel-debug-mysql-consultas-sql-expuestas.jpg" alt="Consultas SQL expuestas por el debug mode" loading="lazy">
-  <figcaption class="figcap">Queries SQL — Se revela el orden de inserción: INSERT en users seguido de creación de cuenta en crypto_accounts.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/laravel-debug-request-datos-expuestos.jpg" alt="Datos de la petición HTTP expuestos" loading="lazy">
-  <figcaption class="figcap">Datos de petición — Parámetros HTTP POST, tokens de sesión e intentos de inyección SQL en el campo email persistidos en request_data.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/laravel-debug-variables-entorno-servidor-expuestas.jpg" alt="Variables de entorno del servidor expuestas" loading="lazy">
-  <figcaption class="figcap">Variables de entorno — Ruta raíz del hosting y versiones: Laravel 8.83.25 sobre PHP 8.3.15.</figcaption>
-</figure>
-<div class="callout callout-info"><span class="ico">💡</span><div>
-  <div class="h">El debug mode como fuente de inteligencia</div>
-  <p>APP_DEBUG=true en producción no es solo una vulnerabilidad: es una fuente de inteligencia. Permitió mapear la estructura de la base de datos, identificar la lógica de negocio (Fortify, SwiftMailer, WelcomeEmail) y obtener las rutas absolutas del servidor. La lección para desarrolladores: <b>nunca despliegues a producción con APP_DEBUG=true</b>. Un simple flag en el .env puede exponer toda la arquitectura de tu backend.</p>
-</div></div>
-
-<h2 id="a04"><span class="idx">05.</span> Evasión de controles y automatización</h2>
-<p>El formulario de registro implementaba un captcha trivial de evadir: el HTML contenía un input oculto con el valor de confirmación.</p>
-<div class="code-wrap"><span class="lang">html</span><pre class="code"><code>&lt;input type=<span class="syn-s">'hidden'</span> name=<span class="syn-s">'captcha_confirmation'</span> value=<span class="syn-s">'61416'</span>&gt;</code></pre></div>
-<p>Este patrón —delegar la validación al cliente con un valor estático— es el mismo tipo de error de la <a href="pigbutchering-bybsusd.html">red de Pig Butchering</a>, donde el backend devolvía la clave de validación del captcha en el propio JSON de respuesta. En ambos casos, la inteligencia obtenida permite <b>automatizar la recolección de datos del adversario sin interacción humana</b>.</p>
-<figure class="figure">
-  <img src="img/cmdxcapital-bypass-captcha-flujo-logico.png" alt="Diagrama de flujo del bypass de captcha" loading="lazy">
-  <figcaption class="figcap">Fallo de diseño — El script extrae el valor estático de captcha_confirmation y lo replica en la petición POST.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/cmdxcapital-poc-automatizacion-terminal.jpg" alt="Salida de terminal del script PoC automatizado" loading="lazy">
-  <figcaption class="figcap">PoC automatizado — Fase 1: extracción del token CSRF y evasión del captcha. Fase 2: POST automatizado, respuesta HTTP 500, captura del stacktrace con proc_open(), la ruta absoluta del host y la consulta SQL cruda.</figcaption>
-</figure>
-
-<h2 id="a05"><span class="idx">06.</span> Blockchain y suplantación corporativa</h2>
-
-<h3>Migración de wallets</h3>
-<p>Durante el monitoreo, los atacantes migraron su infraestructura de pagos: eliminaron Litecoin, mantuvieron USDT y reemplazaron la dirección de Bitcoin por una billetera <b>Bech32 nativa sin historial previo</b>:</p>
-<div class="code-wrap"><span class="lang">btc</span><pre class="code"><code>bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</code></pre></div>
-<figure class="figure">
-  <img src="img/cmdxcapital-wallet-bitcoin-monitoreo-blockchain.jpg" alt="Monitoreo de la wallet Bitcoin de cmdxcapital" loading="lazy">
-  <figcaption class="figcap">Análisis on-chain — Cambio a formato Bech32 nativo sin transacciones previas: rotación limpia para segmentar el rastreo de fondos.</figcaption>
-</figure>
-<figure class="figure">
-  <img src="img/fraude-blockchain-flujo-lavado-activos.png" alt="Diagrama de flujo de lavado de activos en blockchain" loading="lazy">
-  <figcaption class="figcap">Flujo de lavado — Smurfing/Peeling sobre USDT en TRC20 frente a acumulación estática en la nueva dirección Bech32 de Bitcoin.</figcaption>
-</figure>
-
-<h3>Suplantación de Companies House UK</h3>
-<p>La campaña utilizaba identidades clonadas de empresas británicas disueltas. El registro oficial de <b>Companies House</b> (Empresa N° 13699699) muestra que la entidad cesó operaciones en 2023; los atacantes clonaron su estructura antes de la disolución. Este <b>legal spoofing</b> es recurrente: los atacantes buscan entidades disueltas en jurisdicciones con registros públicos accesibles (UK, Singapur, Hong Kong) para robar su identidad corporativa y proyectar falsa sensación de respaldo legal ante las víctimas.</p>
-<figure class="figure">
-  <img src="img/companies-house-suplantacion-empresa-disuelta.jpg" alt="Registro de Companies House UK de la empresa disuelta" loading="lazy">
-  <figcaption class="figcap">Contraste contra el portal gubernamental del Reino Unido — La corporación 13699699 fue disuelta en 2023, validando la técnica de usurpación de marcas inactivas.</figcaption>
-</figure>
-
-<h2 id="a06"><span class="idx">07.</span> Correlación de actores e infraestructura</h2>
-<p>El grafo une la capa de ingeniería social con la infraestructura on-chain, asociando las identidades de Telegram de los operadores con las carteras que recibieron los fondos.</p>
-<figure class="figure">
-  <img src="img/cmdxcapital-grafo-relaciones-actores-amenaza.png" alt="Grafo de relaciones entre actores e infraestructura" loading="lazy">
-  <figcaption class="figcap">Grafo de relaciones — Identidades de Telegram (Juan Gómez, Jesus), grupos de captación y carteras Bitcoin/USDT que recibieron fondos de las víctimas.</figcaption>
-</figure>
-
-<h2 id="a07"><span class="idx">08.</span> Recomendaciones de caza</h2>
-<ol>
-  <li><b>Bloquear el dominio core y todos los satélites</b> en firewalls, proxies y sistemas de filtrado DNS.</li>
-  <li><b>Monitorear la wallet Bitcoin</b> <span class="mono">bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</span> para detectar nuevas transacciones y posibles víctimas.</li>
-  <li><b>Buscar dominios nuevos</b> que compartan la misma plantilla HTML, canales de Telegram u hojas de estilo Bootstrap.</li>
-  <li><b>Rastrear instalaciones de Laravel con debug mode activo</b> en dominios de trading o criptomonedas: la exposición de Ignition es un indicador de infraestructura mal configurada vinculada a campañas similares.</li>
-  <li><b>Consultar los hashes SHA-256</b> de los archivos asociados contra VirusTotal, Maltiverse y Hybrid Analysis.</li>
-  <li><b>Implementar reglas para formularios con captcha vulnerable</b>: patrones HTML donde el valor de confirmación viaje como input oculto estático en el cliente.</li>
-  <li><b>Monitorear plataformas de tracking HYIP</b> (InvestorsStartPage, hyiptank.net, list4hyip.com) para identificar dominios que repliquen el patrón Bremby/CMDX Capital.</li>
-  <li><b>Correlacionar registros de Companies House</b> con dominios de trading e inversión para detectar suplantación de entidades disueltas.</li>
-</ol>
-
-<h2 id="a08"><span class="idx">09.</span> Conclusión</h2>
-<p>La Operación FakeWealth demuestra que la inteligencia de amenazas no depende de zero-days ni de accesos privilegiados: depende de saber leer lo que el adversario deja expuesto. Un debug mode activo en producción, un captcha con valor estático en el HTML, una wallet Bech32 recién creada, una empresa británica disuelta en 2023 y un historial de fraude en plataformas públicas de monitoreo HYIP son piezas que, correlacionadas, dibujan el mapa completo de una campaña operando desde al menos 2020 bajo diferentes nombres.</p>
-<p>La trazabilidad Bremby↔CMDX Capital — confirmada por el mismo registrador, el mismo CDN, el mismo rango de IPs y la misma plantilla — revela que no estamos ante un atacante oportunista, sino ante un grupo que opera de forma continua, reciclando infraestructura y cambiando de marca cuando la anterior se quema. Los <b>$174,664 en depósitos fraudulentos</b> documentados en Bremby son solo la punta del iceberg.</p>
-<div class="callout callout-warn"><span class="ico">🔗</span><div>
-  <div class="h">Este caso, en contexto</div>
-  <p>Versión extendida de la investigación mencionada en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>. La metodología de pivoting sobre infraestructura es la misma de la <a href="pigbutchering-bybsusd.html">red bybsusd.com</a>: Cloudflare como escudo, rotación de dominios, plantillas recicladas. La diferencia es que cmdxcapital cometió el error de dejar Laravel hablando solo en producción.</p>
+<div class="callout callout-danger"><span class="ico">⛔</span><div>
+  <div class="h">Veredicto</div>
+  <p>Campaña de fraude financiero activa y verificada; aplicar bloqueo de los IoCs listados en el artículo completo.</p>
 </div></div>

@@ -11,7 +11,7 @@ BASE = META["site"]["url"]
 HEAD = """
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 """
 
@@ -81,8 +81,8 @@ def footer(extra=""):
         f'<a href="{url}" target="_blank" rel="noopener noreferrer">{name}</a>'
         for name, url in META["social"]
     )
-    note = ("© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · "
-            "Exploit Development · Seguridad OT. Venezuela.")
+    note = ("© <span data-year></span> Christian Márquez (tty503) — security research. "
+            "Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.")
     return f"""<footer class="site-footer"><div class="footer-inner">
 <div class="social">{social}</div>
 <p class="footer-note">{note}</p>
@@ -144,7 +144,7 @@ def build_post(slug, data):
     crumb.append((f"{slug}.html", data["title"][:48]))
     tags = "".join(f'<span class="chip">{html.escape(t)}</span>' for t in data["tags"])
     read = data["read"]
-    meta_span = f'<span>📅 {data["date"]}</span><span>⏱ {read}</span><span>🏷 {data["cat"]}</span>'
+    meta_span = f'<span>{data["date"]}</span><span>{read}</span><span>{data["cat"]}</span>'
     related = data.get("related", [])
     rel_html = ""
     if related:

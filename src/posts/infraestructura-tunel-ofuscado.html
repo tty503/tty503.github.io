@@ -1,193 +1,33 @@
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>Columna vertebral de las investigaciones: <b>VPN privada de dos nodos</b> cuyo túnel WireGuard viaja <b>camuflado como HTTPS</b> gracias a udp2raw (<code>faketcp</code> + XOR, puerto 443), con salida oculta tras <b>proxies residenciales SOCKS5</b> y DNS resuelto cifrado sobre <b>DoH</b>.</li>
-    <li><b>Separación de funciones:</b> Nodo A = única puerta visible (DNAT de 80/443/5522 hacia el túnel); Nodo B = servicios reales sin ningún puerto expuesto a Internet salvo SSH. Si cae A no hay acceso a los datos; si cae B, su IP real jamás aparece en logs.</li>
-    <li>Enrutamiento selectivo en WireGuard (<span class="mono">AllowedIPs = 10.100.0.1/32</span>): entrada por el túnel, salida por el proxy residencial independiente — nunca se mezclan.</li>
-    <li>Despliegue completo automatizado en un script Bash: <b>~90 segundos</b> desde dependencias hasta verificación de salida residencial.</li>
+    <li>Columna vertebral de las investigaciones: <b>VPN privada de dos nodos</b> cuyo túnel WireGuard viaja <b>camuflado como HTTPS</b> (udp2raw <code>faketcp</code> + XOR, puerto 443), con salida tras <b>proxies residenciales SOCKS5</b> y DNS cifrado con <b>DoH</b>.</li>
+    <li><b>Separación de funciones</b>: Nodo A = única puerta visible (DNAT 80/443/5522); Nodo B = servicios reales sin puertos expuestos salvo SSH. Si cae A no hay datos; si cae B, su IP real jamás aparece en logs.</li>
+    <li>Enrutamiento selectivo (<code>AllowedIPs = 10.100.0.1/32</code>): entrada por el túnel, salida por el proxy residencial — nunca se mezclan.</li>
+    <li>Despliegue automatizado en un script Bash: <b>~90 segundos</b> de dependencias a verificación de salida residencial.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/tunel_ofuscado · <span class="tw">10</span> secciones</summary>
-  <ol>
-    <li><a href="#a00">Resumen técnico</a></li>
-    <li><a href="#a01">Arquitectura: defensa en dos capas</a></li>
-    <li><a href="#a02">Túnel: WireGuard sobre TCP falso</a></li>
-    <li><a href="#a03">Entrada: iptables DNAT</a></li>
-    <li><a href="#a04">Salida: proxy residencial y DNS blindado</a></li>
-    <li><a href="#a05">Firewall mínimo</a></li>
-    <li><a href="#a06">Despliegue en 90 segundos</a></li>
-    <li><a href="#a07">Mejoras futuras</a></li>
-    <li><a href="#a08">Conclusión</a></li>
-    <li><a href="#a09">Referencias</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>Arquitectura de infraestructura ofuscada usada para trabajo de investigación (threat intel y laboratorios) sin exponer origen ni servicios. El tráfico cargo entra por la única puerta visible (Nodo A), viaja por un túnel WireGuard disfrazado de HTTPS a través de puertos típicos y sale por un proxy residencial independiente con DNS resuelto sobre DoH.</p>
+<p>La separación de nodos es el diseño clave de resiliencia: ningún componente individual revela datos. El despliegue total queda en un único script, reproducido en ~90 segundos.</p>
 
-<h2 id="a00"><span class="idx">01.</span> Resumen técnico</h2>
-<p>Así queda montada la pila completa:</p>
+<h2 id="r01"><span class="idx">02.</span> Stack</h2>
 <div class="tbl-wrap">
   <table>
-    <thead>
-      <tr><th>Componente</th><th>Función</th><th>Detalle clave</th></tr>
-    </thead>
     <tbody>
-      <tr><td class="mono">WireGuard</td><td>Túnel privado entre nodos</td><td>Red <code>10.100.0.0/24</code>, enrutamiento selectivo con <code>AllowedIPs</code></td></tr>
-      <tr><td class="mono">udp2raw</td><td>Ofuscación del túnel</td><td><code>faketcp</code> + XOR, puerto 443 simulando HTTPS</td></tr>
-      <tr><td class="mono">iptables (DNAT)</td><td>Entrada en Nodo A</td><td>Puertos 80/443/5522 → <code>10.100.0.2</code></td></tr>
-      <tr><td class="mono">dnscrypt-proxy + dnsmasq</td><td>DNS cifrado</td><td>DoH Cloudflare solo-TCP, resolver local en <code>127.0.0.1:53</code></td></tr>
-      <tr><td class="mono">redsocks</td><td>Salida vía SOCKS5 residencial</td><td>REDIRECT al puerto 12345, excluyendo SSH y el propio proxy</td></tr>
-      <tr><td class="mono">UFW</td><td>Firewall mínimo</td><td>Nodo A: 22/80/443/5522 · Nodo B: 22</td></tr>
-      <tr><td class="mono">Script Bash</td><td>Despliegue automatizado</td><td>Pila completa operativa en ~90 segundos</td></tr>
+      <tr><th>WireGuard</th><td>Túnel <code>10.100.0.0/24</code>, enrutamiento selectivo</td></tr>
+      <tr><th>udp2raw</th><td>Ofuscación <code>faketcp</code>+XOR · puerto 443</td></tr>
+      <tr><th>Entrada</th><td>iptables DNAT 80/443/5522 → 10.100.0.2</td></tr>
+      <tr><th>DNS</th><td>dnscrypt-proxy + dnsmasq · DoH Cloudflare</td></tr>
+      <tr><th>Salida</th><td>redsocks → SOCKS5 residencial</td></tr>
+      <tr><th>Firewall</th><td>Nodo A: 22/80/443/5522 · Nodo B: 22</td></tr>
+      <tr><th>Deploy</th><td>Script Bash · ~90 s</td></tr>
     </tbody>
   </table>
 </div>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Salida real del script de despliegue</span>
-$ ./deploy_tunnel.sh --provider vps01 --mode full
-[+] Dependencias instaladas: WireGuard, udp2raw, redsocks, dnscrypt-proxy, dnsmasq
-[+] WireGuard configurado: Nodo A (10.100.0.1) &lt;-&gt; Nodo B (10.100.0.2)
-[+] udp2raw activo: faketcp + XOR -&gt; puerto 443 (simulando HTTPS)
-[+] redsocks conectado: SOCKS5 residencial -&gt; IP salida: 203.0.113.x (residencial)
-[+] DNS blindado: dnscrypt-proxy -&gt; Cloudflare DoH (TCP-only)
-[+] iptables aplicado: DNAT entrada + REDSOCKS_TCP salida
-[OK] Despliegue completado en: 87 segundos</code></pre></div>
 
-<h2 id="a01"><span class="idx">02.</span> Arquitectura: defensa en profundidad en dos capas</h2>
-<p>El diseño pivota sobre un modelo de <b>dos nodos</b> con funciones radicalmente separadas, conectados únicamente por el túnel privado ofuscado. Esa separación tiene una consecuencia directa: <b>el nodo que aloja los servicios reales nunca muestra su IP a Internet</b> — y con ella se derrumba la mayor parte de la superficie de ataque.</p>
-<h3>Nodo A — puerta de enlace pública</h3>
-<p>Único punto de entrada visible. Acepta las conexiones entrantes en puertos no convencionales, las empuja hacia el nodo B por el túnel y no expone más que lo estrictamente operativo. Para el mundo exterior, su IP es la única que existe.</p>
-<h3>Nodo B — servicios reales</h3>
-<p>Aquí viven los servicios internos, con una regla dura: <b>ningún puerto abierto a Internet</b> salvo el acceso administrativo. Todo el tráfico legítimo le llega desde A por el túnel; su salida a Internet se disfraza tras proxies residenciales, con resolución DNS cifrada (DoH).</p>
-<div class="callout callout-info"><span class="ico">💡</span><div>
-  <div class="h">Principio de diseño</div>
-  <p>Separar «puerta de enlace» de «servidor de aplicaciones» es defensa en profundidad de manual. Si cae el nodo A, quien ataca no gana acceso inmediato a los servicios ni a los datos del nodo B. Si cae el nodo B, su IP real jamás aparece en logs públicos. La misma filosofía de aislamiento se aplica en el <a href="infra-soc.html">laboratorio SOC/honeypot con Proxmox y OPNsense</a>.</p>
+<div class="callout callout-info"><span class="ico">🔧</span><div>
+  <div class="h">Veredicto</div>
+  <p>Infraestructura propia documentada y desplegable; usada como base de las investigaciones de la casa (threat intel y laboratorio). Detalles de config en el artículo completo.</p>
 </div></div>
-<figure class="figure">
-  <img src="img/tunel-ofuscado-wireguard-udp2raw-proxy-arquitectura.png" alt="Diagrama de la arquitectura completa: dos VPS, túnel WireGuard bajo udp2raw, DNAT con iptables, redsocks y DoH" loading="lazy">
-  <figcaption class="figcap">Arquitectura completa generada con PlantUML — Los dos VPS, el túnel WireGuard encapsulado en TCP falso por udp2raw, las reglas DNAT con iptables, la salida gestionada por redsocks tras el proxy residencial y el resolver DNS sobre HTTPS (dnscrypt-proxy + dnsmasq).</figcaption>
-</figure>
-
-<h2 id="a02"><span class="idx">03.</span> Túnel privado: WireGuard sobre TCP falso con udp2raw</h2>
-<h3>El problema del UDP en entornos restrictivos</h3>
-<p>WireGuard habla UDP nativo, y eso duele en dos frentes a la vez: firewalls restrictivos que descartan UDP no solicitado y sistemas de inspección profunda de paquetes (DPI) capaces de reconocer y bloquear el handshake por su firma.</p>
-<h3>udp2raw: encapsulación TCP con ofuscación XOR</h3>
-<p><b>udp2raw</b> mata ambos pájaros de un tiro: toma el UDP nativo de WireGuard, lo envuelve en una conexión TCP y le añade una capa de ofuscación con clave compartida. Lo que sale por el cable es un flujo TCP que para cualquier observador externo no delata ser un túnel VPN; al viajar por el puerto 443, se funde visualmente con el HTTPS legítimo de media Internet.</p>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Nodo A: servidor udp2raw (escucha en TCP:443 y entrega a WireGuard UDP)</span>
-udp2raw -s \
-  --listen <span class="syn-v">0.0.0.0:443</span> \
-  --target <span class="syn-v">127.0.0.1:51820</span> \
-  --key <span class="syn-s">"clave-compartida"</span> \
-  --cipher-mode xor \
-  --auth-mode simple \
-  --raw-mode faketcp
-
-<span class="syn-c"># Nodo B: cliente udp2raw (conecta al Nodo A TCP:443 y expone UDP local)</span>
-udp2raw -c \
-  --listen <span class="syn-v">127.0.0.1:51820</span> \
-  --target <span class="syn-v">&lt;IP_NODO_A&gt;:443</span> \
-  --key <span class="syn-s">"clave-compartida"</span> \
-  --cipher-mode xor \
-  --auth-mode simple \
-  --raw-mode faketcp</code></pre></div>
-<p>Con udp2raw corriendo, WireGuard en el nodo B apunta a <span class="mono">127.0.0.1:51820</span> — su extremo local — sin saber que cada paquete realmente cruza la red convertido en TCP falso hacia el puerto 443 del nodo A, uno de esos puertos que sobreviven incluso a las redes más quisquillosas.</p>
-<h3>Configuración de WireGuard: enrutamiento selectivo</h3>
-<p>En el nodo B hay un matiz decisivo: la directiva <span class="mono">AllowedIPs</span>. No quiero volcar todo el tráfico al túnel (<span class="mono">0.0.0.0/0</span>); solo interesa alcanzar la IP privada del nodo A:</p>
-<div class="code-wrap"><span class="lang">ini</span><pre class="code"><code><span class="syn-c"># WireGuard en Nodo B: solo enruta la IP privada del Nodo A</span>
-[<span class="syn-f">Peer</span>]
-PublicKey = &lt;CLAVE_PUBLICA_NODO_A&gt;
-Endpoint = <span class="syn-v">127.0.0.1:51820</span>
-AllowedIPs = <span class="syn-v">10.100.0.1/32</span>
-PersistentKeepalive = <span class="syn-v">25</span></code></pre></div>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">¿Por qué no enrutar todo por el túnel?</div>
-  <p>Volcar toda la salida del nodo B hacia el nodo A provocaría dos efectos indeseados a la vez: (1) el tráfico saliente delataría la IP real del nodo A, y (2) se perdería la opción de usar un proxy residencial independiente para esa salida. El enrutamiento selectivo mantiene ambos canales en carriles separados: entrada por el túnel, salida por el proxy.</p>
-</div></div>
-
-<h2 id="a03"><span class="idx">04.</span> Entrada de tráfico: redirección con iptables (DNAT)</h2>
-<p>Que un cliente externo alcance los servicios del nodo B sin conocer su IP se resuelve con reglas de <span class="mono">iptables</span> en el nodo A que ejecutan DNAT de los puertos de entrada hacia las IPs y puertos correspondientes dentro del túnel:</p>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Nodo A: redirección de puertos hacia el túnel WireGuard</span>
-iptables -t nat -A PREROUTING -p tcp --dport <span class="syn-v">80</span> \
-  -j DNAT --to-destination <span class="syn-v">10.100.0.2:80</span>
-iptables -t nat -A PREROUTING -p tcp --dport <span class="syn-v">443</span> \
-  -j DNAT --to-destination <span class="syn-v">10.100.0.2:443</span>
-iptables -t nat -A PREROUTING -p tcp --dport <span class="syn-v">5522</span> \
-  -j DNAT --to-destination <span class="syn-v">10.100.0.2:22</span></code></pre></div>
-<p>El recorrido de una conexión entrante queda así: <b>Internet → Nodo A:80 → [DNAT] → 10.100.0.2:80 (Nodo B)</b>. Gracias al MASQUERADE en POSTROUTING, el nodo B percibe la petición como venida de la IP privada del nodo A; para el cliente externo, la única IP que ha existido nunca es la del nodo A.</p>
-
-<h2 id="a04"><span class="idx">05.</span> Salida de tráfico: proxy residencial y DNS blindado</h2>
-<p>Cuando es el nodo B quien inicia conexiones hacia Internet, necesita borrar su propia IP del mapa. Tres componentes encadenados:</p>
-<h3>dnscrypt-proxy: DNS sobre HTTPS (DoH)</h3>
-<p>Configurado como resolver DNS contra Cloudflare sobre HTTPS, escucha en <span class="mono">127.0.0.1:5353</span> y obliga todas las consultas a circular por TCP. Las fugas DNS por UDP desaparecen y los nombres viajan siempre cifrados. Como el tráfico TCP de dnscrypt-proxy acaba capturado por redsocks, las consultas DNS también salen por el proxy residencial.</p>
-<h3>dnsmasq: forwarder local</h3>
-<p>Reenviador sencillo hacia dnscrypt-proxy escuchando en <span class="mono">127.0.0.1:53</span>. Como <span class="mono">/etc/resolv.conf</span> apunta a <span class="mono">127.0.0.1</span>, todas las aplicaciones adoptan este resolver local sin configurar nada.</p>
-<h3>redsocks: transproxy SOCKS5</h3>
-<p>Daemon a la escucha en <span class="mono">127.0.0.1:12345</span> que transforma cualquier tráfico TCP redirigido a ese puerto en conexiones SOCKS5 hacia el proxy residencial. Los parámetros llegan dinámicamente desde una API externa:</p>
-<div class="code-wrap"><span class="lang">conf</span><pre class="code"><code><span class="syn-c"># redsocks.conf (valores obtenidos dinámicamente vía API)</span>
-redsocks {
-  local_ip = <span class="syn-v">127.0.0.1</span>;
-  local_port = <span class="syn-v">12345</span>;
-  ip = <span class="syn-v">&lt;IP_PROXY_RESIDENCIAL&gt;</span>;
-  port = <span class="syn-v">&lt;PUERTO_SOCKS5&gt;</span>;
-  type = socks5;
-  login = <span class="syn-s">"&lt;USUARIO&gt;"</span>;
-  password = <span class="syn-s">"&lt;PASSWORD&gt;"</span>;
-}</code></pre></div>
-<h3>iptables: redirección selectiva a redsocks</h3>
-<p>En la tabla <span class="mono">nat</span> creo la cadena <span class="mono">REDSOCKS_TCP</span>: manda hacia el puerto local de redsocks todo el TCP saliente — salvo el destinado al propio proxy, el dirigido a redes privadas y el SSH. Las sesiones administrativas quedan fuera del proxy y se evitan bloqueos accidentales.</p>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code><span class="syn-c"># Reglas clave de redirección en Nodo B</span>
-iptables -t nat -N REDSOCKS_TCP
-iptables -t nat -A REDSOCKS_TCP -d <span class="syn-v">&lt;IP_PROXY&gt;</span> -j RETURN
-iptables -t nat -A REDSOCKS_TCP -p tcp --dport <span class="syn-v">22</span> -j RETURN
-iptables -t nat -A REDSOCKS_TCP -p tcp -j REDIRECT --to-ports <span class="syn-v">12345</span>
-iptables -t nat -A OUTPUT -p tcp -j REDSOCKS_TCP</code></pre></div>
-<p><b>Recorrido de una conexión saliente:</b> Nodo B (aplicación) → [iptables REDSOCKS_TCP] → redsocks → proxy SOCKS5 residencial → Internet. El destino ve la IP del proxy residencial; ni el nodo B ni el nodo A aparecen. Este detalle es crítico en contextos de <a href="threat-hunter-recollection.html">threat intelligence e investigación de campañas activas</a>, donde una IP de origen inoportuna basta para alertar al adversario.</p>
-
-<h2 id="a05"><span class="idx">06.</span> Control de acceso y firewall mínimo</h2>
-<p>Ambos nodos llevan UFW con política por defecto cerrada:</p>
-<div class="tbl-wrap">
-  <table>
-    <thead>
-      <tr><th>Nodo</th><th>Puertos permitidos (entrada)</th><th>Propósito</th></tr>
-    </thead>
-    <tbody>
-      <tr><td class="mono">Nodo A</td><td class="mono">22/tcp, 80/tcp, 443/tcp, 5522/tcp</td><td>SSH administrativo, HTTP/S redirigidos, SSH alternativo para túnel</td></tr>
-      <tr><td class="mono">Nodo B</td><td class="mono">22/tcp</td><td>Únicamente SSH administrativo directo</td></tr>
-    </tbody>
-  </table>
-</div>
-<p>El nodo B puede permitirse no exponer el <span class="mono">51820/udp</span> porque el túnel lo establece udp2raw en dirección nodo B → nodo A: una conexión saliente, nunca entrante. La superficie de ataque queda reducida al mínimo sin sacrificar la gestión.</p>
-
-<h2 id="a06"><span class="idx">07.</span> Automatización del despliegue en 90 segundos</h2>
-<p>Desde la instalación de dependencias hasta la verificación final, todo cabe en un script bash que completa el ciclo en torno a 90 segundos:</p>
-<ol>
-  <li><b>Instalación de dependencias:</b> WireGuard, iptables, UFW, udp2raw (compilado desde fuente), redsocks, dnsmasq, dnscrypt-proxy, jq, curl.</li>
-  <li><b>WireGuard + udp2raw en Nodo A:</b> claves, servicio systemd para udp2raw en modo servidor y reenvío de paquetes habilitado.</li>
-  <li><b>WireGuard + udp2raw en Nodo B:</b> claves, servicio udp2raw en modo cliente y WireGuard con enrutamiento selectivo.</li>
-  <li><b>Vinculación de peers:</b> intercambio de claves públicas y alta del peer en el servidor.</li>
-  <li><b>DoH + proxy de salida:</b> dnscrypt-proxy contra Cloudflare solo-TCP, dnsmasq como forwarder, proxy residencial por API y redsocks con sus reglas.</li>
-  <li><b>Verificación:</b> conectividad bidireccional, test de un servidor web a través del túnel y confirmación de que la IP de salida es la del proxy residencial.</li>
-</ol>
-<div class="callout callout-info"><span class="ico">⚙</span><div>
-  <div class="h">Infraestructura como código (IaC)</div>
-  <p>El script es apenas el primer escalón hacia una gestión declarativa. La evolución lógica es convertirlo en playbook de Ansible o módulo de Terraform — camino que ya se explora en el <a href="infra-soc.html">laboratorio SOC con despliegue IaC</a>, complemento defensivo natural de esta arquitectura.</p>
-</div></div>
-
-<h2 id="a07"><span class="idx">08.</span> Mejoras futuras y líneas de trabajo</h2>
-<ul>
-  <li><b>Failover con IPs adicionales:</b> contratar IPs extra en el proveedor del nodo A para alta disponibilidad; con dos IPs ya cabe un balanceador inverso (nginx/HAProxy) repartiendo conexiones entrantes.</li>
-  <li><b>Monitorización y alertas:</b> Zabbix u homólogo para detectar caídas del túnel o fallos del proxy, avisando por Telegram, Slack o correo.</li>
-  <li><b>Enrutamiento por proceso:</b> tabla de rutas aparte con reglas de política (<span class="mono">ip rule</span>) para que solo el tráfico de procesos concretos pase por el proxy; evita que <span class="mono">apt</span> o <span class="mono">curl</span> filtren información sin querer.</li>
-  <li><b>Infraestructura como código:</b> migrar todo a un playbook Ansible o cloud-init capaz de reconstruir la infraestructura desde cero en minutos si un nodo cae comprometido o toca escalar.</li>
-</ul>
-
-<h2 id="a08"><span class="idx">09.</span> Conclusión: una base sólida para operaciones que requieren anonimato</h2>
-<p>Este diseño resuelve a la vez varios dolores clásicos: exposición de IPs, bloqueo de VPN por DPI, fugas DNS y trazabilidad de la salida. La pareja «nodo de entrada + nodo de servicios», unida al túnel ofuscado y al proxy residencial independiente, constituye una base firme para operaciones donde el anonimato y la resiliencia no son opcionales. Automatizar el despliegue completo recorta el error humano y permite replicar la infraestructura exacta en minutos.</p>
-<p>Y sobre este túnel descansa todo lo demás que publico: cada triaje de malware del <a href="analystty.html">laboratorio con analystty</a>, cada campaña analizada en la <a href="threat-hunter-recollection.html">recopilación de threat hunting</a> y cada <a href="pigbutchering-bybsusd.html">deconstrucción de infraestructura criminal</a> salió de un entorno blindado exactamente por esta arquitectura.</p>
-
-<h2 id="a09"><span class="idx">10.</span> Referencias</h2>
-<ul>
-  <li><a href="infra-soc.html">Laboratorio SOC/honeypot — Proxmox y OPNsense con despliegue IaC</a></li>
-  <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — cinco casos que forjaron un cazador</a></li>
-  <li><a href="analystty.html">analystty — automatizando el triage de malware PE con Python, Capstone y x64dbg</a></li>
-  <li><a href="pigbutchering-bybsusd.html">Red de estafa Pig Butchering — fake crypto exchange multi-dominio</a></li>
-</ul>

@@ -35,7 +35,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 
 </head>
@@ -48,195 +48,47 @@
   <div class="post-tags"><span class="chip">Python</span><span class="chip">Malware Analysis</span><span class="chip">Capstone</span><span class="chip">Automatización</span></div>
   <h1>analystty: triage automatizado de malware PE con Python</h1>
   <p class="lede">Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x64dbg automáticamente. Stack: Capstone, pefile, malapi.json. Caso real: un dropper con API hashing.</p>
-  <div class="post-meta"><span>📅 2026-05-15</span><span>⏱ 12 min</span><span>🏷 Herramientas propias</span></div>
+  <div class="post-meta"><span>2026-05-15</span><span>12 min</span><span>Herramientas propias</span></div>
 </header>
 <article class="post-body">
 <aside class="tldr">
   <div class="h">// En 30 segundos</div>
   <ul>
-    <li>El triage de una muestra es siempre el mismo baile mecánico: abrir el binario, leer imports, sospechar, mapear funciones y montar el depurador. Eso se automatiza.</li>
-    <li><b>analystty</b> (Python puro, nacido octubre 2024) clasifica las APIs de Windows contra tácticas <b>MITRE ATT&amp;CK</b>, desensambla <code>.text</code> con <b>Capstone</b> y deja los breakpoints clavados en <b>x64dbg</b> sin calcular un offset a mano — resuelve ASLR con una resta.</li>
-    <li>De la lista plana de imports pasa a un <b>call graph simplificado</b>: función contenedora + dirección de instrucción + API sospechosa, listo para el depurador.</li>
-    <li>Validado en el <a href="threat-hunter-recollection.html">dropper multi-etapa con API Hashing de la Threat Hunter Recollection</a>: import-hashing saltado con un volcado en Radare2 y capacidades cartografiadas en minutos.</li>
+    <li><b>analystty</b> (Python puro, 2024): triage automatizado de executables PE — clasifica APIs contra <b>MITRE ATT&amp;CK</b>, desensambla <code>.text</code> con <b>Capstone</b> y clava breakpoints en <b>x64dbg</b> sin calcular un offset a mano.</li>
+    <li>De la lista de imports a un <b>call graph simplificado</b>: función contenedora + dirección + API sospechosa, listo para el depurador.</li>
+    <li>Resuelve <b>ASLR con una resta</b>: ajusta automáticamente las direcciones del módulo cargado.</li>
+    <li>Validado en el <a href="threat-hunter-recollection.html">dropper multi-etapa con API Hashing</a>: import-hashing saltado con un volcado en Radare2 y capacidades mapeadas en minutos.</li>
   </ul>
 </aside>
 
-<details class="toc-card" open>
-  <summary>/analystty · <span class="tw">11</span> secciones</summary>
-  <ol>
-    <li><a href="#a00">Resumen Técnico</a></li>
-    <li><a href="#a01">La motivación: automatizar lo mecánico</a></li>
-    <li><a href="#a02">Arquitectura interna y dependencias</a></li>
-    <li><a href="#a03">El pipeline: del binario al breakpoint</a></li>
-    <li><a href="#a04">TTPs con MITRE ATT&amp;CK desde los imports</a></li>
-    <li><a href="#a05">Correlación: del import al call graph</a></li>
-    <li><a href="#a06">ASLR y breakpoints automáticos en x64dbg</a></li>
-    <li><a href="#a07">Caso real: el dropper multi-etapa con API hashing</a></li>
-    <li><a href="#a08">Limitaciones honestas y roadmap</a></li>
-    <li><a href="#a09">Conclusión: la navaja suiza personal</a></li>
-    <li><a href="#a10">Referencias</a></li>
-  </ol>
-</details>
+<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<p>El triage de una muestra es siempre el mismo baile mecánico: abrir el binario, leer imports, sospechar, mapear funciones, montar el depurador. analystty automatiza ese paso con una base de datos de APIs maliciosas (<code>malapi.json</code>) cruzada con tácticas de ATT&amp;CK, desensamblado de <code>.text</code> y generación directa del script de breakpoints de x64dbg.</p>
+<p>La correlación función↔API y el descuento automático de ASLR son las dos piezas que quitan fricción del flujo: se pasa del binario crudo a un mapa de «dónde mirar» sin trabajo manual de direcciones.</p>
 
-<h2 id="a00"><span class="idx">01.</span> Resumen Técnico</h2>
+<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
 <div class="tbl-wrap">
   <table>
     <tbody>
-      <tr><th>Herramienta</th><td>analystty — triage automatizado de ejecutables PE en Python puro</td></tr>
-      <tr><th>Origen</th><td>Proyecto personal iniciado en octubre de 2024</td></tr>
-      <tr><th>Componentes</th><td><code>frm_pe</code> (análisis estático) y <code>medbg</code> (interfaz de depuración)</td></tr>
-      <tr><th>Dependencias</th><td>pefile, Capstone, bindings de x64dbg, tabulate</td></tr>
-      <tr><th>Inteligencia</th><td><code>malapi.json</code>: APIs maliciosas categorizadas y cruzadas con tácticas MITRE ATT&amp;CK</td></tr>
-      <tr><th>Salida</th><td>Correlación función↔API sospechosa + script de breakpoints para x64dbg</td></tr>
-      <tr><th>Caso validado</th><td>Dropper multi-etapa con API Hashing (noviembre de 2025): Clipper e InfoStealer identificados tras volcado con Radare2</td></tr>
+      <tr><th>Herramienta</th><td>analystty — triage de PE en Python puro (oct 2024)</td></tr>
+      <tr><th>Componentes</th><td><code>frm_pe</code> (estático) + <code>medbg</code> (depuración)</td></tr>
+      <tr><th>Deps</th><td>pefile · Capstone · bindings x64dbg · tabulate</td></tr>
+      <tr><th>Inteligencia</th><td><code>malapi.json</code> → tácticas MITRE ATT&amp;CK</td></tr>
+      <tr><th>Salida</th><td>Correlación función↔API + script de breakpoints</td></tr>
+      <tr><th>Validación</th><td>Dropper multi-etapa con API Hashing (nov 2025): Clipper + InfoStealer</td></tr>
     </tbody>
   </table>
 </div>
-<p>Así se ve una corrida completa sobre la muestra del caso real de la sección 07:</p>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code>$ analystty --target dropper_nexilo.exe
-<span class="syn-f">[+]</span> PE cargado: dropper_nexilo.exe (x86_64)
-<span class="syn-f">[+]</span> Imports extraídos: <span class="syn-n">47 APIs</span> en <span class="syn-n">5</span> DLLs
-<span class="syn-f">[!]</span> TTPs detectadas: <span class="syn-k">Evasión (TA0005), Inyección (TA0004), Ejecución (TA0002)</span>
-<span class="syn-f">[+]</span> Sección .text desensamblada: <span class="syn-n">1,247 instrucciones</span> desde Entry Point
-<span class="syn-f">[+]</span> Correlación completada: <span class="syn-n">8 funciones</span> mapeadas a APIs sospechosas
-<span class="syn-f">[+]</span> Breakpoints generados para x64dbg: <span class="syn-n">4 breakpoints</span> en direcciones críticas
-<span class="syn-f">[+]</span> Script exportado: analystty_dropper_nexilo.txt</code></pre></div>
 
-<h2 id="a01"><span class="idx">02.</span> La motivación: automatizar lo mecánico</h2>
-<p>Todo análisis de malware arranca igual: cargar el binario, extraer la tabla de importaciones, ojear las APIs una por una, averiguar qué función las invoca y preparar el entorno dinámico. Es trabajo necesario pero profundamente repetitivo — y la repetición es mi señal inequívoca de que toca automatizar. De ahí nació analystty en octubre de 2024, como proyecto práctico y personal.</p>
-<p>No pretendía reinventar IDA Python ni el scripting de Ghidra. La ambición era más modesta y más útil: una herramienta ligera en Python puro capaz de tragarse un PE sospechoso y devolverme en segundos un mapa nítido de sus capacidades maliciosas.</p>
-<div class="callout callout-info"><span class="ico">▣</span><div>
-  <div class="h">Filosofía del proyecto</div>
-  <p>Más que innovar, analystty consolida conocimiento y elimina fricción: es el puente entre lo estático (estructura PE, desensamblado) y lo dinámico (depuración con x64dbg). Su bautismo de fuego llegó con el <a href="threat-hunter-recollection.html">dropper multi-etapa de la Threat Hunter Recollection</a>, analizado exactamente con este pipeline.</p>
+<div class="callout callout-info"><span class="ico">📊</span><div>
+  <div class="h">Veredicto</div>
+  <p>Herramienta propia en producción dentro del propio flujo de análisis; validada contra malware real. El resto de la sección técnica queda fuera del resumen por brevedad.</p>
 </div></div>
-
-<h2 id="a02"><span class="idx">03.</span> Arquitectura interna y dependencias</h2>
-<p>Todo el peso recae sobre dos clases que gobiernan <code>src/analystty.py</code>, cada una dueña de una mitad del problema:</p>
-<div class="tbl-wrap">
-  <table>
-    <thead>
-      <tr><th>Componente</th><th>Rol</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><code>frm_pe</code></td><td>Motor de análisis estático: parseo de headers, secciones e imports; desensamblado con Capstone y detección heurística de funciones.</td></tr>
-      <tr><td><code>medbg</code></td><td>Interfaz de depuración: conexión TCP con x64dbg, traducción de direcciones virtuales (ASLR) y colocación automática de breakpoints.</td></tr>
-    </tbody>
-  </table>
-</div>
-<h3 class="idx">Dependencias clave</h3>
-<ul>
-  <li><b>pefile</b> — el parseo robusto de la estructura de los ejecutables.</li>
-  <li><b>Capstone</b> — el motor que convierte bytes en instrucciones legibles.</li>
-  <li><b>x64dbg (py)</b> — bindings para manejar el depurador y sus breakpoints.</li>
-  <li><b>tabulate</b> — resultados presentables directamente en consola.</li>
-</ul>
-
-<h2 id="a03"><span class="idx">04.</span> El pipeline: del binario al breakpoint</h2>
-<p>El flujo orquestado desde <code>__init__.py</code> es estrictamente secuencial: cada fase entrega su producto a la siguiente sin que yo meta mano.</p>
-<ol>
-  <li><b>Ingesta del PE</b> — el binario se carga con pefile, detectando automáticamente si trata de un ejecutable de 32 o 64 bits.</li>
-  <li><b>Extracción de imports</b> — la tabla de importaciones se parsea para listar DLLs y funciones consumidas.</li>
-  <li><b>Detección de amenazas (TTPs)</b> — los imports se cruzan con <code>malapi.json</code>, la base de inteligencia que agrupa APIs maliciosas por categoría (Evasión, Inyección, Spying…).</li>
-  <li><b>Desensamblado</b> — la sección <code>.text</code> se vuelca y desensambla partiendo del Entry Point.</li>
-  <li><b>Detección heurística de funciones</b> — los límites de cada procedimiento se marcan con el patrón <code>push rbp</code> / <code>ret</code>.</li>
-  <li><b>Correlación</b> — se determina qué función del usuario invoca cada API sospechosa, exponiendo el punto caliente del código.</li>
-  <li><b>Instrumentación</b> — <code>medbg</code> traduce direcciones y planta los breakpoints en x64dbg justo antes de las llamadas críticas.</li>
-</ol>
-<figure class="figure">
-  <img src="img/analystty-pipeline-radare2-triage-pe.jpg" alt="Pipeline de automatización con Radare2 y volcado de módulos desempaquetados en memoria durante el triage de malware" loading="lazy">
-  <figcaption class="figcap">El pipeline con Radare2 — Automatización del volcado (dump) de módulos ya desempaquetados en memoria mediante scripts sobre Radare2, pieza clave del triage dinámico.</figcaption>
-</figure>
-
-<h2 id="a04"><span class="idx">05.</span> TTPs con MITRE ATT&amp;CK desde los imports</h2>
-<p>El corazón de la detección estática late en <code>malapi.json</code>. En lugar de conformarme con un veredicto plano de «esto es malo», la herramienta clasifica el comportamiento potencial inscrito en las APIs de Windows y lo alinea con tácticas del framework MITRE ATT&amp;CK:</p>
-<div class="code-wrap"><span class="lang">json</span><pre class="code"><code><span class="syn-c">// Firmas dentro de malapi.json — cada categoría apunta a una táctica ATT&CK</span>
-<span class="syn-s">"Evasión"</span>:   [Sleep, GetModuleHandleA,
-               IsDebuggerPresent, ...]
-<span class="syn-s">"Inyección"</span>: [VirtualAllocEx, WriteProcessMemory,
-               CreateRemoteThread, ...]
-<span class="syn-s">"Ejecución"</span>: [WinExec, ShellExecute,
-               CreateProcess, ...]</code></pre></div>
-<p>Que el binario importe <code>WinExec</code> y <code>Sleep</code> no genera solo un aviso: esas APIs quedan etiquetadas como <b>Ejecución (TA0002)</b> y <b>Evasión de Defensas (TA0005)</b>. Sin ejecutar absolutamente nada, ya existe una hipótesis de las TTPs del espécimen.</p>
-
-<h2 id="a05"><span class="idx">06.</span> Correlación: del import al call graph</h2>
-<p>Saber <i>qué</i> hace el binario está bien; saber <i>dónde</i> lo hace es otro nivel. La función <code>getFunctionsByMalApiDetect()</code> resuelve las direcciones de las instrucciones <code>call</code> y <code>jmp</code> para construir la tabla de correlación:</p>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code># Salida del módulo de correlación: ADDR, NAME (API), START (función contenedora)
-ADDR              NAME              START
-0x140001234       Sleep             0x140001450
-0x140001256       VirtualAllocEx    0x140001450
-0x1400012a1       WriteProcessMemory 0x140001450
-0x1400012c0       WinExec           0x140001290</code></pre></div>
-<figure class="figure">
-  <img src="img/analystty-correlacion-funciones-api-sospechosas.jpg" alt="Tablas de correlación entre funciones del binario y APIs sospechosas como Sleep o WinExec, con direcciones de instrucciones mapeadas" loading="lazy">
-  <figcaption class="figcap">Call graph simplificado — Direcciones de instrucciones (ADDR) ligadas a APIs (NAME) dentro de sus funciones contenedoras (START). De una lista plana de imports a una hipótesis de flujo real.</figcaption>
-</figure>
-<p>Con ello paso de una lista plana a un <b>call graph simplificado</b> donde queda claro, por ejemplo, que la función residente en <code>0x140001450</code> es quien ejecuta comandos y evade sandboxes. Trazar esa relación entre API sospechosa y función contenedora separa un análisis automatizado serio de una mera enumeración de imports.</p>
-
-<h2 id="a06"><span class="idx">07.</span> ASLR y breakpoints automáticos en x64dbg</h2>
-<p>El quebradero de cabeza clásico del análisis dinámico se llama ASLR: la dirección que ves en IDA o Ghidra casi nunca coincide con la del proceso vivo. <code>medbg</code> lo neutraliza con una aritmética directa implementada en <code>__mappingPhysicalAddress</code>:</p>
-<div class="code-wrap"><span class="lang">python</span><pre class="code"><code><span class="syn-c"># Fórmula de traducción de direcciones virtuales a físicas</span>
-Physical_Address = (Virtual_AVA - ImageBase) + ModuleBase_Actual
-
-<span class="syn-c"># Ejemplo real tomado del caso de prueba:</span>
-IMAGE BASE (Disco):  <span class="syn-n">0x140000000</span>
-BASE ADDRESS (RAM):  <span class="syn-n">0x7ff780fd0000</span>
-Breakpoint calculado: <span class="syn-n">0x7ff780fd1464</span> → OK</code></pre></div>
-<figure class="figure">
-  <img src="img/analystty-x64dbg-breakpoints-automaticos.jpg" alt="Sesión de x64dbg mostrando breakpoints establecidos automáticamente tras la traducción de direcciones" loading="lazy">
-  <figcaption class="figcap">Sesión de x64dbg instrumentada — Los breakpoints colocados automáticamente tras traducir direcciones apuntan a instrucciones críticas del binario, sin calcular un offset a mano.</figcaption>
-</figure>
-
-<h2 id="a07"><span class="idx">08.</span> Caso real: el dropper multi-etapa con API hashing</h2>
-<p>En noviembre de 2025 rescaté el proyecto del cajón para una tarea concreta: diseccionar un dropper multi-etapa. La muestra ocultaba sus imports detrás de <b>API Hashing</b> —resuelve las funciones en runtime en vez de declararlas—, así que la herramienta brilló especialmente en la fase de desempaquetado y volcado.</p>
-<h3 class="idx">Volcado de memoria con Radare2</h3>
-<ol>
-  <li><b>Aislamiento</b> — ejecución dentro de un bunker de Proxmox VE con snapshot para rollback instantáneo; el mismo laboratorio que describo en la <a href="infraestructura-tunel-ofuscado.html">guía de infraestructura ofuscada con WireGuard</a>.</li>
-  <li><b>Forzado de ejecución</b> — dejar correr la muestra hasta que liberara su payload en memoria, saltándome de un plumazo el API Hashing inicial.</li>
-  <li><b>Scripting de volcado</b> — con un script hermano automatizé el dump de las regiones de interés usando Radare2 (<code>functions_to_dump.txt</code>).</li>
-  <li><b>Análisis de TTPs</b> — con el payload ya en disco, analystty cartografió las capacidades en minutos: lógica de <b>Clipper</b> (robo de criptomonedas sustituyendo direcciones en el portapapeles) e <b>InfoStealer</b> (exfiltración de credenciales y datos del sistema).</li>
-</ol>
-<figure class="figure">
-  <img src="img/analystty-validacion-offsets-breakpoints-x64dbg.jpg" alt="Validación manual de offsets calculados por analystty confirmando que los breakpoints caen sobre funciones maliciosas" loading="lazy">
-  <figcaption class="figcap">Validación manual de offsets — Confirmación de que cada breakpoint cae donde debe, dentro del espacio de memoria del proceso analizado.</figcaption>
-</figure>
-<p>El caso completo, con las técnicas de evasión del dropper incluidas, vive en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>. Allí explico cómo el pipeline permitió identificar sus capacidades en minutos en lugar de horas — y las <a href="myPracticalShellcodeC2.html">técnicas de inyección del C2 Builder</a> comparten ADN con esta familia: API Hashing, inyección en memoria y persistencia vía registro de Windows.</p>
-
-<h2 id="a08"><span class="idx">09.</span> Limitaciones honestas y roadmap</h2>
-<p>analystty es una herramienta de práctica en evolución constante y tiene aristas bien visibles. Prefiero listarlas yo antes de que las descubra nadie más.</p>
-<div class="callout callout-warn"><span class="ico">⚠</span><div>
-  <div class="h">Limitaciones actuales</div>
-  <p>Detección de funciones ingenua: depende del patrón <code>push rbp</code>; se rompe con código ofuscado, optimizaciones agresivas o ausencia de frame pointer (la migración a un enfoque basado en CFG está en el horizonte). Resolución de saltos incompleta: cubre saltos directos y los mediados por <code>rax</code>, pero no flujos complejos (<code>jne</code>, <code>push/ret</code>). Bug en <code>getInstruction()</code>: <code>medbg</code> itera sobre una lista vacía y no devuelve correctamente el desensamblado desde el debugger. Soporte PE32 parcial y rutas hardcodeadas con barras invertidas que rompen la portabilidad a Linux/macOS.</p>
-</div></div>
-<h3 class="idx">Próximos pasos</h3>
-<ul>
-  <li>Construir una <b>CLI</b> seria que acepte el binario como argumento en lugar de tenerlo fijo en código.</li>
-  <li>Reparar los bugs de <code>getInstruction</code> y <code>getBpLines</code>.</li>
-  <li>Sustituir la detección de funciones por una basada en flujo de control (CFG) para aguantar mejor el código ofuscado.</li>
-  <li>Incorporar firmas PEID desde <code>userdb.txt</code> y detectar empacadores de forma automática.</li>
-  <li>Empaquetar todo como módulo instalable vía pip.</li>
-</ul>
-
-<h2 id="a09"><span class="idx">10.</span> Conclusión: la navaja suiza personal</h2>
-<p>analystty no aspira a ser producto ni a discutirle el puesto a las suites comerciales de reversing. Es <b>mi</b> herramienta de confianza: un proyecto vivo que crece con cada muestra nueva que cruza mi laboratorio, y la cristalización de esas tareas repetitivas que aun así exigen precisión quirúrgica.</p>
-<p>Si algo me dejó el proceso es una regla clara: nunca dejar herramientas a medias. Desenterrar el código un año después y adaptarlo a una amenaza real —el dropper con API Hashing de la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>— me recordó sin anestesia que las herramientas construidas para uno mismo acaban siendo las más rentables. El ejercicio paralelo de <a href="evasion-estatica-asm-mirai.html">evasión estática en ASM contra Mirai</a> apunta a la misma moraleja: automatiza lo repetitivo y reserva el criterio humano para lo que de verdad lo necesita.</p>
-<p>El código está publicado en GitHub por si alguien quiere curiosearlo, destriparlo o doblarlo a sus propias rutinas de triage.</p>
-
-<h2 id="a10"><span class="idx">11.</span> Referencias</h2>
-<ul>
-  <li><a href="https://github.com/tty503/analystty" target="_blank" rel="noopener noreferrer">Repositorio de analystty en GitHub</a></li>
-  <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — el dropper multi-etapa analizado con este pipeline</a></li>
-  <li><a href="myPracticalShellcodeC2.html">De la shellcode artesanal al C2 Builder — técnicas de evasión relacionadas</a></li>
-  <li><a href="evasion-estatica-asm-mirai.html">Evasión estática en ASM — polimorfismo manual contra firmas YARA</a></li>
-  <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura ofuscada con WireGuard — el entorno de laboratorio utilizado</a></li>
-  <li><a href="https://www.capstone-engine.org" target="_blank" rel="noopener noreferrer">Capstone Engine — motor de desensamblado</a></li>
-  <li><a href="https://github.com/erocarrera/pefile" target="_blank" rel="noopener noreferrer">pefile — Python PE parsing</a></li>
-</ul>
 </article>
 <section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="threat-hunter-recollection.html"><span class="arrow">→</span><div class="meta"><span>2026-05-24</span><span>45 min</span></div><div class="t">Threat Hunter Recollection: cinco investigaciones reales de caza</div><div class="d">Bitácora de un año de caza: mapeo OSINT de una red de estafa piramidal, fraude con Lumma Stealer, deconstrucción de NetS</div><span class="badge badge-ti">Threat Intelligence</span></a><a class="card" href="myPracticalShellcodeC2.html"><span class="arrow">→</span><div class="meta"><span>2026-05-22</span><span>120 min</span></div><div class="t">De winshellcode a BugBuilder: inyección y C2 en Windows</div><div class="d">Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API</div><span class="badge badge-ti">Malware Development</span></a><a class="card" href="evasion-estatica-asm-mirai.html"><span class="arrow">→</span><div class="meta"><span>2026-06-01</span><span>25 min</span></div><div class="t">Evasión estática en ASM: romper firmas de Mirai sin packers</div><div class="d">De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con</div><span class="badge badge-ti">Malware Analysis</span></a></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
 <div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez · Threat Intelligence · Ingeniería Inversa · Exploit Development · Seguridad OT. Venezuela.</p>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>
