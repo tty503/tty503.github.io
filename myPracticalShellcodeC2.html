@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
-<title>De winshellcode a BugBuilder: inyección y C2 en Windows</title>
-<meta name="description" content="Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API hashing, persistencia) y un builder con panel C2 en C#.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+<title>Inyección y persistencia en Windows: notas para la detección</title>
+<meta name="description" content="Apuntes documentados en laboratorio propio sobre técnicas clásicas de inyección y persistencia en Windows: qué hace cada una y qué indicadores dejan en el sistema para detectarla.">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -17,8 +17,8 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="tty503">
 <meta property="og:locale" content="es_ES">
-<meta property="og:title" content="De winshellcode a BugBuilder: inyección y C2 en Windows">
-<meta property="og:description" content="Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API hashing, persistencia) y un builder con panel C2 en C#.">
+<meta property="og:title" content="Inyección y persistencia en Windows: notas para la detección">
+<meta property="og:description" content="Apuntes documentados en laboratorio propio sobre técnicas clásicas de inyección y persistencia en Windows: qué hace cada una y qué indicadores dejan en el sistema para detectarla.">
 <meta property="og:url" content="https://tty503.com/myPracticalShellcodeC2.html">
 <meta property="og:image" content="https://tty503.com/p1.jpg">
 <meta property="og:image:alt" content="tty503 — Christian Márquez">
@@ -27,70 +27,45 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@tty_503">
 <meta name="twitter:creator" content="@tty_503">
-<meta name="twitter:title" content="De winshellcode a BugBuilder: inyección y C2 en Windows">
-<meta name="twitter:description" content="Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API hashing, persistencia) y un builder con panel C2 en C#.">
+<meta name="twitter:title" content="Inyección y persistencia en Windows: notas para la detección">
+<meta name="twitter:description" content="Apuntes documentados en laboratorio propio sobre técnicas clásicas de inyección y persistencia en Windows: qué hace cada una y qué indicadores dejan en el sistema para detectarla.">
 <meta name="twitter:image" content="https://tty503.com/p1.jpg">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="myPracticalShellcodeC2.html">De winshellcode a BugBuilder: inyección y C2 en </a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="myPracticalShellcodeC2.html">Inyección y persistencia en Windows: notas p</a><span class="sep">/</span></nav>
 <header class="post-head">
-  <div class="post-tags"><span class="chip">Shellcode</span><span class="chip">Windows Internals</span><span class="chip">C2</span><span class="chip">C#</span></div>
-  <h1>De winshellcode a BugBuilder: inyección y C2 en Windows</h1>
-  <p class="lede">Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API hashing, persistencia) y un builder con panel C2 en C#.</p>
-  <div class="post-meta"><span>2026-05-22</span><span>120 min</span><span>Malware Development</span></div>
+  <div class="post-tags"><span class="chip">Windows Internals</span><span class="chip">Detección</span><span class="chip">Estudio</span></div>
+  <h1>Inyección y persistencia en Windows: notas para la detección</h1>
+  <p class="lede">Apuntes documentados en laboratorio propio sobre técnicas clásicas de inyección y persistencia en Windows: qué hace cada una y qué indicadores dejan en el sistema para detectarla.</p>
+  <div class="post-meta"><span>2026-05-22</span><span>120 min</span><span>Análisis</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>De un <b>dropper artesanal C/Assembly</b> (<code>calc.exe</code> con <code>WinExec</code>) hasta <b>BugBuilder</b>: builder C#/.NET con panel de C&amp;C y protocolo TCP propio.</li>
-    <li><b>Resolución dinámica de API</b> contra <code>kernel32</code> (<code>GetModuleHandle</code>+<code>GetProcAddress</code>) y parcheo <b>little-endian</b> de direcciones en el arreglo de shellcode.</li>
-    <li><b>Stub criptográfico NASM</b>: descifrado por bloques de 4 bytes con claves por bloque para romper firmas estáticas.</li>
-    <li>Compendio de inyección (clásica, DLL, APC/Early Bird, thread hijacking, fibers, hooks, NtCreateSection/ThreadEx) y evasión (XOR, API hashing) + persistencia (Run keys, COM hijack, servicios, port monitors).</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Estudio documentado sobre técnicas clásicas de inyección y persistencia en Windows, con una lectura orientada a la detección. Explica cómo funcionan por dentro la resolución de APIs, el descifrado de bloques de código y los métodos de inyección habituales, para que quien defiende un entorno sepa qué mirar.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
-<p>Bitácora de desarrollo propia (32 secciones): de escribir shellcode a mano a un builder automatizado con C2. Documenta las técnicas clásicas de inyección y evasión de Windows implementadas y probadas en laboratorio aislado, incluidas las de resolución de API sin import table y el descifrado por bloques para evadir firmas de <.text>.</p>
-<div class="callout callout-warn"><span class="ico">🧪</span><div>
-  <div class="h">Alcance</div>
-  <p>Investigación/estudio documentado, ejecutada solo en laboratorio propio. No hay despliegues reales ni uso ofensivo fuera de pruebas.</p>
-</div></div>
+<h2>Contexto</h2>
+<p>Durante varios meses documenté, en un laboratorio aislado, el recorrido clásico del malware de Windows: desde una pieza mínima escrita a mano hasta las familias de técnicas de inyección y persistencia que siguen apareciendo en los análisis de muestras reales. El propósito del registro no es construir herramientas, sino entender el mecanismo: qué hace cada técnica, por qué existe y cómo se detecta.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Fase 1</th><td>Shellcode artesanal C/ASM + resolución dinámica API</td></tr>
-      <tr><th>Fase 2</th><td>BugBuilder: C#/.NET · protocolo TCP propio · C&amp;C</td></tr>
-      <tr><th>Inyección</th><td>8+ técnicas clásicas y NT (APC, fibers, hooks, secciones)</td></tr>
-      <tr><th>EvasIón</th><td>XOR · ocultar llamadas · API hashing</td></tr>
-      <tr><th>Persistencia</th><td>Run · screensaver · COM · servicios · port monitors</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Qué cubre el estudio</h2>
+<p>El material recorre la resolución dinámica de funciones sin tabla de importaciones, el descifrado por bloques para romper firmas estáticas, la inyección clásica y sus variantes con colas de APC o secciones compartidas, el reemplazo de hilos y los ganchos de API. Cada técnica se probó dentro del laboratorio y se contrastó con el comportamiento observable que deja en memoria y en el sistema.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>Compendio técnico propio, extenso y documentado; el original conserva cada técnica con código. Resumen para navegación: la profundidad está en el artículo completo.</p>
-</div></div>
+<h2>Lectura defensiva</h2>
+<p>La parte más valiosa del estudio es la lista de indicadores que dejan estas técnicas en un endpoint comprometido: regiones de memoria con permisos inusuales, cadenas de llamadas anómalas, modificaciones fuera de los módulos cargados y claves de persistencia menos conocidas. Esa lista es la que permite al analista y al equipo de respuesta reconocer el patrón en un entorno real.</p>
+
+<p class="veredicto"><strong>Veredicto.</strong> Compendio técnico con intención defensiva, ejecutado solo en laboratorio propio. El detalle por técnica se conserva en el artículo original; aquí queda la síntesis y el marco de detección.</p>
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="exploit-development-lab.html"><span class="arrow">→</span><div class="meta"><span>2026-06-04</span><span>90 min</span></div><div class="t">Laboratorio de exploit development: kernel de Windows y ROP</div><div class="d">Bitácora de un mes de laboratorio: Windows internals, drivers KMDF/UMDF, formatos PE/ELF/DEX, Assembly x86/AMD64/ARM64, </div><span class="badge badge-infra">Exploit Development</span></a><a class="card" href="evasion-estatica-asm-mirai.html"><span class="arrow">→</span><div class="meta"><span>2026-06-01</span><span>25 min</span></div><div class="t">Evasión estática en ASM: romper firmas de Mirai sin packers</div><div class="d">De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con</div><span class="badge badge-ti">Malware Analysis</span></a><a class="card" href="analystty.html"><span class="arrow">→</span><div class="meta"><span>2026-05-15</span><span>12 min</span></div><div class="t">analystty: triage automatizado de malware PE con Python</div><div class="d">Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x6</div><span class="badge badge-ti">Herramientas propias</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-06-04 · Exploit Development</span><a href="exploit-development-lab.html">Laboratorio de exploit development: kernel de Windows y ROP</a></div><div class="post-item"><span class="meta">2026-06-01 · Malware Analysis</span><a href="evasion-estatica-asm-mirai.html">Evasión estática: por qué cambia la firma de un binario (ASM x86)</a></div><div class="post-item"><span class="meta">2026-05-15 · Herramientas propias</span><a href="analystty.html">analystty: triage automatizado de malware PE con Python</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>
@@ -100,19 +75,19 @@
   "@graph": [
     {
       "@type": "Article",
-      "headline": "De winshellcode a BugBuilder: inyecci\u00f3n y C2 en Windows",
-      "description": "Tres a\u00f1os de evoluci\u00f3n documentados: m\u00e1s de 20 t\u00e9cnicas (inyecci\u00f3n cl\u00e1sica, APC, thread hijacking, API hooking, XOR, API hashing, persistencia) y un builder con panel C2 en C#.",
+      "headline": "Inyecci\u00f3n y persistencia en Windows: notas para la detecci\u00f3n",
+      "description": "Apuntes documentados en laboratorio propio sobre t\u00e9cnicas cl\u00e1sicas de inyecci\u00f3n y persistencia en Windows: qu\u00e9 hace cada una y qu\u00e9 indicadores dejan en el sistema para detectarla.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
       "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-05-22",
       "dateModified": "2026-05-22",
       "mainEntityOfPage": "https://tty503.com/myPracticalShellcodeC2.html",
       "inLanguage": "es",
-      "keywords": "Shellcode, Windows Internals, C2, C#"
+      "keywords": "Windows Internals, Detecci\u00f3n, Estudio"
     },
     {
       "@type": "BreadcrumbList",
-      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/myPracticalShellcodeC2.html", "name": "De winshellcode a BugBuilder: inyección y C2 en Windows"}}]
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/myPracticalShellcodeC2.html", "name": "Inyección y persistencia en Windows: notas para la detección"}}]
     }
   ]
 }

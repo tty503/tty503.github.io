@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial</title>
 <meta name="description" content="Túnel WireGuard encapsulado en TCP falso mediante udp2raw, enmascaramiento con redsocks + SOCKS5 residencial y DNS blindado con dnscrypt-proxy. Arquitectura completa y despliegue automatizado.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -33,63 +33,38 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="infraestructura-tunel-ofuscado.html">Túnel ofuscado: WireGuard sobre TCP falso y prox</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="infraestructura-tunel-ofuscado.html">Túnel ofuscado: WireGuard sobre TCP falso y </a><span class="sep">/</span></nav>
 <header class="post-head">
-  <div class="post-tags"><span class="chip">WireGuard</span><span class="chip">udp2raw</span><span class="chip">DPI bypass</span><span class="chip">Redes</span></div>
+  <div class="post-tags"><span class="chip">WireGuard</span><span class="chip">udp2raw</span><span class="chip">Redes</span><span class="chip">Laboratorio</span></div>
   <h1>Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial</h1>
   <p class="lede">Túnel WireGuard encapsulado en TCP falso mediante udp2raw, enmascaramiento con redsocks + SOCKS5 residencial y DNS blindado con dnscrypt-proxy. Arquitectura completa y despliegue automatizado.</p>
   <div class="post-meta"><span>2026-05-22</span><span>30 min</span><span>Infraestructura</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Columna vertebral de las investigaciones: <b>VPN privada de dos nodos</b> cuyo túnel WireGuard viaja <b>camuflado como HTTPS</b> (udp2raw <code>faketcp</code> + XOR, puerto 443), con salida tras <b>proxies residenciales SOCKS5</b> y DNS cifrado con <b>DoH</b>.</li>
-    <li><b>Separación de funciones</b>: Nodo A = única puerta visible (DNAT 80/443/5522); Nodo B = servicios reales sin puertos expuestos salvo SSH. Si cae A no hay datos; si cae B, su IP real jamás aparece en logs.</li>
-    <li>Enrutamiento selectivo (<code>AllowedIPs = 10.100.0.1/32</code>): entrada por el túnel, salida por el proxy residencial — nunca se mezclan.</li>
-    <li>Despliegue automatizado en un script Bash: <b>~90 segundos</b> de dependencias a verificación de salida residencial.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Columna vertebral de las investigaciones: VPN privada de dos nodos cuyo túnel WireGuard viaja camuflado como HTTPS (udp2raw faketcp + XOR, puerto 443), con salida tras proxies residenciales SOCKS5 y DNS cifrado con DoH. Separación de funciones: Nodo A = única puerta visible (DNAT 80/443/5522); Nodo B = servicios reales sin puertos expuestos salvo SSH. Si cae A no hay datos; si cae B, su IP real jamás aparece en logs. Enrutamiento selectivo con IPs internas omitidas: entrada por el túnel, salida por el proxy residencial — nunca se mezclan. Despliegue automatizado en un script Bash: ~90 segundos de dependencias a verificación de salida residencial.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Arquitectura de infraestructura ofuscada usada para trabajo de investigación (threat intel y laboratorios) sin exponer origen ni servicios. El tráfico cargo entra por la única puerta visible (Nodo A), viaja por un túnel WireGuard disfrazado de HTTPS a través de puertos típicos y sale por un proxy residencial independiente con DNS resuelto sobre DoH.</p>
 <p>La separación de nodos es el diseño clave de resiliencia: ningún componente individual revela datos. El despliegue total queda en un único script, reproducido en ~90 segundos.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Stack</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>WireGuard</th><td>Túnel <code>10.100.0.0/24</code>, enrutamiento selectivo</td></tr>
-      <tr><th>udp2raw</th><td>Ofuscación <code>faketcp</code>+XOR · puerto 443</td></tr>
-      <tr><th>Entrada</th><td>iptables DNAT 80/443/5522 → 10.100.0.2</td></tr>
-      <tr><th>DNS</th><td>dnscrypt-proxy + dnsmasq · DoH Cloudflare</td></tr>
-      <tr><th>Salida</th><td>redsocks → SOCKS5 residencial</td></tr>
-      <tr><th>Firewall</th><td>Nodo A: 22/80/443/5522 · Nodo B: 22</td></tr>
-      <tr><th>Deploy</th><td>Script Bash · ~90 s</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Stack</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> WireGuard: Túnel privado, enrutamiento selectivo. udp2raw: Ofuscación faketcp +XOR · puerto 443. Entrada: iptables DNAT de los puertos de servicio. DNS: dnscrypt-proxy + dnsmasq · DoH Cloudflare. Salida: redsocks → SOCKS5 residencial. Firewall: Nodo A: 22/80/443/5522 · Nodo B: 22. Deploy: Script Bash · ~90 s.</p>
 
-<div class="callout callout-info"><span class="ico">🔧</span><div>
-  <div class="h">Veredicto</div>
-  <p>Infraestructura propia documentada y desplegable; usada como base de las investigaciones de la casa (threat intel y laboratorio). Detalles de config en el artículo completo.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Infraestructura propia documentada y desplegable; usada como base de las investigaciones de la casa (threat intel y laboratorio). Detalles de config en el artículo completo.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="infra-soc.html"><span class="arrow">→</span><div class="meta"><span>2026-05-24</span><span>35 min</span></div><div class="t">Laboratorio SOC con honeypots: aislamiento y automatización</div><div class="d">Laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo:</div><span class="badge badge-infra">Infraestructura</span></a><a class="card" href="saint-grail-go.html"><span class="arrow">→</span><div class="meta"><span>2026-07-05</span><span>15 min</span></div><div class="t">SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</div><div class="d">Migración a Go por rendimiento y concurrencia nativa: dos PoCs funcionales generados por IA — TOCTOU en Chromium y CRC b</div><span class="badge badge-guide">Herramientas propias</span></a><a class="card" href="exploit-development-lab.html"><span class="arrow">→</span><div class="meta"><span>2026-06-04</span><span>90 min</span></div><div class="t">Laboratorio de exploit development: kernel de Windows y ROP</div><div class="d">Bitácora de un mes de laboratorio: Windows internals, drivers KMDF/UMDF, formatos PE/ELF/DEX, Assembly x86/AMD64/ARM64, </div><span class="badge badge-infra">Exploit Development</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-05-24 · Infraestructura</span><a href="infra-soc.html">Laboratorio SOC con honeypots: aislamiento y automatización</a></div><div class="post-item"><span class="meta">2026-07-05 · Herramientas propias</span><a href="saint-grail-go.html">SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</a></div><div class="post-item"><span class="meta">2026-06-04 · Exploit Development</span><a href="exploit-development-lab.html">Laboratorio de exploit development: kernel de Windows y ROP</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>
@@ -107,7 +82,7 @@
       "dateModified": "2026-05-22",
       "mainEntityOfPage": "https://tty503.com/infraestructura-tunel-ofuscado.html",
       "inLanguage": "es",
-      "keywords": "WireGuard, udp2raw, DPI bypass, Redes"
+      "keywords": "WireGuard, udp2raw, Redes, Laboratorio"
     },
     {
       "@type": "BreadcrumbList",

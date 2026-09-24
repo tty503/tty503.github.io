@@ -1,33 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Un patrón regex de ~693 bytes con una <b>backreference recursiva <code>(?0)</code> dentro de un negative lookahead <code>(?!…)</code></b> cuelga para siempre a <code>pcre2_jit_compile</code> en <code>get_framesize</code> (CWE-400).</li>
-    <li>El mismo patrón en modo interpretado: <b>compila en 0 ms</b> y hace match limpio con rc=-1. El fallo es exclusivo del backend JIT — no es ReDoS.</li>
-    <li>Causa: la pasada de dimensionado de frames recorre la recursión total sin memoizar; <code>get_framesize</code> (<code>pcre2_jit_compile.c:2224</code>) no converge.</li>
-    <li>Superficie real: servicios que <b>compilan regex de terceros</b> (WAFs, buscadores, filtros de logs). Sin parche confirmado al cierre.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Un patrón regex de ~693 bytes con una backreference recursiva (?0) dentro de un negative lookahead (?!…) cuelga para siempre a pcre2_jit_compile en get_framesize (CWE-400). El mismo patrón en modo interpretado: compila en 0 ms y hace match limpio con rc=-1. El fallo es exclusivo del backend JIT — no es ReDoS. Causa: la pasada de dimensionado de frames recorre la recursión total sin memoizar; get_framesize (pcre2_jit_compile.c:2224) no converge. Superficie real: servicios que compilan regex de terceros (WAFs, buscadores, filtros de logs). Sin parche confirmado al cierre.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>PCRE2 10.48, al compilar un patrón que anida una subrutina recursiva <code>(?0)</code> dentro de un negative lookahead, entra en una recursión interna sin terminación durante la pasada que dimensiona los frames del JIT. El resultado es un hang indefinido de CPU en tiempo de compilación, reproducible con un patrón de ~693 bytes.</p>
 <p>El experimento diferencial (intérprete vs JIT) es el dato clave: el intérprete compila y ejecuta el patrón sin problema, así que no hay ambigüedad de parse — el fallo es del compilador JIT y se acota a su pasada de size de frames.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Target</th><td>PCRE2 10.48 · <code>pcre2_jit_compile.c</code></td></tr>
-      <tr><th>Clase</th><td>Uncontrolled Resource Consumption — <b>CWE-400</b></td></tr>
-      <tr><th>Disparador</th><td>Regex ~693 B: <code>(?0)</code> recursiva dentro de <code>(?!…)</code></td></tr>
-      <tr><th>Causa</th><td><code>get_framesize</code> (<code>pcre2_jit_compile.c:2224</code>) sin memoización de recursión</td></tr>
-      <tr><th>Dato clave</th><td>Modo interpretado: compile OK + match rc=-1 en 0.000 s</td></tr>
-      <tr><th>Severidad</th><td>LOW — CPU durante compilación; timeout reproducible 3/3</td></tr>
-      <tr><th>Fix</th><td>Sin confirmación de parche al cierre</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Target: PCRE2 10.48 · pcre2_jit_compile.c. Clase: Uncontrolled Resource Consumption — CWE-400. Disparador: Regex ~693 B: (?0) recursiva dentro de (?!…). Causa: get_framesize ( pcre2_jit_compile.c:2224 ) sin memoización de recursión. Dato clave: Modo interpretado: compile OK + match rc=-1 en 0.000 s. Severidad: LOW — CPU durante compilación; timeout reproducible 3/3. Fix: Sin confirmación de parche al cierre.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>Hang reproducible y bien acotado (exclusivo del JIT). Relevante solo para servicios que compilan regex de usuario; documentado con la clase de construcción y divulgación graduada.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Hang reproducible y bien acotado (exclusivo del JIT). Relevante solo para servicios que compilan regex de usuario; documentado con la clase de construcción y divulgación graduada.</p>

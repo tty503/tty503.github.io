@@ -1,34 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>RCE <b>pre-auth con 1 sola petición HTTP</b> (puerto 2060): la cabecera <b>Host</b> inyecta argumentos en <code>execvp("/bin/sh","-c")</code> → <b>reverse shell como root (uid=0)</b>.</li>
-    <li>Cadena real: <code>api.c:462</code> → <code>http.c:140/154</code> → <code>fw_iptables.c:596</code> → <code>util.c:96</code> — el Host entra en un comando de firewall construido con concatenación.</li>
-    <li>Requisito de config real en la distribucion de firmware: una <code>FirewallRuleSet</code> global debe existir (presente en configuraciones reales de fw3).</li>
-    <li>CWE-78. Sin CVE asignado al cierre del análisis.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> RCE pre-auth con 1 sola petición HTTP (puerto 2060): la cabecera Host llega sin validar a la construcción de una regla de firewall que termina en un intérprete de comandos (uid del proceso). El valor del Host termina concatenado en la construcción de una regla de firewall. Requisito de config real en la distribucion de firmware: una FirewallRuleSet global debe existir (presente en configuraciones reales de fw3). CWE-78. Sin CVE asignado al cierre del análisis.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
-<p>el daemon de autenticacion y redireccion (uno de los auth/redirect daemons más usados en firmware embebido) arma reglas de iptables concatenando una cadena proveniente de la cabecera <code>Host</code> de la petición. El valor no se valida, y con un Host "inteligente" se rompe el comando y se encadena un payload shell ejecutado por <code>execvp</code>. Reproducción: un único request HTTP hacia el puerto 2060 dispara la reverse shell.</p>
+<h2>Resumen</h2>
+<p>el daemon de autenticacion y redireccion (uno de los auth/redirect daemons más usados en firmware embebido) arma reglas de iptables concatenando una cadena proveniente de la cabecera <code>Host</code> de la petición. El valor no se valida, y con un Host malformado se rompe la construcción del comando y se puede forzar la ejecución de comandos. Reproducción: un único request HTTP hacia el puerto 2060 dispara la ejecución de comandos.</p>
 <p>La verificación cubrió la ruta completa entrada→sink (archivo:línea reales de libhttpd, que es el servidor HTTP embebido incluido en el fuente), sobre el árbol actual sin <code>.git</code> y sin consultar ninguna base de CVEs previa.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Target</th><td>el daemon de autenticacion y redireccion (daemon captive portal, libhttpd embebido)</td></tr>
-      <tr><th>Clase</th><td>OS command injection — <b>CWE-78</b></td></tr>
-      <tr><th>Acceso</th><td>Pre-auth · 1 petición HTTP · puerto 2060</td></tr>
-      <tr><th>Vector</th><td>Cabecera <code>Host</code> → comando iptables → <code>/bin/sh -c</code></td></tr>
-      <tr><th>Cadena</th><td><code>api.c:462</code> → <code>http.c:140/154</code> → <code>fw_iptables.c:596</code> → <code>util.c:96</code></td></tr>
-      <tr><th>Impacto</th><td>RCE como root (uid=0)</td></tr>
-      <tr><th>Config</th><td>Requiere <code>FirewallRuleSet</code> global (real en fw3/la distribucion de firmware)</td></tr>
-      <tr><th>Fix</th><td>Sin CVE asignado al cierre</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Target: el daemon de autenticacion y redireccion (daemon captive portal, libhttpd embebido). Clase: OS command injection — CWE-78. Acceso: Pre-auth · 1 petición HTTP · puerto 2060. Vector: Cabecera Host → comando iptables → un intérprete de comandos. Ruta documentada en el artículo original. Impacto: ejecución de comandos como administrador (uid del proceso). Config: Requiere FirewallRuleSet global (real en fw3/la distribucion de firmware). Fix: Sin CVE asignado al cierre.</p>
 
-<div class="callout callout-danger"><span class="ico">⛔</span><div>
-  <div class="h">Veredicto</div>
-  <p>RCE pre-auth reproducible con evidencia E2E (3/3): reverse shell root en la distribucion de firmware. El único matiz es la dependencia de una regla de firewall global, que forma parte de la configuración por defecto de los firmwares que lo integran.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> RCE pre-auth reproducible con evidencia E2E (3/3): ejecución de comandos como administrador en la distribucion de firmware. El único matiz es la dependencia de una regla de firewall global, que forma parte de la configuración por defecto de los firmwares que lo integran.</p>

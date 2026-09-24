@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing</title>
 <meta name="description" content="Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y una clasificación honesta: DUP-RACE.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -33,17 +33,14 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="libarchive-cab-lzx-uninitialized-memory.html">libarchive: uninitialized heap read en CAB/LZX c</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="libarchive-cab-lzx-uninitialized-memory.html">libarchive: uninitialized heap read en CAB/L</a><span class="sep">/</span></nav>
 <header class="post-head">
   <div class="post-tags"><span class="chip">CWE-457</span><span class="chip">libarchive</span><span class="chip">Patch-diffing</span><span class="chip">LZX</span></div>
   <h1>libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing</h1>
@@ -51,43 +48,22 @@
   <div class="post-meta"><span>2026-08-21</span><span>11 min</span><span>Vulnerability Research</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Mismo archivo CAB, dos binarios: el snapshot de <b>bsdtar 3.8.9</b> extrae leyendo un <em>history guard</em> del decoder <b>LZX</b> que nadie inicializó (CWE-457); el build con fix lo rechaza con <code>LZX_CORRUPT</code>.</li>
-    <li>Método: <b>patch-diffing como radar</b> — un commit upstream del 08-08 endureció el path CAB/LZX y la revisión periódica del snapshot reveló que el fix no estaba.</li>
-    <li>Validación A/B: mismo input, única variable = el parche. Vulnerable <code>rc=0</code> (ASAN <code>use-of-uninitialized-value</code>); parcheado <code>rc=1</code> (-25).</li>
-    <li>Clasificación honesta: <b>DUP-RACE</b> — el fix ya existía una semana antes. El activo duradero es el método, no el CVE.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Mismo archivo CAB, dos binarios: el snapshot de bsdtar 3.8.9 extrae leyendo un history guard del decoder LZX que nadie inicializó (CWE-457); el build con fix lo rechaza con LZX_CORRUPT. Método: patch-diffing como radar — un commit upstream del 08-08 endureció el path CAB/LZX y la revisión periódica del snapshot reveló que el fix no estaba. Validación A/B: mismo input, única variable = el parche. Vulnerable rc=0 (ASAN use-of-uninitialized-value); parcheado rc=1 (-25). Clasificación honesta: DUP-RACE — el fix ya existía una semana antes. El activo duradero es el método, no el CVE.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>bsdtar extrae un CAB LZX leyendo como <em>guardián</em> un valor de memoria no inicializada. Al recibir el mismo CAB, el snapshot vulnerable procede (rc=0) y el build parcheado lo rechaza como corrupto — la diferencia es un commit de endurecimiento previo. Se documenta como <b>DUP-RACE</b>: el fix se anticipó por otra vía, pero el hallazgo verifica la validez del método radar de patch-diffing sobre snapshots.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Target</th><td>libarchive / bsdtar 3.8.9 — CAB + compresión LZX</td></tr>
-      <tr><th>Clase</th><td>Use of Uninitialized Variable — <b>CWE-457</b></td></tr>
-      <tr><th>Sink</th><td><code>lzx_read_blocks</code> (history guard) durante la extracción</td></tr>
-      <tr><th>Validación</th><td>ASAN (<code>use-of-uninitialized-value</code>) + valgrind <code>--track-origins=yes</code></td></tr>
-      <tr><th>A/B</th><td>Vulnerable rc=0 · Parcheado rc=1 (LZX_CORRUPT)</td></tr>
-      <tr><th>Clasificación</th><td>DUP-RACE — fix upstream anterior a la detección</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Target: libarchive / bsdtar 3.8.9 — CAB + compresión LZX. Clase: Use of Uninitialized Variable — CWE-457. Sink: lzx_read_blocks (history guard) durante la extracción. Validación: ASAN ( use-of-uninitialized-value ) + valgrind --track-origins=yes. A/B: Vulnerable rc=0 · Parcheado rc=1 (LZX_CORRUPT). Clasificación: DUP-RACE — fix upstream anterior a la detección.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>No es un 0-day: es un caso metodológico. El patch-diffing sobre snapshots demostró detectar divergencias reales; el valor entregado es ese método, no un CVE sellable.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> No es un 0-day: es un caso metodológico. El patch-diffing sobre snapshots demostró detectar divergencias reales; el valor entregado es ese método, no un CVE sellable.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="7zip-isfolderencrypted-oob-read.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>18 min</span></div><div class="t">7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente</div><div class="d">El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>16 min</span></div><div class="t">FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)</div><div class="d">Tres bugs de DoS por fuzzing autónomo: división por cero con 21 bytes (CWE-369, parcheada), leak escalable hasta ~677 MB</div><span class="badge badge-dos">Vulnerability Research</span></a><a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>20 min</span></div><div class="t">Sherlock: caza autónoma de vulnerabilidades con IA local</div><div class="d">Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con valid</div><span class="badge badge-rce">Serie</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="7zip-isfolderencrypted-oob-read.html">7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente</a></div><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)</a></div><div class="post-item"><span class="meta">2026-08-21 · Serie</span><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: caza autónoma de vulnerabilidades con IA local</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

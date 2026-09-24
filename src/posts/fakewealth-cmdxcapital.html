@@ -1,32 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Campaña de fraude bajo <b>cmdxcapital.com</b> con <b>10+ dominios satélite</b> tras Cloudflare y un error inédito en el sector: <b>APP_DEBUG=true en producción</b> (Laravel 8.83.25 / PHP 8.3.15) que expuso SQL, tokens de sesión y la ruta absoluta del server.</li>
-    <li>Crash de <code>Swift_Transport_StreamBuffer.php:291</code> → <code>proc_open()</code> deshabilitada al enviar el <code>WelcomeEmail</code> en el registro.</li>
-    <li><b>Trazabilidad total</b>: la marca hereda a <b>Bremby (bremby.biz)</b> — 13 reportes, <b>$174,664 en depósitos</b>, mismo registrador (NameCheap), mismo CDN y plantilla.</li>
-    <li>Captcha trivial, wallet BTC emergente <code>bc1q…elsa</code>, suplantación de <b>Companies House UK N° 13699699</b> (disuelta 2023) y smurfing USDT TRC20.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Campaña de fraude bajo cmdxcapital.com con 10+ dominios satélite tras Cloudflare y un error inédito en el sector: modo de depuración activado en producción (Laravel 8.83.25 / PHP 8.3.15) que dejaba visible información de configuración. Los fallos operativos observados desde el exterior confirman un despliegue descuidado. Trazabilidad total: la marca hereda a Bremby (bremby.biz) — 13 reportes, $174,664 en depósitos, mismo registrador (NameCheap), mismo CDN y plantilla. Captcha trivial, wallet BTC emergente bc1q…elsa, suplantación de Companies House UK N° 13699699 (disuelta 2023) y smurfing USDT TRC20.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>La Operación FakeWealth documenta el ciclo completo de threat intel sobre una red de fraude financiero: mapeo de dominios satélite, correlación de wallets en blockchain y atribución por reutilización de plantillas. Los fallos de OpSec (debug mode en producción, captcha trivial, proc_open deshabilitada) sirven aquí como evidencia para entender al adversario, no como fin.</p>
 <p>Lo distintivo es la herencia de marca: cmdxcapital reutiliza el molde de Bremby, y los indicadores financieros (monto de depósitos, historial de reportes) permiten dimensionar el daño real de la campaña.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Dominio core</th><td><code>cmdxcapital.com</code></td></tr>
-      <tr><th>Backend</th><td>Laravel 8.83.25 (PHP 8.3.15) — debug expuesto</td></tr>
-      <tr><th>Wallet BTC</th><td><code>bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</code></td></tr>
-      <tr><th>Entidad suplantada</th><td>Companies House UK N° 13699699 (disuelta)</td></tr>
-      <tr><th>Predecesora</th><td>Bremby (bremby.biz) — $174,664 · 13 reportes</td></tr>
-      <tr><th>Periodo</th><td>oct 2025 – may 2026 · activa</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Dominio core: cmdxcapital.com. Backend: Laravel 8.83.25 (PHP 8.3.15) — modo depuración visible. Wallet BTC: bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa. Entidad suplantada: Companies House UK N° 13699699 (disuelta). Predecesora: Bremby (bremby.biz) — $174,664 · 13 reportes. Periodo: oct 2025 – may 2026 · activa.</p>
 
-<div class="callout callout-danger"><span class="ico">⛔</span><div>
-  <div class="h">Veredicto</div>
-  <p>Campaña de fraude financiero activa y verificada; aplicar bloqueo de los IoCs listados en el artículo completo.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Campaña de fraude financiero activa y verificada; aplicar bloqueo de los IoCs listados en el artículo completo.</p>

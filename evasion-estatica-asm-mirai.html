@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
-<title>Evasión estática en ASM: romper firmas de Mirai sin packers</title>
-<meta name="description" content="De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con aritmética dinámica y arquitectura de entrega mutante con DGA.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+<title>Evasión estática: por qué cambia la firma de un binario (ASM x86)</title>
+<meta name="description" content="Medición en laboratorio sobre una muestra pública: las detecciones cayeron de 16 a cero al reescribir los opcodes con la misma lógica, sin empaquetar y con entropía normal. Lectura defensiva incluida.">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -17,8 +17,8 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="tty503">
 <meta property="og:locale" content="es_ES">
-<meta property="og:title" content="Evasión estática en ASM: romper firmas de Mirai sin packers">
-<meta property="og:description" content="De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con aritmética dinámica y arquitectura de entrega mutante con DGA.">
+<meta property="og:title" content="Evasión estática: por qué cambia la firma de un binario (ASM x86)">
+<meta property="og:description" content="Medición en laboratorio sobre una muestra pública: las detecciones cayeron de 16 a cero al reescribir los opcodes con la misma lógica, sin empaquetar y con entropía normal. Lectura defensiva incluida.">
 <meta property="og:url" content="https://tty503.com/evasion-estatica-asm-mirai.html">
 <meta property="og:image" content="https://tty503.com/p1.jpg">
 <meta property="og:image:alt" content="tty503 — Christian Márquez">
@@ -27,68 +27,44 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@tty_503">
 <meta name="twitter:creator" content="@tty_503">
-<meta name="twitter:title" content="Evasión estática en ASM: romper firmas de Mirai sin packers">
-<meta name="twitter:description" content="De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con aritmética dinámica y arquitectura de entrega mutante con DGA.">
+<meta name="twitter:title" content="Evasión estática: por qué cambia la firma de un binario (ASM x86)">
+<meta name="twitter:description" content="Medición en laboratorio sobre una muestra pública: las detecciones cayeron de 16 a cero al reescribir los opcodes con la misma lógica, sin empaquetar y con entropía normal. Lectura defensiva">
 <meta name="twitter:image" content="https://tty503.com/p1.jpg">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="evasion-estatica-asm-mirai.html">Evasión estática en ASM: romper firmas de Mirai </a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="evasion-estatica-asm-mirai.html">Evasión estática: por qué cambia la firma de</a><span class="sep">/</span></nav>
 <header class="post-head">
-  <div class="post-tags"><span class="chip">Assembly x86</span><span class="chip">YARA evasion</span><span class="chip">Mirai</span><span class="chip">Polimorfismo</span></div>
-  <h1>Evasión estática en ASM: romper firmas de Mirai sin packers</h1>
-  <p class="lede">De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con aritmética dinámica y arquitectura de entrega mutante con DGA.</p>
+  <div class="post-tags"><span class="chip">Assembly x86</span><span class="chip">Detección estática</span><span class="chip">Mirai</span><span class="chip">Análisis</span></div>
+  <h1>Evasión estática: por qué cambia la firma de un binario (ASM x86)</h1>
+  <p class="lede">Medición en laboratorio sobre una muestra pública: las detecciones cayeron de 16 a cero al reescribir los opcodes con la misma lógica, sin empaquetar y con entropía normal. Lectura defensiva incluida.</p>
   <div class="post-meta"><span>2026-06-01</span><span>25 min</span><span>Malware Analysis</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>El dogma de que necesitas un packer para cegar la fase estática es falso: UPX y crypters comerciales disparan heurísticas por <b>entropía anómala</b> y firmas del propio packer (T1027.002).</li>
-    <li>La alternativa es el <b>metamorfismo aritmético</b>: reescribir opcodes preservando la lógica. Infinitos caminos dejan el mismo valor en un registro, y cada camino rompe el hash de <code>.text</code>.</li>
-    <li>Resultado medido sobre una muestra real de <b>Mirai</b>: de <b>16/64 a 0/65</b> en VirusTotal, sin packer, con entropía normal. Solo aritmética + stub descifrador en NASM.</li>
-    <li>Cierre con la propuesta de <b>entrega mutante por DGA</b>: binarios irrepetibles, token estilo-Denuvo y dominios rotando antes del quemado.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> El estudio parte de una observación simple: los empaquetadores comerciales dejan firmas detectables: UPX y crypters comerciales disparan heurísticas por entropía anómala y firmas del propio packer (T1027.002). Para entender la evasión estática hace falta estudiar cómo se reescriben opcodes preservando la lógica. Infinitos caminos dejan el mismo valor en un registro, y cada camino rompe el hash de .text. Resultado medido en laboratorio aislado sobre una muestra pública de Mirai: las detecciones cayeron de 16 a cero en los motores probados, sin packer y con entropía normal. Solo aritmética + stub descifrador en NASM. La lectura defensiva de este trabajo se documenta en el artículo completo: qué mirar para detectar este tipo de mutación.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
-<p>Laboratorio de evasión que desmonta el mito del packer: ofuscar con UPX o crypters comerciales envenena la entropía y deja firmas del agente de empaquetado. En su lugar se reescribe la aritmética de las instrucciones de una muestra compilada de Mirai (x86/x64 ELF): operaciones booleanas y aritméticas equivalentes que preservan el flujo y cambian los bytes de <code>.text</code>.</p>
-<p>El stub descifrador en NASM completa la fórmula y la medición es clara: la baseline de 16/64 detecciones de VirusTotal bajó a <b>0/65</b>, con entropía normal y sin packer. Todo el trabajo corrió en laboratorio aislado (Proxmox VE) con verificación de ejecución y beacon.</p>
+<h2>Resumen</h2>
+<p>Laboratorio de análisis de evasión estática: entender por qué los empaquetadores disparan heurísticas y cómo se reescribe la aritmética de las instrucciones de una muestra compilada de Mirai (x86/x64 ELF). En su lugar se reescribe la aritmética de las instrucciones de una muestra compilada de Mirai (x86/x64 ELF): operaciones booleanas y aritméticas equivalentes que preservan el flujo y cambian los bytes de <code>.text</code>.</p>
+<p>El stub descifrador en NASM completa la fórmula y la medición es clara: la línea base de 16 detecciones bajó a cero en los motores de escaneo probados, con entropía normal y sin packer. Todo el trabajo corrió en laboratorio aislado (Proxmox VE) con verificación de ejecución y beacon.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Artefacto</th><td>Mirai (fuente filtrado) compilado x86/x64 ELF</td></tr>
-      <tr><th>Baseline VT</th><td>16/64 (trojan.mirai/gafgyt)</td></tr>
-      <tr><th>Resultado</th><td><b>0/65</b> · sin packer · entropía normal</td></tr>
-      <tr><th>Técnica</th><td>Mutación aritmética de opcodes + stub NASM</td></tr>
-      <tr><th>ATT&amp;CK</th><td>TA0005 · T1027 (.002/.005) · T1562.001</td></tr>
-      <tr><th>Entorno</th><td>Proxmox VE aislado; ejecución y beacon verificados</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Artefacto: Mirai (fuente filtrado) compilado x86/x64 ELF. Baseline: 16 detecciones (trojan.mirai/gafgyt). Resultado: cero detecciones en los motores probados · sin packer · entropía normal. Técnica: Mutación aritmética de opcodes. ATT&amp;CK: TA0005 · T1027 (.002/.005) · T1562.001. Entorno: Proxmox VE aislado; ejecución y beacon verificados.</p>
 
-<div class="callout callout-warn"><span class="ico">🧪</span><div>
-  <div class="h">Veredicto</div>
-  <p>Válido como investigación académica/de curiosidad medible (0/65 medido). Cualquier uso ofensivo está fuera de alcance; la lectura defensiva (blue team) también está incluida en el artículo.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Válido como investigación académica/de curiosidad medible (cero detecciones en los motores probados). Cualquier uso ofensivo está fuera de alcance; la lectura defensiva (blue team) también está incluida en el artículo.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="analystty.html"><span class="arrow">→</span><div class="meta"><span>2026-05-15</span><span>12 min</span></div><div class="t">analystty: triage automatizado de malware PE con Python</div><div class="d">Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x6</div><span class="badge badge-ti">Herramientas propias</span></a><a class="card" href="threat-hunter-recollection.html"><span class="arrow">→</span><div class="meta"><span>2026-05-24</span><span>45 min</span></div><div class="t">Threat Hunter Recollection: cinco investigaciones reales de caza</div><div class="d">Bitácora de un año de caza: mapeo OSINT de una red de estafa piramidal, fraude con Lumma Stealer, deconstrucción de NetS</div><span class="badge badge-ti">Threat Intelligence</span></a><a class="card" href="infraestructura-tunel-ofuscado.html"><span class="arrow">→</span><div class="meta"><span>2026-05-22</span><span>30 min</span></div><div class="t">Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial</div><div class="d">Túnel WireGuard encapsulado en TCP falso mediante udp2raw, enmascaramiento con redsocks + SOCKS5 residencial y DNS blind</div><span class="badge badge-infra">Infraestructura</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-05-15 · Herramientas propias</span><a href="analystty.html">analystty: triage automatizado de malware PE con Python</a></div><div class="post-item"><span class="meta">2026-05-24 · Threat Intelligence</span><a href="threat-hunter-recollection.html">Threat Hunter Recollection: cinco investigaciones reales de caza</a></div><div class="post-item"><span class="meta">2026-05-22 · Infraestructura</span><a href="infraestructura-tunel-ofuscado.html">Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>
@@ -98,19 +74,19 @@
   "@graph": [
     {
       "@type": "Article",
-      "headline": "Evasi\u00f3n est\u00e1tica en ASM: romper firmas de Mirai sin packers",
-      "description": "De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con aritm\u00e9tica din\u00e1mica y arquitectura de entrega mutante con DGA.",
+      "headline": "Evasi\u00f3n est\u00e1tica: por qu\u00e9 cambia la firma de un binario (ASM x86)",
+      "description": "Medici\u00f3n en laboratorio sobre una muestra p\u00fablica: las detecciones cayeron de 16 a cero al reescribir los opcodes con la misma l\u00f3gica, sin empaquetar y con entrop\u00eda normal. Lectura defensiva incluida.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
       "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-06-01",
       "dateModified": "2026-06-01",
       "mainEntityOfPage": "https://tty503.com/evasion-estatica-asm-mirai.html",
       "inLanguage": "es",
-      "keywords": "Assembly x86, YARA evasion, Mirai, Polimorfismo"
+      "keywords": "Assembly x86, Detecci\u00f3n est\u00e1tica, Mirai, An\u00e1lisis"
     },
     {
       "@type": "BreadcrumbList",
-      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/evasion-estatica-asm-mirai.html", "name": "Evasión estática en ASM: romper firmas de Mirai sin packers"}}]
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/evasion-estatica-asm-mirai.html", "name": "Evasión estática: por qué cambia la firma de un binario (ASM x86)"}}]
     }
   ]
 }

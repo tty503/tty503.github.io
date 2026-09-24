@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>Laboratorio SOC con honeypots: aislamiento y automatización</title>
 <meta name="description" content="Laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo: Wazuh, Zabbix, Prometheus y Grafana. Arquitectura y operación completas.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -33,17 +33,14 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="infra-soc.html">Laboratorio SOC con honeypots: aislamiento y aut</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="infra-soc.html">Laboratorio SOC con honeypots: aislamiento y</a><span class="sep">/</span></nav>
 <header class="post-head">
   <div class="post-tags"><span class="chip">Blue Team</span><span class="chip">SOC</span><span class="chip">Honeypot</span><span class="chip">IaC</span></div>
   <h1>Laboratorio SOC con honeypots: aislamiento y automatización</h1>
@@ -51,43 +48,22 @@
   <div class="post-meta"><span>2026-05-24</span><span>35 min</span><span>Infraestructura</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Un <b>SOC personal desplegado</b> y escupiendo alertas a Telegram: <b>Proxmox</b> (virtualización), <b>OPNsense</b> (DPI), señuelos <b>T-Pot</b> expuestos y red mesh <b>Tailscale</b> en <b>Podman rootless</b>.</li>
-    <li><b>Regla de oro</b>: flujo de logs <b>unidireccional</b> (Honeypot → SOC/NOC, jamás al revés). Si el honeypot cae, no puede pivotar ni tocar históricos.</li>
-    <li>IaC total: <b>Terraform (Contabo) + Ansible + PyInfra</b>, secretos en <b>Vault</b>, observabilidad con <b>Wazuh + Zabbix + Prometheus + Grafana</b> y alertas real-time a Telegram (validado: Apache caído → alerta y resolución en 1 minuto).</li>
-    <li>Anillos concéntricos de logs (Honeypot: 4, SOC/NOC: 2, Home: 1): si un anillo cae o es manipulado, los demás siguen escribiendo.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Un SOC personal desplegado y escupiendo alertas a Telegram: Proxmox (virtualización), OPNsense (DPI), señuelos T-Pot expuestos y red mesh Tailscale en Podman rootless. Regla de oro: flujo de logs unidireccional (Honeypot → SOC/NOC, jamás al revés). Si el honeypot cae, no puede pivotar ni tocar históricos. IaC total: Terraform (Contabo) + Ansible + PyInfra, secretos en Vault, observabilidad con Wazuh + Zabbix + Prometheus + Grafana y alertas real-time a Telegram (validado: Apache caído → alerta y resolución en 1 minuto). Anillos concéntricos de logs (Honeypot: 4, SOC/NOC: 2, Home: 1): si un anillo cae o es manipulado, los demás siguen escribiendo.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Laboratorio Blue Team operativo, no un diagrama: captura tráfico hostil real de honeypots expuestos y reacciona con alertas. La virtualización aísla los señuelos, el DPI filtra, y la red mesh conecta los nodos sin exponerlos. La regla de logs unidireccional y los anillos concéntricos garantizan que un honeypot comprometido no contamine la evidencia histórica.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Stack</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Virtualización</th><td>Proxmox VE (OPNsense + T-Pot + proxy)</td></tr>
-      <tr><th>Conectividad</th><td>Tailscale <code>10.100.50.0/24</code> en Podman rootless</td></tr>
-      <tr><th>Monitoreo</th><td>Wazuh · Zabbix · Prometheus · Grafana</td></tr>
-      <tr><th>Alertas</th><td>Telegram Bot API (tiempo real)</td></tr>
-      <tr><th>IaC</th><td>Terraform (Contabo) · Ansible · PyInfra · Vault</td></tr>
-      <tr><th>Logs</th><td>Unidireccional + anillos (4/2/1)</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Stack</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Virtualización: Proxmox VE (OPNsense + T-Pot + proxy). Conectividad: Red mesh privada (Tailscale) con Podman rootless. Monitoreo: Wazuh · Zabbix · Prometheus · Grafana. Alertas: Telegram Bot API (tiempo real). IaC: Terraform (Contabo) · Ansible · PyInfra · Vault. Logs: Unidireccional + anillos (4/2/1).</p>
 
-<div class="callout callout-info"><span class="ico">🔧</span><div>
-  <div class="h">Veredicto</div>
-  <p>Laboratorio SOC funcional y validado en vivo (alerta→resolución en 1 min). Entorno de entrenamiento/Blue Team; no es producto comercial.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Laboratorio SOC funcional y validado en vivo (alerta→resolución en 1 min). Entorno de entrenamiento/Blue Team; no es producto comercial.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="infraestructura-tunel-ofuscado.html"><span class="arrow">→</span><div class="meta"><span>2026-05-22</span><span>30 min</span></div><div class="t">Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial</div><div class="d">Túnel WireGuard encapsulado en TCP falso mediante udp2raw, enmascaramiento con redsocks + SOCKS5 residencial y DNS blind</div><span class="badge badge-infra">Infraestructura</span></a><a class="card" href="web-api-pentesting2024.html"><span class="arrow">→</span><div class="meta"><span>2024-08-15</span><span>25 min</span></div><div class="t">Pentesting a web API financiera: IDOR por validación incompleta de JWT</div><div class="d">Auditoría freelance a una API financiera con certificate pinning, cifrado y ofuscación burlados por una falla IDOR: el b</div><span class="badge badge-infra">Pentesting</span></a><a class="card" href="plc.html"><span class="arrow">→</span><div class="meta"><span>2026-05-14</span><span>40 min</span></div><div class="t">PLC Siemens S5/S7 por dentro: AWL, bytecode MC7 y el silencio forense</div><div class="d">Fundamentos de STEP5/AWL, transición a STEP7, la máquina virtual MC7, ingeniería inversa de bytecodes, hallazgos en infr</div><span class="badge badge-infra">Seguridad OT</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-05-22 · Infraestructura</span><a href="infraestructura-tunel-ofuscado.html">Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial</a></div><div class="post-item"><span class="meta">2024-08-15 · Pentesting</span><a href="web-api-pentesting2024.html">Pentesting a web API financiera: IDOR por validación incompleta de JWT</a></div><div class="post-item"><span class="meta">2026-05-14 · Seguridad OT</span><a href="plc.html">PLC Siemens S5/S7 por dentro: AWL, bytecode MC7 y el silencio forense</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

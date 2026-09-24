@@ -1,31 +1,9 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Un <b>SOC personal desplegado</b> y escupiendo alertas a Telegram: <b>Proxmox</b> (virtualización), <b>OPNsense</b> (DPI), señuelos <b>T-Pot</b> expuestos y red mesh <b>Tailscale</b> en <b>Podman rootless</b>.</li>
-    <li><b>Regla de oro</b>: flujo de logs <b>unidireccional</b> (Honeypot → SOC/NOC, jamás al revés). Si el honeypot cae, no puede pivotar ni tocar históricos.</li>
-    <li>IaC total: <b>Terraform (Contabo) + Ansible + PyInfra</b>, secretos en <b>Vault</b>, observabilidad con <b>Wazuh + Zabbix + Prometheus + Grafana</b> y alertas real-time a Telegram (validado: Apache caído → alerta y resolución en 1 minuto).</li>
-    <li>Anillos concéntricos de logs (Honeypot: 4, SOC/NOC: 2, Home: 1): si un anillo cae o es manipulado, los demás siguen escribiendo.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Un SOC personal desplegado y escupiendo alertas a Telegram: Proxmox (virtualización), OPNsense (DPI), señuelos T-Pot expuestos y red mesh Tailscale en Podman rootless. Regla de oro: flujo de logs unidireccional (Honeypot → SOC/NOC, jamás al revés). Si el honeypot cae, no puede pivotar ni tocar históricos. IaC total: Terraform (Contabo) + Ansible + PyInfra, secretos en Vault, observabilidad con Wazuh + Zabbix + Prometheus + Grafana y alertas real-time a Telegram (validado: Apache caído → alerta y resolución en 1 minuto). Anillos concéntricos de logs (Honeypot: 4, SOC/NOC: 2, Home: 1): si un anillo cae o es manipulado, los demás siguen escribiendo.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Laboratorio Blue Team operativo, no un diagrama: captura tráfico hostil real de honeypots expuestos y reacciona con alertas. La virtualización aísla los señuelos, el DPI filtra, y la red mesh conecta los nodos sin exponerlos. La regla de logs unidireccional y los anillos concéntricos garantizan que un honeypot comprometido no contamine la evidencia histórica.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Stack</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Virtualización</th><td>Proxmox VE (OPNsense + T-Pot + proxy)</td></tr>
-      <tr><th>Conectividad</th><td>Tailscale <code>10.100.50.0/24</code> en Podman rootless</td></tr>
-      <tr><th>Monitoreo</th><td>Wazuh · Zabbix · Prometheus · Grafana</td></tr>
-      <tr><th>Alertas</th><td>Telegram Bot API (tiempo real)</td></tr>
-      <tr><th>IaC</th><td>Terraform (Contabo) · Ansible · PyInfra · Vault</td></tr>
-      <tr><th>Logs</th><td>Unidireccional + anillos (4/2/1)</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Stack</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Virtualización: Proxmox VE (OPNsense + T-Pot + proxy). Conectividad: Red mesh privada (Tailscale) con Podman rootless. Monitoreo: Wazuh · Zabbix · Prometheus · Grafana. Alertas: Telegram Bot API (tiempo real). IaC: Terraform (Contabo) · Ansible · PyInfra · Vault. Logs: Unidireccional + anillos (4/2/1).</p>
 
-<div class="callout callout-info"><span class="ico">🔧</span><div>
-  <div class="h">Veredicto</div>
-  <p>Laboratorio SOC funcional y validado en vivo (alerta→resolución en 1 min). Entorno de entrenamiento/Blue Team; no es producto comercial.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Laboratorio SOC funcional y validado en vivo (alerta→resolución en 1 min). Entorno de entrenamiento/Blue Team; no es producto comercial.</p>

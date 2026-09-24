@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>tty503 — blog</title>
+  <link>https://tty503.com/</link>
+  <description>Investigación en seguridad informática, ingeniería inversa y agentes de IA locales.</description>
+  <language>es</language>
+  <lastBuildDate>2026-09-24 00:00:00 +0000</lastBuildDate>
+  <atom:link href="https://tty503.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</title>
+      <link>https://tty503.com/cadena-portal-cautivo-rce.html</link>
+      <guid isPermaLink="true">https://tty503.com/cadena-portal-cautivo-rce.html</guid>
+      <pubDate>Wed, 02 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  RCE pre-auth 0-click en el servidor RADIUS el daemon de portal cautivo (EAP-Response/Identity): la identidad del cliente llega sin sanitizar a una variable de entorno que un script evalúa como shell. Cadena: EAP-Identity → USER_NAME → el script de alta de sesion → eval — ejecución de comandos como root (daemon, build uid del proceso). Sink real en el modulo de portal cautivo:790-845 + el eval del script; sin CVE asignado y sin fix al cierre. Alcance honesto: el vector exige estar dentro de la red del punto de acceso (acceso WLAN), no es in…</description>
+    </item>
+    <item>
+      <title>el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)</title>
+      <link>https://tty503.com/fw-host-header-rce.html</link>
+      <guid isPermaLink="true">https://tty503.com/fw-host-header-rce.html</guid>
+      <pubDate>Wed, 02 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  RCE pre-auth con 1 sola petición HTTP (puerto 2060): la cabecera Host llega sin validar a la construcción de una regla de firewall que termina en un intérprete de comandos (uid del proceso). El valor del Host termina concatenado en la construcción de una regla de firewall. Requisito de config real en la distribucion de firmware: una FirewallRuleSet global debe existir (presente en configuraciones reales de fw3). CWE-78. Sin CVE asignado al cierre del análisis. 
+
+ Resumen 
+ el daemon de autenticacion y redireccion (uno de los auth/redir…</description>
+    </item>
+    <item>
+      <title>el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</title>
+      <link>https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html</link>
+      <guid isPermaLink="true">https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html</guid>
+      <pubDate>Wed, 02 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Stack overflow en el servidor HTTP embebido: la cabecera If-Modified-Since de ~220 bytes desborda un buffer de 128 en el conversor de fecha a timestamp con control parcial de RIP. Sink: file.c:136 — strncpy copia strlen(origen) bytes sin bound. Shellcode decoder XOR en-stack que evita los bytes prohibidos del transporte HTTP; el desplazamiento de RIP en gdb difiere +0xC0 del run nativo (offset calibrado por ensayo). CWE-121 (Stack-based Buffer Overflow). Repro 3/3 con crash ASAN. 
+
+ Resumen 
+ el servidor HTTP embebido es un servidor HTTP…</description>
+    </item>
+    <item>
+      <title>la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</title>
+      <link>https://tty503.com/autopsia-streaming-http-minimo.html</link>
+      <guid isPermaLink="true">https://tty503.com/autopsia-streaming-http-minimo.html</guid>
+      <pubDate>Wed, 02 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Autopsia de dos componentes con hallazgos de impacto limitado: la biblioteca cliente del protocolo de streaming y el servidor HTTP minimo. la biblioteca cliente del protocolo de streaming: OOB read CWE-125 en el decode AMF3 (info-leak acotado, sin escalada a escritura). el servidor HTTP minimo: command injection CWE-78 en el generador de el gestor de credenciales (sprintf+system) — pero solo alcanzable por línea de comandos local. Lección: la gravedad la define el encadenamiento + el despliegue real, no el tipo de bug aislado. 
+
+ Resumen 
+ Análisis forense de dos piezas clásicas del stack embebido. En  lib…</description>
+    </item>
+    <item>
+      <title>Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion</title>
+      <link>https://tty503.com/suite-paneles-tunel-spooler.html</link>
+      <guid isPermaLink="true">https://tty503.com/suite-paneles-tunel-spooler.html</guid>
+      <pubDate>Wed, 02 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Barrido de la suite de acceso web clásica del server de red: 4 sinks de command injection (CWE-78) distribuidos en el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion. Trust-bypass condicional: cabeceras X-SSL-Client-* solo se respetan si trust_real_ip=1 + proxy trusted + DN exacto — no es un bypass de confianza default. Sinks: cpan/el CGI de administracion:45 (root post-auth), el panel web de administracion restringida el CGI de administracion + el CGI de administracion, el daemon de tunel L2TP/IPsec L2TP→ip-up, el spooler de impresion la herramienta de configuracion de impresorasrip. Ninguno es initial-access pre-auth: todos quedan como eslabones post…</description>
+    </item>
+    <item>
+      <title>Caza autónoma E2E con IA local: 5 cadenas RCE reales</title>
+      <link>https://tty503.com/caza-autonoma-e2e-serie.html</link>
+      <guid isPermaLink="true">https://tty503.com/caza-autonoma-e2e-serie.html</guid>
+      <pubDate>Wed, 02 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Índice de la serie: caza de bugs autónoma con IA local (motor en Metal, sin red, coste ≈ 0) con validación E2E de cada hallazgo. Serie de 6 hallazgos: RCE verificados en el daemon de portal cautivo, el daemon de autenticacion y redireccion y el servidor HTTP embebido; suite el panel web de administracion del servidor (post-auth + trust-bypass condicional); la biblioteca cliente del protocolo de streaming/el servidor HTTP minimo como primitivas. Doctrina aplicada: sin crash reproducible no hay hallazgo; gates pre-auth/default-config/internet-facing aplicados antes de madurar. Divulgación responsable: cada caso con su estado de fix y su a…</description>
+    </item>
+    <item>
+      <title>Sherlock: caza autónoma de vulnerabilidades con IA local</title>
+      <link>https://tty503.com/sherlock-caza-autonoma-ia-local.html</link>
+      <guid isPermaLink="true">https://tty503.com/sherlock-caza-autonoma-ia-local.html</guid>
+      <pubDate>Fri, 21 Aug 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  SHERLOCK: motor de caza de bugs autónomo con IA 100% local (MLX/Metal en Mac), sin conexión a la nube y con coste de inferencia ≈ 0. Disciplina de orquestación: máximo 2 herramientas por ola (evita derivas) + un juez que audita cada veredicto antes de cerrar. Cosecha reportada: 201 hallazgos, 8 comprobados, 4 candidatos a CVE y 1 PoC E2E. Filosofía de honestidad: severidad medida, no publicitada. 
+
+ Resumen 
+ SHERLOCK es el motor que soporta las cacerías de la serie local: un agente…</description>
+    </item>
+    <item>
+      <title>7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente</title>
+      <link>https://tty503.com/7zip-isfolderencrypted-oob-read.html</link>
+      <guid isPermaLink="true">https://tty503.com/7zip-isfolderencrypted-oob-read.html</guid>
+      <pubDate>Fri, 21 Aug 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Heap OOB read CWE-125 en 7-Zip (26.00–26.02) inducido por un campo de cabecera desincronizado: IsFolderEncrypted no coincide con el estado real del folder. Un archivo 7z malformado hace que el decodificador lea un flag desde una posición incorrecta del header → lectura fuera del buffer. Clasificación honesta: LOW — lectura acotada sin escalada probada a escritura/control de flujo. Validación con 3 evidencias independientes (crash reproducible, ASAN, variantes). 
+
+ Resumen 
+ 7-Zip pro…</description>
+    </item>
+    <item>
+      <title>FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)</title>
+      <link>https://tty503.com/ffmpeg-demuxers-dos-vpk-vqf-smacker.html</link>
+      <guid isPermaLink="true">https://tty503.com/ffmpeg-demuxers-dos-vpk-vqf-smacker.html</guid>
+      <pubDate>Fri, 21 Aug 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Tres DoS en demuxers de FFmpeg hallados por fuzzing autónomo: SIGFPE en VPK (CWE-369, parcheada en 8.1.2), memory leak escalable en VQF (CWE-401, sin parche) y bucle de 13,5M frames en Smacker (CWE-400, sin parche). PoCs ridículamente pequeños: 21 B · 13 B · 105 B. Patrón común: el header del contenedor se parsea antes de validarse. VPK: last_block_size / nb_channels con nb_channels=0 → IDIV → crash determinista. VQF: av_malloc(tag_len) sin av_free en error path (≈667 MB/archivo). Sm…</description>
+    </item>
+    <item>
+      <title>libwebp: DoS por área de imagen no validada en VP8L lossless</title>
+      <link>https://tty503.com/libwebp-vp8l-lossless-decode-dos.html</link>
+      <guid isPermaLink="true">https://tty503.com/libwebp-vp8l-lossless-decode-dos.html</guid>
+      <pubDate>Fri, 21 Aug 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  34 bytes bastan para que un servidor de imágenes pase segundos o minutos decodificando una foto que no existe: DoS por área de imagen no validada en el decoder lossless VP8L de libwebp (CWE-400). El path lossy (VP8) comprueba width × height contra MAX_IMAGE_AREA; el lossless acepta hasta 16384×16384 sin mirar el área total. Dos caminos gemelos, dos estándares. Causa: ReadImageInfo (vp8l_dec.c:1764) no consulta el guardia → coste ∝ ~256M píxeles declarados → timeout reproducible 3/3.…</description>
+    </item>
+    <item>
+      <title>PCRE2: hang en compilación JIT por recursión (?0) en negative lookahead</title>
+      <link>https://tty503.com/pcre2-jit-compile-hang-recursion.html</link>
+      <guid isPermaLink="true">https://tty503.com/pcre2-jit-compile-hang-recursion.html</guid>
+      <pubDate>Fri, 21 Aug 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Un patrón regex de ~693 bytes con una backreference recursiva (?0) dentro de un negative lookahead (?!…) cuelga para siempre a pcre2_jit_compile en get_framesize (CWE-400). El mismo patrón en modo interpretado: compila en 0 ms y hace match limpio con rc=-1. El fallo es exclusivo del backend JIT — no es ReDoS. Causa: la pasada de dimensionado de frames recorre la recursión total sin memoizar; get_framesize (pcre2_jit_compile.c:2224) no converge. Superficie real: servicios que compilan…</description>
+    </item>
+    <item>
+      <title>libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing</title>
+      <link>https://tty503.com/libarchive-cab-lzx-uninitialized-memory.html</link>
+      <guid isPermaLink="true">https://tty503.com/libarchive-cab-lzx-uninitialized-memory.html</guid>
+      <pubDate>Fri, 21 Aug 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Mismo archivo CAB, dos binarios: el snapshot de bsdtar 3.8.9 extrae leyendo un history guard del decoder LZX que nadie inicializó (CWE-457); el build con fix lo rechaza con LZX_CORRUPT. Método: patch-diffing como radar — un commit upstream del 08-08 endureció el path CAB/LZX y la revisión periódica del snapshot reveló que el fix no estaba. Validación A/B: mismo input, única variable = el parche. Vulnerable rc=0 (ASAN use-of-uninitialized-value); parcheado rc=1 (-25). Clasificación ho…</description>
+    </item>
+    <item>
+      <title>analystty: triage automatizado de malware PE con Python</title>
+      <link>https://tty503.com/analystty.html</link>
+      <guid isPermaLink="true">https://tty503.com/analystty.html</guid>
+      <pubDate>Fri, 15 May 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  analystty (Python puro, 2024): triage automatizado de executables PE — clasifica APIs contra MITRE ATT&amp;amp;CK, desensambla .text con Capstone y clava breakpoints en x64dbg sin calcular un offset a mano. De la lista de imports a un call graph simplificado: función contenedora + dirección + API sospechosa, listo para el depurador. Resuelve ASLR con una resta: ajusta automáticamente las direcciones del módulo cargado. Validado en el dropper multi-etapa con API Hashing: import-hashin…</description>
+    </item>
+    <item>
+      <title>Evasión estática: por qué cambia la firma de un binario (ASM x86)</title>
+      <link>https://tty503.com/evasion-estatica-asm-mirai.html</link>
+      <guid isPermaLink="true">https://tty503.com/evasion-estatica-asm-mirai.html</guid>
+      <pubDate>Mon, 01 Jun 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  El estudio parte de una observación simple: los empaquetadores comerciales dejan firmas detectables: UPX y crypters comerciales disparan heurísticas por entropía anómala y firmas del propio packer (T1027.002). Para entender la evasión estática hace falta estudiar cómo se reescriben opcodes preservando la lógica. Infinitos caminos dejan el mismo valor en un registro, y cada camino rompe el hash de .text. Resultado medido en laboratorio aislado sobre una muestra pública de Mirai: las d…</description>
+    </item>
+    <item>
+      <title>Threat Hunter Recollection: cinco investigaciones reales de caza</title>
+      <link>https://tty503.com/threat-hunter-recollection.html</link>
+      <guid isPermaLink="true">https://tty503.com/threat-hunter-recollection.html</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Bitácora de cinco investigaciones reales que forjaron la metodología de threat hunting — con IoCs, imágenes y lecciones. Estafa piramidal desmontada con OSINT: un número sudafricano → red global vía VirusTotal Graph (dominios clonados, exchanges falsos, plantilla reciclada). BEC alimentada por Lumma Stealer → infraestructura en Kenia → crypto scam, con blockchain forensics siguiendo la wallet bc1qxs8aunxd7kkdq8wz063r4tum2429s5llul33am. Nexilo-CC-Checker (dropper multi-etapa con API H…</description>
+    </item>
+    <item>
+      <title>Pig butchering: deconstrucción de un exchange falso en Vue3 con WebSocket</title>
+      <link>https://tty503.com/pigbutchering-bybsusd.html</link>
+      <guid isPermaLink="true">https://tty503.com/pigbutchering-bybsusd.html</guid>
+      <pubDate>Tue, 26 May 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Red de Pig Butchering con exchange falso para hispanohablantes: frontend Vue 3 + Vant, chat real-time WebSocket/Workerman PHP (GCP Hong Kong), y un endpoint de captcha que entrega la clave de validación en el propio JSON. 7 dominios rotando rápido (4 en 22 días): bybsusd.com, api.japfc.top, chat.cionusdt.com, bhonso.com, bholos.com, xoiunc.com, xinusdt.com. Anzuelo por Facebook Messenger con credenciales precargadas y balance ficticio de 5.7M USDT. El backend api.japfc.top (156.254.5…</description>
+    </item>
+    <item>
+      <title>cmdxcapital: fuga de datos en Laravel por appDebug activo</title>
+      <link>https://tty503.com/fakewealth-cmdxcapital.html</link>
+      <guid isPermaLink="true">https://tty503.com/fakewealth-cmdxcapital.html</guid>
+      <pubDate>Wed, 15 Oct 2025 00:00:00 +0000</pubDate>
+      <description>Resumen.  Campaña de fraude bajo cmdxcapital.com con 10+ dominios satélite tras Cloudflare y un error inédito en el sector: modo de depuración activado en producción (Laravel 8.83.25 / PHP 8.3.15) que dejaba visible información de configuración. Los fallos operativos observados desde el exterior confirman un despliegue descuidado. Trazabilidad total: la marca hereda a Bremby (bremby.biz) — 13 reportes, $174,664 en depósitos, mismo registrador (NameCheap), mismo CDN y plantilla. Captcha trivial…</description>
+    </item>
+    <item>
+      <title>General JP y SilentWarn: dos campañas de phishing conectadas</title>
+      <link>https://tty503.com/operation-general-jp-silentwarn.html</link>
+      <guid isPermaLink="true">https://tty503.com/operation-general-jp-silentwarn.html</guid>
+      <pubDate>Sun, 15 Jun 2025 00:00:00 +0000</pubDate>
+      <description>Resumen.  Dos campañas de phishing activas en junio 2025, stacks distintos, mismas raíces: la Operación General JP (PHP multi-capa con exfiltración a Telegram) y la Operación SilentWarn (React/Cloudflare Pages con EmailJS y geofencing a Vietnam). General JP pivota desde Google Cloud Storage (185.80.129.110) → yournextlvlredirect.com → mechatecha1520.com → bestdealzon.art, segmentando si te destino según perfil. El kit reservigt.com/japangenerals.zip escribe credenciales en logins.html y alerta…</description>
+    </item>
+    <item>
+      <title>Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial</title>
+      <link>https://tty503.com/infraestructura-tunel-ofuscado.html</link>
+      <guid isPermaLink="true">https://tty503.com/infraestructura-tunel-ofuscado.html</guid>
+      <pubDate>Fri, 22 May 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Columna vertebral de las investigaciones: VPN privada de dos nodos cuyo túnel WireGuard viaja camuflado como HTTPS (udp2raw faketcp + XOR, puerto 443), con salida tras proxies residenciales SOCKS5 y DNS cifrado con DoH. Separación de funciones: Nodo A = única puerta visible (DNAT 80/443/5522); Nodo B = servicios reales sin puertos expuestos salvo SSH. Si cae A no hay datos; si cae B, su IP real jamás aparece en logs. Enrutamiento selectivo con IPs internas omitidas: entrada por el tú…</description>
+    </item>
+    <item>
+      <title>Laboratorio SOC con honeypots: aislamiento y automatización</title>
+      <link>https://tty503.com/infra-soc.html</link>
+      <guid isPermaLink="true">https://tty503.com/infra-soc.html</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Un SOC personal desplegado y escupiendo alertas a Telegram: Proxmox (virtualización), OPNsense (DPI), señuelos T-Pot expuestos y red mesh Tailscale en Podman rootless. Regla de oro: flujo de logs unidireccional (Honeypot → SOC/NOC, jamás al revés). Si el honeypot cae, no puede pivotar ni tocar históricos. IaC total: Terraform (Contabo) + Ansible + PyInfra, secretos en Vault, observabilidad con Wazuh + Zabbix + Prometheus + Grafana y alertas real-time a Telegram (validado: Apache caíd…</description>
+    </item>
+    <item>
+      <title>Pentesting a web API financiera: IDOR por validación incompleta de JWT</title>
+      <link>https://tty503.com/web-api-pentesting2024.html</link>
+      <guid isPermaLink="true">https://tty503.com/web-api-pentesting2024.html</guid>
+      <pubDate>Thu, 15 Aug 2024 00:00:00 +0000</pubDate>
+      <description>Resumen.  Auditoría ofensiva freelance a una Web API financiera (junio-agosto 2024), white box con enfoque grey box: app móvil legítima, sin documentación ni código del backend. Ingeniería inversa del APK + bypass de certificate pinning para interceptar el tráfico y documentar la autenticación completa. La firma JWT era correcta (io.jsonwebtoken), pero el backend no validaba la pertenencia del token al recurso: token de A accedía a recursos de B → Broken Object Level Authorization. Una sesión…</description>
+    </item>
+    <item>
+      <title>Exploit development OT: del AWL al shellcode en PLC Siemens</title>
+      <link>https://tty503.com/exploit-development-ot-awl-arm.html</link>
+      <guid isPermaLink="true">https://tty503.com/exploit-development-ot-awl-arm.html</guid>
+      <pubDate>Fri, 05 Jun 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Explotar un PLC no es explotar un escritorio: el objetivo corre bytecode MC5/MC7/MC7+ en una VM propia sobre ARM/MIPS bajo el kernel propietario ADONIS. Caso central: CVE-2020-15782 (Claroty Team82, CVSS 8.1) — sandbox escape de la VM S7-1200/1500: escribir shellcode ARM/MIPS en regiones protegidas del kernel y parchear un opcode de la VM para desviar la ejecución, sin credenciales, vía TCP 102 (S7comm). Ruta AWL → bytecode → shellcode: el RLO es el acumulador a secuestrar; los salto…</description>
+    </item>
+    <item>
+      <title>PLC Siemens S5/S7 por dentro: AWL, bytecode MC7 y el silencio forense</title>
+      <link>https://tty503.com/plc.html</link>
+      <guid isPermaLink="true">https://tty503.com/plc.html</guid>
+      <pubDate>Thu, 14 May 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Repaso completo del PLC Siemens S5/S7 por dentro: STEP5/AWL, la VM del bytecode MC7 y su traducción a ARM/MIPS — el lado que los simuladores no modelan. El AWL es un Assembly para autómatas con su acumulador (RLO/VKE): compuertas U/O/X, temporizadores KT, contadores y saltos SPA/SPB/SPN. Superficie real documentada: Modbus sin autenticación, Modicon Quantum paralizable (ICS-ALERT-12-020-03B) y el STUEB de 16 niveles de pila de módulos. Tesis central: los PLC no generan logs por diseñ…</description>
+    </item>
+    <item>
+      <title>Assembly x86/x64 para ingeniería inversa: guía de campo</title>
+      <link>https://tty503.com/assembly.html</link>
+      <guid isPermaLink="true">https://tty503.com/assembly.html</guid>
+      <pubDate>Thu, 14 May 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Guía de campo x86/x64 para leer binarios sin símbolos: del stack frame a las heurísticas de etiquetado automático. Material generado con GCC (salida menos abstracta que MSVC) y contrapunto en NASM/FLAT. Ubicar variables: locales en pila (rbp±offset), globales en secciones (.data/.bss/.rdata); clases = this como primer argumento (rcx Win x64 / rdi SystemV); structs = copia al stack. Las 4 convenciones de llamada y la heurística estrella: prólogo/epílogo push rbp; mov rbp,rsp para deli…</description>
+    </item>
+    <item>
+      <title>Inyección y persistencia en Windows: notas para la detección</title>
+      <link>https://tty503.com/myPracticalShellcodeC2.html</link>
+      <guid isPermaLink="true">https://tty503.com/myPracticalShellcodeC2.html</guid>
+      <pubDate>Fri, 22 May 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Estudio documentado sobre técnicas clásicas de inyección y persistencia en Windows, con una lectura orientada a la detección. Explica cómo funcionan por dentro la resolución de APIs, el descifrado de bloques de código y los métodos de inyección habituales, para que quien defiende un entorno sepa qué mirar. 
+
+ Contexto 
+ Durante varios meses documenté, en un laboratorio aislado, el recorrido clásico del malware de Windows: desde una pieza mínima escrita a mano hasta las familias de té…</description>
+    </item>
+    <item>
+      <title>Laboratorio de exploit development: kernel de Windows y ROP</title>
+      <link>https://tty503.com/exploit-development-lab.html</link>
+      <guid isPermaLink="true">https://tty503.com/exploit-development-lab.html</guid>
+      <pubDate>Thu, 04 Jun 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Bitácora de un mes de laboratorio (sept 2024): Windows Internals → drivers KMDF/UMDF → PE/ELF/DEX → ensamblador → shellcode → ROP. Del patrón clásico (stack overflow, format strings, doble-free) a cadenas ROP x64 con gadgets pop rdi; ret contra DEP/ASLR. Disección de 4 CVEs reales en Chrome V8/WebRTC (CVE-2020-6507, 2021-38003, 2023-7024, 2023-2033), tres girando en torno al centinela TheHole. Lección dura: al replicar CVE-2020-6507 el exploit solo funciona con el sandbox de Chrome d…</description>
+    </item>
+    <item>
+      <title>El arte de la paciencia: un script de 15 líneas puede iniciar una brecha</title>
+      <link>https://tty503.com/arte-de-la-paciencia-sudo-cache.html</link>
+      <guid isPermaLink="true">https://tty503.com/arte-de-la-paciencia-sudo-cache.html</guid>
+      <pubDate>Fri, 29 May 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  A veces la escalada no fuerza la cerradura, espera a que el administrador abra la puerta con sus llaves: PoC de Bash que abusa del caché de credenciales de sudo — T1548.003: Sudo and Sudo Caching. sudo -n comprueba el ticket sin pedir contraseña; timeout por defecto 15 min (timestamp_timeout). El script sondea cada 5 segundos y actúa cuando aparece el ticket — sin prompt, sin logs de fallo, sin alertas. Casos reales: Baron Samedit (CVE-2021-3156), el patrón Emulation Monkey (22 min d…</description>
+    </item>
+    <item>
+      <title>SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA</title>
+      <link>https://tty503.com/saint-grail.html</link>
+      <guid isPermaLink="true">https://tty503.com/saint-grail.html</guid>
+      <pubDate>Thu, 25 Jun 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  SAINT GRAIL: plataforma modular para documentar, visualizar y ejecutar investigaciones ofensivas — Flask + SurrealDB embebida, grafo interactivo (Canvas + vanilla JS), dashboard y CLI. Integra DeepWiki para preguntas contextuales de componentes y DeepSeek para clasificar riesgo — el agente híbrido donde IA y analista se complementan. Respuestas de riesgo alto crean nodos primitive automáticamente, generan y ejecutan un PoC, todo en un grafo con taxonomía (phase ▢, vector ○, primitive…</description>
+    </item>
+    <item>
+      <title>SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</title>
+      <link>https://tty503.com/saint-grail-go.html</link>
+      <guid isPermaLink="true">https://tty503.com/saint-grail-go.html</guid>
+      <pubDate>Sun, 05 Jul 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Continuación de SAINT GRAIL: migración del orquestador de Python a Go por rendimiento, concurrencia real y memoria — el prototipo Flask tocó techo al escalar nodos y JSONs. Go gana: JSON tipado ~15× más rápido, goroutines de ~2 KB (sin GIL), 60-70% menos RAM (crítico con Ollama/Llama 3.2B local), parser AST con tree-sitter y binario único estático. Resultado tangible: dos pruebas de concepto funcionales validadas manualmente sobre proyectos de código abierto, y compartidas con sus re…</description>
+    </item>
+    <item>
+      <title>Cómo organizo el trabajo con agentes de IA locales</title>
+      <link>https://tty503.com/agentes-locales-arquitectura.html</link>
+      <guid isPermaLink="true">https://tty503.com/agentes-locales-arquitectura.html</guid>
+      <pubDate>Thu, 24 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Detrás de mis proyectos actuales hay una forma de trabajar con agentes de IA que se centra en la organización: varios agentes especializados trabajan a la vez sobre la misma pregunta, un modelo pequeño hace el trabajo repetitivo en mi propia máquina y todo queda registrado. Este artículo explica esa arquitectura. 
+
+ Pensar en paralelo 
+ La primera regla de mi flujo es que nunca trabaja un solo agente. En cada ronda se lanzan al menos dos, y lo importante es que piensen distinto: uno…</description>
+    </item>
+    <item>
+      <title>La memoria de mis agentes: cómo aprenden de cada sesión</title>
+      <link>https://tty503.com/agentes-memoria-aprendizaje.html</link>
+      <guid isPermaLink="true">https://tty503.com/agentes-memoria-aprendizaje.html</guid>
+      <pubDate>Thu, 24 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Mis agentes no empiezan de cero en cada sesión. Al terminar, guardan apuntes que se indexan y se consultan antes de tocar código. Así, lo aprendido ayer pesa en la decisión de hoy, y el error que costó caro no se paga dos veces. 
+
+ Guardar para no repetir 
+ Al cierre de cada actividad se registra lo aprendido en tres categorías. Los hechos son lo que se verificó y se puede citar. Las lecciones son los errores que costó entender, escritos como advertencias honestas. Los patrones son l…</description>
+    </item>
+    <item>
+      <title>Qué he logrado con agentes locales y cómo lo mido</title>
+      <link>https://tty503.com/agentes-resultados-progreso.html</link>
+      <guid isPermaLink="true">https://tty503.com/agentes-resultados-progreso.html</guid>
+      <pubDate>Thu, 24 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Los flujos de caza con IA local producen, ante todo, un embudo: de cientos de candidatos quedan pocos verificados y muy pocos convertidos en hallazgos. Este artículo muestra esos números sin adornos y explica la regla que los sostiene: no afirmar nada que no se pueda mostrar. 
+
+ El embudo, sin adornos 
+ Cuando un agente propone candidatos, lo hace en cantidades grandes. En una de las campañas documentadas la cuenta fue clara: de más de doscientos candidatos propuestos por el sistema,…</description>
+    </item>
+    <item>
+      <title>Por qué no publico todo lo que encuentro</title>
+      <link>https://tty503.com/divulgacion-responsable.html</link>
+      <guid isPermaLink="true">https://tty503.com/divulgacion-responsable.html</guid>
+      <pubDate>Thu, 24 Sep 2026 00:00:00 +0000</pubDate>
+      <description>Resumen.  Encontrar una debilidad y demostrar que existe no obliga a publicar cómo explotarla. Este sitio documenta con evidencia, pero omite con intención: los detalles que podrían usarse para atacar sistemas reales se quedan fuera, y eso también es parte del trabajo. 
+
+ Primitiva no es cadena 
+ La primera distinción que aprendí es que una condición de error no es lo mismo que una brecha. Una lectura fuera de límites o una validación incompleta es una primitiva: una pieza que podría servir pa…</description>
+    </item>
+</channel>
+</rss>

@@ -1,34 +1,12 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>De un <b>dropper artesanal C/Assembly</b> (<code>calc.exe</code> con <code>WinExec</code>) hasta <b>BugBuilder</b>: builder C#/.NET con panel de C&amp;C y protocolo TCP propio.</li>
-    <li><b>Resolución dinámica de API</b> contra <code>kernel32</code> (<code>GetModuleHandle</code>+<code>GetProcAddress</code>) y parcheo <b>little-endian</b> de direcciones en el arreglo de shellcode.</li>
-    <li><b>Stub criptográfico NASM</b>: descifrado por bloques de 4 bytes con claves por bloque para romper firmas estáticas.</li>
-    <li>Compendio de inyección (clásica, DLL, APC/Early Bird, thread hijacking, fibers, hooks, NtCreateSection/ThreadEx) y evasión (XOR, API hashing) + persistencia (Run keys, COM hijack, servicios, port monitors).</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Estudio documentado sobre técnicas clásicas de inyección y persistencia en Windows, con una lectura orientada a la detección. Explica cómo funcionan por dentro la resolución de APIs, el descifrado de bloques de código y los métodos de inyección habituales, para que quien defiende un entorno sepa qué mirar.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
-<p>Bitácora de desarrollo propia (32 secciones): de escribir shellcode a mano a un builder automatizado con C2. Documenta las técnicas clásicas de inyección y evasión de Windows implementadas y probadas en laboratorio aislado, incluidas las de resolución de API sin import table y el descifrado por bloques para evadir firmas de <.text>.</p>
-<div class="callout callout-warn"><span class="ico">🧪</span><div>
-  <div class="h">Alcance</div>
-  <p>Investigación/estudio documentado, ejecutada solo en laboratorio propio. No hay despliegues reales ni uso ofensivo fuera de pruebas.</p>
-</div></div>
+<h2>Contexto</h2>
+<p>Durante varios meses documenté, en un laboratorio aislado, el recorrido clásico del malware de Windows: desde una pieza mínima escrita a mano hasta las familias de técnicas de inyección y persistencia que siguen apareciendo en los análisis de muestras reales. El propósito del registro no es construir herramientas, sino entender el mecanismo: qué hace cada técnica, por qué existe y cómo se detecta.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Fase 1</th><td>Shellcode artesanal C/ASM + resolución dinámica API</td></tr>
-      <tr><th>Fase 2</th><td>BugBuilder: C#/.NET · protocolo TCP propio · C&amp;C</td></tr>
-      <tr><th>Inyección</th><td>8+ técnicas clásicas y NT (APC, fibers, hooks, secciones)</td></tr>
-      <tr><th>EvasIón</th><td>XOR · ocultar llamadas · API hashing</td></tr>
-      <tr><th>Persistencia</th><td>Run · screensaver · COM · servicios · port monitors</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Qué cubre el estudio</h2>
+<p>El material recorre la resolución dinámica de funciones sin tabla de importaciones, el descifrado por bloques para romper firmas estáticas, la inyección clásica y sus variantes con colas de APC o secciones compartidas, el reemplazo de hilos y los ganchos de API. Cada técnica se probó dentro del laboratorio y se contrastó con el comportamiento observable que deja en memoria y en el sistema.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>Compendio técnico propio, extenso y documentado; el original conserva cada técnica con código. Resumen para navegación: la profundidad está en el artículo completo.</p>
-</div></div>
+<h2>Lectura defensiva</h2>
+<p>La parte más valiosa del estudio es la lista de indicadores que dejan estas técnicas en un endpoint comprometido: regiones de memoria con permisos inusuales, cadenas de llamadas anómalas, modificaciones fuera de los módulos cargados y claves de persistencia menos conocidas. Esa lista es la que permite al analista y al equipo de respuesta reconocer el patrón en un entorno real.</p>
+
+<p class="veredicto"><strong>Veredicto.</strong> Compendio técnico con intención defensiva, ejecutado solo en laboratorio propio. El detalle por técnica se conserva en el artículo original; aquí queda la síntesis y el marco de detección.</p>

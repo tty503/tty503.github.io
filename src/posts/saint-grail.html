@@ -1,31 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li><b>SAINT GRAIL</b>: plataforma modular para <b>documentar, visualizar y ejecutar investigaciones ofensivas</b> — Flask + SurrealDB embebida, grafo interactivo (Canvas + vanilla JS), dashboard y CLI.</li>
-    <li>Integra <b>DeepWiki</b> para preguntas contextuales de componentes y <b>DeepSeek</b> para clasificar riesgo — el agente híbrido donde IA y analista se complementan.</li>
-    <li>Respuestas de riesgo alto crean <b>nodos primitive</b> automáticamente, generan y ejecutan un PoC, todo en un grafo con taxonomía (phase ▢, vector ○, primitive △, barrier ◇, research ▭).</li>
-    <li>KISS + filosofía Unix, orquestador con control de <b>presupuesto de tokens</b>. Capturas de prueba con datos "GenericApp"; no es público aún.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> SAINT GRAIL: plataforma modular para documentar, visualizar y ejecutar investigaciones ofensivas — Flask + SurrealDB embebida, grafo interactivo (Canvas + vanilla JS), dashboard y CLI. Integra DeepWiki para preguntas contextuales de componentes y DeepSeek para clasificar riesgo — el agente híbrido donde IA y analista se complementan. Respuestas de riesgo alto crean nodos primitive automáticamente, generan y ejecutan un PoC, todo en un grafo con taxonomía (phase ▢, vector ○, primitive △, barrier ◇, research ▭). KISS + filosofía Unix, orquestador con control de presupuesto de tokens. Capturas de prueba con datos "GenericApp"; sin versión pública por ahora.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>SAINT GRAIL nació de la inquietud de multiplicar la capacidad de investigación: documentar cada paso, visualizar relaciones y acelerar con IA. La idea fundacional es que la IA no reemplaza al analista — lo potencia: genera vectores desde hallazgos open-source, clasifica respuestas y arma primitivas explotables en un grafo trazable.</p>
 <p>El proyecto está funcional pero no es público: las capturas mostradas usan un programa ficticio ("GenericApp") para no exponer investigación real.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Stack</th><td>Flask · SurrealDB embebida · Canvas/vanilla JS · CLI</td></tr>
-      <tr><th>IA</th><td>DeepWiki (preguntas) + DeepSeek (clasificación de riesgo)</td></tr>
-      <tr><th>Grafo</th><td>phase ▢ · vector ○ · primitive △ · barrier ◇ · research ▭</td></tr>
-      <tr><th>Estado</th><td>Funcional, no público · datos de prueba</td></tr>
-      <tr><th>Continuación</th><td>Migrado a Go → <a href="saint-grail-go.html">SAINT GRAIL Go</a></td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Stack: Flask · SurrealDB embebida · Canvas/vanilla JS · CLI. IA: DeepWiki (preguntas) + DeepSeek (clasificación de riesgo). Grafo: phase ▢ · vector ○ · primitive △ · barrier ◇ · research ▭. Estado: Funcional, no público · datos de prueba. Continuación: Migrado a Go → SAINT GRAIL Go.</p>
 
-<div class="callout callout-info"><span class="ico">📊</span><div>
-  <div class="h">Veredicto</div>
-  <p>Plataforma de investigación propia (copiloto de bug hunting) con arquitectura documentada. La continuación en Go ya produjo PoCs concretos — ver la siguiente entrega.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Plataforma de investigación propia (copiloto de bug hunting) con arquitectura documentada. La continuación en Go ya produjo PoCs concretos — ver la siguiente entrega.</p>

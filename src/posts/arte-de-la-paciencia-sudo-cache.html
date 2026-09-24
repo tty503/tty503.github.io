@@ -1,30 +1,9 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>A veces la escalada no fuerza la cerradura, <b>espera a que el administrador abra la puerta con sus llaves</b>: PoC de Bash que abusa del <b>caché de credenciales de sudo</b> — <b>T1548.003: Sudo and Sudo Caching</b>.</li>
-    <li><code>sudo -n</code> comprueba el ticket sin pedir contraseña; timeout por defecto <b>15 min</b> (<code>timestamp_timeout</code>). El script sondea cada 5 segundos y actúa cuando aparece el ticket — sin prompt, sin logs de fallo, sin alertas.</li>
-    <li>Casos reales: <b>Baron Samedit</b> (CVE-2021-3156), el patrón <b>Emulation Monkey</b> (22 min de espera, invisible al EDR), <b>SudoKiller</b> y <b>APT28</b> escalando tras el login del admin.</li>
-    <li>Mitigación defendible: <code>timestamp_timeout=0</code>, auditoría de <code>sudo -n</code> con auditd y alertas sobre <code>/var/run/sudo/ts/</code>.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> A veces la escalada no fuerza la cerradura, espera a que el administrador abra la puerta con sus llaves: PoC de Bash que abusa del caché de credenciales de sudo — T1548.003: Sudo and Sudo Caching. sudo -n comprueba el ticket sin pedir contraseña; timeout por defecto 15 min (timestamp_timeout). El script sondea cada 5 segundos y actúa cuando aparece el ticket — sin prompt, sin logs de fallo, sin alertas. Casos reales: Baron Samedit (CVE-2021-3156), el patrón Emulation Monkey (22 min de espera, invisible al EDR), SudoKiller y APT28 escalando tras el login del admin. Mitigación defendible: timestamp_timeout=0, auditoría de sudo -n con auditd y alertas sobre /var/run/sudo/ts/.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Investigación post-explotación sobre "low-tech" ofensivo: en vez de exploits de kernel, abusar de un mecanismo documentado. La PoC es una máquina de estados de tres fases (esperar, sondear, actuar) contra el ticket de sudo, y se escala a escenario realista con ofuscación y evasión. Todo se ejecutó en laboratorio aislado (Proxmox) sobre la infraestructura propia de la casa.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Clase</th><td>Privilege escalation (post-explotación) · T1548.003</td></tr>
-      <tr><th>Mecanismo</th><td><code>sudo -n</code> + <code>timestamp_timeout</code> (15 min)</td></tr>
-      <tr><th>PoC</th><td>Bash · sondeo 5 s · 3 fases (esperar/sondear/actuar)</td></tr>
-      <tr><th>Casos</th><td>Baron Samedit · Emulation Monkey · SudoKiller · APT28</td></tr>
-      <tr><th>Mitigación</th><td><code>timestamp_timeout=0</code> + auditd + alertas ts/</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Clase: Privilege escalation (post-explotación) · T1548.003. Mecanismo: sudo -n + timestamp_timeout (15 min). PoC: Bash · sondeo 5 s · 3 fases (esperar/sondear/actuar). Casos: Baron Samedit · Emulation Monkey · SudoKiller · APT28. Mitigación: timestamp_timeout=0 + auditd + alertas ts/.</p>
 
-<div class="callout callout-warn"><span class="ico">🗝️</span><div>
-  <div class="h">Veredicto</div>
-  <p>Investigación documentada del patrón de simplicidad letal; la mitad defensiva (detección y mitigación) está incluida. Uso práctico solo en laboratorio/red team autorizado.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Investigación documentada del patrón de simplicidad letal; la mitad defensiva (detección y mitigación) está incluida. Uso práctico solo en laboratorio/red team autorizado.</p>

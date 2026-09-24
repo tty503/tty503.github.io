@@ -1,31 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Repaso completo del <b>PLC Siemens S5/S7 por dentro</b>: STEP5/AWL, la VM del bytecode <b>MC7</b> y su traducción a ARM/MIPS — el lado que los simuladores no modelan.</li>
-    <li>El AWL es un Assembly para autómatas con su acumulador (<b>RLO/VKE</b>): compuertas U/O/X, temporizadores KT, contadores y saltos SPA/SPB/SPN.</li>
-    <li>Superficie real documentada: <b>Modbus sin autenticación</b>, Modicon Quantum paralizable (ICS-ALERT-12-020-03B) y el <b>STUEB de 16 niveles</b> de pila de módulos.</li>
-    <li>Tesis central: <b>los PLC no generan logs por diseño</b>; sin registro centralizado, error y ataque son indistinguibles — Ucrania 2015, Oldsmar 2021 y TRITON 2017 lo prueban.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Repaso completo del PLC Siemens S5/S7 por dentro: STEP5/AWL, la VM del bytecode MC7 y su traducción a ARM/MIPS — el lado que los simuladores no modelan. El AWL es un Assembly para autómatas con su acumulador (RLO/VKE): compuertas U/O/X, temporizadores KT, contadores y saltos SPA/SPB/SPN. Superficie real documentada: Modbus sin autenticación, Modicon Quantum paralizable (ICS-ALERT-12-020-03B) y el STUEB de 16 niveles de pila de módulos. Tesis central: los PLC no generan logs por diseño; sin registro centralizado, error y ataque son indistinguibles — Ucrania 2015, Oldsmar 2021 y TRITON 2017 lo prueban.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Referencia extensa (26 secciones) sobre arquitectura de autómatas: del fundamento del PLC al AWL como lenguaje, registros, direccionamiento, temporizadores y comparaciones, pasando por la transición STEP5→STEP7 y la ingeniería inversa del bytecode MC7. La segunda mitad aborda la superficie de ataque OT: protocolos sin auth, malware industrial conocido y la ceguera de logs.</p>
 <p>La tesis defensiva: si el autómata es una caja negra que no registra, la única salida es monitoreo activo de red (Zeek + SIEM OT) y forensic readiness.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Alcance</th><td>S5 (STEP5/AWL) · S7 (STEP7, MC7) · ASPECTOS ARM/MIPS</td></tr>
-      <tr><th>Lenguaje</th><td>AWL: RLO/VKE, KT, SPA/SPB/SPN, contadores</td></tr>
-      <tr><th>Caso real</th><td>Modicon Quantum (ICS-ALERT-12-020-03B)</td></tr>
-      <tr><th>Tesis</th><td>PLC sin logs por diseño → ataque indistinguible del error</td></tr>
-      <tr><th>Paliativo</th><td>Zeek + SIEM OT · forensic readiness</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Alcance: S5 (STEP5/AWL) · S7 (STEP7, MC7) · ASPECTOS ARM/MIPS. Lenguaje: AWL: RLO/VKE, KT, SPA/SPB/SPN, contadores. Caso real: Modicon Quantum (ICS-ALERT-12-020-03B). Tesis: PLC sin logs por diseño → ataque indistinguible del error. Paliativo: Zeek + SIEM OT · forensic readiness.</p>
 
-<div class="callout callout-info"><span class="ico">📊</span><div>
-  <div class="h">Veredicto</div>
-  <p>Referencia técnica/educativa de OT: documentación sólida del bytecode y de la superficie de ataque real de los PLC, sin venta de exploits. Los 26 apartados del original se condensan aquí a lo esencial.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Referencia técnica/educativa de OT: documentación sólida del bytecode y de la superficie de ataque real de los PLC, sin venta de exploits. Los 26 apartados del original se condensan aquí a lo esencial.</p>

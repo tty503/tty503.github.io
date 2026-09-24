@@ -1,33 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Columna vertebral de las investigaciones: <b>VPN privada de dos nodos</b> cuyo túnel WireGuard viaja <b>camuflado como HTTPS</b> (udp2raw <code>faketcp</code> + XOR, puerto 443), con salida tras <b>proxies residenciales SOCKS5</b> y DNS cifrado con <b>DoH</b>.</li>
-    <li><b>Separación de funciones</b>: Nodo A = única puerta visible (DNAT 80/443/5522); Nodo B = servicios reales sin puertos expuestos salvo SSH. Si cae A no hay datos; si cae B, su IP real jamás aparece en logs.</li>
-    <li>Enrutamiento selectivo (<code>AllowedIPs = 10.100.0.1/32</code>): entrada por el túnel, salida por el proxy residencial — nunca se mezclan.</li>
-    <li>Despliegue automatizado en un script Bash: <b>~90 segundos</b> de dependencias a verificación de salida residencial.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Columna vertebral de las investigaciones: VPN privada de dos nodos cuyo túnel WireGuard viaja camuflado como HTTPS (udp2raw faketcp + XOR, puerto 443), con salida tras proxies residenciales SOCKS5 y DNS cifrado con DoH. Separación de funciones: Nodo A = única puerta visible (DNAT 80/443/5522); Nodo B = servicios reales sin puertos expuestos salvo SSH. Si cae A no hay datos; si cae B, su IP real jamás aparece en logs. Enrutamiento selectivo con IPs internas omitidas: entrada por el túnel, salida por el proxy residencial — nunca se mezclan. Despliegue automatizado en un script Bash: ~90 segundos de dependencias a verificación de salida residencial.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Arquitectura de infraestructura ofuscada usada para trabajo de investigación (threat intel y laboratorios) sin exponer origen ni servicios. El tráfico cargo entra por la única puerta visible (Nodo A), viaja por un túnel WireGuard disfrazado de HTTPS a través de puertos típicos y sale por un proxy residencial independiente con DNS resuelto sobre DoH.</p>
 <p>La separación de nodos es el diseño clave de resiliencia: ningún componente individual revela datos. El despliegue total queda en un único script, reproducido en ~90 segundos.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Stack</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>WireGuard</th><td>Túnel <code>10.100.0.0/24</code>, enrutamiento selectivo</td></tr>
-      <tr><th>udp2raw</th><td>Ofuscación <code>faketcp</code>+XOR · puerto 443</td></tr>
-      <tr><th>Entrada</th><td>iptables DNAT 80/443/5522 → 10.100.0.2</td></tr>
-      <tr><th>DNS</th><td>dnscrypt-proxy + dnsmasq · DoH Cloudflare</td></tr>
-      <tr><th>Salida</th><td>redsocks → SOCKS5 residencial</td></tr>
-      <tr><th>Firewall</th><td>Nodo A: 22/80/443/5522 · Nodo B: 22</td></tr>
-      <tr><th>Deploy</th><td>Script Bash · ~90 s</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Stack</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> WireGuard: Túnel privado, enrutamiento selectivo. udp2raw: Ofuscación faketcp +XOR · puerto 443. Entrada: iptables DNAT de los puertos de servicio. DNS: dnscrypt-proxy + dnsmasq · DoH Cloudflare. Salida: redsocks → SOCKS5 residencial. Firewall: Nodo A: 22/80/443/5522 · Nodo B: 22. Deploy: Script Bash · ~90 s.</p>
 
-<div class="callout callout-info"><span class="ico">🔧</span><div>
-  <div class="h">Veredicto</div>
-  <p>Infraestructura propia documentada y desplegable; usada como base de las investigaciones de la casa (threat intel y laboratorio). Detalles de config en el artículo completo.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Infraestructura propia documentada y desplegable; usada como base de las investigaciones de la casa (threat intel y laboratorio). Detalles de config en el artículo completo.</p>

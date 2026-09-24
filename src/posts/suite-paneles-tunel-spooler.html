@@ -1,33 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Barrido de la suite de acceso web clásica del server de red: <b>4 sinks de command injection (CWE-78)</b> distribuidos en el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion.</li>
-    <li>Trust-bypass <b>condicional</b>: cabeceras <code>X-SSL-Client-*</code> solo se respetan si <code>trust_real_ip=1</code> + proxy trusted + DN exacto — no es un bypass de confianza default.</li>
-    <li>Sinks: <code>cpan/el CGI de administracion:45</code> (root post-auth), el panel web de administracion restringida <code>el CGI de administracion</code> + <code>el CGI de administracion</code>, el daemon de tunel L2TP/IPsec L2TP→<code>ip-up</code>, el spooler de impresion <code>la herramienta de configuracion de impresorasrip</code>.</li>
-    <li>Ninguno es initial-access pre-auth: todos quedan como eslabones post-auth para composición con una primitiva de acceso.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Barrido de la suite de acceso web clásica del server de red: 4 sinks de command injection (CWE-78) distribuidos en el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion. Trust-bypass condicional: cabeceras X-SSL-Client-* solo se respetan si trust_real_ip=1 + proxy trusted + DN exacto — no es un bypass de confianza default. Sinks: cpan/el CGI de administracion:45 (root post-auth), el panel web de administracion restringida el CGI de administracion + el CGI de administracion, el daemon de tunel L2TP/IPsec L2TP→ip-up, el spooler de impresion la herramienta de configuracion de impresorasrip. Ninguno es initial-access pre-auth: todos quedan como eslabones post-auth para composición con una primitiva de acceso.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Auditoría de la suite completa del servidor de red clásico: el panel web de administracion del servidor/el panel web de administracion restringida (panel de administración web), el daemon de tunel L2TP/IPsec (túnel L2TP/IPsec) y el spooler de impresion (impresoras). El barrido estático encontró cuatro puntos donde una entrada influenciable aterriza en <code>system</code>/shell sin sanitizar, todos documentados con archivo:línea y prueba de inyección.</p>
 <p>La revisión adversarial verificó además el mecanismo de confianza por cabeceras <code>X-SSL-Client-Cert-DN</code>: la fe en esas cabeceras exige configuración específica (proxy trusted y <code>trust_real_ip=1</code>) — por tanto no cuenta como bypass de autenticación en config default.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Clase</th><td>OS command injection — <b>CWE-78</b> (4 sinks)</td></tr>
-      <tr><th>el panel web de administracion del servidor</th><td><code>cpan/el CGI de administracion:45</code> — root, post-auth</td></tr>
-      <tr><th>el panel web de administracion restringida</th><td><code>ssh/el CGI de administracion</code> y <code>el CGI de administracion</code> — post-auth</td></tr>
-      <tr><th>el daemon de tunel L2TP/IPsec</th><td>L2TP → scripts <code>ip-up</code> al conectar túnel</td></tr>
-      <tr><th>el spooler de impresion</th><td><code>la herramienta de configuracion de impresorasrip</code> al procesar trabajo de impresión</td></tr>
-      <tr><th>Trust-bypass</th><td><code>X-SSL-Client-*</code> condicional (<code>trust_real_ip=1</code> + proxy + DN)</td></tr>
-      <tr><th>Acceso</th><td>Ninguno pre-auth — todos son eslabones post-auth</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Clase: OS command injection — CWE-78 (4 sinks). el panel web de administracion del servidor: cpan/el CGI de administracion:45 — post-autenticación. el panel web de administracion restringida: ssh/el CGI de administracion y el CGI de administracion — post-auth. el daemon de tunel L2TP/IPsec: L2TP → scripts ip-up al conectar túnel. el spooler de impresion: la herramienta de configuracion de impresorasrip al procesar trabajo de impresión. Trust-bypass: X-SSL-Client-* condicional ( trust_real_ip=1 + proxy + DN). Acceso: Ninguno pre-auth — todos son eslabones post-auth.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>No hay initial-access pre-auth aquí. El activo real son los sinks post-auth documentados, reactivables componiéndolos con una primitiva de acceso (una sola pieza de auth-bypass los convierte en cadena completa).</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> No hay initial-access pre-auth aquí. El activo real son los sinks post-auth documentados, reactivables componiéndolos con una primitiva de acceso (una sola pieza de auth-bypass los convierte en cadena completa).</p>

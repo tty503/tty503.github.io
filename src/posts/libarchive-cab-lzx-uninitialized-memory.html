@@ -1,31 +1,9 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Mismo archivo CAB, dos binarios: el snapshot de <b>bsdtar 3.8.9</b> extrae leyendo un <em>history guard</em> del decoder <b>LZX</b> que nadie inicializó (CWE-457); el build con fix lo rechaza con <code>LZX_CORRUPT</code>.</li>
-    <li>Método: <b>patch-diffing como radar</b> — un commit upstream del 08-08 endureció el path CAB/LZX y la revisión periódica del snapshot reveló que el fix no estaba.</li>
-    <li>Validación A/B: mismo input, única variable = el parche. Vulnerable <code>rc=0</code> (ASAN <code>use-of-uninitialized-value</code>); parcheado <code>rc=1</code> (-25).</li>
-    <li>Clasificación honesta: <b>DUP-RACE</b> — el fix ya existía una semana antes. El activo duradero es el método, no el CVE.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Mismo archivo CAB, dos binarios: el snapshot de bsdtar 3.8.9 extrae leyendo un history guard del decoder LZX que nadie inicializó (CWE-457); el build con fix lo rechaza con LZX_CORRUPT. Método: patch-diffing como radar — un commit upstream del 08-08 endureció el path CAB/LZX y la revisión periódica del snapshot reveló que el fix no estaba. Validación A/B: mismo input, única variable = el parche. Vulnerable rc=0 (ASAN use-of-uninitialized-value); parcheado rc=1 (-25). Clasificación honesta: DUP-RACE — el fix ya existía una semana antes. El activo duradero es el método, no el CVE.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>bsdtar extrae un CAB LZX leyendo como <em>guardián</em> un valor de memoria no inicializada. Al recibir el mismo CAB, el snapshot vulnerable procede (rc=0) y el build parcheado lo rechaza como corrupto — la diferencia es un commit de endurecimiento previo. Se documenta como <b>DUP-RACE</b>: el fix se anticipó por otra vía, pero el hallazgo verifica la validez del método radar de patch-diffing sobre snapshots.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Target</th><td>libarchive / bsdtar 3.8.9 — CAB + compresión LZX</td></tr>
-      <tr><th>Clase</th><td>Use of Uninitialized Variable — <b>CWE-457</b></td></tr>
-      <tr><th>Sink</th><td><code>lzx_read_blocks</code> (history guard) durante la extracción</td></tr>
-      <tr><th>Validación</th><td>ASAN (<code>use-of-uninitialized-value</code>) + valgrind <code>--track-origins=yes</code></td></tr>
-      <tr><th>A/B</th><td>Vulnerable rc=0 · Parcheado rc=1 (LZX_CORRUPT)</td></tr>
-      <tr><th>Clasificación</th><td>DUP-RACE — fix upstream anterior a la detección</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Target: libarchive / bsdtar 3.8.9 — CAB + compresión LZX. Clase: Use of Uninitialized Variable — CWE-457. Sink: lzx_read_blocks (history guard) durante la extracción. Validación: ASAN ( use-of-uninitialized-value ) + valgrind --track-origins=yes. A/B: Vulnerable rc=0 · Parcheado rc=1 (LZX_CORRUPT). Clasificación: DUP-RACE — fix upstream anterior a la detección.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>No es un 0-day: es un caso metodológico. El patch-diffing sobre snapshots demostró detectar divergencias reales; el valor entregado es ese método, no un CVE sellable.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> No es un 0-day: es un caso metodológico. El patch-diffing sobre snapshots demostró detectar divergencias reales; el valor entregado es ese método, no un CVE sellable.</p>

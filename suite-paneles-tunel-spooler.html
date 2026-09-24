@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion</title>
 <meta name="description" content="Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion, y el bypass de confianza X-SSL-Client-* con su alcance real: tres prerrequisitos que no son default.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -33,17 +33,14 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Serie</a><span class="sep">/</span><a href="suite-paneles-tunel-spooler.html">Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, acc</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Serie</a><span class="sep">/</span><a href="suite-paneles-tunel-spooler.html">Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida,</a><span class="sep">/</span></nav>
 <header class="post-head">
   <div class="post-tags"><span class="chip">CWE-78</span><span class="chip">Trust bypass</span><span class="chip">Scripting servers</span><span class="chip">el panel web de administracion del servidor</span></div>
   <h1>Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion</h1>
@@ -51,45 +48,23 @@
   <div class="post-meta"><span>2026-09-02</span><span>20 min</span><span>Vulnerability Research</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Barrido de la suite de acceso web clásica del server de red: <b>4 sinks de command injection (CWE-78)</b> distribuidos en el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion.</li>
-    <li>Trust-bypass <b>condicional</b>: cabeceras <code>X-SSL-Client-*</code> solo se respetan si <code>trust_real_ip=1</code> + proxy trusted + DN exacto — no es un bypass de confianza default.</li>
-    <li>Sinks: <code>cpan/el CGI de administracion:45</code> (root post-auth), el panel web de administracion restringida <code>el CGI de administracion</code> + <code>el CGI de administracion</code>, el daemon de tunel L2TP/IPsec L2TP→<code>ip-up</code>, el spooler de impresion <code>la herramienta de configuracion de impresorasrip</code>.</li>
-    <li>Ninguno es initial-access pre-auth: todos quedan como eslabones post-auth para composición con una primitiva de acceso.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Barrido de la suite de acceso web clásica del server de red: 4 sinks de command injection (CWE-78) distribuidos en el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion. Trust-bypass condicional: cabeceras X-SSL-Client-* solo se respetan si trust_real_ip=1 + proxy trusted + DN exacto — no es un bypass de confianza default. Sinks: cpan/el CGI de administracion:45 (root post-auth), el panel web de administracion restringida el CGI de administracion + el CGI de administracion, el daemon de tunel L2TP/IPsec L2TP→ip-up, el spooler de impresion la herramienta de configuracion de impresorasrip. Ninguno es initial-access pre-auth: todos quedan como eslabones post-auth para composición con una primitiva de acceso.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Auditoría de la suite completa del servidor de red clásico: el panel web de administracion del servidor/el panel web de administracion restringida (panel de administración web), el daemon de tunel L2TP/IPsec (túnel L2TP/IPsec) y el spooler de impresion (impresoras). El barrido estático encontró cuatro puntos donde una entrada influenciable aterriza en <code>system</code>/shell sin sanitizar, todos documentados con archivo:línea y prueba de inyección.</p>
 <p>La revisión adversarial verificó además el mecanismo de confianza por cabeceras <code>X-SSL-Client-Cert-DN</code>: la fe en esas cabeceras exige configuración específica (proxy trusted y <code>trust_real_ip=1</code>) — por tanto no cuenta como bypass de autenticación en config default.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Clase</th><td>OS command injection — <b>CWE-78</b> (4 sinks)</td></tr>
-      <tr><th>el panel web de administracion del servidor</th><td><code>cpan/el CGI de administracion:45</code> — root, post-auth</td></tr>
-      <tr><th>el panel web de administracion restringida</th><td><code>ssh/el CGI de administracion</code> y <code>el CGI de administracion</code> — post-auth</td></tr>
-      <tr><th>el daemon de tunel L2TP/IPsec</th><td>L2TP → scripts <code>ip-up</code> al conectar túnel</td></tr>
-      <tr><th>el spooler de impresion</th><td><code>la herramienta de configuracion de impresorasrip</code> al procesar trabajo de impresión</td></tr>
-      <tr><th>Trust-bypass</th><td><code>X-SSL-Client-*</code> condicional (<code>trust_real_ip=1</code> + proxy + DN)</td></tr>
-      <tr><th>Acceso</th><td>Ninguno pre-auth — todos son eslabones post-auth</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Clase: OS command injection — CWE-78 (4 sinks). el panel web de administracion del servidor: cpan/el CGI de administracion:45 — post-autenticación. el panel web de administracion restringida: ssh/el CGI de administracion y el CGI de administracion — post-auth. el daemon de tunel L2TP/IPsec: L2TP → scripts ip-up al conectar túnel. el spooler de impresion: la herramienta de configuracion de impresorasrip al procesar trabajo de impresión. Trust-bypass: X-SSL-Client-* condicional ( trust_real_ip=1 + proxy + DN). Acceso: Ninguno pre-auth — todos son eslabones post-auth.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>No hay initial-access pre-auth aquí. El activo real son los sinks post-auth documentados, reactivables componiéndolos con una primitiva de acceso (una sola pieza de auth-bypass los convierte en cadena completa).</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> No hay initial-access pre-auth aquí. El activo real son los sinks post-auth documentados, reactivables componiéndolos con una primitiva de acceso (una sola pieza de auth-bypass los convierte en cadena completa).</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="autopsia-streaming-http-minimo.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>12 min</span></div><div class="t">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</div><div class="d">OOB read en el decoder AMF3 de la biblioteca cliente del protocolo de streaming y command injection en el gestor de credenciales de el servidor HTTP minimo. Cuándo una primitiva real no llega</div><span class="badge badge-infra">Vulnerability Research</span></a><a class="card" href="cadena-portal-cautivo-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>18 min</span></div><div class="t">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</div><div class="d">Payload en EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en un eval. RC</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="fw-host-header-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>17 min</span></div><div class="t">el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)</div><div class="d">Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell r</div><span class="badge badge-rce">Vulnerability Research</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="autopsia-streaming-http-minimo.html">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</a></div><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="cadena-portal-cautivo-rce.html">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</a></div><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="fw-host-header-rce.html">el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

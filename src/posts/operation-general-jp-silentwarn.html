@@ -1,32 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Dos campañas de phishing activas en junio 2025, stacks distintos, mismas raíces: la <b>Operación General JP</b> (PHP multi-capa con exfiltración a Telegram) y la <b>Operación SilentWarn</b> (React/Cloudflare Pages con EmailJS y geofencing a Vietnam).</li>
-    <li>General JP pivota desde <b>Google Cloud Storage</b> (185.80.129.110) → <code>yournextlvlredirect.com</code> → <code>mechatecha1520.com</code> → <code>bestdealzon.art</code>, segmentando si te destino según perfil.</li>
-    <li>El kit <code>reservigt.com/japangenerals.zip</code> escribe credenciales en <code>logins.html</code> y alerta en tiempo real a <b>Telegram</b> (IP, ISP, SO, navegador de la víctima).</li>
-    <li>SilentWarn exfiltra vía <b>EmailJS + SMTPjs en el frontend</b>, redirige a Facebook a visitantes vietnamitas y bloquea F12 — comentarios en vietnamita refuerzan la atribución.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Dos campañas de phishing activas en junio 2025, stacks distintos, mismas raíces: la Operación General JP (PHP multi-capa con exfiltración a Telegram) y la Operación SilentWarn (React/Cloudflare Pages con EmailJS y geofencing a Vietnam). General JP pivota desde Google Cloud Storage (185.80.129.110) → yournextlvlredirect.com → mechatecha1520.com → bestdealzon.art, segmentando si te destino según perfil. El kit reservigt.com/japangenerals.zip escribe credenciales en logins.html y alerta en tiempo real a Telegram (IP, ISP, SO, navegador de la víctima). SilentWarn exfiltra vía EmailJS + SMTPjs en el frontend, redirige a Facebook a visitantes vietnamitas y bloquea F12 — comentarios en vietnamita refuerzan la atribución.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Tesis: aunque los stacks tecnológicos difieren, ambas campañas comparten fuentes de emails filtrados y patrones de infraestructura que sugieren un ecosistema que recicla listas (Alien Stealer, Deezer, Zacks2024). El análisis se ejecutó desde un entorno protegido (la <a href="infraestructura-tunel-ofuscado.html">infraestructura ofuscada</a>) para no alertar a los operadores.</p>
 <p>General JP monta una cadena de redirección que segmenta el destino por perfil de víctima y exfiltra por la API de Telegram; SilentWarn externaliza la exfiltración a EmailJS/SMTP incrustado y aplica geofencing para no quemar el kit ante audiencias locales.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>General JP</th><td>GCS 185.80.129.110 → 3 redirecciones → kit PHP → Telegram</td></tr>
-      <tr><th>SilentWarn</th><td>React/Cloudflare Pages · EmailJS+SMTPjs · geofencing VN</td></tr>
-      <tr><th>Fuentes de datos</th><td>Alien Stealer · Deezer · Zacks2024 (combolists)</td></tr>
-      <tr><th>Kit</th><td><code>reservigt.com/japangenerals.zip</code> → <code>logins.html</code></td></tr>
-      <tr><th>Atribución</th><td>Comentarios en vietnamita (SilentWarn)</td></tr>
-      <tr><th>Conecta</th><td>Threat Hunter Recollection · FakeWealth · bybsusd</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> General JP: GCS 185.80.129.110 → 3 redirecciones → kit PHP → Telegram. SilentWarn: React/Cloudflare Pages · EmailJS+SMTPjs · geofencing VN. Fuentes de datos: Alien Stealer · Deezer · Zacks2024 (combolists). Kit: reservigt.com/japangenerals.zip → logins.html. Atribución: Comentarios en vietnamita (SilentWarn). Conecta: Threat Hunter Recollection · FakeWealth · bybsusd.</p>
 
-<div class="callout callout-danger"><span class="ico">⛔</span><div>
-  <div class="h">Veredicto</div>
-  <p>Dos campañas activas documentadas con IoCs consolidados en el artículo completo; la correlación entre ambas se sostiene sobre fuentes de datos compartidas y patrones de infraestructura.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Dos campañas activas documentadas con IoCs consolidados en el artículo completo; la correlación entre ambas se sostiene sobre fuentes de datos compartidas y patrones de infraestructura.</p>

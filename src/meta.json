@@ -3,33 +3,33 @@
     "url": "https://tty503.com",
     "name": "tty503 — Christian Márquez",
     "lang": "es",
-    "time": "2026-09-12T00:00:00Z",
+    "time": "2026-09-24T00:00:00Z",
     "ga": "G-RZVNG112YY"
   },
   "social": [
     ["GitHub", "https://github.com/tty503"],
     ["LinkedIn", "https://linkedin.com/in/tty503"],
     ["X / Twitter", "https://x.com/tty_503"],
-    ["RSS", "https://tty503.com/sitemap.xml"]
+    ["RSS", "https://tty503.com/feed.xml"]
   ],
   "pages": {
     "cadena-portal-cautivo-rce": {
       "title": "el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)",
-      "desc": "Payload en EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en un eval. RCE validado con ASAN+gdb. PoC, sink y evidencia E2E.",
+      "desc": "Un valor EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en una evaluación. Ejecución validada con ASAN+gdb: sink y evidencia E2E.",
       "date": "2026-09-02",
       "cat": "Vulnerability Research",
-      "tags": ["CWE-78", "RCE pre-auth", "Captive Portal", "PoC"],
+      "tags": ["CWE-78", "RCE pre-auth", "Captive Portal"],
       "badge": "rce",
       "read": "18 min",
       "related": ["fw-host-header-rce", "http-el conversor de fecha a timestamp-stackoverflow", "suite-paneles-tunel-spooler"],
       "series": "caza-autonoma-e2e-serie"
     },
     "fw-host-header-rce": {
-      "title": "el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)",
-      "desc": "Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.",
+      "title": "el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)",
+      "desc": "Request HTTP pre-auth con una cabecera Host maliciosa termina en ejecución de comandos como administrador al construir una regla de iptables. Ejecución verificada con evidencia. Sink fw_iptables.c:596 → util.c:96.",
       "date": "2026-09-02",
       "cat": "Vulnerability Research",
-      "tags": ["CWE-78", "RCE root", "iptables", "Reverse shell"],
+      "tags": ["CWE-78", "iptables", "Análisis"],
       "badge": "rce",
       "read": "17 min",
       "related": ["cadena-portal-cautivo-rce", "http-el conversor de fecha a timestamp-stackoverflow", "autopsia-streaming-http-minimo"],
@@ -37,7 +37,7 @@
     },
     "http-el conversor de fecha a timestamp-stackoverflow": {
       "title": "el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)",
-      "desc": "Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.",
+      "desc": "Un If-Modified-Since de 220 bytes desborda un buffer de 128 y permite tomar control parcial del contador de programa con un descifrado en pila. Disparidad nativo/gdb (+0xC0) documentada y reproducción incluida.",
       "date": "2026-09-02",
       "cat": "Vulnerability Research",
       "tags": ["CWE-121", "Stack Overflow", "HTTP", "RIP control"],
@@ -70,7 +70,7 @@
     },
     "caza-autonoma-e2e-serie": {
       "title": "Caza autónoma E2E con IA local: 5 cadenas RCE reales",
-      "desc": "Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, PoC, evidencia ASAN y la doctrina de la divulgación responsable.",
+      "desc": "Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, evidencia ASAN y la doctrina de la divulgación responsable.",
       "date": "2026-09-02",
       "cat": "Serie",
       "tags": ["Bug Hunting", "RCE", "Divulgación responsable", "E2E"],
@@ -90,7 +90,7 @@
     },
     "7zip-isfolderencrypted-oob-read": {
       "title": "7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente",
-      "desc": "El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes en 7-Zip 26.00–26.02. Desync byte a byte, doble parser, PoC estructural y evidencia ASAN + valgrind.",
+      "desc": "El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes en 7-Zip 26.00–26.02. Desync byte a byte, doble parser, reproducción estructural y evidencia ASAN + valgrind.",
       "date": "2026-08-21",
       "cat": "Vulnerability Research",
       "tags": ["CWE-125", "Heap OOB", "7-Zip", "Desync"],
@@ -149,11 +149,11 @@
       "related": ["threat-hunter-recollection", "myPracticalShellcodeC2", "evasion-estatica-asm-mirai"]
     },
     "evasion-estatica-asm-mirai": {
-      "title": "Evasión estática en ASM: romper firmas de Mirai sin packers",
-      "desc": "De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con aritmética dinámica y arquitectura de entrega mutante con DGA.",
+      "title": "Evasión estática: por qué cambia la firma de un binario (ASM x86)",
+      "desc": "Medición en laboratorio sobre una muestra pública: las detecciones cayeron de 16 a cero al reescribir los opcodes con la misma lógica, sin empaquetar y con entropía normal. Lectura defensiva incluida.",
       "date": "2026-06-01",
       "cat": "Malware Analysis",
-      "tags": ["Assembly x86", "YARA evasion", "Mirai", "Polimorfismo"],
+      "tags": ["Assembly x86", "Detección estática", "Mirai", "Análisis"],
       "badge": "ti",
       "read": "25 min",
       "related": ["analystty", "threat-hunter-recollection", "infraestructura-tunel-ofuscado"]
@@ -203,7 +203,7 @@
       "desc": "Túnel WireGuard encapsulado en TCP falso mediante udp2raw, enmascaramiento con redsocks + SOCKS5 residencial y DNS blindado con dnscrypt-proxy. Arquitectura completa y despliegue automatizado.",
       "date": "2026-05-22",
       "cat": "Infraestructura",
-      "tags": ["WireGuard", "udp2raw", "DPI bypass", "Redes"],
+      "tags": ["WireGuard", "udp2raw", "Redes", "Laboratorio"],
       "badge": "infra",
       "read": "30 min",
       "related": ["infra-soc", "saint-grail-go", "exploit-development-lab"]
@@ -220,7 +220,7 @@
     },
     "web-api-pentesting2024": {
       "title": "Pentesting a web API financiera: IDOR por validación incompleta de JWT",
-      "desc": "Auditoría freelance a una API financiera con certificate pinning, cifrado y ofuscación burlados por una falla IDOR: el backend validaba la firma JWT pero no la pertenencia del recurso. Extracción automatizada de datos.",
+      "desc": "Auditoría a una API financiera cuyos mecanismos de protección quedaron sin efecto por una falla de autorización: el backend validaba la firma JWT pero no la pertenencia del recurso, y permitía acceder a datos ajenos.",
       "date": "2024-08-15",
       "cat": "Pentesting",
       "tags": ["Pentesting", "Web API", "JWT", "IDOR"],
@@ -259,11 +259,11 @@
       "related": ["exploit-development-lab", "analystty", "plc"]
     },
     "myPracticalShellcodeC2": {
-      "title": "De winshellcode a BugBuilder: inyección y C2 en Windows",
-      "desc": "Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API hashing, persistencia) y un builder con panel C2 en C#.",
+      "title": "Inyección y persistencia en Windows: notas para la detección",
+      "desc": "Apuntes documentados en laboratorio propio sobre técnicas clásicas de inyección y persistencia en Windows: qué hace cada una y qué indicadores dejan en el sistema para detectarla.",
       "date": "2026-05-22",
-      "cat": "Malware Development",
-      "tags": ["Shellcode", "Windows Internals", "C2", "C#"],
+      "cat": "Análisis",
+      "tags": ["Windows Internals", "Detección", "Estudio"],
       "badge": "ti",
       "read": "120 min",
       "related": ["exploit-development-lab", "evasion-estatica-asm-mirai", "analystty"]
@@ -280,7 +280,7 @@
     },
     "arte-de-la-paciencia-sudo-cache": {
       "title": "El arte de la paciencia: un script de 15 líneas puede iniciar una brecha",
-      "desc": "PoC que abusa del mecanismo de caché de sudo (T1548.003), elevación a escenario real con ofuscación y reglas de auditd para detección Blue Team.",
+      "desc": "Ejemplo que abusa del mecanismo de caché de sudo (T1548.003), con las reglas de auditd para detectarlo del lado del Blue Team.",
       "date": "2026-05-29",
       "cat": "Red Team",
       "tags": ["Privilege escalation", "MITRE ATT&CK", "sudo", "Bash"],
@@ -300,13 +300,49 @@
     },
     "saint-grail-go": {
       "title": "SAINT GRAIL en Go: resultados concretos y bug hunting autónomo",
-      "desc": "Migración a Go por rendimiento y concurrencia nativa: dos PoCs funcionales generados por IA — TOCTOU en Chromium y CRC bypass en 7-Zip (9.20–25.01). Código y PoCs públicos.",
+      "desc": "Migración a Go por rendimiento y concurrencia nativa: dos hallazgos reproducibles generados por IA, una condición de carrera en Chromium y una validación débil en 7-Zip (9.20–25.01). Código público.",
       "date": "2026-07-05",
       "cat": "Herramientas propias",
-      "tags": ["Go", "Bug Hunting", "PoC", "AI"],
+      "tags": ["Go", "Bug Hunting", "AI"],
       "badge": "guide",
       "read": "15 min",
       "related": ["saint-grail", "sherlock-caza-autonoma-ia-local", "7zip-isfolderencrypted-oob-read"]
+    },
+    "agentes-locales-arquitectura": {
+      "title": "Cómo organizo el trabajo con agentes de IA locales",
+      "desc": "La arquitectura detrás de mis flujos automatizados: dos o más agentes especializados trabajando a la vez sobre la misma pregunta, un registro de memoria compartido y un modelo pequeño que hace el trabajo repetitivo en mi propia máquina.",
+      "date": "2026-09-24",
+      "cat": "Agentes",
+      "tags": ["Agentes de IA", "Arquitectura", "Automatización", "Flujo de trabajo"],
+      "read": "7 min",
+      "related": ["agentes-memoria-aprendizaje", "agentes-resultados-progreso", "divulgacion-responsable"]
+    },
+    "agentes-memoria-aprendizaje": {
+      "title": "La memoria de mis agentes: cómo aprenden de cada sesión",
+      "desc": "Cada sesión de trabajo termina con apuntes: hechos, lecciones y patrones. Esos apuntes se indexan y se consultan antes de empezar, de modo que el error de ayer pesa en la decisión de hoy.",
+      "date": "2026-09-24",
+      "cat": "Agentes",
+      "tags": ["Memoria", "Aprendizaje", "RAG", "Mejora continua"],
+      "read": "8 min",
+      "related": ["agentes-locales-arquitectura", "agentes-resultados-progreso", "divulgacion-responsable"]
+    },
+    "agentes-resultados-progreso": {
+      "title": "Qué he logrado con agentes locales y cómo lo mido",
+      "desc": "Resultados verificables de mis flujos con IA local: hallazgos reproducibles en proyectos de código abierto, un embudo de triaje honesto y la regla de no afirmar nada que no pueda mostrar.",
+      "date": "2026-09-24",
+      "cat": "Agentes",
+      "tags": ["Agentes de IA", "Resultados", "Medición", "Código abierto"],
+      "read": "8 min",
+      "related": ["sherlock-caza-autonoma-ia-local", "caza-autonoma-e2e-serie", "agentes-locales-arquitectura"]
+    },
+    "divulgacion-responsable": {
+      "title": "Por qué no publico todo lo que encuentro",
+      "desc": "La diferencia entre una primitiva y una cadena explotable, y por qué este sitio omite deliberadamente los detalles que podrían usarse para atacar sistemas.",
+      "date": "2026-09-24",
+      "cat": "Notas",
+      "tags": ["Divulgación responsable", "Ética", "Investigación"],
+      "read": "5 min",
+      "related": ["caza-autonoma-e2e-serie", "agentes-resultados-progreso", "agentes-locales-arquitectura"]
     }
   }
 }

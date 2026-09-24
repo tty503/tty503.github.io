@@ -1,37 +1,13 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Stack overflow en el servidor HTTP embebido: la cabecera <b>If-Modified-Since</b> de ~220 bytes desborda un buffer de <b>128</b> en <code>el conversor de fecha a timestamp</code> con <b>control parcial de RIP</b>.</li>
-    <li>Sink: <code>file.c:136</code> — <code>strncpy</code> copia <code>strlen(origen)</code> bytes sin bound.</li>
-    <li>Shellcode <b>decoder XOR en-stack</b> que evita los bytes prohibidos del transporte HTTP; el desplazamiento de RIP en gdb difiere <b>+0xC0</b> del run nativo (offset calibrado por ensayo).</li>
-    <li>CWE-121 (Stack-based Buffer Overflow). Repro 3/3 con crash ASAN.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Stack overflow en el servidor HTTP embebido: la cabecera If-Modified-Since de ~220 bytes desborda un buffer de 128 en el conversor de fecha a timestamp con control parcial de RIP. Sink: file.c:136 — strncpy copia strlen(origen) bytes sin bound. Shellcode decoder XOR en-stack que evita los bytes prohibidos del transporte HTTP; el desplazamiento de RIP en gdb difiere +0xC0 del run nativo (offset calibrado por ensayo). CWE-121 (Stack-based Buffer Overflow). Repro 3/3 con crash ASAN.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>el servidor HTTP embebido es un servidor HTTP mínimo usado en routers embebidos (incluido como submodulo en el daemon de autenticacion y redireccion). Al servir un recurso estático, convierte la cabecera <code>If-Modified-Since</code> a timestamp Unix con <code>el conversor de fecha a timestamp</code>; la copia a <code>buf[128]</code> usa como límite el propio <code>strlen</code> de la entrada, permitiendo escribir más allá del frame. Con 220 bytes se llega al return address y se desvía el flujo.</p>
-<p>El exploit articula la restricción del canal: el payload se codifica con un decoder XOR en el propio stack para esquivar bytes no imprimibles/CTRL dentro de HTTP, y el offset se calibró porque el stack del daemon nativo difiere del modo gdb.</p>
+<p>Parte del trabajo consistió en entender la restricción del canal de transporte HTTP y calibrar la reproducción entre el modo depurador y la ejecución nativa.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Target</th><td>el servidor HTTP embebido (HTTP server embebido)</td></tr>
-      <tr><th>Clase</th><td>Stack buffer overflow — <b>CWE-121</b></td></tr>
-      <tr><th>Vector</th><td>Cabecera <code>If-Modified-Since</code> ≈ 220 B → <code>buf[128]</code></td></tr>
-      <tr><th>Sink</th><td><code>file.c:136</code> — <code>strncpy</code> sin bound real</td></tr>
-      <tr><th>Efecto</th><td>Control parcial de RIP; crash ASAN reproducible 3/3</td></tr>
-      <tr><th>Canal</th><td>Payload XOR-on-stack evadiendo bytes prohibidos HTTP</td></tr>
-      <tr><th>Fix</th><td>Sin CVE asignado al cierre del análisis</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Target: el servidor HTTP embebido (HTTP server embebido). Clase: Stack buffer overflow — CWE-121. Vector: Cabecera If-Modified-Since ≈ 220 B → buf[128]. Sink: file.c:136 — strncpy sin bound real. Efecto: Control parcial de RIP; crash ASAN reproducible 3/3. Canal: Payload XOR-on-stack evadiendo bytes prohibidos HTTP. Fix: Sin CVE asignado al cierre del análisis.</p>
 
-<h2 id="r02"><span class="idx">03.</span> Disparador mínimo</h2>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code>$ curl --path-as-is "http://$TARGET/" \
-  -H "If-Modified-Since: $(python3 -c "print('A'*150 + payload)")"</code></pre></div>
+<h2>Disparador mínimo</h2>
+<p class="omitido">El detalle de reproducción se omite por política de divulgación responsable.</p>
 
-<div class="callout callout-danger"><span class="ico">⛔</span><div>
-  <div class="h">Veredicto</div>
-  <p>Primitiva de control de flujo pre-auth demostrada con crash reproducible; el salto a ejecución depende de las mitigaciones del binario integrador. Hallazgo prioritario: exige el desbordamiento real de un buffer de pila en la ruta de servido de archivos, 0 interacción.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Desbordamiento de pila reproducible en laboratorio; el salto a ejecución depende de las mitigaciones del binario integrador. Hallazgo prioritario: exige el desbordamiento real de un buffer de pila en la ruta de servido de archivos, 0 interacción.</p>

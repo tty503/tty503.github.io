@@ -1,32 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Red de <b>Pig Butchering</b> con <b>exchange falso</b> para hispanohablantes: frontend Vue 3 + Vant, chat real-time <b>WebSocket/Workerman PHP</b> (GCP Hong Kong), y un endpoint de captcha que entrega <b>la clave de validación en el propio JSON</b>.</li>
-    <li><b>7 dominios</b> rotando rápido (4 en 22 días): <code>bybsusd.com</code>, <code>api.japfc.top</code>, <code>chat.cionusdt.com</code>, <code>bhonso.com</code>, <code>bholos.com</code>, <code>xoiunc.com</code>, <code>xinusdt.com</code>.</li>
-    <li>Anzuelo por Facebook Messenger con credenciales precargadas y <b>balance ficticio de 5.7M USDT</b>. El backend <code>api.japfc.top</code> (156.254.5.40) permanece constante: eslabón débil para pivoting.</li>
-    <li><b>3/7 dominios ya bloqueados</b> (OpenDNS, Hagezi, DNS4EU, OPSWAT); el resto activo a fecha del informe (2026-05-26).</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Red de Pig Butchering con exchange falso para hispanohablantes: frontend Vue 3 + Vant, chat real-time WebSocket/Workerman PHP (GCP Hong Kong), y un endpoint de captcha que entrega la clave de validación en el propio JSON. 7 dominios rotando rápido (4 en 22 días): bybsusd.com, api.japfc.top, chat.cionusdt.com, bhonso.com, bholos.com, xoiunc.com, xinusdt.com. Anzuelo por Facebook Messenger con credenciales precargadas y balance ficticio de 5.7M USDT. El backend api.japfc.top (156.254.5.40) permanece constante: eslabón débil para pivoting. 3/7 dominios ya bloqueados (OpenDNS, Hagezi, DNS4EU, OPSWAT); el resto activo a fecha del informe (2026-05-26).</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Investigación de inteligencia sobre una red activa de Pig Butchering: captación por mensajería, login con credenciales precargadas, trading ficticio con saldos falsos, depósito real y retiro bloqueado. El backend del exchange falso expone además un defecto operativo del chat: la clave del captcha viaja junto con la imagen en la misma respuesta, delegado a un cliente que el propio operador no puede controlar.</p>
 <p>Se mapearon los 7 dominios, la rotación y el backend estable, y se entregaron los IoCs para bloqueo. La cadena completa de la estafa y el ciclo de retiro/rotación se documentan para entrenar detección temprana.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Cadena</th><td>Captación → login precargado → trading ficticio → depósito → retiro bloqueado → rotación</td></tr>
-      <tr><th>Stack</th><td>Vue 3 + Vant + Vite (frontend) · Workerman PHP v5.2.0 (chat) · GCP HK/SG</td></tr>
-      <tr><th>Defecto clave</th><td><code>GET /index/verify</code> devuelve imagen + <code>captcha_key</code> en el mismo JSON</td></tr>
-      <tr><th>IoCs</th><td>7 dominios listados + backend <code>api.japfc.top</code> (156.254.5.40)</td></tr>
-      <tr><th>Detección</th><td>3/7 sinkholed/bloqueados por 4 feeds</td></tr>
-      <tr><th>Fecha</th><td>2026-05-26 · clasificación MALICIOSO</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Cadena: Captación → login precargado → trading ficticio → depósito → retiro bloqueado → rotación. Stack: Vue 3 + Vant + Vite (frontend) · Workerman PHP v5.2.0 (chat) · GCP HK/SG. Defecto clave: GET /index/verify devuelve imagen + captcha_key en el mismo JSON. IoCs: 7 dominios listados + backend api.japfc.top (156.254.5.40). Detección: 3/7 sinkholed/bloqueados por 4 feeds. Fecha: 2026-05-26 · clasificación MALICIOSO.</p>
 
-<div class="callout callout-danger"><span class="ico">⛔</span><div>
-  <div class="h">Veredicto</div>
-  <p>Red de estafa activa confirmada. No interactuar con los dominios ni depositar en la plataforma; aplicar los IoCs de bloqueo de inmediato.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Red de estafa activa confirmada. No interactuar con los dominios ni depositar en la plataforma; aplicar los IoCs de bloqueo de inmediato.</p>

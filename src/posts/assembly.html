@@ -1,31 +1,9 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Guía de campo <b>x86/x64</b> para leer binarios <b>sin símbolos</b>: del stack frame a las heurísticas de etiquetado automático.</li>
-    <li>Material generado con <b>GCC</b> (salida menos abstracta que MSVC) y contrapunto en <b>NASM/FLAT</b>.</li>
-    <li>Ubicar variables: <b>locales en pila</b> (<code>rbp±offset</code>), <b>globales en secciones</b> (<code>.data/.bss/.rdata</code>); clases = <code>this</code> como primer argumento (<code>rcx</code> Win x64 / <code>rdi</code> SystemV); structs = copia al stack.</li>
-    <li>Las 4 convenciones de llamada y la heurística estrella: <b>prólogo/epílogo</b> <code>push rbp; mov rbp,rsp</code> para delimitar funciones — la que implementa <a href="analystty.html">analystty</a>.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Guía de campo x86/x64 para leer binarios sin símbolos: del stack frame a las heurísticas de etiquetado automático. Material generado con GCC (salida menos abstracta que MSVC) y contrapunto en NASM/FLAT. Ubicar variables: locales en pila (rbp±offset), globales en secciones (.data/.bss/.rdata); clases = this como primer argumento (rcx Win x64 / rdi SystemV); structs = copia al stack. Las 4 convenciones de llamada y la heurística estrella: prólogo/epílogo push rbp; mov rbp,rsp para delimitar funciones — la que implementa analystty.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Material de estudio (20 secciones) para leer ensamblador en sesiones de reversing: memoria dinámica (<code>malloc/realloc/free</code> vs <code>new/delete</code> con <code>bad_alloc</code>), estructuras de datos reconocibles por patrones de indexación <code>[base+idx*size+off]</code>, aritmética de punteros, alineamiento/padding y las convenciones de llamada cdecl/stdcall/SystemV/Windows x64. El recorrido va de los fundamentos a las heurísticas con las que se delimitan funciones sin tabla de símbolos.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Enfoque</th><td>GCC (C/C++) + NASM/FLAT</td></tr>
-      <tr><th>Localización</th><td>Pila (<code>rbp±</code>) vs secciones (<code>.data/.bss/.rdata</code>)</td></tr>
-      <tr><th>Clases</th><td><code>this</code> = <code>rcx</code>/<code>rdi</code> según ABI</td></tr>
-      <tr><th>Convenciones</th><td>cdecl · stdcall · SystemV · Win x64</td></tr>
-      <tr><th>Heurística</th><td>Prólogo/epílogo <code>push rbp; mov rbp,rsp</code></td></tr>
-      <tr><th>Estado</th><td>Guía educativa (20 secciones en el original)</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Enfoque: GCC (C/C++) + NASM/FLAT. Localización: Pila ( rbp± ) vs secciones ( .data/.bss/.rdata ). Clases: this = rcx / rdi según ABI. Convenciones: cdecl · stdcall · SystemV · Win x64. Heurística: Prólogo/epílogo push rbp; mov rbp,rsp. Estado: Guía educativa (20 secciones en el original).</p>
 
-<div class="callout callout-info"><span class="ico">📊</span><div>
-  <div class="h">Veredicto</div>
-  <p>Material de estudio documentado; los 20 apartados del original se comprimen aquí a la idea clave. No es un hallazgo: es la base de conocimiento sobre la que corren las herramientas propias.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Material de estudio documentado; los 20 apartados del original se comprimen aquí a la idea clave. No es un hallazgo: es la base de conocimiento sobre la que corren las herramientas propias.</p>

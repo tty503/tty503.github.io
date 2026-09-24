@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>libwebp: DoS por área de imagen no validada en VP8L lossless</title>
 <meta name="description" content="Un WebP lossless de 34 bytes declara hasta 16384×16384 píxeles sin comprobar MAX_IMAGE_AREA, el guardia que el path lossy sí aplica. Amplificación 34 B → 256M píxeles con evidencia reproducible.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -33,17 +33,14 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="libwebp-vp8l-lossless-decode-dos.html">libwebp: DoS por área de imagen no validada en V</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="libwebp-vp8l-lossless-decode-dos.html">libwebp: DoS por área de imagen no validada </a><span class="sep">/</span></nav>
 <header class="post-head">
   <div class="post-tags"><span class="chip">CWE-400</span><span class="chip">DoS</span><span class="chip">libwebp</span><span class="chip">Amplificación</span></div>
   <h1>libwebp: DoS por área de imagen no validada en VP8L lossless</h1>
@@ -51,44 +48,23 @@
   <div class="post-meta"><span>2026-08-21</span><span>12 min</span><span>Vulnerability Research</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li><b>34 bytes</b> bastan para que un servidor de imágenes pase segundos o minutos decodificando una foto que no existe: DoS por <b>área de imagen no validada</b> en el decoder lossless <b>VP8L</b> de libwebp (CWE-400).</li>
-    <li>El path lossy (VP8) comprueba <code>width × height</code> contra <code>MAX_IMAGE_AREA</code>; el lossless acepta hasta <b>16384×16384</b> sin mirar el área total. Dos caminos gemelos, dos estándares.</li>
-    <li>Causa: <code>ReadImageInfo</code> (<code>vp8l_dec.c:1764</code>) no consulta el guardia → coste ∝ ~256M píxeles declarados → timeout reproducible 3/3.</li>
-    <li>Validación doble: libFuzzer (timeout 3 s) + <code>timeout(1)</code> de shell sin instrumentar (rc=124). Sin parche conocido al cierre.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> 34 bytes bastan para que un servidor de imágenes pase segundos o minutos decodificando una foto que no existe: DoS por área de imagen no validada en el decoder lossless VP8L de libwebp (CWE-400). El path lossy (VP8) comprueba width × height contra MAX_IMAGE_AREA; el lossless acepta hasta 16384×16384 sin mirar el área total. Dos caminos gemelos, dos estándares. Causa: ReadImageInfo (vp8l_dec.c:1764) no consulta el guardia → coste ∝ ~256M píxeles declarados → timeout reproducible 3/3. Validación doble: libFuzzer (timeout 3 s) + timeout(1) de shell sin instrumentar (rc=124). Sin parche conocido al cierre.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>libwebp es el decoder de imágenes de la web moderna (Chrome, CDNs, servidores). Su decoder lossless VP8L asigna buffers según las dimensiones declaradas en el header pero, al contrario que el camino lossy VP8, <b>no valida el área total</b> (<code>width × height</code>) contra <code>MAX_IMAGE_AREA</code>. Un WebP de 34 bytes que declara 16384×16384 fuerza un decode cuyo coste crece con los ~256M de píxeles declarados: el hilo del servidor se atasca.</p>
 <p>La asimetría lossy/vlossless es el dato de diseño clave: el guardia existe y funciona en un camino; simplemente nunca se pegó en el otro. Reproducción determinista 3/3 con ambas herramientas de validación independientes.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Target</th><td>libwebp 1.4.0 · decoder lossless <b>VP8L</b></td></tr>
-      <tr><th>Clase</th><td>Uncontrolled Resource Consumption — <b>CWE-400</b></td></tr>
-      <tr><th>Disparador</th><td>WebP lossless de <b>34 B</b> con dimensiones ≤16384×16384</td></tr>
-      <tr><th>Causa</th><td><code>ReadImageInfo</code> (<code>vp8l_dec.c:1764</code>) sin chequeo <code>MAX_IMAGE_AREA</code></td></tr>
-      <tr><th>Efecto</th><td>Timeout reproducible 3/3 (CPU) · LOW</td></tr>
-      <tr><th>Fix</th><td>Sin parche conocido al cierre</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Target: libwebp 1.4.0 · decoder lossless VP8L. Clase: Uncontrolled Resource Consumption — CWE-400. Disparador: WebP lossless de 34 B con dimensiones ≤16384×16384. Causa: ReadImageInfo ( vp8l_dec.c:1764 ) sin chequeo MAX_IMAGE_AREA. Efecto: Timeout reproducible 3/3 (CPU) · LOW. Fix: Sin parche conocido al cierre.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>DoS de CPU reproducible en una librería ubicua, disparado por un fichero diminuto. Clasificado LOW (sin corrupción de memoria); documentado con divulgación graduada. Candidato a cadena si se empareja con un servicio que decodifica imágenes sin límite de tiempo.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> DoS de CPU reproducible en una librería ubicua, disparado por un fichero diminuto. Clasificado LOW (sin corrupción de memoria); documentado con divulgación graduada. Candidato a cadena si se empareja con un servicio que decodifica imágenes sin límite de tiempo.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>16 min</span></div><div class="t">FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)</div><div class="d">Tres bugs de DoS por fuzzing autónomo: división por cero con 21 bytes (CWE-369, parcheada), leak escalable hasta ~677 MB</div><span class="badge badge-dos">Vulnerability Research</span></a><a class="card" href="pcre2-jit-compile-hang-recursion.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>13 min</span></div><div class="t">PCRE2: hang en compilación JIT por recursión (?0) en negative lookahead</div><div class="d">El intérprete compila el patrón en 0 ms; pcre2_jit_compile se cuelga eternamente en get_framesize. Diagnóstico diferenci</div><span class="badge badge-dos">Vulnerability Research</span></a><a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>20 min</span></div><div class="t">Sherlock: caza autónoma de vulnerabilidades con IA local</div><div class="d">Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con valid</div><span class="badge badge-rce">Serie</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)</a></div><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="pcre2-jit-compile-hang-recursion.html">PCRE2: hang en compilación JIT por recursión (?0) en negative lookahead</a></div><div class="post-item"><span class="meta">2026-08-21 · Serie</span><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: caza autónoma de vulnerabilidades con IA local</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

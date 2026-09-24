@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
-<title>el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)</title>
-<meta name="description" content="Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+<title>el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)</title>
+<meta name="description" content="Request HTTP pre-auth con una cabecera Host maliciosa termina en ejecución de comandos como administrador al construir una regla de iptables. Ejecución verificada con evidencia. Sink fw_iptables.c:596 → util.c:96.">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -17,8 +17,8 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="tty503">
 <meta property="og:locale" content="es_ES">
-<meta property="og:title" content="el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)">
-<meta property="og:description" content="Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.">
+<meta property="og:title" content="el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)">
+<meta property="og:description" content="Request HTTP pre-auth con una cabecera Host maliciosa termina en ejecución de comandos como administrador al construir una regla de iptables. Ejecución verificada con evidencia. Sink fw_iptables.c:596 → util.c:96.">
 <meta property="og:url" content="https://tty503.com/fw-host-header-rce.html">
 <meta property="og:image" content="https://tty503.com/p1.jpg">
 <meta property="og:image:alt" content="tty503 — Christian Márquez">
@@ -27,70 +27,44 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@tty_503">
 <meta name="twitter:creator" content="@tty_503">
-<meta name="twitter:title" content="el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)">
-<meta name="twitter:description" content="Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.">
+<meta name="twitter:title" content="el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)">
+<meta name="twitter:description" content="Request HTTP pre-auth con una cabecera Host maliciosa termina en ejecución de comandos como administrador al construir una regla de iptables. Ejecución verificada con evidencia. Sink fw_ipta">
 <meta name="twitter:image" content="https://tty503.com/p1.jpg">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Serie</a><span class="sep">/</span><a href="fw-host-header-rce.html">el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Serie</a><span class="sep">/</span><a href="fw-host-header-rce.html">el daemon de autenticacion y redireccion: inyección de comandos por la cabece</a><span class="sep">/</span></nav>
 <header class="post-head">
-  <div class="post-tags"><span class="chip">CWE-78</span><span class="chip">RCE root</span><span class="chip">iptables</span><span class="chip">Reverse shell</span></div>
-  <h1>el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)</h1>
-  <p class="lede">Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 → util.c:96.</p>
+  <div class="post-tags"><span class="chip">CWE-78</span><span class="chip">iptables</span><span class="chip">Análisis</span></div>
+  <h1>el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)</h1>
+  <p class="lede">Request HTTP pre-auth con una cabecera Host maliciosa termina en ejecución de comandos como administrador al construir una regla de iptables. Ejecución verificada con evidencia. Sink fw_iptables.c:596 → util.c:96.</p>
   <div class="post-meta"><span>2026-09-02</span><span>17 min</span><span>Vulnerability Research</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>RCE <b>pre-auth con 1 sola petición HTTP</b> (puerto 2060): la cabecera <b>Host</b> inyecta argumentos en <code>execvp("/bin/sh","-c")</code> → <b>reverse shell como root (uid=0)</b>.</li>
-    <li>Cadena real: <code>api.c:462</code> → <code>http.c:140/154</code> → <code>fw_iptables.c:596</code> → <code>util.c:96</code> — el Host entra en un comando de firewall construido con concatenación.</li>
-    <li>Requisito de config real en la distribucion de firmware: una <code>FirewallRuleSet</code> global debe existir (presente en configuraciones reales de fw3).</li>
-    <li>CWE-78. Sin CVE asignado al cierre del análisis.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> RCE pre-auth con 1 sola petición HTTP (puerto 2060): la cabecera Host llega sin validar a la construcción de una regla de firewall que termina en un intérprete de comandos (uid del proceso). El valor del Host termina concatenado en la construcción de una regla de firewall. Requisito de config real en la distribucion de firmware: una FirewallRuleSet global debe existir (presente en configuraciones reales de fw3). CWE-78. Sin CVE asignado al cierre del análisis.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
-<p>el daemon de autenticacion y redireccion (uno de los auth/redirect daemons más usados en firmware embebido) arma reglas de iptables concatenando una cadena proveniente de la cabecera <code>Host</code> de la petición. El valor no se valida, y con un Host "inteligente" se rompe el comando y se encadena un payload shell ejecutado por <code>execvp</code>. Reproducción: un único request HTTP hacia el puerto 2060 dispara la reverse shell.</p>
+<h2>Resumen</h2>
+<p>el daemon de autenticacion y redireccion (uno de los auth/redirect daemons más usados en firmware embebido) arma reglas de iptables concatenando una cadena proveniente de la cabecera <code>Host</code> de la petición. El valor no se valida, y con un Host malformado se rompe la construcción del comando y se puede forzar la ejecución de comandos. Reproducción: un único request HTTP hacia el puerto 2060 dispara la ejecución de comandos.</p>
 <p>La verificación cubrió la ruta completa entrada→sink (archivo:línea reales de libhttpd, que es el servidor HTTP embebido incluido en el fuente), sobre el árbol actual sin <code>.git</code> y sin consultar ninguna base de CVEs previa.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Target</th><td>el daemon de autenticacion y redireccion (daemon captive portal, libhttpd embebido)</td></tr>
-      <tr><th>Clase</th><td>OS command injection — <b>CWE-78</b></td></tr>
-      <tr><th>Acceso</th><td>Pre-auth · 1 petición HTTP · puerto 2060</td></tr>
-      <tr><th>Vector</th><td>Cabecera <code>Host</code> → comando iptables → <code>/bin/sh -c</code></td></tr>
-      <tr><th>Cadena</th><td><code>api.c:462</code> → <code>http.c:140/154</code> → <code>fw_iptables.c:596</code> → <code>util.c:96</code></td></tr>
-      <tr><th>Impacto</th><td>RCE como root (uid=0)</td></tr>
-      <tr><th>Config</th><td>Requiere <code>FirewallRuleSet</code> global (real en fw3/la distribucion de firmware)</td></tr>
-      <tr><th>Fix</th><td>Sin CVE asignado al cierre</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Target: el daemon de autenticacion y redireccion (daemon captive portal, libhttpd embebido). Clase: OS command injection — CWE-78. Acceso: Pre-auth · 1 petición HTTP · puerto 2060. Vector: Cabecera Host → comando iptables → un intérprete de comandos. Ruta documentada en el artículo original. Impacto: ejecución de comandos como administrador (uid del proceso). Config: Requiere FirewallRuleSet global (real en fw3/la distribucion de firmware). Fix: Sin CVE asignado al cierre.</p>
 
-<div class="callout callout-danger"><span class="ico">⛔</span><div>
-  <div class="h">Veredicto</div>
-  <p>RCE pre-auth reproducible con evidencia E2E (3/3): reverse shell root en la distribucion de firmware. El único matiz es la dependencia de una regla de firewall global, que forma parte de la configuración por defecto de los firmwares que lo integran.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> RCE pre-auth reproducible con evidencia E2E (3/3): ejecución de comandos como administrador en la distribucion de firmware. El único matiz es la dependencia de una regla de firewall global, que forma parte de la configuración por defecto de los firmwares que lo integran.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="cadena-portal-cautivo-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>18 min</span></div><div class="t">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</div><div class="d">Payload en EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en un eval. RC</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="http-el conversor de fecha a timestamp-stackoverflow.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>16 min</span></div><div class="t">el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</div><div class="d">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparid</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="autopsia-streaming-http-minimo.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>12 min</span></div><div class="t">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</div><div class="d">OOB read en el decoder AMF3 de la biblioteca cliente del protocolo de streaming y command injection en el gestor de credenciales de el servidor HTTP minimo. Cuándo una primitiva real no llega</div><span class="badge badge-infra">Vulnerability Research</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="cadena-portal-cautivo-rce.html">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</a></div><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="http-el conversor de fecha a timestamp-stackoverflow.html">el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</a></div><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="autopsia-streaming-http-minimo.html">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>
@@ -100,19 +74,19 @@
   "@graph": [
     {
       "@type": "Article",
-      "headline": "el daemon de autenticacion y redireccion RCE root: cabecera Host \u2192 iptables (CWE-78)",
-      "description": "Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell root verificada. Sink fw_iptables.c:596 \u2192 util.c:96.",
+      "headline": "el daemon de autenticacion y redireccion: inyecci\u00f3n de comandos por la cabecera Host (CWE-78)",
+      "description": "Request HTTP pre-auth con una cabecera Host maliciosa termina en ejecuci\u00f3n de comandos como administrador al construir una regla de iptables. Ejecuci\u00f3n verificada con evidencia. Sink fw_iptables.c:596 \u2192 util.c:96.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
       "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-09-02",
       "dateModified": "2026-09-02",
       "mainEntityOfPage": "https://tty503.com/fw-host-header-rce.html",
       "inLanguage": "es",
-      "keywords": "CWE-78, RCE root, iptables, Reverse shell"
+      "keywords": "CWE-78, iptables, An\u00e1lisis"
     },
     {
       "@type": "BreadcrumbList",
-      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/caza-autonoma-e2e-serie.html", "name": "Serie"}}, {"@type": "ListItem", "position": 3, "item": {"@id": "https://tty503.com/fw-host-header-rce.html", "name": "el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)"}}]
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/caza-autonoma-e2e-serie.html", "name": "Serie"}}, {"@type": "ListItem", "position": 3, "item": {"@id": "https://tty503.com/fw-host-header-rce.html", "name": "el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)"}}]
     }
   ]
 }

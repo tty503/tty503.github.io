@@ -1,32 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>El dogma de que necesitas un packer para cegar la fase estática es falso: UPX y crypters comerciales disparan heurísticas por <b>entropía anómala</b> y firmas del propio packer (T1027.002).</li>
-    <li>La alternativa es el <b>metamorfismo aritmético</b>: reescribir opcodes preservando la lógica. Infinitos caminos dejan el mismo valor en un registro, y cada camino rompe el hash de <code>.text</code>.</li>
-    <li>Resultado medido sobre una muestra real de <b>Mirai</b>: de <b>16/64 a 0/65</b> en VirusTotal, sin packer, con entropía normal. Solo aritmética + stub descifrador en NASM.</li>
-    <li>Cierre con la propuesta de <b>entrega mutante por DGA</b>: binarios irrepetibles, token estilo-Denuvo y dominios rotando antes del quemado.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> El estudio parte de una observación simple: los empaquetadores comerciales dejan firmas detectables: UPX y crypters comerciales disparan heurísticas por entropía anómala y firmas del propio packer (T1027.002). Para entender la evasión estática hace falta estudiar cómo se reescriben opcodes preservando la lógica. Infinitos caminos dejan el mismo valor en un registro, y cada camino rompe el hash de .text. Resultado medido en laboratorio aislado sobre una muestra pública de Mirai: las detecciones cayeron de 16 a cero en los motores probados, sin packer y con entropía normal. Solo aritmética + stub descifrador en NASM. La lectura defensiva de este trabajo se documenta en el artículo completo: qué mirar para detectar este tipo de mutación.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
-<p>Laboratorio de evasión que desmonta el mito del packer: ofuscar con UPX o crypters comerciales envenena la entropía y deja firmas del agente de empaquetado. En su lugar se reescribe la aritmética de las instrucciones de una muestra compilada de Mirai (x86/x64 ELF): operaciones booleanas y aritméticas equivalentes que preservan el flujo y cambian los bytes de <code>.text</code>.</p>
-<p>El stub descifrador en NASM completa la fórmula y la medición es clara: la baseline de 16/64 detecciones de VirusTotal bajó a <b>0/65</b>, con entropía normal y sin packer. Todo el trabajo corrió en laboratorio aislado (Proxmox VE) con verificación de ejecución y beacon.</p>
+<h2>Resumen</h2>
+<p>Laboratorio de análisis de evasión estática: entender por qué los empaquetadores disparan heurísticas y cómo se reescribe la aritmética de las instrucciones de una muestra compilada de Mirai (x86/x64 ELF). En su lugar se reescribe la aritmética de las instrucciones de una muestra compilada de Mirai (x86/x64 ELF): operaciones booleanas y aritméticas equivalentes que preservan el flujo y cambian los bytes de <code>.text</code>.</p>
+<p>El stub descifrador en NASM completa la fórmula y la medición es clara: la línea base de 16 detecciones bajó a cero en los motores de escaneo probados, con entropía normal y sin packer. Todo el trabajo corrió en laboratorio aislado (Proxmox VE) con verificación de ejecución y beacon.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Artefacto</th><td>Mirai (fuente filtrado) compilado x86/x64 ELF</td></tr>
-      <tr><th>Baseline VT</th><td>16/64 (trojan.mirai/gafgyt)</td></tr>
-      <tr><th>Resultado</th><td><b>0/65</b> · sin packer · entropía normal</td></tr>
-      <tr><th>Técnica</th><td>Mutación aritmética de opcodes + stub NASM</td></tr>
-      <tr><th>ATT&amp;CK</th><td>TA0005 · T1027 (.002/.005) · T1562.001</td></tr>
-      <tr><th>Entorno</th><td>Proxmox VE aislado; ejecución y beacon verificados</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Artefacto: Mirai (fuente filtrado) compilado x86/x64 ELF. Baseline: 16 detecciones (trojan.mirai/gafgyt). Resultado: cero detecciones en los motores probados · sin packer · entropía normal. Técnica: Mutación aritmética de opcodes. ATT&amp;CK: TA0005 · T1027 (.002/.005) · T1562.001. Entorno: Proxmox VE aislado; ejecución y beacon verificados.</p>
 
-<div class="callout callout-warn"><span class="ico">🧪</span><div>
-  <div class="h">Veredicto</div>
-  <p>Válido como investigación académica/de curiosidad medible (0/65 medido). Cualquier uso ofensivo está fuera de alcance; la lectura defensiva (blue team) también está incluida en el artículo.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Válido como investigación académica/de curiosidad medible (cero detecciones en los motores probados). Cualquier uso ofensivo está fuera de alcance; la lectura defensiva (blue team) también está incluida en el artículo.</p>

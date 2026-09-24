@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA</title>
 <meta name="description" content="Sistema que integra DeepSeek, DeepWiki y un agente híbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB y grafo interactivo.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -33,17 +33,14 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="saint-grail.html">SAINT GRAIL: plataforma modular de investigación</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="saint-grail.html">SAINT GRAIL: plataforma modular de investiga</a><span class="sep">/</span></nav>
 <header class="post-head">
   <div class="post-tags"><span class="chip">AI</span><span class="chip">Bug Hunting</span><span class="chip">DeepSeek</span><span class="chip">Open Source</span></div>
   <h1>SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA</h1>
@@ -51,43 +48,23 @@
   <div class="post-meta"><span>2026-06-25</span><span>25 min</span><span>Herramientas propias</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li><b>SAINT GRAIL</b>: plataforma modular para <b>documentar, visualizar y ejecutar investigaciones ofensivas</b> — Flask + SurrealDB embebida, grafo interactivo (Canvas + vanilla JS), dashboard y CLI.</li>
-    <li>Integra <b>DeepWiki</b> para preguntas contextuales de componentes y <b>DeepSeek</b> para clasificar riesgo — el agente híbrido donde IA y analista se complementan.</li>
-    <li>Respuestas de riesgo alto crean <b>nodos primitive</b> automáticamente, generan y ejecutan un PoC, todo en un grafo con taxonomía (phase ▢, vector ○, primitive △, barrier ◇, research ▭).</li>
-    <li>KISS + filosofía Unix, orquestador con control de <b>presupuesto de tokens</b>. Capturas de prueba con datos "GenericApp"; no es público aún.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> SAINT GRAIL: plataforma modular para documentar, visualizar y ejecutar investigaciones ofensivas — Flask + SurrealDB embebida, grafo interactivo (Canvas + vanilla JS), dashboard y CLI. Integra DeepWiki para preguntas contextuales de componentes y DeepSeek para clasificar riesgo — el agente híbrido donde IA y analista se complementan. Respuestas de riesgo alto crean nodos primitive automáticamente, generan y ejecutan un PoC, todo en un grafo con taxonomía (phase ▢, vector ○, primitive △, barrier ◇, research ▭). KISS + filosofía Unix, orquestador con control de presupuesto de tokens. Capturas de prueba con datos "GenericApp"; sin versión pública por ahora.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>SAINT GRAIL nació de la inquietud de multiplicar la capacidad de investigación: documentar cada paso, visualizar relaciones y acelerar con IA. La idea fundacional es que la IA no reemplaza al analista — lo potencia: genera vectores desde hallazgos open-source, clasifica respuestas y arma primitivas explotables en un grafo trazable.</p>
 <p>El proyecto está funcional pero no es público: las capturas mostradas usan un programa ficticio ("GenericApp") para no exponer investigación real.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Stack</th><td>Flask · SurrealDB embebida · Canvas/vanilla JS · CLI</td></tr>
-      <tr><th>IA</th><td>DeepWiki (preguntas) + DeepSeek (clasificación de riesgo)</td></tr>
-      <tr><th>Grafo</th><td>phase ▢ · vector ○ · primitive △ · barrier ◇ · research ▭</td></tr>
-      <tr><th>Estado</th><td>Funcional, no público · datos de prueba</td></tr>
-      <tr><th>Continuación</th><td>Migrado a Go → <a href="saint-grail-go.html">SAINT GRAIL Go</a></td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Stack: Flask · SurrealDB embebida · Canvas/vanilla JS · CLI. IA: DeepWiki (preguntas) + DeepSeek (clasificación de riesgo). Grafo: phase ▢ · vector ○ · primitive △ · barrier ◇ · research ▭. Estado: Funcional, no público · datos de prueba. Continuación: Migrado a Go → SAINT GRAIL Go.</p>
 
-<div class="callout callout-info"><span class="ico">📊</span><div>
-  <div class="h">Veredicto</div>
-  <p>Plataforma de investigación propia (copiloto de bug hunting) con arquitectura documentada. La continuación en Go ya produjo PoCs concretos — ver la siguiente entrega.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Plataforma de investigación propia (copiloto de bug hunting) con arquitectura documentada. La continuación en Go ya produjo PoCs concretos — ver la siguiente entrega.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="saint-grail-go.html"><span class="arrow">→</span><div class="meta"><span>2026-07-05</span><span>15 min</span></div><div class="t">SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</div><div class="d">Migración a Go por rendimiento y concurrencia nativa: dos PoCs funcionales generados por IA — TOCTOU en Chromium y CRC b</div><span class="badge badge-guide">Herramientas propias</span></a><a class="card" href="sherlock-caza-autonoma-ia-local.html"><span class="arrow">→</span><div class="meta"><span>2026-08-21</span><span>20 min</span></div><div class="t">Sherlock: caza autónoma de vulnerabilidades con IA local</div><div class="d">Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con valid</div><span class="badge badge-rce">Serie</span></a><a class="card" href="analystty.html"><span class="arrow">→</span><div class="meta"><span>2026-05-15</span><span>12 min</span></div><div class="t">analystty: triage automatizado de malware PE con Python</div><div class="d">Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x6</div><span class="badge badge-ti">Herramientas propias</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-07-05 · Herramientas propias</span><a href="saint-grail-go.html">SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</a></div><div class="post-item"><span class="meta">2026-08-21 · Serie</span><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: caza autónoma de vulnerabilidades con IA local</a></div><div class="post-item"><span class="meta">2026-05-15 · Herramientas propias</span><a href="analystty.html">analystty: triage automatizado de malware PE con Python</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

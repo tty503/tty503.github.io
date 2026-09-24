@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>Threat Hunter Recollection: cinco investigaciones reales de caza</title>
 <meta name="description" content="Bitácora de un año de caza: mapeo OSINT de una red de estafa piramidal, fraude con Lumma Stealer, deconstrucción de NetSupport RAT y un dropper multi-etapa. El hilo metodológico que conecta las cinco.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -33,17 +33,14 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="threat-hunter-recollection.html">Threat Hunter Recollection: cinco investigacione</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="threat-hunter-recollection.html">Threat Hunter Recollection: cinco investigac</a><span class="sep">/</span></nav>
 <header class="post-head">
   <div class="post-tags"><span class="chip">Threat Hunting</span><span class="chip">Malware Analysis</span><span class="chip">OSINT</span><span class="chip">Reversing</span></div>
   <h1>Threat Hunter Recollection: cinco investigaciones reales de caza</h1>
@@ -51,43 +48,22 @@
   <div class="post-meta"><span>2026-05-24</span><span>45 min</span><span>Threat Intelligence</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Bitácora de <b>cinco investigaciones reales</b> que forjaron la metodología de threat hunting — con IoCs, imágenes y lecciones.</li>
-    <li><b>Estafa piramidal</b> desmontada con OSINT: un número sudafricano → red global vía VirusTotal Graph (dominios clonados, exchanges falsos, plantilla reciclada).</li>
-    <li><b>BEC alimentada por Lumma Stealer</b> → infraestructura en Kenia → crypto scam, con blockchain forensics siguiendo la wallet <code>bc1qxs8aunxd7kkdq8wz063r4tum2429s5llul33am</code>.</li>
-    <li><b>Nexilo-CC-Checker</b> (dropper multi-etapa con API Hashing) en Ghidra/Radare2 + triage con <a href="analystty.html">analystty</a>; y la kill chain completa de <b>NetSupport RAT</b> (phishing Druni → C2 rumano).</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Bitácora de cinco investigaciones reales que forjaron la metodología de threat hunting — con IoCs, imágenes y lecciones. Estafa piramidal desmontada con OSINT: un número sudafricano → red global vía VirusTotal Graph (dominios clonados, exchanges falsos, plantilla reciclada). BEC alimentada por Lumma Stealer → infraestructura en Kenia → crypto scam, con blockchain forensics siguiendo la wallet bc1qxs8aunxd7kkdq8wz063r4tum2429s5llul33am. Nexilo-CC-Checker (dropper multi-etapa con API Hashing) en Ghidra/Radare2 + triage con analystty; y la kill chain completa de NetSupport RAT (phishing Druni → C2 rumano).</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Nadie nace Threat Hunter: el perfil se construye caso a caso. Esta recopilación fija cinco investigaciones —de OSINT e infraestructura a malware y kill chain completa— con el detalle de cada IoC y la habilidad que cada caso consolidó. No es una colección de informes: es el plano de cómo se levanta el perfil desde cero.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Los cinco casos</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>#</th><th>Caso</th><th>Skill consolidada</th></tr>
-      <tr><td>01</td><td>Red de estafa piramidal global</td><td>OSINT + mapeo de infraestructura</td></tr>
-      <tr><td>02</td><td>Fraude multi-vector (Lumma → BEC → crypto)</td><td>Threat intel + blockchain forensics</td></tr>
-      <tr><td>03</td><td>Nexilo-CC-Checker</td><td>Ingeniería inversa estática y dinámica</td></tr>
-      <tr><td>04</td><td>Triage con dump.sh + analystty</td><td>Automatización del análisis</td></tr>
-      <tr><td>05</td><td>NetSupport RAT (Druni → C2)</td><td>Kill chain completa</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Los cinco casos</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> </p>
 
-<div class="callout callout-info"><span class="ico">📊</span><div>
-  <div class="h">Veredicto</div>
-  <p>Portafolio de threat intel verificado con indicadores y trazabilidad. Los detalles por caso (grafo, wallet, decodificación) se resumen aquí; el análisis original profundiza cada investigación.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Portafolio de threat intel verificado con indicadores y trazabilidad. Los detalles por caso (grafo, wallet, decodificación) se resumen aquí; el análisis original profundiza cada investigación.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="pigbutchering-bybsusd.html"><span class="arrow">→</span><div class="meta"><span>2026-05-26</span><span>30 min</span></div><div class="t">Pig butchering: deconstrucción de un exchange falso en Vue3 con WebSocket</div><div class="d">Análisis forense de un exchange falso con frontend Vue3, WebSocket real-time en Hong Kong y el backend que entrega la cl</div><span class="badge badge-ti">Threat Intelligence</span></a><a class="card" href="fakewealth-cmdxcapital.html"><span class="arrow">→</span><div class="meta"><span>2025-10-15</span><span>60 min</span></div><div class="t">cmdxcapital: fuga de datos en Laravel por appDebug activo</div><div class="d">El modo depuración de Laravel en producción expuso consultas SQL, tokens y rutas del servidor. Diez dominios satélite ba</div><span class="badge badge-ti">Threat Intelligence</span></a><a class="card" href="operation-general-jp-silentwarn.html"><span class="arrow">→</span><div class="meta"><span>2025-06-15</span><span>15 min</span></div><div class="t">General JP y SilentWarn: dos campañas de phishing conectadas</div><div class="d">General JP: redirección multi-capa, Google Cloud Storage y kit PHP con exfiltración a Telegram. SilentWarn: SPA React co</div><span class="badge badge-ti">Threat Intelligence</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-05-26 · Threat Intelligence</span><a href="pigbutchering-bybsusd.html">Pig butchering: deconstrucción de un exchange falso en Vue3 con WebSocket</a></div><div class="post-item"><span class="meta">2025-10-15 · Threat Intelligence</span><a href="fakewealth-cmdxcapital.html">cmdxcapital: fuga de datos en Laravel por appDebug activo</a></div><div class="post-item"><span class="meta">2025-06-15 · Threat Intelligence</span><a href="operation-general-jp-silentwarn.html">General JP y SilentWarn: dos campañas de phishing conectadas</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

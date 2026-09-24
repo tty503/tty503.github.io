@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>analystty: triage automatizado de malware PE con Python</title>
 <meta name="description" content="Herramienta que extrae imports, detecta TTPs con MITRE ATT&amp;CK, desensambla la sección .text y genera breakpoints para x64dbg automáticamente. Stack: Capstone, pefile, malapi.json. Caso real: un dropper con API hashing.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -33,17 +33,14 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="analystty.html">analystty: triage automatizado de malware PE con</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="analystty.html">analystty: triage automatizado de malware PE</a><span class="sep">/</span></nav>
 <header class="post-head">
   <div class="post-tags"><span class="chip">Python</span><span class="chip">Malware Analysis</span><span class="chip">Capstone</span><span class="chip">Automatización</span></div>
   <h1>analystty: triage automatizado de malware PE con Python</h1>
@@ -51,44 +48,23 @@
   <div class="post-meta"><span>2026-05-15</span><span>12 min</span><span>Herramientas propias</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li><b>analystty</b> (Python puro, 2024): triage automatizado de executables PE — clasifica APIs contra <b>MITRE ATT&amp;CK</b>, desensambla <code>.text</code> con <b>Capstone</b> y clava breakpoints en <b>x64dbg</b> sin calcular un offset a mano.</li>
-    <li>De la lista de imports a un <b>call graph simplificado</b>: función contenedora + dirección + API sospechosa, listo para el depurador.</li>
-    <li>Resuelve <b>ASLR con una resta</b>: ajusta automáticamente las direcciones del módulo cargado.</li>
-    <li>Validado en el <a href="threat-hunter-recollection.html">dropper multi-etapa con API Hashing</a>: import-hashing saltado con un volcado en Radare2 y capacidades mapeadas en minutos.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> analystty (Python puro, 2024): triage automatizado de executables PE — clasifica APIs contra MITRE ATT&amp;CK, desensambla .text con Capstone y clava breakpoints en x64dbg sin calcular un offset a mano. De la lista de imports a un call graph simplificado: función contenedora + dirección + API sospechosa, listo para el depurador. Resuelve ASLR con una resta: ajusta automáticamente las direcciones del módulo cargado. Validado en el dropper multi-etapa con API Hashing: import-hashing saltado con un volcado en Radare2 y capacidades mapeadas en minutos.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>El triage de una muestra es siempre el mismo baile mecánico: abrir el binario, leer imports, sospechar, mapear funciones, montar el depurador. analystty automatiza ese paso con una base de datos de APIs maliciosas (<code>malapi.json</code>) cruzada con tácticas de ATT&amp;CK, desensamblado de <code>.text</code> y generación directa del script de breakpoints de x64dbg.</p>
 <p>La correlación función↔API y el descuento automático de ASLR son las dos piezas que quitan fricción del flujo: se pasa del binario crudo a un mapa de «dónde mirar» sin trabajo manual de direcciones.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Herramienta</th><td>analystty — triage de PE en Python puro (oct 2024)</td></tr>
-      <tr><th>Componentes</th><td><code>frm_pe</code> (estático) + <code>medbg</code> (depuración)</td></tr>
-      <tr><th>Deps</th><td>pefile · Capstone · bindings x64dbg · tabulate</td></tr>
-      <tr><th>Inteligencia</th><td><code>malapi.json</code> → tácticas MITRE ATT&amp;CK</td></tr>
-      <tr><th>Salida</th><td>Correlación función↔API + script de breakpoints</td></tr>
-      <tr><th>Validación</th><td>Dropper multi-etapa con API Hashing (nov 2025): Clipper + InfoStealer</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Herramienta: analystty — triage de PE en Python puro (oct 2024). Componentes: frm_pe (estático) + medbg (depuración). Deps: pefile · Capstone · bindings x64dbg · tabulate. Inteligencia: malapi.json → tácticas MITRE ATT&amp;CK. Salida: Correlación función↔API + script de breakpoints. Validación: Dropper multi-etapa con API Hashing (nov 2025): Clipper + InfoStealer.</p>
 
-<div class="callout callout-info"><span class="ico">📊</span><div>
-  <div class="h">Veredicto</div>
-  <p>Herramienta propia en producción dentro del propio flujo de análisis; validada contra malware real. El resto de la sección técnica queda fuera del resumen por brevedad.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Herramienta propia en producción dentro del propio flujo de análisis; validada contra malware real. El resto de la sección técnica queda fuera del resumen por brevedad.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="threat-hunter-recollection.html"><span class="arrow">→</span><div class="meta"><span>2026-05-24</span><span>45 min</span></div><div class="t">Threat Hunter Recollection: cinco investigaciones reales de caza</div><div class="d">Bitácora de un año de caza: mapeo OSINT de una red de estafa piramidal, fraude con Lumma Stealer, deconstrucción de NetS</div><span class="badge badge-ti">Threat Intelligence</span></a><a class="card" href="myPracticalShellcodeC2.html"><span class="arrow">→</span><div class="meta"><span>2026-05-22</span><span>120 min</span></div><div class="t">De winshellcode a BugBuilder: inyección y C2 en Windows</div><div class="d">Tres años de evolución documentados: más de 20 técnicas (inyección clásica, APC, thread hijacking, API hooking, XOR, API</div><span class="badge badge-ti">Malware Development</span></a><a class="card" href="evasion-estatica-asm-mirai.html"><span class="arrow">→</span><div class="meta"><span>2026-06-01</span><span>25 min</span></div><div class="t">Evasión estática en ASM: romper firmas de Mirai sin packers</div><div class="d">De 16/64 a 0/65 en VirusTotal sin packers ni crypters: polimorfismo manual en Assembly x86, stub descifrador en NASM con</div><span class="badge badge-ti">Malware Analysis</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-05-24 · Threat Intelligence</span><a href="threat-hunter-recollection.html">Threat Hunter Recollection: cinco investigaciones reales de caza</a></div><div class="post-item"><span class="meta">2026-05-22 · Análisis</span><a href="myPracticalShellcodeC2.html">Inyección y persistencia en Windows: notas para la detección</a></div><div class="post-item"><span class="meta">2026-06-01 · Malware Analysis</span><a href="evasion-estatica-asm-mirai.html">Evasión estática: por qué cambia la firma de un binario (ASM x86)</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>

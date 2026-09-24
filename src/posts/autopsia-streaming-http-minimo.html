@@ -1,31 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Autopsia de dos componentes con hallazgos de impacto limitado: <b>la biblioteca cliente del protocolo de streaming</b> y <b>el servidor HTTP minimo</b>.</li>
-    <li>la biblioteca cliente del protocolo de streaming: OOB read <b>CWE-125</b> en el decode <b>AMF3</b> (info-leak acotado, sin escalada a escritura).</li>
-    <li>el servidor HTTP minimo: command injection <b>CWE-78</b> en el generador de <code>el gestor de credenciales</code> (<code>sprintf</code>+<code>system</code>) — pero solo alcanzable por línea de comandos local.</li>
-    <li>Lección: la gravedad la define el <b>encadenamiento + el despliegue real</b>, no el tipo de bug aislado.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Autopsia de dos componentes con hallazgos de impacto limitado: la biblioteca cliente del protocolo de streaming y el servidor HTTP minimo. la biblioteca cliente del protocolo de streaming: OOB read CWE-125 en el decode AMF3 (info-leak acotado, sin escalada a escritura). el servidor HTTP minimo: command injection CWE-78 en el generador de el gestor de credenciales (sprintf+system) — pero solo alcanzable por línea de comandos local. Lección: la gravedad la define el encadenamiento + el despliegue real, no el tipo de bug aislado.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Análisis forense de dos piezas clásicas del stack embebido. En <b>la biblioteca cliente del protocolo de streaming</b> (RTMP client library), el decoder de <b>AMF3</b> lee fuera de límites al procesar un tipo de dato mal formado declarado con longitud mayor al payload; el efecto medido es una lectura de memoria no inicializada/acotada, encuadrable solo como fuga de información sin control de flujo.</p>
 <p>En <b>el servidor HTTP minimo</b>, el comando que regenera <code>el gestor de credenciales</code> concatena entradas con <code>sprintf</code> y lo pasa a <code>system</code>: inyección de comandos directa, pero el único punto de entrada es la CLI local del administrador — no la red.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Hallazgo A</th><td>la biblioteca cliente del protocolo de streaming — OOB read en decode <b>AMF3</b> · <b>CWE-125</b></td></tr>
-      <tr><th>Efecto A</th><td>Info-leak de lectura acotada, sin escritura (LOW)</td></tr>
-      <tr><th>Hallazgo B</th><td>el servidor HTTP minimo — inyección en <code>el gestor de credenciales</code> · <b>CWE-78</b></td></tr>
-      <tr><th>Efecto B</th><td>Ejecución de comandos, pero solo vía CLI local (<code>sprintf</code>+<code>system</code>)</td></tr>
-      <tr><th>Lección</th><td>Severidad = cadena + despliegue; no el bug suelto</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Hallazgo A: la biblioteca cliente del protocolo de streaming — OOB read en decode AMF3 · CWE-125. Efecto A: Info-leak de lectura acotada, sin escritura (LOW). Hallazgo B: el servidor HTTP minimo — inyección en el gestor de credenciales · CWE-78. Efecto B: Ejecución de comandos, pero solo vía CLI local ( sprintf + system ). Lección: Severidad = cadena + despliegue; no el bug suelto.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>Dos primitivas reales y reproducibles, ninguna alcanza RCE por sí sola. Quedan como eslabones documentados (info-leak / inyección local) para futuras cadenas, no como RCE.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Dos primitivas reales y reproducibles, ninguna alcanza RCE por sí sola. Quedan como eslabones documentados (info-leak / inyección local) para futuras cadenas, no como RCE.</p>

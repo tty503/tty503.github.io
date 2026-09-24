@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="icon" type="image/png" href="hat.png">
 <link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#08090c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <title>el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</title>
-<meta name="description" content="Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.">
-<meta name="keywords" content="tty503, Christian Márquez, threat intelligence, ingeniería inversa, malware analysis, exploit development, seguridad OT, PLC Siemens, vulnerability research, reverse engineering">
+<meta name="description" content="Un If-Modified-Since de 220 bytes desborda un buffer de 128 y permite tomar control parcial del contador de programa con un descifrado en pila. Disparidad nativo/gdb (+0xC0) documentada y reproducción incluida.">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow">
@@ -18,7 +18,7 @@
 <meta property="og:site_name" content="tty503">
 <meta property="og:locale" content="es_ES">
 <meta property="og:title" content="el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)">
-<meta property="og:description" content="Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.">
+<meta property="og:description" content="Un If-Modified-Since de 220 bytes desborda un buffer de 128 y permite tomar control parcial del contador de programa con un descifrado en pila. Disparidad nativo/gdb (+0xC0) documentada y reproducción incluida.">
 <meta property="og:url" content="https://tty503.com/http-el conversor de fecha a timestamp-stackoverflow.html">
 <meta property="og:image" content="https://tty503.com/p1.jpg">
 <meta property="og:image:alt" content="tty503 — Christian Márquez">
@@ -28,72 +28,46 @@
 <meta name="twitter:site" content="@tty_503">
 <meta name="twitter:creator" content="@tty_503">
 <meta name="twitter:title" content="el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)">
-<meta name="twitter:description" content="Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.">
+<meta name="twitter:description" content="Un If-Modified-Since de 220 bytes desborda un buffer de 128 y permite tomar control parcial del contador de programa con un descifrado en pila. Disparidad nativo/gdb (+0xC0) documentada y re">
 <meta name="twitter:image" content="https://tty503.com/p1.jpg">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
 
 </head>
 <body>
-<div class="bg-fx"></div>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503<span class="sub">/ &nbsp;</span></a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#research">Investigaciones</a><a href="index.html#publications">Publicaciones</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Menú">☰</button></div></nav>
-<main class="post">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Serie</a><span class="sep">/</span><a href="http-el conversor de fecha a timestamp-stackoverflow.html">el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</a><span class="sep">/</span></nav>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Serie</a><span class="sep">/</span><a href="http-el conversor de fecha a timestamp-stackoverflow.html">el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-</a><span class="sep">/</span></nav>
 <header class="post-head">
   <div class="post-tags"><span class="chip">CWE-121</span><span class="chip">Stack Overflow</span><span class="chip">HTTP</span><span class="chip">RIP control</span></div>
   <h1>el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</h1>
-  <p class="lede">Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.</p>
+  <p class="lede">Un If-Modified-Since de 220 bytes desborda un buffer de 128 y permite tomar control parcial del contador de programa con un descifrado en pila. Disparidad nativo/gdb (+0xC0) documentada y reproducción incluida.</p>
   <div class="post-meta"><span>2026-09-02</span><span>16 min</span><span>Vulnerability Research</span></div>
 </header>
 <article class="post-body">
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Stack overflow en el servidor HTTP embebido: la cabecera <b>If-Modified-Since</b> de ~220 bytes desborda un buffer de <b>128</b> en <code>el conversor de fecha a timestamp</code> con <b>control parcial de RIP</b>.</li>
-    <li>Sink: <code>file.c:136</code> — <code>strncpy</code> copia <code>strlen(origen)</code> bytes sin bound.</li>
-    <li>Shellcode <b>decoder XOR en-stack</b> que evita los bytes prohibidos del transporte HTTP; el desplazamiento de RIP en gdb difiere <b>+0xC0</b> del run nativo (offset calibrado por ensayo).</li>
-    <li>CWE-121 (Stack-based Buffer Overflow). Repro 3/3 con crash ASAN.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Stack overflow en el servidor HTTP embebido: la cabecera If-Modified-Since de ~220 bytes desborda un buffer de 128 en el conversor de fecha a timestamp con control parcial de RIP. Sink: file.c:136 — strncpy copia strlen(origen) bytes sin bound. Shellcode decoder XOR en-stack que evita los bytes prohibidos del transporte HTTP; el desplazamiento de RIP en gdb difiere +0xC0 del run nativo (offset calibrado por ensayo). CWE-121 (Stack-based Buffer Overflow). Repro 3/3 con crash ASAN.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>el servidor HTTP embebido es un servidor HTTP mínimo usado en routers embebidos (incluido como submodulo en el daemon de autenticacion y redireccion). Al servir un recurso estático, convierte la cabecera <code>If-Modified-Since</code> a timestamp Unix con <code>el conversor de fecha a timestamp</code>; la copia a <code>buf[128]</code> usa como límite el propio <code>strlen</code> de la entrada, permitiendo escribir más allá del frame. Con 220 bytes se llega al return address y se desvía el flujo.</p>
-<p>El exploit articula la restricción del canal: el payload se codifica con un decoder XOR en el propio stack para esquivar bytes no imprimibles/CTRL dentro de HTTP, y el offset se calibró porque el stack del daemon nativo difiere del modo gdb.</p>
+<p>Parte del trabajo consistió en entender la restricción del canal de transporte HTTP y calibrar la reproducción entre el modo depurador y la ejecución nativa.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Target</th><td>el servidor HTTP embebido (HTTP server embebido)</td></tr>
-      <tr><th>Clase</th><td>Stack buffer overflow — <b>CWE-121</b></td></tr>
-      <tr><th>Vector</th><td>Cabecera <code>If-Modified-Since</code> ≈ 220 B → <code>buf[128]</code></td></tr>
-      <tr><th>Sink</th><td><code>file.c:136</code> — <code>strncpy</code> sin bound real</td></tr>
-      <tr><th>Efecto</th><td>Control parcial de RIP; crash ASAN reproducible 3/3</td></tr>
-      <tr><th>Canal</th><td>Payload XOR-on-stack evadiendo bytes prohibidos HTTP</td></tr>
-      <tr><th>Fix</th><td>Sin CVE asignado al cierre del análisis</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Target: el servidor HTTP embebido (HTTP server embebido). Clase: Stack buffer overflow — CWE-121. Vector: Cabecera If-Modified-Since ≈ 220 B → buf[128]. Sink: file.c:136 — strncpy sin bound real. Efecto: Control parcial de RIP; crash ASAN reproducible 3/3. Canal: Payload XOR-on-stack evadiendo bytes prohibidos HTTP. Fix: Sin CVE asignado al cierre del análisis.</p>
 
-<h2 id="r02"><span class="idx">03.</span> Disparador mínimo</h2>
-<div class="code-wrap"><span class="lang">bash</span><pre class="code"><code>$ curl --path-as-is "http://$TARGET/" \
-  -H "If-Modified-Since: $(python3 -c "print('A'*150 + payload)")"</code></pre></div>
+<h2>Disparador mínimo</h2>
+<p class="omitido">El detalle de reproducción se omite por política de divulgación responsable.</p>
 
-<div class="callout callout-danger"><span class="ico">⛔</span><div>
-  <div class="h">Veredicto</div>
-  <p>Primitiva de control de flujo pre-auth demostrada con crash reproducible; el salto a ejecución depende de las mitigaciones del binario integrador. Hallazgo prioritario: exige el desbordamiento real de un buffer de pila en la ruta de servido de archivos, 0 interacción.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Desbordamiento de pila reproducible en laboratorio; el salto a ejecución depende de las mitigaciones del binario integrador. Hallazgo prioritario: exige el desbordamiento real de un buffer de pila en la ruta de servido de archivos, 0 interacción.</p>
+
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid grid-2"><a class="card" href="cadena-portal-cautivo-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>18 min</span></div><div class="t">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</div><div class="d">Payload en EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en un eval. RC</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="fw-host-header-rce.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>17 min</span></div><div class="t">el daemon de autenticacion y redireccion RCE root: cabecera Host → iptables (CWE-78)</div><div class="d">Request HTTP pre-auth con cabecera Host maliciosa termina en execvp(/bin/sh, -c) que construye iptables. Reverse shell r</div><span class="badge badge-rce">Vulnerability Research</span></a><a class="card" href="autopsia-streaming-http-minimo.html"><span class="arrow">→</span><div class="meta"><span>2026-09-02</span><span>12 min</span></div><div class="t">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</div><div class="d">OOB read en el decoder AMF3 de la biblioteca cliente del protocolo de streaming y command injection en el gestor de credenciales de el servidor HTTP minimo. Cuándo una primitiva real no llega</div><span class="badge badge-infra">Vulnerability Research</span></a></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="cadena-portal-cautivo-rce.html">el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)</a></div><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="fw-host-header-rce.html">el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)</a></div><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="autopsia-streaming-http-minimo.html">la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/sitemap.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503) — security research. Reversing · Exploit Development · Vulnerability Research · Malware. Venezuela.</p>
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
 </div></footer>
 <button class="to-top" aria-label="Volver arriba">↑</button>
 <script src="assets/js/main.js"></script>
@@ -104,7 +78,7 @@
     {
       "@type": "Article",
       "headline": "el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)",
-      "description": "Un If-Modified-Since de 220 bytes desborda buf[128] y toma control parcial del RIP con un decoder XOR in-stack. Disparidad nativo/gdb (+0xC0) documentada y PoC reproducible.",
+      "description": "Un If-Modified-Since de 220 bytes desborda un buffer de 128 y permite tomar control parcial del contador de programa con un descifrado en pila. Disparidad nativo/gdb (+0xC0) documentada y reproducci\u00f3n incluida.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
       "publisher": { "@type": "Organization", "name": "tty503" },
       "datePublished": "2026-09-02",

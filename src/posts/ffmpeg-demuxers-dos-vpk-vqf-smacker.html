@@ -1,31 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Tres DoS en demuxers de FFmpeg hallados por fuzzing autónomo: <b>SIGFPE en VPK</b> (CWE-369, <b>parcheada en 8.1.2</b>), <b>memory leak escalable en VQF</b> (CWE-401, sin parche) y <b>bucle de 13,5M frames en Smacker</b> (CWE-400, sin parche).</li>
-    <li>PoCs ridículamente pequeños: <b>21 B · 13 B · 105 B</b>. Patrón común: el header del contenedor se parsea antes de validarse.</li>
-    <li>VPK: <code>last_block_size / nb_channels</code> con <code>nb_channels=0</code> → IDIV → crash determinista. VQF: <code>av_malloc(tag_len)</code> sin <code>av_free</code> en error path (≈667 MB/archivo). Smacker: check de frames que no contrasta contra el tamaño del archivo.</li>
-    <li>Verificación doble herramienta + descarte de 8 hipótesis alternativas. Divulgación graduada en los dos casos abiertos.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Tres DoS en demuxers de FFmpeg hallados por fuzzing autónomo: SIGFPE en VPK (CWE-369, parcheada en 8.1.2), memory leak escalable en VQF (CWE-401, sin parche) y bucle de 13,5M frames en Smacker (CWE-400, sin parche). PoCs ridículamente pequeños: 21 B · 13 B · 105 B. Patrón común: el header del contenedor se parsea antes de validarse. VPK: last_block_size / nb_channels con nb_channels=0 → IDIV → crash determinista. VQF: av_malloc(tag_len) sin av_free en error path (≈667 MB/archivo). Smacker: check de frames que no contrasta contra el tamaño del archivo. Verificación doble herramienta + descarte de 8 hipótesis alternativas. Divulgación graduada en los dos casos abiertos.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Fuzzing de demuxers de FFmpeg: tres contenedores antiguos (VPK, VQF, Smacker) comparten el mismo pecado — <b>parsean el header antes de validarlo</b>. VPK divide por un canal que puede ser cero (SIGFPE determinista, ya corregida en 8.1.2); VQF reserva longitud de tag según el campo del archivo y, si el parse falla, no libera (fuga ~677 MB por fichero); Smacker decide iterar 13,5M de frames sin contrastar contra el tamaño real del archivo.</p>
 <p>Metodología: dos herramientas de fuzzing independientes, descarte por binaria de 8 hipótesis alternativas y reproducción de las tres clases con PoCs de decenas de bytes.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha técnica</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>VPK</th><td>SIGFPE · <code>vpk.c:89</code> · <b>CWE-369</b> · PoC 21 B · <b>patcheada en 8.1.2</b></td></tr>
-      <tr><th>VQF</th><td>Memory leak · <code>vqf.c:64</code> · <b>CWE-401</b> · PoC 13 B · ~677 MB/archivo · sin parche</td></tr>
-      <tr><th>Smacker</th><td>Bucle 13,5M frames · <b>CWE-400</b> · PoC 105 B · sin parche</td></tr>
-      <tr><th>Patrón</th><td>Header parseado antes de validarse (nunca quiérelo al revés)</td></tr>
-      <tr><th>Validación</th><td>2 herramientas + descarte de 8 hipótesis</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha técnica</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> VPK: SIGFPE · vpk.c:89 · CWE-369 · PoC 21 B · patcheada en 8.1.2. VQF: Memory leak · vqf.c:64 · CWE-401 · PoC 13 B · ~677 MB/archivo · sin parche. Smacker: Bucle 13,5M frames · CWE-400 · PoC 105 B · sin parche. Patrón: Header parseado antes de validarse (nunca quiérelo al revés). Validación: 2 herramientas + descarte de 8 hipótesis.</p>
 
-<div class="callout callout-warn"><span class="ico">🛰</span><div>
-  <div class="h">Veredicto</div>
-  <p>Tres DoS locales reproducibles (abrir el fichero). Ninguno escala a RCE en las pruebas; uno ya parcheado (N-day), dos abiertos con divulgación graduada. Valor: documentación de clase + metodología fuzzing de demuxers.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Tres DoS locales reproducibles (abrir el fichero). Ninguno escala a RCE en las pruebas; uno ya parcheado (N-day), dos abiertos con divulgación graduada. Valor: documentación de clase + metodología fuzzing de demuxers.</p>

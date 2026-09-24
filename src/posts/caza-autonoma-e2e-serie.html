@@ -1,32 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li>Índice de la serie: <b>caza de bugs autónoma con IA local</b> (motor en Metal, sin red, coste ≈ 0) con validación E2E de cada hallazgo.</li>
-    <li>Serie de 6 hallazgos: <b>RCE verificados</b> en el daemon de portal cautivo, el daemon de autenticacion y redireccion y el servidor HTTP embebido; <b>suite el panel web de administracion del servidor</b> (post-auth + trust-bypass condicional); <b>la biblioteca cliente del protocolo de streaming/el servidor HTTP minimo</b> como primitivas.</li>
-    <li>Doctrina aplicada: sin crash reproducible no hay hallazgo; gates pre-auth/default-config/internet-facing aplicados antes de madurar.</li>
-    <li>Divulgación responsable: cada caso con su estado de fix y su alcance honesto.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> Índice de la serie: caza de bugs autónoma con IA local (motor en Metal, sin red, coste ≈ 0) con validación E2E de cada hallazgo. Serie de 6 hallazgos: RCE verificados en el daemon de portal cautivo, el daemon de autenticacion y redireccion y el servidor HTTP embebido; suite el panel web de administracion del servidor (post-auth + trust-bypass condicional); la biblioteca cliente del protocolo de streaming/el servidor HTTP minimo como primitivas. Doctrina aplicada: sin crash reproducible no hay hallazgo; gates pre-auth/default-config/internet-facing aplicados antes de madurar. Divulgación responsable: cada caso con su estado de fix y su alcance honesto.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>Esta serie documenta el pipeline completo de una cacería de vulnerabilidades ejecutada por un agente de IA local: selección de targets, barrido por familias de ataque, análisis adversarial de cada candidato y <b>validación E2E con reproducción en el entorno</b>. Cada entrega enlaza a la investigación individual con su archivo:línea, evidencia y clasificación.</p>
-<p>El resultado neto sobre la serie: tres RCE pre-auth demostrados (2 con reverse shell root), una suite de sinks post-auth documentados y dos primitivas de bajo impacto — cada uno con su truthful scope.</p>
+<p>El resultado neto sobre la serie: tres RCE pre-auth demostrados (2 con ejecución de comandos como administrador), una suite de sinks post-auth documentados y dos primitivas de bajo impacto — cada uno con su truthful scope.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Mapa de la serie</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Target</th><th>Resultado</th><th>Estado</th></tr>
-      <tr><td>el daemon de portal cautivo</td><td>RCE pre-auth 0-click (CWE-78)</td><td>abierto</td></tr>
-      <tr><td>el daemon de autenticacion y redireccion</td><td>RCE pre-auth 1 request, root</td><td>abierto</td></tr>
-      <tr><td>el servidor HTTP embebido</td><td>Stack overflow, control de flujo</td><td>abierto</td></tr>
-      <tr><td>Suite el panel web de administracion del servidor</td><td>4 sinks post-auth + trust-bypass</td><td>documentado</td></tr>
-      <tr><td>la biblioteca cliente del protocolo de streaming / el servidor HTTP minimo</td><td>Info-leak + inyección local</td><td>documentado</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Mapa de la serie</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> </p>
 
-<div class="callout callout-info"><span class="ico">📊</span><div>
-  <div class="h">Veredicto</div>
-  <p>Serie que demuestra el método: la IA local genera candidatos y el pipeline E2E los convierte en hallazgos reales. Los RCE pre-auth de la serie son los que abren esta carpeta del portafolio.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Serie que demuestra el método: la IA local genera candidatos y el pipeline E2E los convierte en hallazgos reales. Los RCE pre-auth de la serie son los que abren esta carpeta del portafolio.</p>

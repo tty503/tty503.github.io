@@ -1,32 +1,10 @@
-<aside class="tldr">
-  <div class="h">// En 30 segundos</div>
-  <ul>
-    <li><b>analystty</b> (Python puro, 2024): triage automatizado de executables PE — clasifica APIs contra <b>MITRE ATT&amp;CK</b>, desensambla <code>.text</code> con <b>Capstone</b> y clava breakpoints en <b>x64dbg</b> sin calcular un offset a mano.</li>
-    <li>De la lista de imports a un <b>call graph simplificado</b>: función contenedora + dirección + API sospechosa, listo para el depurador.</li>
-    <li>Resuelve <b>ASLR con una resta</b>: ajusta automáticamente las direcciones del módulo cargado.</li>
-    <li>Validado en el <a href="threat-hunter-recollection.html">dropper multi-etapa con API Hashing</a>: import-hashing saltado con un volcado en Radare2 y capacidades mapeadas en minutos.</li>
-  </ul>
-</aside>
+<p class="resumen"><strong>Resumen.</strong> analystty (Python puro, 2024): triage automatizado de executables PE — clasifica APIs contra MITRE ATT&amp;CK, desensambla .text con Capstone y clava breakpoints en x64dbg sin calcular un offset a mano. De la lista de imports a un call graph simplificado: función contenedora + dirección + API sospechosa, listo para el depurador. Resuelve ASLR con una resta: ajusta automáticamente las direcciones del módulo cargado. Validado en el dropper multi-etapa con API Hashing: import-hashing saltado con un volcado en Radare2 y capacidades mapeadas en minutos.</p>
 
-<h2 id="r00"><span class="idx">01.</span> Resumen</h2>
+<h2>Resumen</h2>
 <p>El triage de una muestra es siempre el mismo baile mecánico: abrir el binario, leer imports, sospechar, mapear funciones, montar el depurador. analystty automatiza ese paso con una base de datos de APIs maliciosas (<code>malapi.json</code>) cruzada con tácticas de ATT&amp;CK, desensamblado de <code>.text</code> y generación directa del script de breakpoints de x64dbg.</p>
 <p>La correlación función↔API y el descuento automático de ASLR son las dos piezas que quitan fricción del flujo: se pasa del binario crudo a un mapa de «dónde mirar» sin trabajo manual de direcciones.</p>
 
-<h2 id="r01"><span class="idx">02.</span> Ficha</h2>
-<div class="tbl-wrap">
-  <table>
-    <tbody>
-      <tr><th>Herramienta</th><td>analystty — triage de PE en Python puro (oct 2024)</td></tr>
-      <tr><th>Componentes</th><td><code>frm_pe</code> (estático) + <code>medbg</code> (depuración)</td></tr>
-      <tr><th>Deps</th><td>pefile · Capstone · bindings x64dbg · tabulate</td></tr>
-      <tr><th>Inteligencia</th><td><code>malapi.json</code> → tácticas MITRE ATT&amp;CK</td></tr>
-      <tr><th>Salida</th><td>Correlación función↔API + script de breakpoints</td></tr>
-      <tr><th>Validación</th><td>Dropper multi-etapa con API Hashing (nov 2025): Clipper + InfoStealer</td></tr>
-    </tbody>
-  </table>
-</div>
+<h2>Ficha</h2>
+<p class="ficha"><strong>Ficha técnica.</strong> Herramienta: analystty — triage de PE en Python puro (oct 2024). Componentes: frm_pe (estático) + medbg (depuración). Deps: pefile · Capstone · bindings x64dbg · tabulate. Inteligencia: malapi.json → tácticas MITRE ATT&amp;CK. Salida: Correlación función↔API + script de breakpoints. Validación: Dropper multi-etapa con API Hashing (nov 2025): Clipper + InfoStealer.</p>
 
-<div class="callout callout-info"><span class="ico">📊</span><div>
-  <div class="h">Veredicto</div>
-  <p>Herramienta propia en producción dentro del propio flujo de análisis; validada contra malware real. El resto de la sección técnica queda fuera del resumen por brevedad.</p>
-</div></div>
+<p class="veredicto"><strong>Veredicto.</strong> Herramienta propia en producción dentro del propio flujo de análisis; validada contra malware real. El resto de la sección técnica queda fuera del resumen por brevedad.</p>

@@ -1,0 +1,15 @@
+<p class="resumen"><strong>Resumen.</strong> Detrás de mis proyectos actuales hay una forma de trabajar con agentes de IA que se centra en la organización: varios agentes especializados trabajan a la vez sobre la misma pregunta, un modelo pequeño hace el trabajo repetitivo en mi propia máquina y todo queda registrado. Este artículo explica esa arquitectura.</p>
+
+<h2>Pensar en paralelo</h2>
+<p>La primera regla de mi flujo es que nunca trabaja un solo agente. En cada ronda se lanzan al menos dos, y lo importante es que piensen distinto: uno lee el código de forma estática, otro construye pruebas y las ejecuta. Al final cruzo sus resultados y solo lo que ambos sostienen sobrevive al filtro. No se trata de tener más manos, sino de que dos formas distintas de mirar un problema se corrijan entre sí.</p>
+
+<h2>Dos niveles, dos papeles</h2>
+<p>En ese esquema conviven un modelo más capaz, que decide y verifica, con un modelo local que corre en mi propia máquina y absorbe el trabajo pesado y repetitivo: leer cientos de fragmentos, clasificar candidatos, descartar ruido. El modelo local no decide nada importante; propone. La decisión y la validación quedan en manos del nivel superior, porque delegar criterio sería delegar la parte que más se puede equivocar.</p>
+
+<h2>Rutinas que se repiten</h2>
+<p>Con el tiempo el flujo se volvió rutina, y esas rutinas son las que lo mantienen honesto. No se repite una técnica en dos rondas seguidas sobre el mismo objetivo, porque repetir el mismo ojo termina viendo lo mismo. Todo lo que se afirma se mide antes. Y cada ejecución se registra con su veredicto, de modo que el costo de una idea malgastada quede trazado y sirva para la próxima ronda.</p>
+
+<h2>De dónde viene cada cosa</h2>
+<p>Esta forma de trabajar no nació de la teoría. Nació de fallos reales: agentes que confirmaban sin ejecutar, sesiones que se colgaban esperando un servicio que ya no contestaba, técnicas repetidas hasta el estancamiento. Cada uno de esos errores se convirtió en una regla escrita, y las reglas son las que hoy hacen que un flujo de varios agentes termine entregando algo en lo que se puede confiar.</p>
+
+<p>En los próximos artículos cuento cómo se construye la memoria compartida de estos agentes y qué resultados concretos ha producido ese esquema.</p>
