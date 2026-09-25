@@ -8,6 +8,7 @@ import json
 import html
 import datetime
 import pathlib
+import re
 
 ROOT = pathlib.Path(__file__).parent
 SITE = ROOT.parent           # raíz del repo (GitHub Pages)
@@ -141,6 +142,18 @@ def article_jsonld(data, canonical):
 </script>"""
 
 
+def read_min(body_html):
+    """Tiempo de lectura REAL derivado del cuerpo (200 palabras/min).
+
+    Antes se usaba el campo 'read' de meta.json, escrito a mano: declaraba
+    '18 min' y '120 min' sobre posts de 299 y 225 palabras. Era un dato falso
+    publicado en el HTML de todas las páginas. Ahora se calcula.
+    """
+    plain = re.sub(r"<[^>]+>", " ", body_html)
+    words = len(re.findall(r"\b\w+\b", plain, re.UNICODE))
+    return max(1, round(words / 200))
+
+
 def build_post(slug, data):
     body = (ROOT / "posts" / f"{slug}.html").read_text(encoding="utf-8")
     canon = f"{BASE}/{slug}.html"
@@ -149,7 +162,9 @@ def build_post(slug, data):
         crumb.append((f"{data['series']}.html", "Serie"))
     crumb.append((f"{slug}.html", data["title"][:44]))
     tags = "".join(f'<span class="chip">{html.escape(t)}</span>' for t in data["tags"])
-    meta_span = f'<span>{data["date"]}</span><span>{data["read"]}</span><span>{data["cat"]}</span>'
+    meta_span = (f'<span>{data["date"]}</span>'
+                 f'<span>{read_min(body)} min</span>'
+                 f'<span>{data["cat"]}</span>')
     related = data.get("related", [])
     rel_html = ""
     if related:
@@ -190,9 +205,10 @@ def writings_html():
     pages = sorted(META["pages"].items(), key=lambda kv: kv[1].get("date", ""), reverse=True)
     for slug, p in pages:
         badge = f'<span class="badge">{html.escape(p["badge"])}</span>' if p.get("badge") else ""
+        mins = read_min((ROOT / "posts" / f"{slug}.html").read_text(encoding="utf-8"))
         items.append(
             f'<li><a href="{slug}.html">'
-            f'<div class="meta"><span class="cat">{html.escape(p["cat"])}</span> · {p["date"]} · {p["read"]}</div>'
+            f'<div class="meta"><span class="cat">{html.escape(p["cat"])}</span> · {p["date"]} · {mins} min</div>'
             f'<div class="t">{html.escape(p["title"])}</div>'
             f'<div class="d">{html.escape(p["desc"])}</div>'
             f'{badge}</a></li>')
@@ -351,5 +367,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import re
     main()
