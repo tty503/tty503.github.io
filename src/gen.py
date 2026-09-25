@@ -406,11 +406,16 @@ def main():
     (SITE / "feed.xml").write_text(build_feed(), encoding="utf-8")
     print("ok sitemap.xml + robots.txt + feed.xml")
 
-    # Stubs de redireccion: se regeneran siempre, y se borra cualquier stub cuyo
-    # destino ya no exista, para que un redireccionado no apunte a un 404.
-    red = ROOT.parent / "meta" / "redirects.json"
-    if red.exists():
-        rm = json.loads(red.read_text(encoding="utf-8"))
+    # Stubs de redireccion. El mapa de redirecciones vive FUERA del arbol
+    # publico: sus claves son los slugs antiguos, que son los nombres de los
+    # proyectos que se eliminaron. El generador tolera su ausencia para que el
+    # sitio siga construyéndose; los stubs ya generados siguen versionados y
+    # no se tocan. Sin el mapa no se pueden escribir stubs nuevos, y eso es
+    # exactamente lo que se quiere: no se pueden volver a crear URLs con el
+    # nombre de un proyecto.
+    _rm = SITE / "meta" / "redirects.json"
+    if _rm.exists():
+        rm = json.loads(_rm.read_text(encoding="utf-8"))
         n = 0
         for old, dest in rm.items():
             if dest not in META["pages"] or dest == old:
@@ -418,6 +423,8 @@ def main():
             (SITE / f"{old}.html").write_text(build_redirect(old, dest), encoding="utf-8")
             n += 1
         print(f"ok {n} stubs de redireccion")
+    else:
+        print("ok stubs: sin mapa de redirecciones (fuera del arbol publico)")
 
 
 if __name__ == "__main__":
