@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+<title>Cazar con IA local: pipeline, triaje y seis hallazgos verificados</title>
+<meta name="description" content="Arquitectura de un sistema de caza autonomo sobre hardware propio, el metodo de triaje con doble validacion, y seis hallazgos con reproduccion en bibliotecas y demultiplexadores del sistema.">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/cazar-con-ia-local.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Cazar con IA local: pipeline, triaje y seis hallazgos verificados">
+<meta property="og:description" content="Arquitectura de un sistema de caza autonomo sobre hardware propio, el metodo de triaje con doble validacion, y seis hallazgos con reproduccion en bibliotecas y demultiplexadores del sistema.">
+<meta property="og:url" content="https://tty503.com/cazar-con-ia-local.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
+<meta property="article:published_time" content="2026-08-21">
+<meta property="article:modified_time" content="2026-08-21">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="Cazar con IA local: pipeline, triaje y seis hallazgos verificados">
+<meta name="twitter:description" content="Arquitectura de un sistema de caza autonomo sobre hardware propio, el metodo de triaje con doble validacion, y seis hallazgos con reproduccion en bibliotecas y demultiplexadores del sistema.">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
+
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="cazar-con-ia-local.html">Cazar con IA local: pipeline, triaje y seis </a><span class="sep">/</span></nav>
+<header class="post-head">
+  <div class="post-tags"><span class="chip">Automatización</span><span class="chip">Triaje</span><span class="chip">ASAN</span><span class="chip">IA local</span></div>
+  <h1>Cazar con IA local: pipeline, triaje y seis hallazgos verificados</h1>
+  <p class="lede">Arquitectura de un sistema de caza autonomo sobre hardware propio, el metodo de triaje con doble validacion, y seis hallazgos con reproduccion en bibliotecas y demultiplexadores del sistema.</p>
+  <div class="post-meta"><span>2026-08-21</span><span>51 min</span><span>Vulnerability Research</span></div>
+</header>
+<article class="post-body">
+<!-- ToC -->
+        <!-- 00. RESUMEN -->
+        <h2>1. Resumen de Inteligencia</h2>
+        <p>
+            <strong>Sherlock</strong> es un sistema de descubrimiento y validación de vulnerabilidades que opera de forma continua sobre objetivos open source seleccionados por su superficie de ataque: parsers de archivos, demuxers multimedia, motores de expresiones regulares y librerías de compresión. La tesis es simple: <strong>la mayor parte del trabajo de bug hunting es repetible</strong> —construir harnesses, lanzar campañas de fuzzing, hacer triage de crashes, verificar reproducibilidad, descartar duplicados— y todo lo repetible se puede automatizar con agentes de IA bien dirigidos.
+        </p>
+        <p>
+            Lo que la IA no sustituye es el juicio: decidir si un crash importa, cuál es su causa raíz, si tiene arreglo upstream y qué vale la pena madurar. Por eso el sistema separa <strong>músculo</strong> (ejecución masiva, correlación de logs, redacción de fichas) de <strong>criterio</strong> (políticas de severidad, verificación CVE, decisiones de escalada). El resultado del primer mes: siete hallazgos LOW confirmados y documentados, tres de ellos aún sin fix upstream al momento de escribir este artículo, y cero falsos positivos llegaron a la fase de reporte.
+        </p>
+        <blockquote><p><strong>Serie completa de hallazgos</strong></p>Este artículo es el centro de la serie. Cada hallazgo tiene su propio análisis técnico con evidencias, fragmentos de PoC y diagramas: <a href="7zip-isfolderencrypted-oob-read.html">7-Zip IsFolderEncrypted</a>, <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">FFmpeg VPK/VQF/Smacker</a>, <a href="libwebp-vp8l-lossless-decode-dos.html">libwebp VP8L</a>, <a href="pcre2-jit-compile-hang-recursion.html">PCRE2 JIT</a> y <a href="libarchive-cab-lzx-uninitialized-memory.html">libarchive CAB/LZX</a>.</blockquote>
+        <!-- 01. POR QUE -->
+        <h2>2. De SAINT GRAIL a Sherlock: Por Qué un Cazador Autónomo</h2>
+        <p>
+            <a href="saint-grail.html">SAINT GRAIL</a> nació como plataforma de investigación asistida: un humano dirige, la IA documenta, visualiza y ejecuta PoCs. Su migración a Go (<a href="saint-grail-go.html">ver resultados</a>) demostró que el enfoque funcionaba para investigación dirigida —los PoCs de TOCTOU en Chromium y CRC bypass en 7-Zip salieron de ese ciclo—. Pero asistida significa que el cuello de botella soy yo: entre sesiones, entre campañas, entre ideas.
+        </p>
+        <p>
+            Sherlock invierte el modelo. El sistema propone objetivos según criterios públicos (superficie de parsers, densidad histórica de CVEs, actividad upstream), construye sus propios harnesses de fuzzing, ejecuta campañas largas mientras la máquina no hace nada más, y solo escala a atención humana cuando algo supera el filtro de validación. La diferencia práctica es brutal: donde antes había <strong>sesiones de caza</strong> de unas horas, ahora hay <strong>presencia de caza</strong> permanente. Los hallazgos no llegan cuando busco; llegan cuando ocurren.
+        </p>
+        <p>
+            Hay una segunda motivación, menos obvia: <strong>formar criterio de severidad honesto</strong>. La industria del bug bounty está llena de inflación —un hang se reporta como DoS crítico, un leak teórico como RCE—. Decidí que Sherlock publicaría con severidad estricta: si es un DoS limpio, es LOW; si no hay primitiva estable hacia control de flujo, no es HIGH aunque el crash sea espectacular. Esta serie es también un ejercicio de calibración pública.
+        </p>
+        <!-- 02. ARQUITECTURA -->
+        <h2>3. Arquitectura del Sistema</h2>
+        <p>
+            La arquitectura tiene cuatro capas: <strong>objetivos</strong> (qué cazar), <strong>generación</strong> (cómo meter inputs), <strong>validación</strong> (qué es real), y <strong>memoria</strong> (qué se aprende). Todo corre en hardware propio; ningún byte de los objetivos ni de los crashes sale de la máquina salvo en forma de reportes ya depurados.
+        </p>
+        Figura 1 — Pipeline completo. Las cajas con borde verde son puntos donde el criterio pesa más que el músculo. El bucle inferior devuelve aprendizaje al objetivo: cada hallazgo afina la siguiente campaña.
+        <p>
+            Tres decisiones de diseño explican la mayoría del rendimiento:
+        </p>
+        <ul>
+            <li><strong>Harnesses generados por agentes con revisión estructural:</strong> los workers escriben drivers de libFuzzer leyendo la API pública del objetivo; un paso de verificación comprueba que el driver compila contra las versiones objetivo y que el corpus semilla ejercita rutas reales (cobertura medida, no supuesta).</li>
+            <li><strong>Señales amplias, validación estrecha:</strong> la campaña captura cualquier anomalía (crash, hang, leak, slow-unit); el triage solo promueve lo que reproduce con dos herramientas independientes. Todo lo demás vuelve al corpus como ruido etiquetado.</li>
+            <li><strong>CVE-check antes de celebrar:</strong> cada candidato pasa por diffing contra upstream y búsqueda en NVD/GHSA. En un mes evitó celebrar al menos tres "descubrimientos" que eran CVEs conocidos o fixes recientes —el sistema los reclasifica como REFERENCE y aprende el patrón.</li>
+        </ul>
+        <!-- 03. MODELOS LOCALES -->
+        <h2>4. Modelos Locales: Pequeños, Especializados, Siempre Despiertos</h2>
+        <p>
+          El corazón generativo son <strong>modelos locales servidos on-premise con Ollama</strong>: derivados afinados de <strong>Llama 3.2 3B</strong> con prompts de sistema estrictos por rol —un worker genera harnesses, otro redacta fichas de hallazgo en formato rígido, otro resume logs de campañas—. Contexto de 4096 tokens, temperatura baja (0.25) y muestreo conservador: en esta tarea no queremos creatividad, queremos cumplimiento de formato y fidelidad al input.
+        </p>
+        <pre><code># Perfil de un worker local (Modelfile resumido)
+FROM llama3.2:3b
+PARAMETER temperature 0.25
+PARAMETER num_ctx 4096
+SYSTEM """
+Eres un worker de triage. Recibes un log de crash.
+Devuelve SOLO JSON válido con: cwe_suspect, frame_sospechoso,
+tool_origen, reproducible_si/no, siguiente_comando.
+Prohibido inventar símbolos que no estén en el log.
+"""</code></pre>
+        <p>
+            ¿Por qué 3B y no un modelo gigante? Tres razones. Primero, <strong>latencia y coste</strong>: un mes de campaña genera miles de eventos; clasificarlos con un modelo enorme sería caro y lento, y la tarea (extraer campos de un log sin inventar nada) no necesita capacidad de razonamiento profunda. Segundo, <strong>determinismo operativo</strong>: con keep-alive infinito y flash attention, los workers responden en milisegundos y nunca duermen. Tercero, <strong>privacidad</strong>: los crashes contienen mapas de memoria de software de terceros; no hay motivo para enviarlos a nadie.
+        </p>
+        <p>
+            Para las pocas tareas que sí requieren músculo —diseñar una estrategia de grooming de heap, analizar un diff complejo— el orquestador escala a un modelo externo potente (DeepSeek, ya integrado públicamente en <a href="saint-grail.html">SAINT GRAIL</a>), pero con datos mínimos y solo bajo decisión explícita. La regla es <strong>lo local por defecto, lo remoto por excepción</strong>.
+        </p>
+        <blockquote><p><strong>Lección contraintuitiva</strong></p>Los modelos pequeños con roles estrechos y formato obligado fallan menos que uno grande con libertad total. Cuando la salida correcta es "JSON con cinco campos", la inteligencia general sobra y la disciplina falta. Afinar el prompt vale más que agrandar el modelo.</blockquote>
+        <!-- 04. CICLO DE VIDA -->
+        <h2>5. El Ciclo de Vida de un Hallazgo</h2>
+        <p>
+            Cada candidato atraviesa estados explícitos. Nada salta pasos: un crash que no puede pasar de LEAD a VALIDANDO muere en silencio y alimenta estadísticas, no reportes.
+        </p>
+        Figura 2 — Máquina de estados. La ruta verde exige reproducibilidad cruzada, ficha completa y verificación de novedad. REFERENCE captura los duplicados: no son fracasos, son entrenamiento del filtro.
+        <!-- 05. TOOLCHAIN -->
+        <h2>6. Toolchain de Validación: Dos Herramientas o No Es Real</h2>
+        <p>
+            La regla de oro del sistema: <strong>ningún hallazgo se declara CONFIRMED sin reproducirse con al menos dos instrumentos independientes</strong>. Un fuzzer que dice timeout no basta —hay que verlo colgado desde fuera (timeout de shell), ver el stack con gdb, o detectarlo con sanitizadores distintos. Así se eliminaron todos los falsos positivos del primer mes:
+        </p>
+        <table>
+                <thead><tr><th>Señal</th><th>Instrumento primario</th><th>Validador independiente</th><th>Ejemplo real</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Crash de memoria</strong></td>
+                        <td>Build ASAN (heap-buffer-overflow, FPE)</td>
+                        <td>valgrind memcheck + stack en gdb</td>
+                        <td><a href="7zip-isfolderencrypted-oob-read.html">OOB read en 7-Zip</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hang / CPU burn</strong></td>
+                        <td>libFuzzer -timeout=N</td>
+                        <td>timeout POSIX (exit 124) + gdb attach</td>
+                        <td><a href="libwebp-vp8l-lossless-decode-dos.html">VP8L en libwebp</a>, <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">Smacker en FFmpeg</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fuga de memoria</strong></td>
+                        <td>LeakSanitizer</td>
+                        <td>valgrind --leak-check=full</td>
+                        <td><a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">add_metadata en FFmpeg VQF</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Memoria no inicializada</strong></td>
+                        <td>A/B contra build parcheada upstream</td>
+                        <td>Divergencia de exit code con mismo input</td>
+                        <td><a href="libarchive-cab-lzx-uninitialized-memory.html">history guard CAB/LZX</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bucle de compilación</strong></td>
+                        <td>Fuzzer JIT con timeout</td>
+                        <td>Control sin JIT termina en 0 ms → aísla la fase</td>
+                        <td><a href="pcre2-jit-compile-hang-recursion.html">get_framesize en PCRE2</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        <p>
+            Completan la caja de herramientas el <strong>patch-diffing sistemático</strong> (git diff entre versiones objetivo para saber qué cambió y qué no), la <strong>consulta inversa de advisories</strong> (GHSA/NVD) para evitar duplicados, y builds gemelas <strong>ASAN + producción</strong> de cada objetivo: la primera para diagnosticar, la segunda para demostrar que el bug afecta al binario que usa gente real, no solo al instrumentado.
+        </p>
+        <!-- 06. POLITICA SEVERIDAD -->
+        <h2>7. Política de Severidad Honesta: Por Qué Publicamos los LOW</h2>
+        <p>
+            La política interna es <strong>RCE-first</strong>: HIGH exige ejecución de código o primitiva de escritura estable hacia control de PC; MEDIUM exige corrupción de metadatos del allocator o lectura cruzada explotable; todo lo demás —hangs, leaks, FPE limpios, lecturas de 1 byte fuera de límites— es LOW y se trata como tal. Bajo esa regla, seis de los siete hallazgos del mes son LOW, y así se publican.
+        </p>
+        <p>
+            ¿Por qué invertir tiempo en publicar LOWs? Porque el valor de un LOW honesto supera su puntuación: <strong>documentan clases enteras de error</strong> (validación de dimensiones ausente, error path sin free, bucle sin tope derivable del tamaño del archivo) que aparecen una y otra vez en software real, y porque el DoS barato sigue siendo munición de denegación de servicio contra servicios que parsean archivos de usuarios —proxies de medios, antivirus de correo, plataformas que aceptan uploads—. Un hang reproducible con 34 bytes merece ser conocido.
+        </p>
+        <blockquote><p><strong>Calibración pública</strong></p>Cada ficha de esta serie declara su severidad, su estado de fix upstream y su clase CWE. Cuando el fix llega, se actualiza. Cuando el hallazgo resulta duplicado de un advisory reciente, se marca REFERENCE con la ventana de detección —como ocurrió con un caso de libarchive detectado a siete días de su fix upstream—.</blockquote>
+        <!-- 07. COSECHA -->
+        <h2>8. La Cosecha de Agosto: Inventario de Hallazgos</h2>
+        <p>
+            Siete hallazgos confirmados, cinco objetivos, seis artículos técnicos con evidencias completas. Todos reproducibles, todos con ficha, generador de PoC y análisis de causa raíz:
+        </p>
+        <table>
+                <thead><tr><th>Objetivo</th><th>Vulnerabilidad</th><th>CWE</th><th>Estado fix</th><th>Análisis</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>7-Zip 26.00–26.02</strong></td>
+                        <td>Heap OOB read en IsFolderEncrypted por re-parse divergente de CodersData</td>
+                        <td>CWE-125</td>
+                        <td>Sin fix / sin CVE</td>
+                        <td><a href="7zip-isfolderencrypted-oob-read.html">Artículo →</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>FFmpeg 7.1.1</strong> (demuxer VPK)</td>
+                        <td>División por cero → SIGFPE determinista</td>
+                        <td>CWE-369</td>
+                        <td>Parcheado en 8.1.2</td>
+                        <td rowspan="3"><a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">Artículo →</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>FFmpeg 7.1.1</strong> (demuxer VQF)</td>
+                        <td>Memory leak en error path de add_metadata, escala hasta ~1 GB</td>
+                        <td>CWE-401</td>
+                        <td>Sin fix</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FFmpeg 7.1.1</strong> (demuxer Smacker)</td>
+                        <td>Bucle de 13.5M frames declarados en archivo de 105 B</td>
+                        <td>CWE-400</td>
+                        <td>Sin fix</td>
+                    </tr>
+                    <tr>
+                        <td><strong>libwebp 1.4.0</strong></td>
+                        <td>Decode VP8L lossless sin check de área máxima → CPU burn</td>
+                        <td>CWE-400</td>
+                        <td>Verificación upstream pendiente</td>
+                        <td><a href="libwebp-vp8l-lossless-decode-dos.html">Artículo →</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>PCRE2 10.48</strong></td>
+                        <td>Compilación JIT no termina con recursión dentro de negative lookahead</td>
+                        <td>CWE-400</td>
+                        <td>Verificación upstream pendiente</td>
+                        <td><a href="pcre2-jit-compile-hang-recursion.html">Artículo →</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>libarchive 3.8.9</strong></td>
+                        <td>Lectura de heap no inicializada en history guard del path CAB/LZX</td>
+                        <td>CWE-457</td>
+                        <td>Fix upstream reciente (ventana 7 días)</td>
+                        <td><a href="libarchive-cab-lzx-uninitialized-memory.html">Artículo →</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        <p>
+            Además del inventario público, el sistema acumula leads activos en estados tempranos (un binder expuesto en un stack móvil, un caso BLE de enumeración GATT sin emparejamiento en entorno controlado, una escalada write-primitive en curso sobre FreeType). Esos no se publican hasta validarlos —y algunos quizá nunca lo merezcan.
+        </p>
+        <!-- 08. DIVULGACION -->
+        <h2>9. Divulgación Responsable: Qué Se Publica y Qué No</h2>
+        <p>
+            Publicar hallazgos encontrados por un sistema autónomo obliga a ser más estricto que nunca con qué se cuenta. La política editorial de esta serie:
+        </p>
+        <ul>
+            <li><strong>Mecanismo siempre, arma nunca:</strong> cada artículo explica la causa raíz con el detalle suficiente para que un mantenedor la entienda y la arregle, pero los PoCs completos y generadores listos para ejecutar se reservan para issues privadas a mantenedores mientras no exista fix.</li>
+            <li><strong>Graduación según estado del fix:</strong> el caso de FFmpeg VPK (parcheado en 8.1.2) permite mostrar hexdump y evidencia completa; los casos sin fix describen estructura y comportamiento sin servir el archivo malicioso masticado.</li>
+            <li><strong>Evidencia redactada:</strong> las capturas de terminal de la serie provienen de logs reales de validación, regenerados con rutas de build anonimizadas. Nada de infraestructura personal, nombres internos ni tooling privado aparece en ninguna imagen.</li>
+            <li><strong>Nada de terceros:</strong> ningún hallazgo contra servicios ajenos, dispositivos identificables o infraestructura real se publica aquí; eso, si llega algún día, va por canales de coordinación correspondientes.</li>
+        </ul>
+        <blockquote><p><strong>La línea</strong></p>Un sistema autónomo que caza bugs puede convertirse en fábrica de exploits si alguien le quita la ética del bucle. La decisión de publicar, reportar o archivar es y seguirá siendo humana. La IA propone; el criterio dispone.</blockquote>
+        <!-- 09. LECCIONES -->
+        <h2>10. Lecciones Operando la Malla IA</h2>
+        <p>
+            Un mes de operación continua deja aprendizajes que no aparecen en los papers:
+        </p>
+        <ul>
+            <li><strong>El dedupe es el producto.</strong> De cada diez señales interesantes, seis son duplicados de advisories recientes y dos son falsos positivos del harness. El sistema que mejor filtra gana, no el que más encuentra.</li>
+            <li><strong>Los timeouts enseñan más que los crashes.</strong> Los SIGFPE y OOB reads vienen con stack claro; los hangs obligan a entender qué fase se cuelga (¿matching runtime o compilación JIT?, ¿decodificación o indexación?) —y ahí vive el insight interesante, como muestran los casos de <a href="pcre2-jit-compile-hang-recursion.html">PCRE2</a> y <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">Smacker</a>.</li>
+            <li><strong>La fecha del fix upstream cambia todo.</strong> Distinguir 0-day de dup-race exige leer diffs con fecha, no solo buscar el texto del advisory. Una divergencia detectada a siete días del fix es otra historia que una detectada a siete meses.</li>
+            <li><strong>Formato rígido de salida = fiabilidad medible.</strong> Exigir JSON con campos fijos a los workers permitió medir tasas de error y corregir prompts como quien corrige tests, sin drama.</li>
+            <li><strong>El hardware que sobra por la noche es un activo.</strong> Las campañas aprovechan horas valle; el coste marginal de una noche más de fuzzing es cero y los hallazgos no entienden de horarios.</li>
+        </ul>
+        <!-- 10. CONCLUSION -->
+        <h2>11. Conclusión</h2>
+        <p>
+            Sherlock demuestra que una operación de vulnerability research sostenida no requiere un equipo ni un presupuesto cloud: requiere <strong>disciplina de validación</strong>, modelos locales baratos bien dirigidos y una política de severidad que no mienta. Los siete LOW de este mes no van a salir en titulares, y precisamente por eso importan: son la base estadística honesta sobre la que construir la búsqueda de los MEDIUM y HIGH que sí cambian risk assessments.
+        </p>
+        <p>
+            La próxima iteración del sistema apunta a tres frentes: escalada automática de leads con hipótesis de groom de heap, integración del grafo de conocimiento de SAINT GRAIL para correlacionar hallazgos entre objetivos, y campañas dirigidas por cobertura diferencial entre versiones. La cosecha seguirá siendo pública, con severidad honesta y sin armas servidas en bandeja.
+        </p>
+        <!-- CTA -->
+            <h3>/Explora los hallazgos de la serie</h3>
+            <p>Cada vulnerabilidad tiene su análisis técnico completo: causa raíz, evidencia reproducible, fragmentos de PoC y diagramas del mecanismo.</p>
+                <a href="7zip-isfolderencrypted-oob-read.html" class="cta-btn primary">7-Zip: OOB Read →</a>
+                <a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html" class="cta-btn">FFmpeg: VPK · VQF · Smacker →</a>
+                <a href="libwebp-vp8l-lossless-decode-dos.html" class="cta-btn">libwebp: VP8L DoS →</a>
+                <a href="pcre2-jit-compile-hang-recursion.html" class="cta-btn">PCRE2: JIT Hang →</a>
+                <a href="libarchive-cab-lzx-uninitialized-memory.html" class="cta-btn">libarchive: Uninit Read →</a>
+                <a href="saint-grail.html" class="cta-btn">SAINT GRAIL: La Plataforma →</a>
+                <a href="saint-grail-go.html" class="cta-btn">SAINT GRAIL Go: Resultados →</a>
+        <!-- Referencias -->
+        <h2>12. Referencias</h2>
+        <ul>
+            <li><a href="https://llvm.org/docs/LibFuzzer.html" target="_blank" rel="noopener noreferrer">libFuzzer — A library for coverage-guided fuzz testing</a></li>
+            <li><a href="https://github.com/google/AFL" target="_blank" rel="noopener noreferrer">American Fuzzy Lop (AFL++)</a></li>
+            <li><a href="https://github.com/google/sanitizers" target="_blank" rel="noopener noreferrer">AddressSanitizer, LeakSanitizer y familia (Google/sanitizers)</a></li>
+            <li><a href="https://www.valgrind.org/docs/manual/mc-manual.html" target="_blank" rel="noopener noreferrer">Valgrind Memcheck — manual de referencia</a></li>
+            <li><a href="https://ollama.com/" target="_blank" rel="noopener noreferrer">Ollama — runtime de modelos locales</a></li>
+            <li><a href="https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/" target="_blank" rel="noopener noreferrer">Meta AI — Llama 3.2 (modelos edge 3B)</a></li>
+            <li><a href="https://cwe.mitre.org/" target="_blank" rel="noopener noreferrer">MITRE — Common Weakness Enumeration (CWE)</a></li>
+            <li><a href="https://nvd.nist.gov/" target="_blank" rel="noopener noreferrer">NIST National Vulnerability Database</a></li>
+            <li><a href="saint-grail.html">SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA (tty503.com)</a></li>
+            <li><a href="saint-grail-go.html">SAINT GRAIL: De Python a Go, Resultados Concretos y el Futuro del Bug Hunting Autónomo (tty503.com)</a></li>
+            <li><a href="arte-de-la-paciencia-sudo-cache.html">El Arte de la Paciencia: Abusando del Caché de Sudo (tty503.com)</a></li>
+        </ul>
+
+<p class="resumen"><strong>Continuidad.</strong> Lectura fuera del heap por un parser que reinterpreta lo que otro ya consumio.</p>
+
+<article class="post-body">
+<aside class="tldr">
+  // En 30 segundos
+  <ul>
+    <li>Un archivo <b>.7z de 24 bytes</b> manipulados hace que el binario más instalado del mundo lea memoria que no le pertenece: <b>heap OOB read</b> confirmado en 7-Zip <b>26.00 · 26.01 · 26.02</b>.</li>
+    <li>Dos parsers, una estructura: <code>ReadFolder</code> consume el flag <code>0x10</code> de <code>CodersData</code>; <code>IsFolderEncrypted</code> lo ignora, se desincroniza byte a byte y compara contra <code>k_AES</code> valores leídos tras el final del buffer.</li>
+    <li>Disparador: <code>7zz l -slt</code> o <code>7zz x</code> (consultan <code>kpidEncrypted</code>). Clase: <b>CWE-125</b>.</li>
+    <li>Sin CVE, sin parche, ausente de los advisories GHSL-2026-116…122. Evidencia triple: ASAN + valgrind (build producción) + gdb, x86 y x64. Severidad honesta: <b>LOW</b>.</li>
+  
+<h2>13. Resumen Técnico</h2>
+  <table>
+    <tbody>
+      <tr><th>Objetivo</th><td>7-Zip / 7-Zip ZS — binario CLI <code>7zz</code>, versiones 26.00 · 26.01 · 26.02</td></tr>
+      <tr><th>Vulnerabilidad</th><td>Heap buffer over-read en <code>NArchive::N7z::CHandler::IsFolderEncrypted</code> (<code>7zHandler.cpp:308</code>)</td></tr>
+      <tr><th>CWE</th><td>CWE-125 (Out-of-bounds Read) · VRT: MCR (Memory Corruption — Read)</td></tr>
+      <tr><th>Severidad</th><td><b>LOW</b> — solo lectura, 1–6 bytes controlables, sin camino directo a escritura</td></tr>
+      <tr><th>Disparador</th><td><code>7zz l -slt archivo.7z</code> y <code>7zz x archivo.7z</code> (consultan <code>kpidEncrypted</code>)</td></tr>
+      <tr><th>Novedad</th><td>Sin CVE asignado y ausente de los advisories GHSL-2026-116…122 (parcheados en 26.01); <code>git diff 26.01..26.02</code> confirma que <code>7zHandler.cpp</code> no cambió</td></tr>
+      <tr><th>Validación</th><td>ASAN heap-buffer-overflow + valgrind invalid read sobre builds gemelas (instrumentada y producción), x86 y x64</td></tr>
+      <tr><th>Estado fix upstream</th><td>Sin parche al cierre de este análisis — divulgación graduada: mecanismo sí, generador completo no</td></tr>
+    </tbody>
+  </table>
+<h2>14. Contexto: por qué 7-Zip importa</h2>
+<p>7-Zip está en todas partes: escritorios Windows, gateways antivirus que descomprimen adjuntos, pipelines CI/CD que extraen artefactos, appliances de correo. Cuando un parser de archivos comprimidos lee de más, la pregunta inmediata es <b>¿quién más lo hace?</b> — porque cada producto que incruste el código afectado hereda el bug. La racha de advisories GHSL-2026-116…122 sobre 7-Zip 26.00 demostró que la superficie sigue siendo fértil; todos esos fueron parcheados en la serie 26.01.</p>
+<p>Este hallazgo no está entre ellos. El diff entre 26.01 y 26.02 no toca el handler del formato 7z, y las pruebas confirman que el crash reproduce igual en las tres versiones. Es decir: <b>un bug de clase similar a los ya corregidos, pero en una ruta distinta que nadie había cubierto</b>.</p>
+<blockquote>ℹ
+  Cómo lo encontró el sistema
+  <p>La campaña de fuzzing sobre el formato 7z produjo un crash con firma estable (<code>heap-buffer-overflow READ of size 1</code> siempre en la misma línea). El triage automático clasificó el stack, la verificación cruzada lo reprodujo en build producción vía valgrind, y el paso de novedad descartó duplicados contra los advisories conocidos. Detalles del pipeline en el <a href="sherlock-caza-autonoma-ia-local.html">artículo central de la serie</a>.</p>
+</blockquote>
+<h2>15. La superficie: kpidEncrypted y los comandos disparadores</h2>
+<p>El bug vive en una consulta de propiedad. Cuando el usuario lista o extrae un archivo, la consola pregunta por cada carpeta interna si está cifrada mediante la propiedad <code>kpidEncrypted</code>. Esa consulta termina invocando a <code>IsFolderEncrypted</code>, que — en vez de reutilizar el resultado estructurado del parseo original — decide <b>volver a caminar los bytes crudos de <code>CodersData</code></b> buscando el ID del coder AES.</p>
+  <table>
+    <thead><tr><th>Comando</th><th>Consulta kpidEncrypted</th><th>¿Dispara el OOB?</th></tr></thead>
+    <tbody>
+      <tr><td><code>7zz l -slt poc.7z</code></td><td>Sí (listado técnico por ítem)</td><td><b>Sí — crash</b></td></tr>
+      <tr><td><code>7zz x poc.7z</code></td><td>Sí (antes de decidir pedir contraseña)</td><td><b>Sí — crash</b></td></tr>
+      <tr><td><code>7zz t poc.7z</code></td><td>No (el test no consulta cifrado)</td><td>No</td></tr>
+    </tbody>
+  </table>
+<p>Esta asimetría tiene consecuencias prácticas: entornos que solo prueban integridad de archivos (<code>t</code>) no verán el problema, mientras que cualquier flujo que liste o extraiga — exactamente lo que hace un gateway de correo o un gestor de archivos — lo pisa de lleno.</p>
+<h2>16. Anatomía del bug: dos parsers, una estructura</h2>
+<p>El formato 7z describe cada carpeta con una secuencia de codificadores dentro de <code>CodersData</code>. Cada coder empieza con un byte de flags donde el bit bajo guarda el tamaño del ID (<code>&amp; 0x0F</code>) y el bit 0x20 indica propiedades adicionales. Existe además un flag especial — <code>0x10</code> — que anuncia que detrás del ID vienen dos números: <code>numInStreams</code> y <code>numOutStreams</code>.</p>
+<p>El parser principal (<code>CInArchive::ReadFolder</code>, <code>7zIn.cpp:521</code>) interpreta ese flag correctamente y consume ambos números durante la apertura. Pero <code>IsFolderEncrypted</code> (<code>7zHandler.cpp:291–317</code>) re-parsea la misma región <b>solo con reglas de id+props</b>: nunca mira el bit 0x10. Dos lectores, una misma secuencia de bytes, dos posiciones finales distintas. El resto es aritmética del caos.</p>
+c<pre class="code"><code>// 7zHandler.cpp:302-316 — bucle vulnerable (línea 308 = lectura OOB)
+CNum numCoders = inByte.ReadNum();
+for (; numCoders != 0; numCoders--) {
+    const Byte mainByte = inByte.ReadByte();
+    const unsigned idSize = (mainByte &amp; 0xF);
+    const Byte *longID = inByte.GetPtr();
+    UInt64 id64 = 0;
+    for (unsigned j = 0; j &lt; idSize; j++)
+        id64 = (id64 &lt;&lt; 8) | longID[j];   // ← OOB READ sin check de límites
+    inByte.SkipDataNoCheck(idSize);
+    if (id64 == k_AES) return true;
+    if ((mainByte &amp; 0x20) != 0)
+        inByte.SkipDataNoCheck(inByte.ReadNum());
+}
+// Nota: ningún manejo de 0x10 → numIn/numOutStreams se interpretan
+// como si fueran datos de coders siguientes (desync garantizado)</code></pre>
+<p>El contraste dentro del propio archivo fuente lo confirma: otra función del mismo handler, <code>GetFolderInfo</code> (<code>7zHandler.cpp:400–434</code>), <b>sí</b> procesa el flag 0x10 y consume los dos contadores. El bug no es de diseño del formato: es de <b>implementación inconsistente entre dos lectores de la misma estructura</b>.</p>
+<h2>17. El desync, byte a byte</h2>
+<p>Con el archivo trampa del generador, <code>CodersData</code> ocupa exactamente 24 bytes en el heap. Mira cómo el re-parse pierde la pista:</p>
+<figure class="figure">
+  <figcaption class="figcap">Figura 1 — El mismo buffer, dos lectores. En verde el parser correcto (consume 0x10 y termina limpio). En rojo el re-parse: confunde contadores de streams con datos de coders, aterriza en la zona de packStreams, fabrica un "coder fantasma" con idSize=10 y lee un byte más allá del final del allocation de 24 bytes.</figcaption>
+</figure>
+<p>La secuencia exacta del desync queda así:</p>
+text<pre class="code"><code># CodersData del PoC (24 bytes, modo desync)
+pos 00: 02   # numCoders = 2
+pos 01: 31   # coder1: flags (idSize=1, bit 0x20 set)
+pos 02: 00   # id[0]
+pos 03: 0a   # ← numInStreams=10  (lo come ReadFolder,
+pos 04: 01   # ← numOutStreams=1   lo ignora IsFolderEncrypted)
+pos 05: 05   # propsSize = 5
+pos 06..0a: 5D 00 00 00 00   # props LZMA2
+pos 0b: 00   # coder2 real
+pos 0c..0d: 00 00   # bond
+pos 0e..17: 0a 09 08 07 06 05 04 03 02 01   # packStreams
+# Lectura según IsFolderEncrypted:
+pos 03: ReadNum() → 0x0a = 10   # cree que es propsSize (¡no es 0x05!)
+skip 10 bytes              # devora props + coder2 + bond + 4 packStreams
+pos 0e: mainByte=0x0a     # packStream[0] disfrazado de nuevo coder
+idSize = 10 decimal       # 0x0a &amp; 0xF
+longID[0..9] → pos 15..24 # el último byte YA está fuera del heap chunk</code></pre>
+<h2>18. El PoC: estructura del archivo trampa</h2>
+<p>El generador interno construye un .7z mínimo cuyo header declara una carpeta con el patrón anterior. La clave no es criptografía sino <b>contabilidad de bytes</b>: hay que elegir <code>numInStreams</code> de modo que el skip del re-parse aterrice exactamente en la zona de packStreams, y que el primer byte de esa zona tenga el nibble bajo deseado.</p>
+python<pre class="code"><code># Flujo del generador (esqueleto conceptual — el script completo se reserva
+# para coordinación con el mantenedor mientras no exista parche)
+def construir_sig_header():
+    coders_info = [coder_con_flag_0x10(num_in=10, num_out=1), ...]
+    coders_data = serializar(coders_info)      # 24 bytes exactos
+    pack_streams = bytes_controlados(10)       # 0a 09 .. 01
+    return empaquetar_7z(coders_data, pack_streams)
+$ python3 gen_poc.py clean    # baseline: archivo válido equivalente
+$ python3 gen_poc.py desync   # variante disparadora del OOB</code></pre>
+<p>Conservar un <b>baseline limpio</b> junto al disparador fue decisión del sistema: permite demostrar que la única diferencia relevante es el patrón del flag 0x10, eliminando cualquier duda de factores externos (compresión, diccionarios, alineación).</p>
+<h2>19. Evidencia de validación</h2>
+<p>La validación siguió la regla de las dos herramientas. Instrumento primario: build instrumentada con ASAN que reporta el desbordamiento con símbolos. Validador independiente: valgrind Memcheck sobre el binario de producción sin instrumentar, confirmando que el bug no es un artefacto del sanitizer.</p>
+<figure class="figure">
+  <img src="img/7zip-isfolderencrypted-oob-read-asan-evidencia.png" alt="Terminal mostrando el reporte de AddressSanitizer: heap-buffer-overflow READ of size 1 en NArchive::N7z::CHandler::IsFolderEncrypted 7zHandler.cpp:308, localizado justo después de una región de 24 bytes" loading="lazy">
+  <figcaption class="figcap">Evidencia A — ASAN: heap-buffer-overflow READ of size 1 en IsFolderEncrypted (7zHandler.cpp:308), «located 0 bytes after 24-byte region»: el allocation de CodersData queda exactamente atrás. Captura regenerada a partir del log original de validación con rutas de build redactadas.</figcaption>
+</figure>
+bash<pre class="code"><code># Tool B — valgrind sobre binario de producción (sin instrumentar)
+$ valgrind ~/builds/7zz-prod l -slt ~/poc/poc_desync.7z
+==…== Invalid read of size 1
+==…==    at … NArchive::N7z::CHandler::IsFolderEncrypted(…) 7zHandler.cpp:308
+==…==  Address … is 0 bytes after a block of size 24 alloc'd
+# Tool C — gdb: breakpoint en la línea culpable, inspección de idSize
+(gdb) break 7zHandler.cpp:308
+(gdb) run l -slt poc_desync.7z
+(gdb) p idSize
+$1 = 10   # el nibble bajo del "coder fantasma"</code></pre>
+<p>Ambas herramientas coinciden en los tres datos que importan: <b>tamaño de lectura (1 byte), línea exacta (308) y distancia al borde del allocation (0 bytes después de 24)</b>. Reproducido en builds x86 y x64.</p>
+<h2>20. Acotación del OOB: por qué es LOW</h2>
+<p>El alcance del desborde está gobernado por el nibble bajo del mainByte falso, y ese byte lo elige el atacante dentro de la zona de packStreams:</p>
+  <table>
+    <thead><tr><th>Variante</th><th>Configuración</th><th>idSize resultante</th><th>Bytes OOB</th></tr></thead>
+    <tbody>
+      <tr><td>PoC estándar</td><td><code>numIn=10</code>, packStream[0]=<code>0x0A</code></td><td>10</td><td>1 byte (ASAN corta en el primero)</td></tr>
+      <tr><td>PoC ampliado</td><td><code>numIn=15</code>, packStream[5]=<code>0x0F</code></td><td>15</td><td>hasta 6 bytes</td></tr>
+    </tbody>
+  </table>
+<p>Tres razones lo mantienen en LOW. Primera: <b>es solo lectura</b> — no hay escritura ni corrupción de metadatos del allocator. Segunda: el dato leído se acumula en <code>id64</code> y se compara contra la constante <code>k_AES</code>; su único efecto observable es un booleano (¿carpeta cifrada sí/no?), no un leak canalizable a disco o red. Tercera: la distancia máxima (~15 bytes) limita qué objetos vecinos pueden ser alcanzados, y ninguno de los observados altera decisiones de seguridad más allá del booleano citado.</p>
+<blockquote>✔
+  El valor estratégico del primitivo
+  <p>Bajo en impacto, alto en señal: este read es el primitivo de lectura sobre el que el sistema construyó su siguiente hipótesis — control determinista del layout del heap para colocar datos elegibles justo detrás de CodersData. Esa escalada, documentada internamente como stepping stone hacia MEDIUM, es el tipo de cadena que separa un crash curioso de una vulnerabilidad madura.</p>
+</blockquote>
+<h2>21. Impacto realista y mitigación</h2>
+<p>¿Quién está expuesto? Cualquier flujo automatizado que liste o extraiga .7z de origen no confiable: gateways de correo que descomprimen adjuntos para escanear, servidores de archivos con previsualización, pipelines que validan artefactos, y usuarios finales abriendo archivos descargados. En todos esos casos el disparador es pasivo: basta listar el contenido.</p>
+<p>Para mantenedores, el fix es quirúrgico: <b>procesar el flag 0x10 en el re-parse</b> — consumir <code>numInStreams</code>/<code>numOutStreams</code> exactamente como hace <code>GetFolderInfo</code> — o, mejor aún, eliminar el re-parse crudo y reutilizar la representación estructurada ya calculada en la apertura. Para operadores, hasta que exista parche: tratar los .7z de origen desconocido como entradas hostiles (aislar el proceso extractor, aplicar timeouts, preferir servicios de descompresión sandboxeados).</p>
+<blockquote>⚠
+  Estado de divulgación
+  <p>Al publicar este análisis no existe patch upstream ni CVE asignado. Por eso el generador completo no se distribuye aquí: el mecanismo está documentado con precisión suficiente para reproducirlo y corregirlo, pero no se sirve listo para disparar. Si eres mantenedor y necesitas el material completo, contacta por los canales habituales.</p>
+</blockquote>
+<h2>22. Conclusión</h2>
+<p>El caso resume lo que hace valioso un LOW bien documentado: una causa raíz clara (dos lectores con reglas divergentes sobre el mismo formato), un mecanismo auditable byte a byte, evidencia triple y una frontera de impacto honestamente acotada. Los bugs de re-parse divergente son una familia — donde hay uno, suele haber más —, y esta firma concreta (flag consumido en un parser, ignorado en otro) ahora forma parte del repertorio que el sistema busca activamente en otros parsers de archivos.</p>
+<p>La lección para quien construye parsers: <b>cada vez que una estructura se interpreta dos veces, las dos implementaciones deben compartir la misma gramática</b> — o mejor, la misma función. El formato no cambia; cambia quién lo lee y con cuántas ganas de leer todo.</p>
+
+<p class="resumen"><strong>Continuidad.</strong> Tres demultiplexadores donde la entrada manda sobre la aritmetica.</p>
+
+<article class="post-body">
+<aside class="tldr">
+  // En 30 segundos
+  <ul>
+    <li>Tres DoS en demuxers de FFmpeg hallados por fuzzing autónomo: <b>SIGFPE en VPK</b> (división por cero, CWE-369, <b>parcheada en 8.1.2</b>), <b>memory leak escalable en VQF</b> (CWE-401, <b>sin parche</b>) y <b>bucle de 13,5M frames en Smacker</b> (CWE-400, <b>sin parche</b>).</li>
+    <li>PoCs ridículamente pequeños: <b>21 B · 13 B · 105 B</b>. Patrón común: el header del contenedor se parsea antes de validarse.</li>
+    <li>VPK: <code>last_block_size / nb_channels</code> con <code>nb_channels=0</code> → IDIV → crash determinista. VQF: <code>av_malloc(tag_len)</code> sin <code>av_free</code> en error path, fuga medida hasta ~677 MB/archivo. Smacker: check <code>frames &lt; 0xFFFFFF</code> que no contrasta contra el tamaño del archivo.</li>
+    <li>Verificación doble herramienta + descarte de 8 hipótesis alternativas. Divulgación graduada en los dos casos abiertos.</li>
+  
+<h2>23. Resumen Técnico</h2>
+  <table>
+    <thead><tr><th>#</th><th>Demuxer</th><th>Bug</th><th>CWE</th><th>PoC</th><th>Efecto</th><th>Estado fix</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>A</td><td><code>libavformat/vpk.c</code></td>
+        <td>División por cero en <code>vpk_read_packet</code> (<code>vpk.c:89</code>)</td>
+        <td>CWE-369</td><td>21 B</td>
+        <td>SIGFPE → crash determinista del proceso (repro 3/3)</td>
+        <td><b>Parcheada en 8.1.2</b></td>
+      </tr>
+      <tr>
+        <td>B</td><td><code>libavformat/vqf.c</code></td>
+        <td><code>av_malloc(tag_len)</code> sin <code>av_free</code> en error path (<code>vqf.c:64</code>)</td>
+        <td>CWE-401</td><td>13 B</td>
+        <td>Leak que escala con <code>tag_len</code>: medido hasta ~677 MB por archivo</td>
+        <td><b>Sin parche en 8.1.2</b></td>
+      </tr>
+      <tr>
+        <td>C</td><td><code>libavformat/smacker.c</code></td>
+        <td>Bucle <code>for(i&lt;frames)</code> sin validar contra tamaño del archivo (<code>smacker.c:225</code>)</td>
+        <td>CWE-400</td><td>105 B</td>
+        <td>Hang de CPU procesando 13.565.951 frames lógicos (timeout 3/3)</td>
+        <td><b>Sin parche en 8.1.2</b></td>
+      </tr>
+    </tbody>
+  </table>
+<p>Las tres pruebas se validaron con la regla de las dos herramientas (sanitizer + confirmador independiente) y descarte sistemático de hipótesis alternativas. Todas afectaban la rama 7.1.1 al momento del hallazgo; el fix de VPK llegó después en 8.1.2.</p>
+<h2>24. Por qué los demuxers son una mina</h2>
+<p>FFmpeg es el traductor universal de medios: servidores de streaming, pipelines de transcodificación, generadores de miniaturas, analizadores forenses, bots de Telegram y Discord — todos terminan confiando sus entradas a <code>libavformat</code>. Y el primer contacto con cualquier archivo es siempre el mismo: el <b>demuxer</b>, que lee el header del contenedor y decide qué hacer con el resto.</p>
+<p>Ese primer contacto es crítico porque ocurre <i>antes</i> de cualquier decodificación costosa y <i>antes</i> de que el sistema tenga motivos para desconfiar. Formatos exóticos como VPK (paquetes de sonido de videojuegos), VQF (audio TwinVQ de los 90) o Smacker (vídeo FMV de juegos DOS) tienen parsers menos transitados que MP4 o MKV, y menos tránsito suele significar menos ojos. El fuzzing autónomo no distingue formatos fashion de formatos olvidados: los barre todos con la misma vara.</p>
+<h2>25. El patrón común: parsear antes de validar</h2>
+<p>Los tres bugs pertenecen a clases distintas (aritmética, gestión de recursos, complejidad algorítmica) pero nacen de la misma decisión de diseño: <b>confiar en campos del header controlados por el atacante sin contrastarlos ni entre sí ni contra el tamaño real del input</b>.</p>
+<figure class="figure">
+  <figcaption class="figcap">Figura 1 — La familia al completo: un input minúsculo entra al demuxer; cada parser convierte su campo no validado en un modo de fallo distinto.</figcaption>
+</figure>
+<h2>26. VPK — División por cero (CWE-369) · Parcheada</h2>
+<p>El formato VPK guarda audio por bloques. Al leer un paquete, el demuxer calcula el tamaño del último bloque dividiendo entre el número de canales declarado en el header. Si ese número llega a cero — y nada en el código lo impide — la instrucción de división entera de x86 (<code>IDIV</code>) lanza una excepción aritmética que mata el proceso:</p>
+c<pre class="code"><code>// libavformat/vpk.c:89 (rama vulnerable)
+size = last_block_size / par-&gt;ch_layout.nb_channels;   // nb_channels == 0 → SIGFPE
+# Fix aplicado upstream en 8.1.2:
+if (par-&gt;ch_layout.nb_channels &lt;= 0)
+    return AVERROR_INVALIDDATA;</code></pre>
+<p>El PoC completo cabe en lo que tarda en parpadear un cursor: <b>21 bytes</b> con el magic <code>VPK</code> y <code>nb_channels=0</code>. Como este caso sí está parcheado en la versión estable actual, aquí va el volcado íntegro capturado durante la validación:</p>
+hex<pre class="code"><code># poc_vpk_fpe.bin (21 bytes)
+204b 5056 f872 b900 01ff 72f8 5650 4b29 2a20 5320 53</code></pre>
+<figure class="figure">
+  <img src="img/ffmpeg-vpk-demuxer-sigfpe-divide-by-zero-asan-evidencia.png" alt="Terminal mostrando el reporte de AddressSanitizer: FPE on unknown address en vpk_read_packet, libavformat/vpk.c:89" loading="lazy">
+  <figcaption class="figcap">Evidencia A — ASAN: «FPE on unknown address» en vpk_read_packet (libavformat/vpk.c:89:46). Reproducido 3/3 ejecuciones consecutivas; gdb confirmó el divisor exacto.</figcaption>
+</figure>
+bash<pre class="code"><code># Confirmación independiente con gdb (build instrumentada)
+$ gdb -batch -ex run --args fuzz_target -runs=1 poc_vpk_fpe.bin
+Program received signal SIGFPE, Arithmetic exception.
+vpk_read_packet (...) at libavformat/vpk.c:89
+89:    size = last_block_size / par-&gt;ch_layout.nb_channels;
+(gdb) p par-&gt;ch_layout.nb_channels
+$1 = 0</code></pre>
+<h2>27. VQF — Memory leak escalable (CWE-401) · Sin parche</h2>
+<p>Los metadatos del formato VQF usan etiquetas longitud-valor donde la longitud (<code>tag_len</code>) viene en el propio header. El helper <code>add_metadata</code> reserva esa cantidad con <code>av_malloc</code> y, si la lectura posterior falla — algo trivial de forzar declarando un <code>tag_len</code> mayor que el archivo —, devuelve error <b>sin liberar el buffer</b>:</p>
+c<pre class="code"><code>// libavformat/vqf.c:64 — camino del leak (esqueleto)
+static int add_metadata(...) {
+    ptr = av_malloc(tag_len);              // adquisición controlada por el header
+    if (avio_read(pb, ptr, len) != len)    // falla si len &gt; bytes disponibles
+        return AVERROR(EIO);               // ← return SIN av_free(ptr) → CWE-401
+}
+// caller: vqf_read_header (vqf.c:173)</code></pre>
+<p>Lo que convierte un leak mundano en un problema operativo es la <b>escalabilidad</b>: <code>tag_len</code> es un entero del header, así que cada archivo malformado puede ordenar reservas enormes antes de fallar. En las mediciones, metadata gigante produjo fugas medidas entre 285 MB y 677 MB por archivo — el techo teórico ronda el gigabyte. Un servicio que procese archivos subidos por usuarios puede ser agotado de memoria con una cola modesta de archivos de trece bytes.</p>
+<figure class="figure">
+  <img src="img/ffmpeg-vqf-addmetadata-memory-leak-leaksanitizer-evidencia.png" alt="Terminal mostrando el reporte de LeakSanitizer: bloque asignado en av_malloc dentro de add_metadata vqf.c:64 sin liberar, con caller vqf_read_header vqf.c:173" loading="lazy">
+  <figcaption class="figcap">Evidencia B — LeakSanitizer: bloque originado en av_malloc de add_metadata (libavformat/vqf.c:64:11), caller vqf_read_header (vqf.c:173:19). Valgrind confirmó el mismo malloc-sin-free de forma independiente.</figcaption>
+</figure>
+<blockquote>⚠
+  Divulgación graduada
+  <p>Este bug sigue abierto en 8.1.2. Publicamos el mecanismo completo y la evidencia, pero no el binario del PoC ni su receta byte a byte: basta la descripción para que el mantenedor reproduzca y corrija, y evitamos servir munición lista mientras no exista parche.</p>
+</blockquote>
+<h2>28. Smacker — Bucle de 13,5 millones de frames (CWE-400) · Sin parche</h2>
+<p>El demuxer Smacker lee el contador <code>frames</code> del header y reserva tablas iterando hasta ese valor. Existe un check — <code>frames &lt; 0xFFFFFF</code> — pensado precisamente para cortar valores absurdos, pero tiene una rendija aritmética: <b>compara contra una constante, no contra el tamaño del archivo</b>. Declarar 13.565.951 frames (menos de 16M) pasa el check sin despeinarse, y luego el parser intenta dar 13,5 millones de vueltas procesando tablas… alimentado por un archivo de <b>105 bytes</b>.</p>
+text<pre class="code"><code>// Header del PoC (poc_smk_hang.bin, 105 B)
+magic   = SMK2
+width   = 0
+height  = 0xFE000000
+frames  = 13565951      # 13.5M &lt; 0xFFFFFF → el check existente NO aplica
+fps     = 0
+// libavformat/smacker.c:225
+for (i = 0; i &lt; smk-&gt;frames; i++)   // 13.5M iteraciones sobre 105 B de input
+    ...                               // → CPU al 100%, hang indefinido</code></pre>
+<p>La regla de oro que falta aquí es simple: <i>ningún contador derivado del header puede superar proporcionalmente el tamaño del input</i>. Trece millones de frames exigen, como mínimo, trece millones de estructuras de tabla en algún sitio; si el archivo pesa 105 bytes, alguien miente.</p>
+<figure class="figure">
+  <img src="img/ffmpeg-smacker-readheader-frames-loop-timeout-evidencia.png" alt="Terminal mostrando el timeout de libFuzzer tras ejecutar el PoC Smacker: SUMMARY libFuzzer timeout, con stack de gdb apuntando a smacker_read_header smacker.c:225" loading="lazy">
+  <figcaption class="figcap">Evidencia C — libFuzzer: «SUMMARY: libFuzzer: timeout» con el PoC de 105 B (magic SMK2), reproducible 3/3. gdb situó el stack caliente en smacker_read_header (smacker.c:225).</figcaption>
+</figure>
+<h2>29. Metodología: dos herramientas y ocho hipótesis alternativas</h2>
+<p>Cada hallazgo pasó por el mismo embudo antes de ganarse su ficha: reproducción determinista (3/3), doble herramienta de verificación y descarte explícito de explicaciones alternativas. Las hipótesis que el sistema evaluó y mató por cada caso:</p>
+  <table>
+    <thead><tr><th>Caso</th><th>Hipótesis alternativa</th><th>Prueba de descarte</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="3">VPK</td><td>Falso positivo del fuzzer</td><td>Repro manual 3/3 + stack en gdb</td></tr>
+      <tr><td>Comportamiento by design</td><td>Un VPK válido declara nb_channels ≥ 1; el header malformado lo fuerza a 0</td></tr>
+      <tr><td>Artefacto de build instrumentada</td><td>SIGFPE es señal de hardware (IDIV), no del sanitizer</td></tr>
+      <tr><td rowspan="3">VQF</td><td>Ruido de LeakSanitizer</td><td>Valgrind detectó el mismo malloc sin free</td></tr>
+      <tr><td>Solo ocurre con inputs raros del corpus</td><td>El error path se alcanza con cualquier tag_len &gt; tamaño disponible</td></tr>
+      <tr><td>Leak acotado e irrelevante</td><td>Medición directa: 285–677 MB de fuga por archivo con tag_len grande</td></tr>
+      <tr><td rowspan="2">Smacker</td><td>El check de frames protege</td><td>13.5M &lt; 16M: el umbral existente no cubre este rango</td></tr>
+      <tr><td>El loop termina pronto por EOF</td><td>Ninguna salida anticipada: timeout sostenido 3/3 con CPU saturada</td></tr>
+    </tbody>
+  </table>
+<h2>30. Impacto realista y mitigación</h2>
+<p>Ninguno de los tres es corrupción de memoria, pero los tres rompen la disponibilidad — la tercera pata de la tríada — y lo hacen con inputs ridículamente pequeños. El escenario común: servicios multiusuario que demuxan contenido externo (plataformas de vídeo bajo demanda con transcodificación automática, analizadores de malware que procesan muestras, bots que generan previsualizaciones). En todos ellos, un worker muerto por SIGFPE, un pool agotado por leaks acumulativos o un hilo colgado eternamente en un bucle se traducen en latencia para todos los usuarios.</p>
+<ul>
+  <li><b>Mantenedores</b>: replicar el fix de VPK (<code>nb_channels &lt;= 0 → invalid data</code>) como patrón; añadir liberación en todos los return intermedios de <code>add_metadata</code>; validar contadores de Smacker contra el tamaño real del stream, no contra constantes mágicas.</li>
+  <li><b>Operadores</b>: aislar el proceso de demuxing (un proceso por archivo, límites de memoria y tiempo duros, cgroups); los tres fallos mueren solos si el sandbox mata al worker sin contagio.</li>
+  <li><b>Usuarios finales</b>: riesgo bajo en reproductores de escritorio — el crash cuesta reiniciar el reproductor — pero relevante en cualquier servidor que acepte archivos de terceros.</li>
+</ul>
+<h2>31. Conclusión</h2>
+<p>Agrupar estos tres hallazgos en un solo artículo es deliberado: por separado parecen anécdotas de formatos exóticos; juntos dibujan una <b>debilidad estructural del proceso de parseo de headers</b> que se repite en demuxer tras demuxer. Es exactamente el tipo de patrón que un sistema de caza autónomo explora bien: no busca un bug, busca la forma en que una base de código piensa mal y la empuja hasta que se rompe en cada esquina posible.</p>
+<p>Para quien audite parsers propios, las tres preguntas que estos casos obligan a hacerse: ¿qué campos del header uso en aritmética sin verificar? ¿qué reservo que pueda quedar huérfano en un error path? ¿qué bucle cuya duración depende del input carece de techo? Si alguna respuesta incomoda, hay un PoC de veintiún bytes esperando a ser escrito.</p>
+
+<p class="resumen"><strong>Continuidad.</strong> Un guardia que un camino aplica y el otro no.</p>
+
+<article class="post-body">
+<aside class="tldr">
+  // En 30 segundos
+  <ul>
+    <li><b>34 bytes</b> bastan para que un servidor de imágenes pase segundos — o minutos — decodificando una foto que no existe: DoS por <b>área de imagen no validada</b> en el decoder lossless <b>VP8L</b> de libwebp (CWE-400).</li>
+    <li>El path lossy (VP8) comprueba <code>width × height</code> contra <code>MAX_IMAGE_AREA</code>; el lossless acepta hasta <b>16384×16384</b> sin mirar el área total. Dos caminos gemelos, dos estándares.</li>
+    <li><code>ReadImageInfo</code> (<code>vp8l_dec.c:1764</code>) no consulta el guardia → coste de decode ∝ ~256M píxeles declarados → timeout reproducible 3/3.</li>
+    <li>Validación doble: libFuzzer (timeout 3 s) + control <code>timeout(1)</code> sin instrumentación (rc=124). Sin parche conocido al cierre.</li>
+  
+<h2>32. Resumen Técnico</h2>
+  <table>
+    <tbody>
+      <tr><th>Objetivo</th><td>libwebp 1.4.0 — decoder lossless <b>VP8L</b> (<code>vp8l_dec.c</code>)</td></tr>
+      <tr><th>Vulnerabilidad</th><td>Ausencia de validación de área de imagen (<code>width × height</code>) antes de asignar buffers y procesar filas</td></tr>
+      <tr><th>CWE</th><td>CWE-400 (Uncontrolled Resource Consumption) · VRT: recurso/CPU</td></tr>
+      <tr><th>Severidad</th><td><b>LOW</b> — consumo de CPU, sin corrupción de memoria</td></tr>
+      <tr><th>Disparador</th><td>WebP lossless de <b>34 bytes</b> declarando dimensiones gigantes (≤16384×16384)</td></tr>
+      <tr><th>Efecto</th><td>Decode con coste ∝ área declarada → timeout reproducible 3/3 con límite de 3 s</td></tr>
+      <tr><th>Causa raíz</th><td><code>ReadImageInfo</code> (<code>VP8LDecodeImage</code>, vp8l_dec.c:1764) no consulta <code>MAX_IMAGE_AREA</code>; el path lossy sí lo hace</td></tr>
+      <tr><th>Validación</th><td>Doble herramienta: libFuzzer (timeout instrumentado) + <code>timeout</code> de shell como control independiente (exit 124)</td></tr>
+      <tr><th>Estado fix upstream</th><td>Sin parche conocido al cierre — divulgación graduada: mecanismo completo, receta byte a byte reservada</td></tr>
+    </tbody>
+  </table>
+<h2>33. Contexto: libwebp está en todas partes</h2>
+<p>Cada navegador, cada CDN moderna, cada servicio de optimización de imágenes y cada app móvil que muestra fotos pasa por libwebp en algún momento. Su modo <b>lossless</b> (chunk <code>VP8L</code>) promete compresión sin pérdida rivalizando con PNG, y es precisamente el modo elegido para capturas, iconos y gráficos.</p>
+<p>La historia reciente de la biblioteca — CVEs que resonaron en libvpx — demostró hasta qué punto el ecosistema entero hereda sus bugs. Este hallazgo es más modesto en impacto pero igual de revelador sobre el proceso: <i>la memoria de los CVEs pasados no garantiza que todos los caminos del código hayan aprendido la misma lección</i>.</p>
+<h2>34. La asimetría lossy vs lossless</h2>
+<p>El formato WebP tiene dos motores de decodificación: el predictivo con pérdida (<code>VP8</code>, heredado de WebM) y el entrópico sin pérdida (<code>VP8L</code>). Ambos terminan entregando píxeles al mismo cliente, pero nacieron de linajes distintos y eso se nota en sus defensas: el path lossy comprueba que el producto <code>width × height</code> no supere el límite razonable de la biblioteca (<code>MAX_IMAGE_AREA</code>) antes de comprometerse; el lossless lee anchura y altura del header y arranca sin preguntar cuántos píxeles implica esa multiplicación.</p>
+<figure class="figure">
+  <figcaption class="figcap">Figura 1 — Mismo header mentiroso, dos destinos. A la izquierda, el path con pérdida rechaza en tiempo constante. A la derecha, el lossless convierte 34 bytes en millones de operaciones de emisión de filas.</figcaption>
+</figure>
+<h2>35. Anatomía: la cadena que nadie frena</h2>
+<p>El recorrido desde la API pública hasta el bucle caro deja ver exactamente dónde se coló el agujero:</p>
+bash<pre class="code"><code># Cadena de llamadas observada en el stack del hang
+LLVMFuzzerTestOneInput   (fuzz_webp_decode.c:9)
+  → Decode               (webp_dec.c:631)
+    → DecodeInto         (webp_dec.c:511)
+      → VP8LDecodeImage   (vp8l_dec.c:1764)
+        → ReadImageInfo   # acepta width×height ≤ 16384² SIN check de área ← aquí falta el guardia
+        → DecodeImageData (vp8l_dec.c:1206)
+          → ProcessRows   (vp8l_dec.c:837)
+            → EmitRows     (vp8l_dec.c:654)
+              → ConvertBGRAToRGBA_SSE2 (lossless_sse2.c)   # tiempo ∝ píxeles declarados</code></pre>
+<p>El check ausente tiene forma trivialmente conocida — el mismo patrón que su gemelo lossy ya aplica —:</p>
+c<pre class="code"><code>// Guardia esperada en el path VP8L (presente en el path lossy):
+if ((uint64_t)width * height &gt; MAX_IMAGE_AREA)
+    return VP8_STATUS_OUT_OF_MEMORY;</code></pre>
+<p>Nótese el detalle que importa al corregir: la multiplicación debe hacerse en aritmética de 64 bits o con comprobación previa, porque <code>16384 × 16384 = 268.435.456</code> cabe justo en 32 bits — pero variantes con dimensiones máximas distintas podrían desbordar la propia comprobación. Los fixes apresurados que multiplican en 32 bits crean la siguiente generación de bugs.</p>
+<h2>36. El PoC de 34 bytes</h2>
+<p>El archivo trampa sigue la anatomía mínima de un WebP lossless: cabecera RIFF con el chunk <code>VP8L</code>, y dentro de él, el bit de firma lossless seguido de los campos de anchura, altura y versión codificados en la tabla de bits inicial. Lo único que importa es la pareja dimensional: valores cercanos al tope permitido por el formato, cuya multiplicación produce cientos de millones de píxeles «virtuales» que el decoder intentará materializar fila a fila.</p>
+text<pre class="code"><code># Estructura conceptual (receta completa reservada hasta parche upstream)
+RIFF....            # contenedor estándar
+  VP8L....          # chunk lossless
+    firma 0x2f      # bit de formato lossless
+    width-1  = 14 bits  # valor alto declarado
+    height-1 = 14 bits  # valor alto declarado
+    alpha/version...# resto del mini-header
+# Total: 34 bytes. Coste de decode declarado: ~256M píxeles.</code></pre>
+<blockquote>⚠
+  Divulgación graduada
+  <p>Al publicar este análisis no conocemos parche upstream aplicado. Publicamos el mecanismo, la cadena de llamadas y la estructura del archivo, pero no el binario ni el volcado hexadecimal completo: suficiente para reproducir, auditar y corregir, sin servir el disparador listo para usar.</p>
+</blockquote>
+<h2>37. Evidencia de validación</h2>
+<p>Para un DoS temporal, la doble herramienta toma otra forma: el fuzzer instrumentado detecta el exceso de tiempo, y un control sin instrumentación — el clásico <code>timeout(1)</code> de shell — confirma que el hang pertenece al decode real, no al harness.</p>
+<figure class="figure">
+  <img src="img/libwebp-vp8l-lossless-dos-timeout-libfuzzer-evidencia.png" alt="Terminal mostrando libFuzzer reportando timeout tras 3 segundos al decodificar el WebP lossless de 34 bytes" loading="lazy">
+  <figcaption class="figcap">Evidencia A — libFuzzer: «ERROR: libFuzzer: timeout after 3 seconds» sobre el PoC de 34 B. Reproducido 3/3 ejecuciones.</figcaption>
+</figure>
+<figure class="figure">
+  <img src="img/libwebp-vp8l-decodeimage-stack-hang.png" alt="Stack de gdb detenido en la cadena DecodeImageData, ProcessRows y EmitRows del decoder VP8L durante el hang" loading="lazy">
+  <figcaption class="figcap">Evidencia B — Stack del hang capturado con gdb: DecodeImageData (vp8l_dec.c:1206) → ProcessRows (:837) → EmitRows (:654) → conversión SSE2. El bucle de emisión de filas es el consumidor de CPU.</figcaption>
+</figure>
+bash<pre class="code"><code># Tool B — control independiente sin instrumentación
+$ timeout 3 ./fuzz_webp_decode -runs=1 poc_34b.webp ; echo rc=$?
+rc=124   # 124 = killed by timeout: el decode no termina solo
+# Contraste con una imagen legítima equivalente (sanity check)
+$ timeout 3 ./fuzz_webp_decode -runs=1 foto_normal.webp ; echo rc=$?
+Executed 1 inputs... rc=0   # decode correcto en milisegundos</code></pre>
+<h2>38. Acotación: por qué es LOW</h2>
+<ul>
+  <li><b>Sin corrupción de memoria</b>: los buffers se asignan correctamente según las dimensiones; el problema es cuánto tarda el trabajo declarado, no que escriba donde no debe.</li>
+  <li><b>Límite estructural del formato</b>: 16384×16384 acota el peor caso (~268M píxeles); no hay crecimiento indefinido como en un bucle infinito puro.</li>
+  <li><b>Requiere contexto de servicio</b>: un reproductor local pierde unos segundos; el daño serio exige un servicio que decode imágenes de terceros sin límites propios.</li>
+</ul>
+<blockquote>✔
+  El valor del hallazgo
+  <p>Más allá del impacto individual, este caso entrega al sistema una firma reutilizable: «comparar defensas entre paths gemelos». Donde dos implementaciones resuelven el mismo problema, cualquier control presente en una y ausente en la otra es candidato automático a hallazgo. Esa heurística ya está alimentando nuevas campañas de análisis.</p>
+</blockquote>
+<h2>39. Impacto realista y mitigación</h2>
+<p>El escenario de explotación natural es cualquier servicio que decodifique WebP subido por usuarios: plataformas que generan miniaturas, antivirus y DLP que reconstruyen imágenes para analizarlas, apps de mensajería que preprocesan stickers. Con concurrencia, cada archivo de 34 bytes ocupa un worker durante segundos; una cola pequeña de ellos degrada el servicio entero.</p>
+<ul>
+  <li><b>Mantenedores</b>: replicar el guardia de <code>MAX_IMAGE_AREA</code> del path lossy en <code>ReadImageInfo</code>, con multiplicación segura en 64 bits.</li>
+  <li><b>Operadores</b>: imponer límites en la capa de servicio — dimensiones máximas verificadas sobre el header antes de llamar a la librería, presupuesto de CPU por archivo, workers aislados con reinicio automático.</li>
+  <li><b>Usuarios finales</b>: riesgo prácticamente nulo en navegadores modernos, que ya limitan dimensiones antes de invocar al decoder.</li>
+</ul>
+<h2>40. Conclusión</h2>
+<p>Los sistemas grandes no fallan por ignorancia global sino por inconsistencia local: alguien aprendió la lección del área máxima en un camino del código y nadie la llevó al otro. Treinta y cuatro bytes son suficientes para notar la diferencia. La próxima vez que audites un parser con múltiples modos, compara sus modos entre sí — la lista de controles que uno tiene y el otro no suele leerse como una lista de hallazgos pendientes.</p>
+
+<p class="resumen"><strong>Continuidad.</strong> El bug no esta en ejecutar el patron, sino en compilarlo.</p>
+
+<article class="post-body">
+<aside class="tldr">
+  // En 30 segundos
+  <ul>
+    <li>Un patrón regex de ~693 bytes con una <b>backreference recursiva <code>(?0)</code> dentro de un negative lookahead <code>(?!…)</code></b> cuelga a <code>pcre2_jit_compile</code> para siempre en <code>get_framesize</code> (CWE-400).</li>
+    <li>El mismo patrón en modo interpretado: <b>compila en 0 ms</b> y el match termina limpio con rc=-1. El fallo es exclusivo del backend JIT — no es ReDoS.</li>
+    <li>Causa: la pasada de dimensionado de frames recorre la recursividad total sin memoizar, <code>get_framesize</code> (<code>pcre2_jit_compile.c:2224</code>) nunca converge.</li>
+    <li>Superficie real: servicios que <b>compilan regex de terceros</b> (WAFs, motores de búsqueda, filtros de logs). Sin parche confirmado al cierre.</li>
+  
+<h2>41. Resumen Técnico</h2>
+  <table>
+    <tbody>
+      <tr><th>Objetivo</th><td>PCRE2 10.48 — fase de compilación JIT (<code>pcre2_jit_compile.c</code>)</td></tr>
+      <tr><th>Vulnerabilidad</th><td>Recursión interna sin terminación en <code>get_framesize</code> (<code>pcre2_jit_compile.c:2224</code>) ante una backreference recursiva <code>(?0)</code> anidada en un negative lookahead <code>(?!…)</code></td></tr>
+      <tr><th>CWE</th><td>CWE-400 (Uncontrolled Resource Consumption)</td></tr>
+      <tr><th>Severidad</th><td><b>LOW</b> — consumo indefinido de CPU durante la compilación; sin corrupción de memoria</td></tr>
+      <tr><th>Disparador</th><td>Patrón regex de ~693 bytes; la compilación JIT no termina (timeout reproducible 3/3)</td></tr>
+      <tr><th>Dato clave</th><td>El mismo patrón en modo interpretado: compile OK + match rc=-1 en 0.000 s → el fallo es específico del compilador JIT</td></tr>
+      <tr><th>Validación</th><td>Doble herramienta: harness JIT instrumentado (timeout) + binario de control sin JIT (éxito inmediato)</td></tr>
+      <tr><th>Estado fix upstream</th><td>Sin confirmación de parche al cierre — divulgación graduada: clase de construcción documentada, patrón completo reservado</td></tr>
+    </tbody>
+  </table>
+<h2>42. Contexto: quién compila regex ajenas</h2>
+<p>PCRE2 es la biblioteca de expresiones regulares que respiran medio internet: PHP, Apache, nginx vía módulos, miles de productos embebidos. Su modo JIT traduce los patrones a código máquina nativo para acelerar el matching — una victoria de rendimiento que pagan especialmente los servicios donde cada microsegundo cuenta.</p>
+<p>Y ahí está el matiz que hace interesante este hallazgo: hay una clase entera de sistemas que <b>compilan patrones escritos por usuarios o derivados de ellos</b>. Un WAF que traduce reglas de filtrado, un motor de búsqueda que acepta queries avanzadas, un firewall de aplicaciones que recompila firmas dinámicas, un SaaS de logs con filtros personalizables. En todos ellos, la fase de compilación es superficie de ataque de primera categoría: recibe texto semiestructurado del exterior y lo procesa con lógica compleja. La mayoría de auditorías miran el <i>matching</i> (backtracking catastrófico, ReDoS); este bug demuestra que el <i>compilador</i> también puede ser el punto de estrangulamiento.</p>
+<h2>43. La construcción venenosa: (?0) dentro de (?!…)</h2>
+<p>Dos piezas del lenguaje regex se combinan aquí. La primera, <code>(?0)</code>, es una backreference recursiva: «todo el patrón completo», una referencia a sí mismo. La segunda, <code>(?!…)</code>, es un negative lookahead: coincide solo si lo que sigue <i>no</i> encaja con su interior. Por separado, ambas están perfectamente definidas y el intérprete las maneja sin despeinarse.</p>
+<p>El problema aparece cuando la recursividad total del patrón vive <i>dentro</i> del lookahead negativo. Para generar código nativo, el compilador JIT necesita saber cuánto espacio de frames necesita cada subexpresión — y calcularlo exige recorrer la estructura de la recursión. Con <code>(?0)</code> anidada en <code>(?!…)</code>, ese recorrido entra en un ciclo que no alcanza condición de parada: la función <code>get_framesize</code> vuelve sobre el mismo subárbol una y otra vez, y la compilación nunca termina.</p>
+text<pre class="code"><code># Forma de la construcción (esqueleto conceptual — el patrón real,
+# de ~693 B, se reserva hasta disponer de parche upstream)
+^(?! # lookahead negativo...
+     ...anclajes... (?0) ...anclajes...   # ...que contiene la recursiva total (?0)
+   )
+...resto del patrón...
+# Comportamiento observado:
+pcre2_compile       → OK    # árbol sintáctico válido, sin quejas
+match (intérprete)  → rc=-1 # termina limpio en 0.000 s: no hay match, como corresponde
+pcre2_jit_compile   → HANG  # get_framesize no regresa jamás</code></pre>
+<p>Fíjense en el dato más incómodo del caso: <b>el árbol sintáctico es legítimo</b>. No hay trampa sintáctica ni cuantificador absurdo; es una combinación semánticamente válida cuya <i>traducción a máquina</i> es lo que no acaba. Eso explica por qué pasa los checks normales de entrada y por qué el fallo se esconde tan bien.</p>
+<h2>44. El experimento diferencial: intérprete vs JIT</h2>
+<p>Cuando un fuzzer reporta un timeout contra un target JIT-enabled, la primera sospecha natural es backtracking catastrófico: el clásico ReDoS donde el matching explota exponencialmente. Pero un buen diagnóstico exige aislar la variable. El sistema montó el experimento controlado que separa ambos mundos:</p>
+<figure class="figure">
+  <figcaption class="figcap">Figura 1 — Diagnóstico diferencial: la única variable que cambia entre ambas columnas es el backend. Si el hang fuera del matching, la rama izquierda también se colgaría. No lo hace: el bug vive exclusivamente en la traducción a código nativo.</figcaption>
+</figure>
+<h2>45. Anatomía del hang: get_framesize</h2>
+<p>El compilador JIT de PCRE2 trabaja en varias pasadas; una de ellas dimensiona los frames de ejecución — cuánta memoria local necesitará cada rama del patrón — recorriendo recursivamente la estructura compilada. Esa función es <code>get_framesize</code>, y el stack capturado durante el hang la señala inequívocamente:</p>
+bash<pre class="code"><code># Tool A — harness JIT instrumentado (timeout reproducible 3/3)
+$ ./pcre2_fuzzer_jit -runs=1 -timeout=3 poc_jit_hang.bin
+...
+==…== ERROR: libFuzzer: timeout after 3 seconds
+# stack (gdb attach):
+#0  get_framesize  pcre2_jit_compile.c:2224   # ← bucle caliente
+#1  ...             # marcos de la pasada de dimensionado
+#…
+#N  LLVMFuzzerTestOneInput</code></pre>
+<p>La lectura técnica del síntoma: <code>get_framesize</code> visita el nodo de la recursiva total <code>(?0)</code> desde dentro del contexto del lookahead, y el cálculo de tamaño vuelve a requerir dimensionar el patrón completo — incluido, de nuevo, el lookahead. Cada nivel de análisis genera otro; ninguna tabla marca el subárbol como «ya medido». Es una recursión estructuralmente infinita: no crece el stack hasta desbordar porque cada ciclo reutiliza marcos equivalentes, simplemente <i>nunca converge</i>.</p>
+<figure class="figure">
+  <img src="img/pcre2-jit-compile-hang-timeout-getframesize-evidencia.png" alt="Terminal mostrando el timeout del fuzzer JIT de PCRE2 con el stack detenido en get_framesize, pcre2_jit_compile.c línea 2224" loading="lazy">
+  <figcaption class="figcap">Evidencia A — Harness JIT: timeout tras 3 segundos, reproducible 3/3, con el stack caliente en get_framesize (pcre2_jit_compile.c:2224).</figcaption>
+</figure>
+<h2>46. Descarte de hipótesis alternativas</h2>
+<p>La fortaleza del hallazgo está en lo que quedó fuera. Tres explicaciones rivales, tres pruebas de descarte:</p>
+  <table>
+    <thead><tr><th>Hipótesis alternativa</th><th>Prueba</th><th>Resultado del descarte</th></tr></thead>
+    <tbody>
+      <tr><td>Backtracking catastrófico en runtime (ReDoS clásico)</td><td>Ejecutar el match sin JIT con el mismo patrón</td><td>rc=-1 en 0.000 s: el matching no es el problema; el hang ocurre antes, en compile</td></tr>
+      <tr><td>Límite de tamaño legítimo (patrón «demasiado grande»)</td><td>Oss-fuzz reduce cuantificadores grandes en sus corpus</td><td>El trigger es la estructura recursiva, no el volumen: patrones cortos equivalentes reproducen el ciclo</td></tr>
+      <tr><td>Falso positivo del harness</td><td>Repro manual 3/3 + stack consistente en gdb</td><td>Bug real, determinista y localizado en una función concreta</td></tr>
+    </tbody>
+  </table>
+<figure class="figure">
+  <img src="img/pcre2-control-sin-jit-compilacion-ok-evidencia.png" alt="Terminal mostrando el control sin JIT: el mismo patrón compila correctamente y el match devuelve rc=-1 en 0 milisegundos" loading="lazy">
+  <figcaption class="figcap">Evidencia B — Control experimental: build sin JIT con el mismo patrón. Compila limpio y el match termina en 0.000 s (rc=-1). Esta imagen es la mitad que convierte un crash report en un diagnóstico.</figcaption>
+</figure>
+<h2>47. Acotación e impacto realista</h2>
+<ul>
+  <li><b>Sin corrupción de memoria</b>: el proceso no crashea ni escribe fuera de límites; simplemente no avanza. La severidad depende de qué tan caro sea recuperar el worker.</li>
+  <li><b>Requiere compilar regex externas</b>: el escenario de explotación exige que la aplicación pase patrones controlados por terceros a <code>pcre2_jit_compile</code>. Quien solo usa patrones propios internos no está expuesto.</li>
+  <li><b>Determinista y acotado</b>: la construcción disparadora es precisa y verificable; no es un ataque probabilístico ni requiere volumen.</li>
+</ul>
+<p>El perfil de víctima ideal: servicios multiusuario donde el patrón llega desde fuera — WAFs con reglas dinámicas, motores de búsqueda con sintaxis avanzada, plataformas de logs con filtros personalizados, IDEs web que validan regex de usuario en vivo. En todos ellos, un patrón de setecientos bytes convierte un thread de trabajo en un zombie de CPU permanente: no crashea, así que los supervisores de procesos no lo reinician; simplemente deja de responder mientras consume su núcleo asignado.</p>
+<h2>48. Mitigación</h2>
+<ul>
+  <li><b>Mantenedores</b>: memoizar el cálculo de frames por subárbol ya visitado (tabla de subárboles medidos), y tratar la recursiva total dentro de aserciones de ancho cero como caso especial con límite de profundidad.</li>
+  <li><b>Operadores</b>: envolver toda compilación JIT de patrones externos en un presupuesto temporal duro (thread aparte + deadline + abort); rechazar de entrada patrones que combinen recursivas totales con lookarounds si el caso de uso no los exige.</li>
+  <li><b>Desarrolladores de aplicaciones</b>: auditar dónde llegan las regex de usuario. Si la respuesta es «al JIT», esa frontera necesita sandboxing tanto como cualquier parser de archivos.</li>
+</ul>
+<h2>49. Conclusión</h2>
+<p>Este hallazgo vale menos por el impacto individual y más por el método: <b>un experimento diferencial bien montado transforma una observación ambigua en un diagnóstico quirúrgico</b>. Sin la rama de control — el mismo patrón, sin JIT, terminando en cero milisegundos — el bug habría quedado archivado como «timeout extraño» en algún issue tracker. Con ella, apunta exactamente a una función, una línea y una causa estructural.</p>
+<p>La lección transferible a cualquier equipo de seguridad: cuando algo se cuelga, pregúntense siempre <i>en qué fase</i> se cuelga. Parseo, compilación, optimización, ejecución: cada fase tiene dueño distinto, superficies distintas y fixes distintos. El backtracking catastrófico acapara los titulares de ReDoS, pero los compiladores de regex — esa capa invisible entre el texto y la máquina — merecen el mismo escrutinio.</p>
+
+<p class="resumen"><strong>Continuidad.</strong> Patch-diffing: dos compilaciones del mismo codigo, una sola con el fallo.</p>
+
+<article class="post-body">
+<aside class="tldr">
+  // En 30 segundos
+  <ul>
+    <li>Mismo archivo CAB, dos binarios: el <b>snapshot de bsdtar 3.8.9</b> extrae leyendo un <em>history guard</em> del decoder <b>LZX</b> que nadie inicializó (CWE-457); el build con el fix upstream lo rechaza con <code>LZX_CORRUPT</code>.</li>
+    <li>Método: <b>patch-diffing como radar</b> — un commit upstream del 08-08 endureció el path CAB/LZX, y la revisión periódica del snapshot reveló que el fix no estaba en él.</li>
+    <li>Validación A/B: mismo input, única variable = el parche. Vulnerable <code>rc=0</code> (extrae bajo ASAN <code>use-of-uninitialized-value</code>); parcheado <code>rc=1</code> (-25, LZX_CORRUPT).</li>
+    <li>Clasificación honesta: <b>DUP-RACE</b> — el fix ya existía una semana antes de la detección. El activo duradero es el método, no el CVE.</li>
+  
+<h2>50. Resumen Técnico</h2>
+  <table>
+    <tbody>
+      <tr><th>Objetivo</th><td>libarchive / bsdtar 3.8.9 — path de extracción CAB con compresión LZX</td></tr>
+      <tr><th>Vulnerabilidad</th><td>Uninitialized heap read del <em>history guard</em> del decoder LZX (<code>lzx_read_blocks</code>) durante la extracción</td></tr>
+      <tr><th>CWE</th><td>CWE-457 (Use of Uninitialized Variable) · VRT: MCR (read)</td></tr>
+      <tr><th>Severidad</th><td><b>LOW</b> — solo lectura de valores no controlados directamente; sin escalada a escritura</td></tr>
+      <tr><th>Detección</th><td>Divergencia post-snapshot: fix upstream del 2026-08-08 ausente en el snapshot del target</td></tr>
+      <tr><th>Método</th><td>Patch-diffing + comparación A/B con el mismo input CAB sobre dos builds de bsdtar</td></tr>
+      <tr><th>Resultado A/B</th><td>Build vulnerable: <code>rc=0</code>, extrae (con lectura no inicializada). Build parcheado: <code>rc=1</code> (-25, LZX_CORRUPT)</td></tr>
+      <tr><th>Validación</th><td>ASAN (<code>use-of-uninitialized-value</code>) + valgrind <code>--track-origins=yes</code></td></tr>
+      <tr><th>Clasificación</th><td>DUP-RACE — el fix llegó por otra vía dentro de la ventana de análisis; se documenta como caso metodológico</td></tr>
+    </tbody>
+  </table>
+<h2>51. Contexto: snapshots que envejecen mal</h2>
+<p>Analizar un target serio exige construirlo: compilar la versión concreta, instrumentarla, fijar su entorno. Esa construcción es un <b>snapshot</b> — y desde el momento en que existe, empieza a envejecer. Upstream sigue vivo: commits, hardening, fixes. Cada día que pasa, tu snapshot fiel deja de serlo un poco más.</p>
+<p>Esta historia nace de esa tensión. El sistema Sherlock mantiene un snapshot de libarchive 3.8.9 para sus campañas de fuzzing sobre formatos de archivo. Durante la revisión periódica contra upstream apareció un commit del <b>2026-08-08</b> que tocaba justo el camino CAB/LZX que el snapshot ejercita: un hardening frente a lectura de memoria no inicializada en el history guard del decoder LZX. Pregunta inmediata: ¿el snapshot contiene ese fix? Respuesta corta: no. Pregunta larga: ¿qué significa eso en la práctica? El resto del artículo es la respuesta.</p>
+<h2>52. El método: patch-diffing como radar</h2>
+<p>El patch-diffing suele asociarse a martes de parches de grandes vendors: comparar binarios antes/después para localizar la vulnerabilidad corregida. Pero tiene un uso inverso igual de potente para quien caza con targets propios: <b>usar los commits upstream como radar de zonas calientes</b>. Si el proyecto acaba de blindar una ruta de código, esa ruta era frágil ayer — y cualquier versión viva sin el parche lo sigue siendo hoy.</p>
+<figure class="figure">
+  <figcaption class="figcap">Figura 1 — Cronología del hallazgo: el commit upstream del 08-08 funciona como aviso; la revisión semanal del snapshot lo convierte en hipótesis; el A/B la transforma en hecho medible.</figcaption>
+</figure>
+<h2>53. Anatomía: el history guard sin inicializar</h2>
+<p>El algoritmo LZX — el que comprimían los instaladores de Windows y los ficheros CAB antiguos — mantiene un <em>historial</em> de ventana: los últimos kilobytes de salida descomprimida, que las instrucciones de match reutilizan como diccionario. Para acelerar la decodificación, la implementación de libarchive lleva controles auxiliares sobre ese historial; uno de ellos es el <b>history guard</b>, que decide cuándo el estado del historial es válido.</p>
+<p>El problema: en ciertas secuencias de bloques CAB malformadas, el guard se <em>consulta</em> antes de haber sido <em>escrito</em>. El heap entrega lo que había en esas direcciones — basura de usos anteriores — y el decoder toma decisiones de decodificación basadas en ella. Formalmente es CWE-457: comportamiento dependiente de valores no inicializados. En la práctica observada, la consecuencia visible era que archivos que deberían ser rechazados como corruptos se «decodificaban» hasta el final, consumiendo la basura como si fuera estado legítimo.</p>
+c<pre class="code"><code># Forma del defecto (semántica del fix upstream del 08-08)
+# ANTES (snapshot 3.8.9):
+if (guard &amp;&amp; ...)        # guard puede llegar aquí SIN inicializar
+    ...procesar bloque...  # decisión tomada sobre basura del heap
+# DESPUÉS (upstream parcheado):
+if (!history_valid)      # estado explícito + inicialización garantizada
+    return -25;           # LZX_CORRUPT: rechazo limpio del stream</code></pre>
+<p>Los sanitarios lo confirman con precisión quirúrgica: AddressSanitizer reporta <code>use-of-uninitialized-value</code> en el camino del guard durante <code>lzx_read_blocks</code>, y valgrind con <code>--track-origins=yes</code> remonta el valor hasta su origen: una asignación de heap cuyo contenido nunca se escribió antes de leerse.</p>
+<h2>54. El experimento A/B</h2>
+<p>La validación mínima de una divergencia es comparar los dos mundos con todo lo demás constante: mismo input CAB que recorre el path del history guard, misma invocación de extracción, única variable = el parche.</p>
+<figure class="figure">
+  <img src="img/libarchive-cab-lzx-uninit-read-ab-evidencia.png" alt="Terminal mostrando la comparación A/B: bsdtar 3.8.9 extrae el CAB con rc=0 mientras el build parcheado devuelve rc=1 con error LZX_CORRUPT, seguido de la confirmación de valgrind" loading="lazy">
+  <figcaption class="figcap">Evidencia A/B — El mismo CAB ante dos builds: el snapshot vulnerable extrae silenciosamente (con lectura no inicializada bajo ASAN/valgrind); el parcheado corta con «corrupt history guard». Captura regenerada a partir del log original de validación con rutas de entorno redactadas.</figcaption>
+</figure>
+bash<pre class="code"><code># Resumen del protocolo A/B (2026-08-15)
+# A — snapshot vulnerable (bsdtar ASAN 3.8.9)
+$ bsdtar-asan-3.8.9 -xvf poc_cab_lzx_history.cab ; echo rc=$?
+poc_lzx.bin   extraído
+rc=0                          # éxito aparente...
+#   stderr ASAN: use-of-uninitialized-value (history guard)
+# B — build parcheado (fix upstream 08-08)
+$ bsdtar-patched -xvf poc_cab_lzx_history.cab ; echo rc=$?
+bsdtar: LZX decoder error: corrupt history guard
+rc=1                          # (-25, LZX_CORRUPT): rechazo correcto
+# Origen confirmado de forma independiente:
+$ valgrind --track-origins=yes bsdtar-asan-3.8.9 -xf poc_cab_lzx_history.cab
+==…== Conditional jump or move depends on uninitialised value(s)
+==…==  Uninitialised value was created by a heap allocation</code></pre>
+<p>La asimetría de veredictos es el resultado completo: <b>un archivo que el código correcto considera corrupto atraviesa el código vulnerable sin levantar sospechas</b>. Ese es exactamente el tipo de silencio que un read no inicializado produce — y el tipo de señal que un A/B bien montado vuelve audible.</p>
+<h2>55. La clasificación honesta: DUP-RACE</h2>
+<p>Aquí el sistema aplicó una regla que vale tanto para humanos como para agentes: <b>verificar la fecha del fix antes de reclamar prioridad</b>. El hardening upstream databa del 08-08 — una semana antes de la detección —, lo que sitúa el descubrimiento dentro de una carrera perdida: alguien reportó el problema primero y upstream ya lo había cerrado. El hallazgo se archiva como <b>DUP-RACE</b>: real, reproducible, pero duplicado respecto a la línea temporal oficial.</p>
+<blockquote>⚠
+  Por qué publicarlo aun siendo dup-race
+  <p>Tres razones. Primera: el valor metodológico — el patch-diffing como radar — sobrevive al destino del bug concreto. Segunda: millones de sistemas siguen ejecutando builds sin el fix; saber que el path existe ayuda a operadores a priorizar actualizaciones de libarchive. Tercera: la honestidad taxonómica es parte del contrato de esta serie; un dup-race documentado enseña más que un hallazgo inflado.</p>
+</blockquote>
+<h2>56. Acotación: por qué es LOW</h2>
+<ul>
+  <li><b>Solo lectura</b>: el defecto consume valores no inicializados para decidir flujo interno; no hay primitiva de escritura ni corrupción de estructuras adyacentes.</li>
+  <li><b>Valores no controlados directamente</b>: el atacante condiciona <em>que</em> se lea basura, pero no <em>qué</em> basura — el contenido depende del estado previo del heap, no de bytes elegidos del input.</li>
+  <li><b>Efecto observable limitado</b>: aceptación de streams corruptos y decisiones internas contaminadas; sin fuga directa de datos al output en el escenario observado. Escalarlo a info-leak exigiría encadenarlo con superficies adicionales que este análisis no persiguió.</li>
+</ul>
+<h2>57. Lecciones metodológicas</h2>
+<p>Más allá del CWE, este caso dejó tres reglas operativas al sistema:</p>
+<ol>
+  <li><b>La fecha del fix importa tanto como el fix</b>: una divergencia detectada días después del commit upstream casi siempre es carrera perdida; reconocerlo rápido ahorra semanas de maduración inútil y protege la credibilidad del programa.</li>
+  <li><b>El A/B con build ASAN es la validación mínima</b>: una divergencia solo afirmada por diff de código es una hipótesis; con dos binarios y un input, es un experimento. La diferencia entre ambos estados es la diferencia entre creer y saber.</li>
+  <li><b>Los commits upstream son inteligencia gratuita</b>: cada hardening señala una debilidad histórica y delimita las versiones vivas que aún la padecen. Revisarlos periódicamente convierte el repositorio ajeno en sensor propio.</li>
+</ol>
+<h2>58. Conclusión</h2>
+<p>No todos los hallazgos terminan en CVE propio, y está bien que sea así. Este caso demuestra que un sistema de caza maduro también sabe <b>perder carreras con elegancia</b>: detectar la divergencia, medirla, clasificarla honestamente y extraer de ella el activo duradero — el método. El history guard de LZX ya está protegido upstream; el patch-diffing como radar, en cambio, apenas empieza a dar sus primeros resultados.</p>
+<p>Para operadores, el recordatorio práctico: si vuestra distribución todavía sirve builds de libarchive sin el hardening de agosto, los CAB malformados pueden atravesar vuestro extractor con éxito aparente. Actualizar no es burocracia; es cerrar puertas que otros ya saben dónde están.</p>
+
+</article>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-09-02 · Vulnerability Research</span><a href="sinks-preauth-daemons-c.html">Cinco clases de sink pre-auth en daemons C embebidos</a></div><div class="post-item"><span class="meta">2026-09-24 · Agentes</span><a href="agentes-ia-locales.html">Cómo trabajo con agentes de IA locales: arquitectura, memoria y resultados</a></div><div class="post-item"><span class="meta">2026-05-15 · Herramientas propias</span><a href="analystty.html">analystty: triaje automatizado de ejecutables PE con Python</a></div></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Cazar con IA local: pipeline, triaje y seis hallazgos verificados",
+      "description": "Arquitectura de un sistema de caza autonomo sobre hardware propio, el metodo de triaje con doble validacion, y seis hallazgos con reproduccion en bibliotecas y demultiplexadores del sistema.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "publisher": { "@type": "Organization", "name": "tty503" },
+      "datePublished": "2026-08-21",
+      "dateModified": "2026-08-21",
+      "mainEntityOfPage": "https://tty503.com/cazar-con-ia-local.html",
+      "inLanguage": "es",
+      "keywords": "Automatizaci\u00f3n, Triaje, ASAN, IA local"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/cazar-con-ia-local.html", "name": "Cazar con IA local: pipeline, triaje y seis hallazgos verificados"}}]
+    }
+  ]
+}
+</script>
+</body>
+</html>

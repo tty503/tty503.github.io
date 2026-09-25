@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+<title>Laboratorio de seguridad: SOC con honeypots y tuneles ofuscados</title>
+<meta name="description" content="Montaje completo de un laboratorio Blue Team sobre Proxmox con honeypots, contenedores rootless y monitoreo, mas el montaje de un tunel que se camufla como TCP con enmascaramiento de IP y DNS cifrado. Arquitectura y despliegue automatizado.">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/laboratorio-de-seguridad.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Laboratorio de seguridad: SOC con honeypots y tuneles ofuscados">
+<meta property="og:description" content="Montaje completo de un laboratorio Blue Team sobre Proxmox con honeypots, contenedores rootless y monitoreo, mas el montaje de un tunel que se camufla como TCP con enmascaramiento de IP y DNS cifrado. Arquitectura y despliegue automatizado.">
+<meta property="og:url" content="https://tty503.com/laboratorio-de-seguridad.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
+<meta property="article:published_time" content="2026-05-24">
+<meta property="article:modified_time" content="2026-05-24">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="Laboratorio de seguridad: SOC con honeypots y tuneles ofuscados">
+<meta name="twitter:description" content="Montaje completo de un laboratorio Blue Team sobre Proxmox con honeypots, contenedores rootless y monitoreo, mas el montaje de un tunel que se camufla como TCP con enmascaramiento de IP y DN">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
+
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="laboratorio-de-seguridad.html">Laboratorio de seguridad: SOC con honeypots </a><span class="sep">/</span></nav>
+<header class="post-head">
+  <div class="post-tags"><span class="chip">SOC</span><span class="chip">Honeypots</span><span class="chip">Túneles</span><span class="chip">Proxmox</span></div>
+  <h1>Laboratorio de seguridad: SOC con honeypots y tuneles ofuscados</h1>
+  <p class="lede">Montaje completo de un laboratorio Blue Team sobre Proxmox con honeypots, contenedores rootless y monitoreo, mas el montaje de un tunel que se camufla como TCP con enmascaramiento de IP y DNS cifrado. Arquitectura y despliegue automatizado.</p>
+  <div class="post-meta"><span>2026-05-24</span><span>20 min</span><span>Infraestructura</span></div>
+</header>
+<article class="post-body">
+<article class="post-body">
+<aside class="tldr">
+  // En 30 segundos
+  <ul>
+    <li>No es un diagrama de PowerPoint: es un <b>SOC personal desplegado y escupiendo alertas a Telegram</b> — virtualización con <b>Proxmox</b>, filtrado DPI con <b>OPNsense</b>, señuelos <b>T-Pot</b> expuestos a internet, y red mesh privada <b>Tailscale</b> ejecutada en contenedores <b>Podman rootless</b>.</li>
+    <li><b>Regla de oro:</b> flujo de logs <b>unidireccional</b> (Honeypot → SOC/NOC, jamás al revés). Si el honeypot cae en manos de un atacante, no puede pivotar ni tocar los históricos.</li>
+    <li>IaC total con <b>Terraform (Contabo) + Ansible + PyInfra</b>, secretos en <b>Hashicorp Vault</b>, y observabilidad con <b>Wazuh + Zabbix + Prometheus + Grafana</b> + alertas real-time por Telegram Bot API (validado en vivo: Apache caído, alerta y resolución en 1 minuto).</li>
+    <li>Defensa en profundidad con <b>anillos concéntricos de logs</b> (Honeypot: 4 anillos, SOC/NOC: 2, Home: 1) — si un anillo cae o es manipulado, los demás siguen escribiendo.</li>
+  
+<h2>1. Resumen técnico</h2>
+  <table>
+    <tbody>
+      <tr><th>Tipo de entorno</th><td>SOC personal / Blue Team con honeypots activos y threat intelligence</td></tr>
+      <tr><th>Virtualización</th><td>Proxmox VE (VM OPNsense + VM T-Pot + VM Proxy Server)</td></tr>
+      <tr><th>Nodos cloud</th><td>VPS «SOC/NOC» (monitoreo) y VPS «Honeypot Core» (señuelos)</td></tr>
+      <tr><th>Conectividad</th><td>Red mesh Tailscale 10.100.50.0/24, sidecar proxy en Podman rootless</td></tr>
+      <tr><th>Monitoreo</th><td>Wazuh (SIEM/IDS), Zabbix (disponibilidad), Prometheus (métricas), Grafana (dashboards)</td></tr>
+      <tr><th>Alertas</th><td>Telegram Bot API, en tiempo real desde Grafana</td></tr>
+      <tr><th>IaC</th><td>Terraform (provider Contabo), Ansible, PyInfra, Hashicorp Vault</td></tr>
+      <tr><th>Regla de oro</th><td>Flujo de logs unidireccional: Honeypot → SOC/NOC, jamás en sentido contrario</td></tr>
+    </tbody>
+  </table>
+<h2>2. Propósito y filosofía del laboratorio</h2>
+<p>Este laboratorio responde a una necesidad muy concreta: tener un entorno bajo control donde ensayar un <b>Blue Team / SOC</b> operativo — ingestión de logs, detección de intrusiones, honeypots expuestos y capacidad de respuesta. Nada de papel: está corriendo, captura tráfico hostil real y sus alertas aterrizan en Telegram.</p>
+<p>Tres principios gobiernan cada decisión de diseño:</p>
+<ol>
+  <li><b>Aislamiento estricto:</b> ningún servicio administrativo se asoma a internet; el acceso viaja siempre por la VPN privada sobre Tailscale.</li>
+  <li><b>Infraestructura como Código (IaC):</b> cada componente queda definido en Terraform y configurado con Ansible — reproducibilidad total y documentación que nunca caduca.</li>
+  <li><b>Defensa en profundidad:</b> anillos concéntricos de logs, contenedores sin privilegios, firewalls con inspección profunda y segmentación de red para acorralar cualquier compromiso.</li>
+</ol>
+<h2>3. Infraestructura base: Home, SOC/NOC y Honeypot Core</h2>
+<h3>VM local «Home» — el centro de control</h3>
+<p>El proyecto arranca en una máquina virtual local con <b>Debian 13 XFCE</b> apodada «Home». Desde ella administro todo el laboratorio, con una regla innegociable: <b>ningún puerto de administración mira a internet</b>. Las VPS solo se tocan a través de la red privada de Tailscale.</p>
+  <table>
+    <tbody>
+      <tr><th>Recurso</th><td>CPU 4 núcleos · RAM 4 GB · Disco 60 GB · Debian 13 XFCE · 10.100.50.2 · rol: centro de control, IaC y revisión de logs</td></tr>
+    </tbody>
+  </table>
+<h3>VPS «SOC/NOC» — el cerebro que vigila</h3>
+<p>Primera VPS: todo el músculo analítico. Wazuh Manager para SIEM/IDS, Zabbix Server para disponibilidad, Prometheus para métricas y Grafana como panel unificado. Desde aquí salen las alertas hacia la API de Telegram Bot.</p>
+<h3>VPS «Honeypot Core» — los señuelos</h3>
+<p>Segunda VPS: el framework T-Pot con sensores multiplataforma (Cowrie, Dionaea, Honeytrap) ofreciendo servicios trampa a internet. Todo el tráfico malicioso viaja de manera <b>unidireccional</b> hacia el SOC/NOC.</p>
+  <table>
+    <thead>
+      <tr><th>VPS</th><th>IP pública</th><th>IP Tailscale</th><th>CPU</th><th>RAM</th><th>Disco</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SOC/NOC</td><td>198.51.100.50</td><td>10.100.50.10</td><td>3 núcleos</td><td>8 GB</td><td>150 GB SSD</td></tr>
+      <tr><td>Honeypot Core</td><td>198.51.100.60</td><td>10.100.50.20</td><td>3 núcleos</td><td>8 GB</td><td>150 GB SSD</td></tr>
+    </tbody>
+  </table>
+<blockquote>🔒
+  Regla de oro: acceso unidireccional
+  <p>Entre ambas VPS el tráfico solo fluye en un sentido: del Honeypot hacia el SOC/NOC llevando logs. En dirección contraria no existe camino alguno. Si el Honeypot cae en manos de un atacante, este no podrá pivotar hacia el SOC/NOC ni tocar los históricos.</p>
+</blockquote>
+<h2>4. Conectividad: Tailscale como tejido conector</h2>
+<p><b>Tailscale</b> es la costilla que sostiene toda la estructura: una red privada tipo mesh sobre el segmento 10.100.50.0/24, con IP fija por nodo.</p>
+<h3>Tailscale sidecar proxy con Podman rootless</h3>
+<p>Un detalle crítico es dónde vive Tailscale dentro de las VPS: no se instala sobre el sistema operativo, sino dentro de un <b>contenedor Podman en modo rootless</b> actuando como <b>sidecar proxy</b>. Ventajas triples:</p>
+<ul>
+  <li><b>Abstracción de red:</b> el contenedor tapa las IPs reales de los servidores, incluso ante mis propios ojos: quien entra por Tailscale jamás ve la IP física de la VPS.</li>
+  <li><b>Aislamiento de privilegios:</b> Podman corre bajo un usuario sin poderes, lejos de la interfaz de red real del host.</li>
+  <li><b>Redirección interna:</b> el sidecar opera desde la red privada del servidor y deriva el tráfico hacia cada servicio sin exponer interfaces físicas.</li>
+</ul>
+<p>Los perfiles administrativos con menos privilegios se conectan a esa instancia embotellada en Podman, y ella les abre únicamente los servicios que necesitan: ven un espacio confinado dentro de una red privada, sin atisbo del sistema operativo subyacente.</p>
+<h2>5. Diagrama de arquitectura lógica</h2>
+<p>El plano maestro: flujo completo de datos, direccionamiento IP e interconexión de todas las piezas. Fruto de varias iteraciones, refleja fielmente el despliegue vigente.</p>
+<figure class="figure">
+  <img src="img/laboratorio-soc-honeypot-arquitectura-logica.png" alt="Diagrama de arquitectura lógica del laboratorio SOC/Honeypot: Proxmox con OPNsense, T-Pot y Proxy Server, VPS SOC/NOC, VPS Honeypot Core y VM Home conectadas por Tailscale" loading="lazy">
+  <figcaption class="figcap">Plano maestro — Proxmox VE con OPNsense, T-Pot y Proxy Server; VPS SOC/NOC con Wazuh, Zabbix, Prometheus y Grafana; VPS Honeypot Core con Podman rootless y Tailscale sidecar; VM Home como centro de control con IaC; alertas salientes vía Telegram Bot API.</figcaption>
+</figure>
+<h3>Desglose del diagrama</h3>
+<p><b>1. Entorno de simulación e ingesta forense (Proxmox VE):</b></p>
+<ul>
+  <li><b>Hipervisor protegido:</b> Proxmox VE bajo 10.100.50.30 de la red Tailscale.</li>
+  <li><b>VM OPNsense (firewall):</b> IP interna 192.168.10.1. Recibe internet por la WAN dedicada 203.0.113.88, aplica DPI, NAT y port forward aislado hacia los señuelos.</li>
+  <li><b>VM T-Pot Suite:</b> IP interna 192.168.10.100. Sensor multiplataforma (Cowrie, Dionaea, Honeytrap) junto a agentes de Wazuh y Zabbix; logs crudos hacia el Proxy Server.</li>
+  <li><b>VM Proxy Server:</b> IP interna 192.168.10.5. Colector y balanceador unidireccional que extrae los datos fuera del entorno simulado rumbo al SOC/NOC.</li>
+</ul>
+<p><b>2. Capa de orquestación y red mesh VPN (Tailscale 10.100.50.0/24):</b></p>
+<ul>
+  <li><b>VPS SOC/NOC:</b> ingiere logs de forma asíncrona y unidireccional. Aloja Prometheus (métricas), Wazuh Manager (SIEM/IDS), Zabbix Server (disponibilidad) y Grafana (dashboard unificado). Alertas → Telegram Bot API.</li>
+  <li><b>VPS Honeypot Core:</b> confinada mediante contenedores Podman rootless y abstrae su red física con el Tailscale sidecar proxy.</li>
+</ul>
+<p><b>3. Entorno de control central (local):</b></p>
+<ul>
+  <li><b>VM Home:</b> centro de operaciones local. Gobierna la infraestructura con IaC —Terraform, Ansible, PyInfra—, accede por SSH exclusivamente vía red privada y mantiene un servidor de logs local para auditorías.</li>
+</ul>
+<h2>6. Stack de monitoreo y alertas en tiempo real</h2>
+<p>El corazón late en la VPS SOC/NOC: la cuaterna <b>Wazuh + Zabbix + Prometheus + Grafana</b> da visibilidad de punta a punta — de la detección de intrusiones al pulso de rendimiento.</p>
+  <table>
+    <thead>
+      <tr><th>Herramienta</th><th>Rol</th><th>Datos que procesa</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Wazuh Manager</td><td>SIEM / IDS</td><td>Eventos de seguridad, integridad de archivos, detección de anomalías</td></tr>
+      <tr><td>Zabbix Server</td><td>Disponibilidad</td><td>Estado de servicios, consumo de recursos, uptime</td></tr>
+      <tr><td>Prometheus</td><td>Métricas de rendimiento</td><td>CPU, memoria, disco, tráfico de red, contenedores</td></tr>
+      <tr><td>Grafana</td><td>Dashboard unificado</td><td>Visualización de datos de Wazuh, Zabbix y Prometheus</td></tr>
+      <tr><td>Telegram Bot API</td><td>Alertas en tiempo real</td><td>Notificaciones de incidentes disparadas desde Grafana</td></tr>
+    </tbody>
+  </table>
+<h3>Validación en vivo: Apache caído y recuperado</h3>
+<p>Esta captura documenta el laboratorio en plena faena, durante un incidente real donde Apache se cayó y quedó restablecido en 1 minuto:</p>
+<figure class="figure">
+  <img src="img/laboratorio-soc-zabbix-alerta-monitoreo-tiempo-real.jpeg" alt="Validación en vivo del monitoreo: alerta de Zabbix por Apache caído, terminal con systemctl y resolución recibida en Telegram" loading="lazy">
+  <figcaption class="figcap">Incidente real de principio a fin — Panel de Zabbix con métricas de memoria (6.27 GB libres) y disco (27.75 w/s); terminal confirmando apache2 activo tras la recuperación; Telegram entregando la alerta «Apache: Service is down» con resolución en 1 minuto.</figcaption>
+</figure>
+<p>Tres paneles cuentan la historia simultáneamente: Zabbix (izquierda) con memoria/disco y gráfico de red; la terminal (centro) con systemctl status apache2; y Telegram (derecha) con el asunto {ALERT.SUBJECT}, «Apache: Service is down» iniciado a las 02:54:09 y resuelto en 1 minuto.</p>
+<h2>7. Anillos de logs: defensa en profundidad</h2>
+<p>La estrategia de logging se organiza en <b>anillos concéntricos</b>, desde lo más externo (cada contenedor) hasta lo más interno (la VPS entera). Si un anillo cae o es manipulado, los demás siguen escribiendo.</p>
+<p><b>Honeypot Core — 4 anillos:</b></p>
+<ol>
+  <li>Contenedores de servicios (Podman): logs de cada sensor del T-Pot y del sidecar Tailscale.</li>
+  <li>Instancias de Proxmox: logs de las VMs del hipervisor.</li>
+  <li>Contenedor de Tailscale: logs del proxy sidecar y del tráfico de red.</li>
+  <li>VPS completa: logs del SO, accesos SSH y eventos de seguridad.</li>
+</ol>
+<p><b>SOC/NOC — 2 anillos:</b> (1) contenedores de Tailscale y SOC/NOC; (2) VPS completa.</p>
+<p><b>Home — 1 anillo auto-hospedado:</b> la VM completa con servidor de logs local.</p>
+<blockquote>📜
+  La lección de Oldsmar y Ucrania
+  <p>Oldsmar (2021) y el apagón de Ucrania (2015) dejaron una certeza incómoda: <b>sin logs resulta imposible distinguir un error técnico de un ataque deliberado</b>. Los anillos de este laboratorio existen precisamente para que esa distinción esté siempre al alcance: cuando algo falla, sé qué anillo debió registrar el evento y puedo seguirle el rastro hasta el origen.</p>
+</blockquote>
+<h2>8. Despliegue automatizado: IaC con Terraform, Ansible y PyInfra</h2>
+<p>La <b>Infraestructura como Código</b> es uno de los pilares: todo componente está declarado en archivos versionables, capaces de reconstruir el entorno desde cero en minutos.</p>
+  <table>
+    <thead>
+      <tr><th>Herramienta</th><th>Propósito</th><th>Cuándo se usa</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Terraform</td><td>Provisión de infraestructura</td><td>Crear servidores, redes y firewall. Provider de Contabo para las VPS.</td></tr>
+      <tr><td>Ansible</td><td>Configuración y despliegue</td><td>Instalar/configurar software, permisos y AppArmor cuando el servidor está listo.</td></tr>
+      <tr><td>PyInfra</td><td>Alternativa a Ansible</td><td>Debugging en tiempo real; scripts Python nativos.</td></tr>
+      <tr><td>Mitogen Library</td><td>Ejecución remota eficiente</td><td>Scripts de monitoreo en el host remoto sin SSH persistente.</td></tr>
+      <tr><td>Hashicorp Vault</td><td>Gestión de secretos</td><td>Tokens, contraseñas y datos sensibles para aplicaciones autorizadas.</td></tr>
+    </tbody>
+  </table>
+<h3>La API de Contabo como botón de emergencia</h3>
+<p>La VPS Honeypot se gestiona desde el SOC/NOC a través de la <b>API de Contabo</b>: snapshots antes de cualquier cambio, <b>reinstalación desde cero</b> si detecto compromiso, y <b>apagado</b> del servidor en emergencia — todo desde scripts automatizados.</p>
+<h3>IPs adicionales para segmentar servicios</h3>
+<p>Cada servicio expuesto a internet —como los señuelos— recibe una <b>IP adicional propia</b>, distinta de la IP administrativa de la VPS: el tráfico público queda separado por completo de la superficie de gestión.</p>
+<h2>9. El borrador: arquitectura de bloques preliminar</h2>
+<p>Antes del plano maestro existió la versión preliminar —el «borrador» estructural— que fijó las relaciones directas entre componentes sin entrar en direccionamiento IP.</p>
+<figure class="figure">
+  <img src="img/laboratorio-soc-arquitectura-bloques-borrador.jpeg" alt="Diagrama de bloques preliminar del laboratorio: Home y VPS conectadas vía Tailscale, con Proxmox encapsulando las VMs Proxy, T-Pot y OPNsense" loading="lazy">
+  <figcaption class="figcap">Borrador de alto nivel — Relación directa entre Home y las VPS vía Tailscale como tejido conector; Proxmox encapsula las tres VMs (Proxy, T-Pot, OPNsense) en el segmento 192.168.x.x. Nombres de servidores censurados con marcas rojas por seguridad.</figcaption>
+</figure>
+<p>Ese croquis resultó decisivo para planificar los segmentos de Tailscale y la encapsulación de las VMs dentro de Proxmox antes de saltar al diseño detallado.</p>
+<h2>10. Lecciones aprendidas y próximos pasos</h2>
+<ol>
+  <li><b>Tailscale simplifica lo complejo:</b> una red VPN segmentada con proxies sidecar habría sido un proyecto en sí mismo; su facilidad no cuesta seguridad si va acompañada de contenedores rootless.</li>
+  <li><b>Podman rootless no es un lujo:</b> ejecutar Tailscale sin privilegios añade el colchón de aislamiento que marca la diferencia si el proxy cae comprometido.</li>
+  <li><b>IaC es documentación viva:</b> los ficheros de Terraform y Ansible describen el sistema mejor que cualquier wiki, porque son exactamente lo que se ejecuta.</li>
+  <li><b>Los anillos de logs no son opcionales:</b> apostar a un único punto de logging es sembrar un desastre forense; redundar la captura de eventos es inversión, no gasto.</li>
+  <li><b>Las alertas cierran el bucle:</b> dashboards preciosos valen cero si nadie mira la pantalla; Telegram garantiza que los incidentes se enteren de mí aunque yo no me entere de ellos.</li>
+</ol>
+<p><b>Próximos pasos:</b> centralizar secretos con Hashicorp Vault · migrar playbooks a Mitogen · sembrar Canarytokens como señuelos internos · documentar el ciclo de respuesta a incidentes (de la detección en Grafana a la contención) · explorar MISP para compartir threat intelligence.</p>
+<blockquote>⚠
+  Nota de seguridad
+  <p>Las IPs públicas mostradas (198.51.100.x, 203.0.113.88) pertenecen al rango de documentación RFC 5737 y no corresponden a infraestructura real. Los nombres de servidor verdaderos están censurados en los diagramas.</p>
+</blockquote>
+<h2>11. Referencias</h2>
+<ul>
+  <li>Post original en LinkedIn: «Arquitectura y despliegue de Laboratorio SOC Automatizado» y «Sensores Defensivos: Honeypots y Canarytokens»</li>
+  <li><a href="https://www.proxmox.com" target="_blank" rel="noopener noreferrer">Proxmox VE</a> · <a href="https://opnsense.org" target="_blank" rel="noopener noreferrer">OPNsense</a> · <a href="https://tailscale.com" target="_blank" rel="noopener noreferrer">Tailscale</a></li>
+  <li><a href="https://podman.io" target="_blank" rel="noopener noreferrer">Podman</a> · <a href="https://www.terraform.io" target="_blank" rel="noopener noreferrer">Terraform</a> · <a href="https://www.ansible.com" target="_blank" rel="noopener noreferrer">Ansible</a></li>
+</ul>
+
+<p class="resumen"><strong>Continuidad.</strong> Y la parte de salida: un tunel que se disfraza de TCP.</p>
+
+<article class="post-body">
+<aside class="tldr">
+  // En 30 segundos
+  <ul>
+    <li>Columna vertebral de las investigaciones: <b>VPN privada de dos nodos</b> cuyo túnel WireGuard viaja <b>camuflado como HTTPS</b> gracias a udp2raw (<code>faketcp</code> + XOR, puerto 443), con salida oculta tras <b>proxies residenciales SOCKS5</b> y DNS resuelto cifrado sobre <b>DoH</b>.</li>
+    <li><b>Separación de funciones:</b> Nodo A = única puerta visible (DNAT de 80/443/5522 hacia el túnel); Nodo B = servicios reales sin ningún puerto expuesto a Internet salvo SSH. Si cae A no hay acceso a los datos; si cae B, su IP real jamás aparece en logs.</li>
+    <li>Enrutamiento selectivo en WireGuard (AllowedIPs = 10.100.0.1/32): entrada por el túnel, salida por el proxy residencial independiente — nunca se mezclan.</li>
+    <li>Despliegue completo automatizado en un script Bash: <b>~90 segundos</b> desde dependencias hasta verificación de salida residencial.</li>
+  
+<h2>12. Resumen técnico</h2>
+<p>Así queda montada la pila completa:</p>
+  <table>
+    <thead>
+      <tr><th>Componente</th><th>Función</th><th>Detalle clave</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>WireGuard</td><td>Túnel privado entre nodos</td><td>Red <code>10.100.0.0/24</code>, enrutamiento selectivo con <code>AllowedIPs</code></td></tr>
+      <tr><td>udp2raw</td><td>Ofuscación del túnel</td><td><code>faketcp</code> + XOR, puerto 443 simulando HTTPS</td></tr>
+      <tr><td>iptables (DNAT)</td><td>Entrada en Nodo A</td><td>Puertos 80/443/5522 → <code>10.100.0.2</code></td></tr>
+      <tr><td>dnscrypt-proxy + dnsmasq</td><td>DNS cifrado</td><td>DoH Cloudflare solo-TCP, resolver local en <code>127.0.0.1:53</code></td></tr>
+      <tr><td>redsocks</td><td>Salida vía SOCKS5 residencial</td><td>REDIRECT al puerto 12345, excluyendo SSH y el propio proxy</td></tr>
+      <tr><td>UFW</td><td>Firewall mínimo</td><td>Nodo A: 22/80/443/5522 · Nodo B: 22</td></tr>
+      <tr><td>Script Bash</td><td>Despliegue automatizado</td><td>Pila completa operativa en ~90 segundos</td></tr>
+    </tbody>
+  </table>
+bash<pre class="code"><code># Salida real del script de despliegue
+$ ./deploy_tunnel.sh --provider vps01 --mode full
+[+] Dependencias instaladas: WireGuard, udp2raw, redsocks, dnscrypt-proxy, dnsmasq
+[+] WireGuard configurado: Nodo A (10.100.0.1) &lt;-&gt; Nodo B (10.100.0.2)
+[+] udp2raw activo: faketcp + XOR -&gt; puerto 443 (simulando HTTPS)
+[+] redsocks conectado: SOCKS5 residencial -&gt; IP salida: 203.0.113.x (residencial)
+[+] DNS blindado: dnscrypt-proxy -&gt; Cloudflare DoH (TCP-only)
+[+] iptables aplicado: DNAT entrada + REDSOCKS_TCP salida
+[OK] Despliegue completado en: 87 segundos</code></pre>
+<h2>13. Arquitectura: defensa en profundidad en dos capas</h2>
+<p>El diseño pivota sobre un modelo de <b>dos nodos</b> con funciones radicalmente separadas, conectados únicamente por el túnel privado ofuscado. Esa separación tiene una consecuencia directa: <b>el nodo que aloja los servicios reales nunca muestra su IP a Internet</b> — y con ella se derrumba la mayor parte de la superficie de ataque.</p>
+<h3>Nodo A — puerta de enlace pública</h3>
+<p>Único punto de entrada visible. Acepta las conexiones entrantes en puertos no convencionales, las empuja hacia el nodo B por el túnel y no expone más que lo estrictamente operativo. Para el mundo exterior, su IP es la única que existe.</p>
+<h3>Nodo B — servicios reales</h3>
+<p>Aquí viven los servicios internos, con una regla dura: <b>ningún puerto abierto a Internet</b> salvo el acceso administrativo. Todo el tráfico legítimo le llega desde A por el túnel; su salida a Internet se disfraza tras proxies residenciales, con resolución DNS cifrada (DoH).</p>
+<blockquote>💡
+  Principio de diseño
+  <p>Separar «puerta de enlace» de «servidor de aplicaciones» es defensa en profundidad de manual. Si cae el nodo A, quien ataca no gana acceso inmediato a los servicios ni a los datos del nodo B. Si cae el nodo B, su IP real jamás aparece en logs públicos. La misma filosofía de aislamiento se aplica en el <a href="infra-soc.html">laboratorio SOC/honeypot con Proxmox y OPNsense</a>.</p>
+</blockquote>
+<figure class="figure">
+  <img src="img/tunel-ofuscado-wireguard-udp2raw-proxy-arquitectura.png" alt="Diagrama de la arquitectura completa: dos VPS, túnel WireGuard bajo udp2raw, DNAT con iptables, redsocks y DoH" loading="lazy">
+  <figcaption class="figcap">Arquitectura completa generada con PlantUML — Los dos VPS, el túnel WireGuard encapsulado en TCP falso por udp2raw, las reglas DNAT con iptables, la salida gestionada por redsocks tras el proxy residencial y el resolver DNS sobre HTTPS (dnscrypt-proxy + dnsmasq).</figcaption>
+</figure>
+<h2>14. Túnel privado: WireGuard sobre TCP falso con udp2raw</h2>
+<h3>El problema del UDP en entornos restrictivos</h3>
+<p>WireGuard habla UDP nativo, y eso duele en dos frentes a la vez: firewalls restrictivos que descartan UDP no solicitado y sistemas de inspección profunda de paquetes (DPI) capaces de reconocer y bloquear el handshake por su firma.</p>
+<h3>udp2raw: encapsulación TCP con ofuscación XOR</h3>
+<p><b>udp2raw</b> mata ambos pájaros de un tiro: toma el UDP nativo de WireGuard, lo envuelve en una conexión TCP y le añade una capa de ofuscación con clave compartida. Lo que sale por el cable es un flujo TCP que para cualquier observador externo no delata ser un túnel VPN; al viajar por el puerto 443, se funde visualmente con el HTTPS legítimo de media Internet.</p>
+bash<pre class="code"><code># Nodo A: servidor udp2raw (escucha en TCP:443 y entrega a WireGuard UDP)
+udp2raw -s \
+  --listen 0.0.0.0:443 \
+  --target 127.0.0.1:51820 \
+  --key "clave-compartida" \
+  --cipher-mode xor \
+  --auth-mode simple \
+  --raw-mode faketcp
+# Nodo B: cliente udp2raw (conecta al Nodo A TCP:443 y expone UDP local)
+udp2raw -c \
+  --listen 127.0.0.1:51820 \
+  --target &lt;IP_NODO_A&gt;:443 \
+  --key "clave-compartida" \
+  --cipher-mode xor \
+  --auth-mode simple \
+  --raw-mode faketcp</code></pre>
+<p>Con udp2raw corriendo, WireGuard en el nodo B apunta a 127.0.0.1:51820 — su extremo local — sin saber que cada paquete realmente cruza la red convertido en TCP falso hacia el puerto 443 del nodo A, uno de esos puertos que sobreviven incluso a las redes más quisquillosas.</p>
+<h3>Configuración de WireGuard: enrutamiento selectivo</h3>
+<p>En el nodo B hay un matiz decisivo: la directiva AllowedIPs. No quiero volcar todo el tráfico al túnel (0.0.0.0/0); solo interesa alcanzar la IP privada del nodo A:</p>
+ini<pre class="code"><code># WireGuard en Nodo B: solo enruta la IP privada del Nodo A
+[Peer]
+PublicKey = &lt;CLAVE_PUBLICA_NODO_A&gt;
+Endpoint = 127.0.0.1:51820
+AllowedIPs = 10.100.0.1/32
+PersistentKeepalive = 25</code></pre>
+<blockquote>⚠
+  ¿Por qué no enrutar todo por el túnel?
+  <p>Volcar toda la salida del nodo B hacia el nodo A provocaría dos efectos indeseados a la vez: (1) el tráfico saliente delataría la IP real del nodo A, y (2) se perdería la opción de usar un proxy residencial independiente para esa salida. El enrutamiento selectivo mantiene ambos canales en carriles separados: entrada por el túnel, salida por el proxy.</p>
+</blockquote>
+<h2>15. Entrada de tráfico: redirección con iptables (DNAT)</h2>
+<p>Que un cliente externo alcance los servicios del nodo B sin conocer su IP se resuelve con reglas de iptables en el nodo A que ejecutan DNAT de los puertos de entrada hacia las IPs y puertos correspondientes dentro del túnel:</p>
+bash<pre class="code"><code># Nodo A: redirección de puertos hacia el túnel WireGuard
+iptables -t nat -A PREROUTING -p tcp --dport 80 \
+  -j DNAT --to-destination 10.100.0.2:80
+iptables -t nat -A PREROUTING -p tcp --dport 443 \
+  -j DNAT --to-destination 10.100.0.2:443
+iptables -t nat -A PREROUTING -p tcp --dport 5522 \
+  -j DNAT --to-destination 10.100.0.2:22</code></pre>
+<p>El recorrido de una conexión entrante queda así: <b>Internet → Nodo A:80 → [DNAT] → 10.100.0.2:80 (Nodo B)</b>. Gracias al MASQUERADE en POSTROUTING, el nodo B percibe la petición como venida de la IP privada del nodo A; para el cliente externo, la única IP que ha existido nunca es la del nodo A.</p>
+<h2>16. Salida de tráfico: proxy residencial y DNS blindado</h2>
+<p>Cuando es el nodo B quien inicia conexiones hacia Internet, necesita borrar su propia IP del mapa. Tres componentes encadenados:</p>
+<h3>dnscrypt-proxy: DNS sobre HTTPS (DoH)</h3>
+<p>Configurado como resolver DNS contra Cloudflare sobre HTTPS, escucha en 127.0.0.1:5353 y obliga todas las consultas a circular por TCP. Las fugas DNS por UDP desaparecen y los nombres viajan siempre cifrados. Como el tráfico TCP de dnscrypt-proxy acaba capturado por redsocks, las consultas DNS también salen por el proxy residencial.</p>
+<h3>dnsmasq: forwarder local</h3>
+<p>Reenviador sencillo hacia dnscrypt-proxy escuchando en 127.0.0.1:53. Como /etc/resolv.conf apunta a 127.0.0.1, todas las aplicaciones adoptan este resolver local sin configurar nada.</p>
+<h3>redsocks: transproxy SOCKS5</h3>
+<p>Daemon a la escucha en 127.0.0.1:12345 que transforma cualquier tráfico TCP redirigido a ese puerto en conexiones SOCKS5 hacia el proxy residencial. Los parámetros llegan dinámicamente desde una API externa:</p>
+conf<pre class="code"><code># redsocks.conf (valores obtenidos dinámicamente vía API)
+redsocks {
+  local_ip = 127.0.0.1;
+  local_port = 12345;
+  ip = &lt;IP_PROXY_RESIDENCIAL&gt;;
+  port = &lt;PUERTO_SOCKS5&gt;;
+  type = socks5;
+  login = "&lt;USUARIO&gt;";
+  password = "&lt;PASSWORD&gt;";
+}</code></pre>
+<h3>iptables: redirección selectiva a redsocks</h3>
+<p>En la tabla nat creo la cadena REDSOCKS_TCP: manda hacia el puerto local de redsocks todo el TCP saliente — salvo el destinado al propio proxy, el dirigido a redes privadas y el SSH. Las sesiones administrativas quedan fuera del proxy y se evitan bloqueos accidentales.</p>
+bash<pre class="code"><code># Reglas clave de redirección en Nodo B
+iptables -t nat -N REDSOCKS_TCP
+iptables -t nat -A REDSOCKS_TCP -d &lt;IP_PROXY&gt; -j RETURN
+iptables -t nat -A REDSOCKS_TCP -p tcp --dport 22 -j RETURN
+iptables -t nat -A REDSOCKS_TCP -p tcp -j REDIRECT --to-ports 12345
+iptables -t nat -A OUTPUT -p tcp -j REDSOCKS_TCP</code></pre>
+<p><b>Recorrido de una conexión saliente:</b> Nodo B (aplicación) → [iptables REDSOCKS_TCP] → redsocks → proxy SOCKS5 residencial → Internet. El destino ve la IP del proxy residencial; ni el nodo B ni el nodo A aparecen. Este detalle es crítico en contextos de <a href="threat-hunter-recollection.html">threat intelligence e investigación de campañas activas</a>, donde una IP de origen inoportuna basta para alertar al adversario.</p>
+<h2>17. Control de acceso y firewall mínimo</h2>
+<p>Ambos nodos llevan UFW con política por defecto cerrada:</p>
+  <table>
+    <thead>
+      <tr><th>Nodo</th><th>Puertos permitidos (entrada)</th><th>Propósito</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Nodo A</td><td>22/tcp, 80/tcp, 443/tcp, 5522/tcp</td><td>SSH administrativo, HTTP/S redirigidos, SSH alternativo para túnel</td></tr>
+      <tr><td>Nodo B</td><td>22/tcp</td><td>Únicamente SSH administrativo directo</td></tr>
+    </tbody>
+  </table>
+<p>El nodo B puede permitirse no exponer el 51820/udp porque el túnel lo establece udp2raw en dirección nodo B → nodo A: una conexión saliente, nunca entrante. La superficie de ataque queda reducida al mínimo sin sacrificar la gestión.</p>
+<h2>18. Automatización del despliegue en 90 segundos</h2>
+<p>Desde la instalación de dependencias hasta la verificación final, todo cabe en un script bash que completa el ciclo en torno a 90 segundos:</p>
+<ol>
+  <li><b>Instalación de dependencias:</b> WireGuard, iptables, UFW, udp2raw (compilado desde fuente), redsocks, dnsmasq, dnscrypt-proxy, jq, curl.</li>
+  <li><b>WireGuard + udp2raw en Nodo A:</b> claves, servicio systemd para udp2raw en modo servidor y reenvío de paquetes habilitado.</li>
+  <li><b>WireGuard + udp2raw en Nodo B:</b> claves, servicio udp2raw en modo cliente y WireGuard con enrutamiento selectivo.</li>
+  <li><b>Vinculación de peers:</b> intercambio de claves públicas y alta del peer en el servidor.</li>
+  <li><b>DoH + proxy de salida:</b> dnscrypt-proxy contra Cloudflare solo-TCP, dnsmasq como forwarder, proxy residencial por API y redsocks con sus reglas.</li>
+  <li><b>Verificación:</b> conectividad bidireccional, test de un servidor web a través del túnel y confirmación de que la IP de salida es la del proxy residencial.</li>
+</ol>
+<blockquote>⚙
+  Infraestructura como código (IaC)
+  <p>El script es apenas el primer escalón hacia una gestión declarativa. La evolución lógica es convertirlo en playbook de Ansible o módulo de Terraform — camino que ya se explora en el <a href="infra-soc.html">laboratorio SOC con despliegue IaC</a>, complemento defensivo natural de esta arquitectura.</p>
+</blockquote>
+<h2>19. Mejoras futuras y líneas de trabajo</h2>
+<ul>
+  <li><b>Failover con IPs adicionales:</b> contratar IPs extra en el proveedor del nodo A para alta disponibilidad; con dos IPs ya cabe un balanceador inverso (nginx/HAProxy) repartiendo conexiones entrantes.</li>
+  <li><b>Monitorización y alertas:</b> Zabbix u homólogo para detectar caídas del túnel o fallos del proxy, avisando por Telegram, Slack o correo.</li>
+  <li><b>Enrutamiento por proceso:</b> tabla de rutas aparte con reglas de política (ip rule) para que solo el tráfico de procesos concretos pase por el proxy; evita que apt o curl filtren información sin querer.</li>
+  <li><b>Infraestructura como código:</b> migrar todo a un playbook Ansible o cloud-init capaz de reconstruir la infraestructura desde cero en minutos si un nodo cae comprometido o toca escalar.</li>
+</ul>
+<h2>20. Conclusión: una base sólida para operaciones que requieren anonimato</h2>
+<p>Este diseño resuelve a la vez varios dolores clásicos: exposición de IPs, bloqueo de VPN por DPI, fugas DNS y trazabilidad de la salida. La pareja «nodo de entrada + nodo de servicios», unida al túnel ofuscado y al proxy residencial independiente, constituye una base firme para operaciones donde el anonimato y la resiliencia no son opcionales. Automatizar el despliegue completo recorta el error humano y permite replicar la infraestructura exacta en minutos.</p>
+<p>Y sobre este túnel descansa todo lo demás que publico: cada triaje de malware del <a href="analystty.html">laboratorio con analystty</a>, cada campaña analizada en la <a href="threat-hunter-recollection.html">recopilación de threat hunting</a> y cada <a href="pigbutchering-bybsusd.html">deconstrucción de infraestructura criminal</a> salió de un entorno blindado exactamente por esta arquitectura.</p>
+<h2>21. Referencias</h2>
+<ul>
+  <li><a href="infra-soc.html">Laboratorio SOC/honeypot — Proxmox y OPNsense con despliegue IaC</a></li>
+  <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — cinco casos que forjaron un cazador</a></li>
+  <li><a href="analystty.html">analystty — automatizando el triage de malware PE con Python, Capstone y x64dbg</a></li>
+  <li><a href="pigbutchering-bybsusd.html">Red de estafa Pig Butchering — fake crypto exchange multi-dominio</a></li>
+</ul>
+
+</article>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-05-24 · Threat Intelligence</span><a href="phishing-campanas-y-busqueda.html">Campanas de phishing conectadas y el metodo de busqueda de amenazas: cuatro investigaciones</a></div><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="cazar-con-ia-local.html">Cazar con IA local: pipeline, triaje y seis hallazgos verificados</a></div></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Laboratorio de seguridad: SOC con honeypots y tuneles ofuscados",
+      "description": "Montaje completo de un laboratorio Blue Team sobre Proxmox con honeypots, contenedores rootless y monitoreo, mas el montaje de un tunel que se camufla como TCP con enmascaramiento de IP y DNS cifrado. Arquitectura y despliegue automatizado.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "publisher": { "@type": "Organization", "name": "tty503" },
+      "datePublished": "2026-05-24",
+      "dateModified": "2026-05-24",
+      "mainEntityOfPage": "https://tty503.com/laboratorio-de-seguridad.html",
+      "inLanguage": "es",
+      "keywords": "SOC, Honeypots, T\u00faneles, Proxmox"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/laboratorio-de-seguridad.html", "name": "Laboratorio de seguridad: SOC con honeypots y tuneles ofuscados"}}]
+    }
+  ]
+}
+</script>
+</body>
+</html>

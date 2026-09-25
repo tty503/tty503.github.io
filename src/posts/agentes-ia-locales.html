@@ -1,0 +1,51 @@
+<p class="resumen"><strong>Resumen.</strong> Detrás de mis proyectos actuales hay una forma de trabajar con agentes de IA que se centra en la organización: varios agentes especializados trabajan a la vez sobre la misma pregunta, un modelo pequeño hace el trabajo repetitivo en mi propia máquina y todo queda registrado. Este artículo explica esa arquitectura.</p>
+
+<h2>1. Pensar en paralelo</h2>
+<p>La primera regla de mi flujo es que nunca trabaja un solo agente. En cada ronda se lanzan al menos dos, y lo importante es que piensen distinto: uno lee el código de forma estática, otro construye pruebas y las ejecuta. Al final cruzo sus resultados y solo lo que ambos sostienen sobrevive al filtro. No se trata de tener más manos, sino de que dos formas distintas de mirar un problema se corrijan entre sí.</p>
+
+<h2>2. Dos niveles, dos papeles</h2>
+<p>En ese esquema conviven un modelo más capaz, que decide y verifica, con un modelo local que corre en mi propia máquina y absorbe el trabajo pesado y repetitivo: leer cientos de fragmentos, clasificar candidatos, descartar ruido. El modelo local no decide nada importante; propone. La decisión y la validación quedan en manos del nivel superior, porque delegar criterio sería delegar la parte que más se puede equivocar.</p>
+
+<h2>3. Rutinas que se repiten</h2>
+<p>Con el tiempo el flujo se volvió rutina, y esas rutinas son las que lo mantienen honesto. No se repite una técnica en dos rondas seguidas sobre el mismo objetivo, porque repetir el mismo ojo termina viendo lo mismo. Todo lo que se afirma se mide antes. Y cada ejecución se registra con su veredicto, de modo que el costo de una idea malgastada quede trazado y sirva para la próxima ronda.</p>
+
+<h2>4. De dónde viene cada cosa</h2>
+<p>Esta forma de trabajar no nació de la teoría. Nació de fallos reales: agentes que confirmaban sin ejecutar, sesiones que se colgaban esperando un servicio que ya no contestaba, técnicas repetidas hasta el estancamiento. Cada uno de esos errores se convirtió en una regla escrita, y las reglas son las que hoy hacen que un flujo de varios agentes termine entregando algo en lo que se puede confiar.</p>
+
+<p>En los próximos artículos cuento cómo se construye la memoria compartida de estos agentes y qué resultados concretos ha producido ese esquema.</p>
+
+<p class="resumen"><strong>Continuidad.</strong> La memoria: como el error de ayer pesa en la decision de hoy.</p>
+
+<p class="resumen"><strong>Resumen.</strong> Mis agentes no empiezan de cero en cada sesión. Al terminar, guardan apuntes que se indexan y se consultan antes de tocar código. Así, lo aprendido ayer pesa en la decisión de hoy, y el error que costó caro no se paga dos veces.</p>
+
+<h2>5. Guardar para no repetir</h2>
+<p>Al cierre de cada actividad se registra lo aprendido en tres categorías. Los hechos son lo que se verificó y se puede citar. Las lecciones son los errores que costó entender, escritos como advertencias honestas. Los patrones son las soluciones que funcionaron y que vale la pena reutilizar. Esa separación evita que la memoria se convierta en un cajón donde todo pesa igual.</p>
+
+<h2>6. Un índice que crece</h2>
+<p>Esos apuntes no quedan amontonados. Se convierten en vectores numéricos con un modelo local y se guardan en un índice que permite buscar por significado, no solo por palabra. Cuando un agente va a empezar una tarea, consulta primero esa memoria. El índice tardó en crecer, pero hoy supera las mil entradas. El número no es el logro: el logro es que la consulta acierta, y que el agente llega a cada tarea sabiendo qué se intentó antes y qué salió mal.</p>
+
+<h2>7. Lecciones que cambiaron el método</h2>
+<p>Varias de esas lecciones merecen contarse porque cambiaron el proceso. La primera: no basta con opinar, hay que ejecutar y mostrar la salida. Hubo agentes que confirmaban hallazgos sin haberlos corrido; hoy ningún candidato avanza sin evidencia mecánica. La segunda: no repitas la misma técnica en la siguiente ronda sobre el mismo objetivo, porque verás lo mismo. La tercera: cuando un servicio externo se cae, avisa y cambia de plan en lugar de quedarte esperando en silencio. Parecen obvias; cada una costó una sesión fallida para aprenderse.</p>
+
+<h2>8. El costo de mantenerla</h2>
+<p>Una memoria con valor exige disciplina. Cada ítem nuevo se revisa antes de entrar, y nada se hereda confiando en el veredicto que traía de antes. Los resultados se vuelven a auditar con el criterio actual. Mantenerla cuesta tiempo, pero el tiempo que ahorra en cada sesión siguiente lo paga con creces.</p>
+
+<p>En el siguiente artículo muestro qué ha producido todo este esquema y cómo lo mido.</p>
+
+<p class="resumen"><strong>Continuidad.</strong> Y los resultados, medidos como se pueden medir.</p>
+
+<p class="resumen"><strong>Resumen.</strong> Los flujos de caza con IA local producen, ante todo, un embudo: de cientos de candidatos quedan pocos verificados y muy pocos convertidos en hallazgos. Este artículo muestra esos números sin adornos y explica la regla que los sostiene: no afirmar nada que no se pueda mostrar.</p>
+
+<h2>9. El embudo, sin adornos</h2>
+<p>Cuando un agente propone candidatos, lo hace en cantidades grandes. En una de las campañas documentadas la cuenta fue clara: de más de doscientos candidatos propuestos por el sistema, quedaron ocho verificados tras la revisión mecánica, y de esos ocho solo una parte llegó a reportarse como hallazgo. Esa proporción no es una falla; es el filtro funcionando. Un número inflado de candidatos sin verificación sería el síntoma de un proceso débil, no de uno productivo. La serie de Sherlock muestra ese embudo con el detalle de cada paso.</p>
+
+<h2>10. Hallazgos con reproducción</h2>
+<p>Lo que sí cuento como resultado son los hallazgos que tienen prueba reproducible: una docena en total, documentados en la serie de caza autónoma. Cada uno pasó por ejecución real: el programa compilado con su detector de errores, el input que lo rompe y la traza que lo demuestra. Ninguno salió de una lectura de código convertida en opinión. Esa disciplina es la diferencia entre un hallazgo y una sospecha.</p>
+
+<h2>11. Lo que no publico</h2>
+<p>Parte del trabajo se queda fuera del sitio por decisión propia. Los detalles exactos de una cadena de explotación, los artefactos de doble uso y la información que aún está bajo embargo no se publican, aunque tengan evidencia perfecta. Medir resultados también significa medir lo que se omite y por qué.</p>
+
+<h2>12. Métricas de proceso</h2>
+<p>Además de los hallazgos, sigo métricas del proceso: el tamaño del índice de memoria, las ejecuciones trazadas en el registro, la cantidad de modos de análisis en cada ronda. Sirven para detectar estancamiento antes de que se note en los resultados. Si una fase lleva muchas rondas sin progreso, se declara y se cambia la estrategia; no se disfraza de avance.</p>
+
+<p>La pregunta de por qué este sitio omite deliberadamente parte de lo que encuentra se responde en el artículo siguiente.</p>

@@ -297,6 +297,39 @@ def build_sitemap():
 """
 
 
+def build_redirect(slug, dest):
+    """Stub de redireccion para una URL retirada.
+
+    GitHub Pages sirve contenido estatico: no hay mod_rewrite ni .htaccess, asi
+    que un 301 real no es posible sin poner un proxy delante. El stub hace tres
+    cosas a la vez: meta refresh inmediato (el lector no ve el salto), canonical
+    al destino (el indice atribuye la senal al destino) y enlace visible de
+    respaldo (si el agente no ejecuta meta refresh, el lector ve adonde va).
+    Se marca noindex para que el propio stub no compita con su destino.
+    """
+    canon = f"{BASE}/{dest}.html"
+    return f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="0; url={canon}">
+<title>Movido — tty503</title>
+<link rel="canonical" href="{canon}">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<main class="err">
+  <p class="err-code">Movido</p>
+  <h1>Este artículo se integró en otro más largo</h1>
+  <p>El contenido de esta página se conservó dentro de un artículo más
+     completo, sin fragmentar y sin duplicar. La lectura continúa aquí:</p>
+  <p><a class="btn" href="{canon}">Leer el artículo</a></p>
+</main>
+</body>
+</html>"""
+
+
 def build_robots():
     return f"""User-agent: *
 Allow: /
@@ -354,6 +387,14 @@ def main():
                       "agentes de IA locales, documentados desde Venezuela.",
                       jsonld_type="ProfilePage"), encoding="utf-8")
     print("ok aboutme.html")
+    (SITE / "divulgacion-responsable.html").write_text(
+        build_generic("divulgacion-responsable.html", "pages/policy.html",
+                      "Política de divulgación responsable — tty503",
+                      "Qué publico, qué omito y por qué: diferencia entre una primitiva y "
+                      "una cadena explotable, y los criterios de alcance y fix que aplico "
+                      "a cada hallazgo antes de documentarlo.",
+                      jsonld_type="WebPage"), encoding="utf-8")
+    print("ok divulgacion-responsable.html")
     (SITE / "404.html").write_text(
         build_generic("404.html", "pages/404.html",
                       "404 — Página no encontrada | tty503",
@@ -364,6 +405,19 @@ def main():
     (SITE / "robots.txt").write_text(build_robots(), encoding="utf-8")
     (SITE / "feed.xml").write_text(build_feed(), encoding="utf-8")
     print("ok sitemap.xml + robots.txt + feed.xml")
+
+    # Stubs de redireccion: se regeneran siempre, y se borra cualquier stub cuyo
+    # destino ya no exista, para que un redireccionado no apunte a un 404.
+    red = ROOT.parent / "meta" / "redirects.json"
+    if red.exists():
+        rm = json.loads(red.read_text(encoding="utf-8"))
+        n = 0
+        for old, dest in rm.items():
+            if dest not in META["pages"] or dest == old:
+                continue
+            (SITE / f"{old}.html").write_text(build_redirect(old, dest), encoding="utf-8")
+            n += 1
+        print(f"ok {n} stubs de redireccion")
 
 
 if __name__ == "__main__":

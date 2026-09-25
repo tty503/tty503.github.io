@@ -1,0 +1,333 @@
+<!-- ToC -->
+        <!-- RESUMEN EJECUTIVO -->
+        <h2>1. Resumen Ejecutivo</h2>
+        <p>
+            Se ha identificado y analizado una red de estafa tipo <strong>"Pig Butchering"</strong> que opera una plataforma falsa de intercambio de criptomonedas dirigida a usuarios hispanohablantes. La infraestructura utiliza <strong>rotación rápida de dominios</strong> para evadir bloqueos, <strong>WebSocket con Workerman PHP</strong> para chat fraudulento en tiempo real, y una <strong>API que expone claves de validación de captcha al cliente</strong>.
+        </p>
+        <p>
+            La red está compuesta por al menos <strong>7 dominios</strong> alojados en <strong>Google Cloud Platform (Hong Kong/Singapur)</strong>, de los cuales <strong>3 ya están bloqueados por múltiples servicios de threat intelligence</strong> (OpenDNS, Hagezi Threat Feed, DNS4EU, OPSWAT).
+        </p>
+        <blockquote><p><strong>Clasificación: MALICIOSO - Red de estafa activa</strong></p>Fecha del informe: 2026-05-26. La infraestructura sigue operativa con dominios rotativos. Se recomienda bloqueo inmediato de todos los IoCs listados en este artículo.</blockquote>
+        <!-- CONTEXTO GLOBAL DEL PIG BUTCHERING -->
+        <h2>2. Pig Butchering: El Contexto Global de una Epidemia</h2>
+        <p>
+            El término <strong>"Pig Butchering"</strong> describe una modalidad de estafa donde la víctima es "engordada" durante semanas o meses antes del sacrificio financiero. A diferencia de otros fraudes, aquí el estafador invierte tiempo en construir una relación de confianza con la víctima a través de mensajes no solicitados, conversaciones persistentes y la promesa de inversiones altamente rentables en criptomonedas.
+        </p>
+        <p>
+            Según el informe del <strong>FBI de 2024</strong>, las estafas de inversión en criptomonedas representaron pérdidas superiores a <strong>3.900 millones de dólares</strong> en Estados Unidos, siendo el Pig Butchering la categoría de mayor crecimiento. El <strong>Departamento de Justicia de EE.UU.</strong> ha desmantelado operaciones que utilizaban infraestructura en el sudeste asiático, donde complejos enteros operan como fábricas de estafas con personal traficado y forzado a ejecutar estos esquemas. En 2025, Europol coordinó la <strong>Operación Dogger</strong>, que resultó en la detención de más de 200 personas vinculadas a redes de Pig Butchering que operaban desde Camboya, Laos y Myanmar, con pérdidas estimadas en más de 400 millones de euros solo en Europa.
+        </p>
+        <p>
+            La <strong>FTC</strong> reportó que en el primer semestre de 2024, las pérdidas por task scams y estafas de inversión alcanzaron los <strong>220 millones de dólares</strong> solo en Estados Unidos, con un patrón consistente: pequeños pagos iniciales para generar confianza, seguidos de una exigencia de "inversión" que nunca se recupera. En 2023, el <strong>Departamento de Justicia de EE.UU.</strong> incautó más de <strong>112 millones de dólares</strong> en criptomonedas vinculadas a esquemas de Pig Butchering, en una de las mayores confiscaciones de activos digitales relacionadas con fraudes de inversión hasta la fecha.
+        </p>
+        <p>
+            Este caso guarda paralelismos directos con la investigación que documenté anteriormente sobre la <strong>red de estafa piramidal global</strong> mapeada con VirusTotal, donde un número sudafricano iniciaba el contacto ofreciendo trabajos de clasificación de hoteles. En aquella ocasión, la infraestructura de los estafadores también se alojaba en Hong Kong, utilizaba exchanges falsos y reciclaba plantillas sin ofuscar. La metodología de OSINT y mapeo de infraestructura que desarrollé en ese caso —documentado en detalle en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>— es exactamente la que apliqué aquí. La diferencia es que esta red de Pig Butchering es más sofisticada técnicamente: tiene rotación de dominios automatizada, WebSocket en tiempo real y una API que, irónicamente, está peor asegurada que la de los task scams.
+        </p>
+        <blockquote><p><strong>Conexión con Investigaciones Previas</strong></p>Este análisis es la continuación directa de la metodología que apliqué en el mapeo de la red de estafa piramidal. En aquel caso, los estafadores operaban con task scams y un falso exchange llamado VCIMP. En este, utilizan Pig Butchering con un exchange llamado bybsusd.com. En ambos casos, la infraestructura está alojada en Hong Kong, los certificados son falsos, y el código fuente revela más de lo que los atacantes creen. Si no has leído esa investigación, está completa en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>. La misma pereza operacional —dejar fugas de información por malas configuraciones— es la que documenté en el caso <a href="fakewealth-cmdxcapital.html">cmdxcapital</a>, donde un appDebug:true en Laravel expuso consultas SQL y tokens del servidor.</blockquote>
+        <!-- FASE 1: CAPTACIÓN -->
+        <h2>3. Fase 1: Captación — El Mensaje Inicial</h2>
+        <p>
+            Todo comienza con un mensaje no solicitado. En este caso, la captura evidencia el primer contacto recibido a través de Facebook Messenger el <strong>16 de marzo de 2026 a las 2:30</strong>. El remitente es un perfil con el nombre hispano <strong>"Irene Sanchez"</strong>, una identidad probablemente falsa o comprometida para generar confianza inicial.
+        </p>
+        <figure><img src="img/pig-butchering-mensaje-captacion-inicial-fase.png" alt="Mensaje de engaño inicial con credenciales y enlace al exchange falso" loading="lazy"></figure>
+        <p>
+            El texto del mensaje, escrito en ruso a pesar del nombre en español del perfil, contiene todos los elementos del anzuelo:
+        </p>
+        <ul>
+            <li><strong>Balance USDT: 5,741,530.66</strong> — Una cifra astronómica para disparar la codicia o la curiosidad.</li>
+            <li><strong>"Lucas, el balance de su cuenta ha sido recargado"</strong> — El uso de un nombre específico sugiere una campaña masiva con plantillas semiautomatizadas.</li>
+            <li><strong>Credenciales preconfiguradas:</strong> Cuenta hhh699, Contraseña aaa259.</li>
+            <li><strong>URL de acceso:</strong> https://bybsusd.com/ — El dominio que coincide exactamente con la infraestructura analizada.</li>
+        </ul>
+        <blockquote><p><strong>Táctica de Ingeniería Social</strong></p>El mensaje combina varios disparadores psicológicos: una suma de dinero enorme (codicia), credenciales "exclusivas" (sentido de oportunidad única), y un tono formal bancario ("Por favor, guarde esto de forma segura"). La víctima no necesita registrarse: ya tiene una cuenta "precargada" esperándola. Solo tiene que iniciar sesión.</blockquote>
+        <!-- FASE 2: INFRAESTRUCTURA -->
+        <h2>4. Infraestructura Técnica de la Estafa</h2>
+        <h3>Arquitectura General</h3>
+        <p>
+            El siguiente diagrama detalla la arquitectura técnica global utilizada por los ciberdelincuentes y cómo interactúa la víctima con cada componente, así como los servicios de seguridad que intentan mitigarla.
+        </p>
+        <figure><img src="img/pig-butchering-infraestructura-estafa-red-dominios.png" alt="Diagrama de infraestructura de la red de estafa Pig Butchering" loading="lazy"></figure>
+        <h3>Frontend: Vue 3 + Vant UI + Vite</h3>
+        <p>
+            El frontend está construido con <strong>Vue 3</strong> usando <strong>Vite</strong> como bundler y <strong>Vant UI</strong> como librería de componentes móviles. El código está ofuscado y dividido en múltiples chunks. Los módulos específicos de la estafa revelan todas las funcionalidades del exchange falso:
+        </p>
+        <ul>
+            <li>financial-CPeXl-Vn.js — Planes de inversión falsos.</li>
+            <li>kline-j6UyA4Q3.js — Gráficos de velas (trading falso).</li>
+            <li>vip-B8AdYRya.js — Sistema VIP piramidal.</li>
+            <li>invite-g2xk1CV9.js — Sistema de referidos.</li>
+            <li>recharge-CWI3W1iR.js — Depósitos de criptomonedas.</li>
+            <li>withdraw-B3IhVFcd.js — Retiros (NUNCA procesados).</li>
+        </ul>
+        <h3>Backend API: api.japfc.top</h3>
+        <p>
+            El núcleo lógico de la estafa reside en api.japfc.top (IP 156.254.5.40). Los endpoints descubiertos incluyen:
+        </p>
+        <ul>
+            <li>POST /api/Carousel/getList — Banners de ofertas falsas.</li>
+            <li>GET /api/site/getsite — Configuración del sitio fraudulento.</li>
+            <li>POST /login — Autenticación de víctimas.</li>
+            <li>GET /uploads/cert/*.jpg — Certificados falsos para simular legitimidad.</li>
+            <li>GET /index/verify — Sistema de Captcha (VULNERABLE).</li>
+        </ul>
+        <blockquote><p><strong>Vulnerabilidad Crítica: Captcha Roto</strong></p>El endpoint /index/verify devuelve tanto la imagen del captcha como la <strong>clave de validación</strong> en la misma respuesta: <code>{"img": "data:image/jpeg;base64,...", "captcha_key": "abc123..."}</code>. La clave de validación viaja al cliente, permitiendo ataques de replay, bypass del captcha y reutilización de tokens. El backend externaliza la validación y confía en la clave que el propio cliente le devuelve. Este patrón de validación delegada al cliente es el mismo error de autorización que documenté en la <a href="web-api-pentesting2024.html">auditoría a la Web API financiera con IDOR por validación incompleta de JWT</a>: el backend confía en lo que el cliente le devuelve sin verificarlo.</blockquote>
+        <!-- FASE 3: CHAT WEBSOCKET -->
+        <h2>5. Sistema de Chat WebSocket Fraudulento</h2>
+        <p>
+            El chat en tiempo real es el componente clave para la manipulación psicológica de la víctima. Utiliza <strong>Workerman PHP v5.2.0</strong>, un framework asíncrono legítimo, sobre <strong>Nginx como proxy inverso</strong> en Google Cloud Hong Kong.
+        </p>
+        <figure><img src="img/pig-butchering-chat-componentes-sistema-fraude.png" alt="Componentes del sistema de chat fraudulento" loading="lazy"></figure>
+        <figure><img src="img/pig-butchering-websocket-conexion-fraudulenta-secuencia.png" alt="Secuencia de conexión WebSocket fraudulenta" loading="lazy"></figure>
+        <p>
+            El flujo es quirúrgico: la víctima inicia sesión, recibe un token, y establece una conexión WebSocket persistente. El estafador, desde su panel de control, monitorea en tiempo real el saldo y los depósitos de la víctima para ajustar su discurso de ingeniería social. El mensaje típico: <em>"Sr. Juan, veo que invirtió $500. Le recomiendo aumentar a $5000 para mayores ganancias..."</em>
+        </p>
+        <p>
+            Esta técnica de manipulación en tiempo real mediante WebSocket es una evolución directa de lo que documenté en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a> con los task scams operados desde Sudáfrica. En aquel caso, la comunicación era asíncrona por Telegram. Aquí, los estafadores implementaron un canal persistente que les permite ver en tiempo real cada acción de la víctima sobre la plataforma. La sofisticación técnica es mayor, pero el patrón de ingeniería social es idéntico: generar confianza, mostrar ganancias ficticias, y bloquear el retiro.
+        </p>
+        <!-- FASE 4: FLUJO COMPLETO -->
+        <h2>6. El Ciclo Completo de la Estafa</h2>
+        <figure><img src="img/pig-butchering-cuatro-fases-enganio-flujo.png" alt="Flujo completo de la estafa Pig Butchering en cuatro fases" loading="lazy"></figure>
+        <p>
+            El diagrama de secuencia ilustra las cuatro fases cronológicas del ciclo de vida de la estafa. La víctima pasa de recibir un mensaje no solicitado a depositar criptomonedas reales en una plataforma que nunca le permitirá retirar. Cuando intenta hacerlo, el sistema exige el pago de supuestos "impuestos o comisiones". Una vez consumado el robo, los estafadores desaparecen y rotan la infraestructura a un nuevo dominio.
+        </p>
+        <!-- IoCs -->
+        <h2>7. Indicadores de Compromiso (IoCs)</h2>
+        <h3>Dominios Maliciosos</h3>
+        <table>
+                <thead>
+                    <tr><th>Dominio</th><th>IP</th><th>Ubicación</th><th>Estado</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>bybsusd.com</td><td>156.254.5.40</td><td>Hong Kong</td><td>Bloqueado</td></tr>
+                    <tr><td>api.japfc.top</td><td>156.254.5.40</td><td>Hong Kong</td><td>Bloqueado</td></tr>
+                    <tr><td>chat.cionusdt.com</td><td>34.150.85.92</td><td>Hong Kong</td><td>Bloqueado</td></tr>
+                    <tr><td>chat.bnc-a.com</td><td>0.0.0.0</td><td>-</td><td>Caído</td></tr>
+                    <tr><td>bhonso.com</td><td>156.254.5.40</td><td>Hong Kong</td><td>Activo</td></tr>
+                    <tr><td>bholos.com</td><td>34.150.85.92</td><td>Hong Kong</td><td>Activo</td></tr>
+                    <tr><td>xoiunc.com</td><td>156.254.5.115 / 34.142.203.77</td><td>Hong Kong / Singapur</td><td>Activo</td></tr>
+                    <tr><td>xinusdt.com</td><td>34.87.125.55</td><td>Singapur</td><td>Activo</td></tr>
+                </tbody>
+            </table>
+        <h3>IPs Maliciosas</h3>
+        <pre><code>156.254.5.40      → bybsusd.com, api.japfc.top, bhonso.com<br>
+            34.150.85.92      → chat.cionusdt.com, bholos.com<br>
+            156.254.5.115     → xoiunc.com<br>
+            34.142.203.77     → xoiunc.com<br>
+            34.87.125.55      → xinusdt.com</code></pre>
+        <h3>Endpoints Maliciosos</h3>
+        <pre><code>api.japfc.top/api/Carousel/getList        → Banners de ofertas falsas<br>
+            api.japfc.top/api/site/getsite            → Configuración del sitio fraudulento<br>
+            api.japfc.top/index/index/verify          → Captcha con fuga de claves<br>
+            api.japfc.top/index/login                 → Autenticación de víctimas<br>
+            api.japfc.top/uploads/cert/               → Certificados falsos (jpg)<br>
+            chat.cionusdt.com/                        → WebSocket para chat fraudulento</code></pre>
+        <!-- ROTACIÓN DE DOMINIOS -->
+        <h2>8. Sistema de Rotación de Dominios</h2>
+        <p>
+            La red emplea rotación rápida de dominios para evadir bloqueos. El patrón identificado muestra <strong>4 dominios en 22 días</strong>:
+        </p>
+        <pre><code>2026-05-04 → xinusdt.com     (Singapur)<br>
+            2026-05-08 → bholos.com      (Hong Kong)<br>
+            2026-05-17 → bhonso.com      (Hong Kong)<br>
+            2026-05-20 → xoiunc.com      (Hong Kong/Singapur)<br>
+            2026-05-26 → bybsusd.com     (Hong Kong)</code></pre>
+        <p>
+            Los nombres son semi-aleatorios (byb, bhon, bhol, xoin, xin) pero todos terminan en usd o usdt para asociarse con criptomonedas. Las IPs rotan entre Hong Kong y Singapur, pero el backend (api.japfc.top) permanece constante, siendo el eslabón más débil de la infraestructura.
+        </p>
+        <!-- ESTADO DE DETECCIÓN -->
+        <h2>9. Estado de Detección y Bloqueo</h2>
+        <table>
+                <thead>
+                    <tr><th>Servicio</th><th>bybsusd.com</th><th>api.japfc.top</th><th>chat.cionusdt.com</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>OpenDNS</td><td>Phishing Block</td><td>Phishing Block</td><td>Phishing Block</td></tr>
+                    <tr><td>Hagezi Threat Feed</td><td>Sinkholed</td><td>Sinkholed</td><td>Sinkholed</td></tr>
+                    <tr><td>DNS4EU</td><td>Malicious</td><td>Malicious</td><td>Malicious</td></tr>
+                    <tr><td>OPSWAT</td><td>-</td><td>-</td><td>Confirmed Threat</td></tr>
+                </tbody>
+            </table>
+        <!-- RECOMENDACIONES -->
+        <h2>10. Recomendaciones</h2>
+        <ul>
+            <li><strong>Bloquear</strong> todos los IoCs listados en firewalls, proxies y DNS filtering.</li>
+            <li><strong>Monitorear</strong> conexiones salientes hacia las IPs 156.254.5.40, 34.150.85.92 y el rango de Google Cloud Hong Kong/Singapur.</li>
+            <li><strong>Reportar</strong> nuevos dominios que sigan el patrón [4-5 letras]usd[t].com a servicios de threat intelligence.</li>
+            <li><strong>No interactuar</strong> con ninguno de los dominios listados ni depositar criptomonedas en plataformas no verificadas.</li>
+            <li><strong>Desconfiar</strong> de ofertas de inversión no solicitadas recibidas por mensajería o redes sociales.</li>
+        </ul>
+        <blockquote><p><strong>Para Investigadores</strong></p>El backend api.japfc.top es el punto más estable de la infraestructura. Monitorear sus certificados SSL, nuevos dominios apuntando a la misma IP, y cambios en los endpoints puede revelar nuevos dominios de la campaña antes de que sean utilizados activamente. Esta técnica de pivoting sobre infraestructura es la misma que apliqué en el mapeo de la red de estafa piramidal documentado en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>. La metodología de infraestructura ofuscada que utilizo para este tipo de investigaciones —desde un entorno blindado con WireGuard y proxy residencial— está documentada en la <a href="infraestructura-tunel-ofuscado.html">guía de túnel ofuscado</a>.</blockquote>
+        <!-- ==================== CTA DE CIERRE ==================== -->
+            <h3>/¿Te interesa el threat intelligence aplicado a fraudes financieros?</h3>
+            <p>Esta investigación es parte de una serie de casos reales de threat hunting que abarcan OSINT, ingeniería inversa de malware y deconstrucción de infraestructura criminal. Cada caso revela un patrón: la pereza operacional del adversario es la mejor aliada del cazador.</p>
+                <a href="threat-hunter-recollection.html" class="cta-btn primary">Threat Hunter Recollection →</a>
+                <a href="fakewealth-cmdxcapital.html" class="cta-btn">Operación FakeWealth →</a>
+                <a href="operation-general-jp-silentwarn.html" class="cta-btn">Campañas de Phishing →</a>
+        <!-- Referencias -->
+        <h2>11. Referencias</h2>
+        <ul>
+            <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — Crónica de cinco investigaciones reales de threat hunting (tty503.com)</a></li>
+            <li><a href="fakewealth-cmdxcapital.html">Operación FakeWealth: Inteligencia de Amenazas sobre cmdxcapital (tty503.com)</a></li>
+            <li><a href="web-api-pentesting2024.html">Pentesting a Web API Financiera: IDOR por Validación Incompleta de JWT (tty503.com)</a></li>
+            <li><a href="infraestructura-tunel-ofuscado.html">Infraestructura Ofuscada: WireGuard sobre TCP Falso + Proxy Residencial (tty503.com)</a></li>
+            <li><a href="https://github.com/walkor/workerman" target="_blank" rel="noopener noreferrer">Workerman — Framework PHP asíncrono (GitHub)</a></li>
+            <li><a href="https://vant-ui.github.io/vant/" target="_blank" rel="noopener noreferrer">Vant UI — Librería de componentes Vue 3</a></li>
+            <li><a href="https://attack.mitre.org/techniques/T1665/" target="_blank" rel="noopener noreferrer">MITRE ATT&CK T1665 — Pig Butchering</a></li>
+            <li><a href="https://www.fbi.gov/contact-us/field-offices/anchorage/news/fbi-releases-annual-internet-crime-report" target="_blank" rel="noopener noreferrer">FBI IC3 2024 Internet Crime Report — $16 billion in reported losses, crypto investment fraud identified as top threat</a></li>
+            <li><a href="https://www.justice.gov/usao-cdca/pr/justice-dept-seizes-over-112m-funds-linked-cryptocurrency-investment-schemes-over-half" target="_blank" rel="noopener noreferrer">DOJ Seizes Over $112M in Funds Linked to Cryptocurrency Investment Schemes (Pig Butchering) — April 2023</a></li>
+            <li><a href="https://www.justice.gov/archives/opa/pr/cyber-scam-organization-disrupted-through-seizure-nearly-9m-crypto" target="_blank" rel="noopener noreferrer">DOJ Seizes Nearly $9M in Crypto from Pig Butchering and Romance Scams — November 2023</a></li>
+            <li><a href="https://www.trmlabs.com/resources/blog/a-record-breaking-year-for-cybercrime-key-findings-from-the-fbis-2024-ic3-report" target="_blank" rel="noopener noreferrer">TRM Labs Analysis: FBI 2024 IC3 Report — $9.3 billion in crypto fraud losses, 66% increase from 2023</a></li>
+        </ul>
+
+<p class="resumen"><strong>Continuidad.</strong> Y una fuga que solo hacia falta que el modo depuracion quedara activo.</p>
+
+<!-- ToC -->
+        <!-- INTRODUCCIÓN -->
+        <h2>12. Resumen de Inteligencia</h2>
+        <p>
+            La <strong>Operación FakeWealth</strong> es una campaña de fraude financiero que opera bajo la marca <strong>cmdxcapital.com</strong>. Este artículo documenta el ciclo completo de inteligencia de amenazas aplicado sobre esta red: desde la identificación de infraestructura y el mapeo de dominios satélites hasta la correlación de wallets en blockchain, la atribución por reutilización de plantillas y la explotación de fallos de OpSec para extraer inteligencia del backend.
+        </p>
+        <p>
+            El enfoque principal es la <strong>inteligencia de amenazas</strong>: cómo pivotar sobre indicadores de red, cómo leer los errores de configuración del adversario como fuente de inteligencia, y cómo conectar los hallazgos técnicos con el ecosistema más amplio de fraudes financieros documentados en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>. Las vulnerabilidades encontradas —debug mode de Laravel expuesto, bypass de captcha, proc_open() deshabilitada— no son el fin del análisis, sino evidencias que alimentan la comprensión del adversario.
+        </p>
+        <p>
+            Este caso tiene conexiones directas con otras investigaciones del portafolio. La metodología de mapeo de infraestructura es la misma que apliqué en la <a href="pigbutchering-bybsusd.html">deconstrucción de la red de Pig Butchering</a>, donde los atacantes también utilizaban Cloudflare como escudo, rotación de dominios y plantillas Vue3 recicladas. La diferencia aquí es que cmdxcapital cometió un error que ninguna otra campaña había cometido: dejar el debug mode de Laravel activado en producción. Este mismo patrón de fuga de información por malas configuraciones es el que documenté en la <a href="web-api-pentesting2024.html">auditoría a la Web API financiera</a>, donde los errores del backend exponían excepciones personalizadas y detalles de implementación.
+        </p>
+        <blockquote><p><strong>Campaña de fraude financiero activa</strong></p>Fecha del informe: Octubre 2025 – Mayo 2026. La infraestructura sigue operativa. Se recomienda bloqueo inmediato de todos los IoCs listados.</blockquote>
+        <!-- FICHA TÉCNICA -->
+        <h2>13. Ficha de Inteligencia de la Campaña</h2>
+        <table>
+                <thead><tr><th>Indicador</th><th>Valor</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Dominio Core</strong></td><td>cmdxcapital.com</td></tr>
+                    <tr><td><strong>Framework Backend</strong></td><td>Laravel 8.83.25 (PHP 8.3.15)</td></tr>
+                    <tr><td><strong>Ruta Absoluta del Servidor</strong></td><td>/home/cmdxcapi/domains/cmdxcapital.com/public_html</td></tr>
+                    <tr><td><strong>Wallet BTC Actual</strong></td><td>bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</td></tr>
+                    <tr><td><strong>Entidad Legal Suplantada</strong></td><td>Companies House UK N° 13699699 (disuelta 2023)</td></tr>
+                    <tr><td><strong>Plataforma Predecesora</strong></td><td>Bremby (bremby.biz) — $174,664 en depósitos, 13 reportes de estafa</td></tr>
+                    <tr><td><strong>Fallos de OpSec Detectados</strong></td><td>Debug mode expuesto, captcha trivial, proc_open() deshabilitada, queries SQL y tokens de sesión fugados</td></tr>
+                </tbody>
+            </table>
+        <!-- INFRAESTRUCTURA -->
+        <h2>14. Infraestructura de Red y Pivoting sobre Dominios</h2>
+        <p>
+            El mapeo de infraestructura es el primer pilar de la inteligencia de amenazas. La campaña se diversifica en una red de dominios satélites que funcionan como falsos brokers y portales de captación. Utilizando <strong>Cloudflare como CDN y proxy inverso</strong>, los atacantes ocultan el servidor de origen real.
+        </p>
+        <figure><img src="img/cmdxcapital-topologia-red-mapa-nodos.png" alt="Mapa de topología de red de la campaña cmdxcapital" loading="lazy"></figure>
+        <figure><img src="img/cmdxcapital-grafo-infraestructura-cloudflare.png" alt="Grafo de infraestructura de la campaña cmdxcapital" loading="lazy"></figure>
+        <p>
+            Los dominios satélites incluyen apexreturns.live, vertexprimestock.com, nexusinveste.com y al menos 10 dominios adicionales. Todos comparten la misma plantilla HTML, los mismos canales de Telegram y las mismas hojas de estilo Bootstrap. Esta reutilización de infraestructura es un patrón que también documenté en el análisis de la <a href="pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>, donde los atacantes reciclaban plantillas Vue3 con Vant UI y mantenían un backend constante mientras rotaban dominios.
+        </p>
+        <h3>El Eslabón Anterior: Bremby (bremby.biz)</h3>
+        <p>
+            La campaña cmdxcapital no nació de la nada. Es la iteración más reciente de una infraestructura de fraude que operó anteriormente bajo la marca <strong>Bremby (bremby.biz)</strong>. Los registros públicos de monitoreo de inversiones revelan que Bremby fue clasificado como <strong>scam confirmado</strong>, con <strong>13 reportes de estafa</strong>, <strong>$174,664 en depósitos fraudulentos</strong> y <strong>$7,282 en listados</strong>. El dominio fue registrado en <strong>NameCheap el 12 de octubre de 2020</strong> con vigencia hasta 2023, y estaba protegido tras el mismo escudo de <strong>Cloudflare</strong> (IPs 104.18.47.118, 172.67.146.22, 104.18.46.118) que hoy utiliza cmdxcapital. El certificado SSL también era emitido por Cloudflare Inc.
+        </p>
+        <p>
+            Los planes de inversión fraudulentos de Bremby —un único plan del 5% mensual— eran monitoreados por 21 plataformas de seguimiento de HYIP (High Yield Investment Programs), incluyendo invest-tracing.io, hyiptank.net, list4hyip.com y monetka.blog. La existencia de este ecosistema de monitoreo es una mina de oro para la inteligencia de amenazas: permite trazar la evolución completa de la campaña desde su encarnación anterior, confirmando que los atacantes simplemente reciclan la infraestructura, cambian el nombre de la marca y reanudan las operaciones.
+        </p>
+        <p>
+            El patrón es consistente con lo documentado por la <strong>FTC</strong> en múltiples casos de enforcement: los operadores de esquemas HYIP y falsos exchanges mantienen la misma columna vertebral técnica —Cloudflare como escudo, NameCheap como registrador, plantillas recicladas— y solo cambian la fachada cuando la marca anterior se quema. Bremby operó durante tres años antes de ser desmantelado. CMDX Capital es su reemplazo directo.
+        </p>
+        <figure><img src="img/fraude-plantillas-clonadas-historial-web.jpg" alt="Historial de plantillas clonadas de CMDX Capital" loading="lazy"></figure>
+        <blockquote><p><strong>Lección de Threat Intelligence: Trazabilidad de Campañas</strong></p>Los sitios de monitoreo de HYIP como InvestorsStartPage, hyiptank.net y list4hyip.com son fuentes de inteligencia subestimadas. Mantienen registros históricos de dominios, depósitos, reportes de estafa y direcciones IP que permiten trazar la evolución de una campaña a través de múltiples identidades. La correlación entre Bremby y CMDX Capital no es especulativa: comparten el mismo registrador (NameCheap), el mismo CDN (Cloudflare), el mismo rango de IPs de origen y la misma plantilla de sitio. Son la misma operación con distinto nombre.</blockquote>
+        <!-- FALLOS DE OPSEC -->
+        <h2>15. Fallos de OpSec como Fuente de Inteligencia</h2>
+        <p>
+            En threat intelligence, los errores del adversario son una mina de oro. La Operación FakeWealth cometió varios fallos de seguridad operacional que permitieron extraer información que ningún atacante querría revelar. El más grave fue dejar <strong>el modo de depuración de Laravel activado en producción</strong>.
+        </p>
+        <h3>El Crash de Laravel: proc_open() y SwiftMailer</h3>
+        <p>
+            Durante las pruebas de automatización del endpoint de registro, la plataforma expuso un reporte de error completo de Laravel Client. La interfaz Ignition —diseñada para entornos de desarrollo— estaba accesible públicamente con APP_DEBUG=true y APP_ENV=production.
+        </p>
+        <figure><img src="img/laravel-ignition-appdebug-crash-produccion.jpg" alt="Interfaz Ignition de Laravel expuesta en cmdxcapital.com" loading="lazy"></figure>
+        <p>
+            El siguiente diagrama de secuencia forense mapea la interacción entre el navegador y el backend durante el crash, desde el POST hasta la exposición del stacktrace:
+        </p>
+        <figure><img src="img/laravel-crash-produccion-diagrama-secuencia.png" alt="Diagrama de secuencia del crash de Laravel en producción" loading="lazy"></figure>
+        <p>
+            El error se originaba en Swift_Transport_StreamBuffer.php, línea 291. El flujo: el usuario se registra, Laravel Fortify inserta el registro en users y crypto_accounts, el sistema intenta despachar un WelcomeEmail mediante SwiftMailer, este invoca proc_open() para interactuar con sendmail, y al estar la función deshabilitada en php.ini, la aplicación crashea exponiendo todo.
+        </p>
+        <figure><img src="img/swiftmailer-proc-open-stacktrace-laravel.jpg" alt="Stacktrace de SwiftMailer mostrando la llamada a proc_open()" loading="lazy"></figure>
+        <h3>Inteligencia Extraída del Debug Mode</h3>
+        <p>
+            La interfaz Ignition no solo mostraba el error. Exponía información que alimentó directamente la inteligencia sobre la campaña:
+        </p>
+        <figure><img src="img/laravel-debug-mysql-consultas-sql-expuestas.jpg" alt="Consultas SQL expuestas por el debug mode" loading="lazy"></figure>
+        <figure><img src="img/laravel-debug-request-datos-expuestos.jpg" alt="Datos de la petición HTTP expuestos" loading="lazy"></figure>
+        <figure><img src="img/laravel-debug-variables-entorno-servidor-expuestas.jpg" alt="Variables de entorno del servidor expuestas" loading="lazy"></figure>
+        <blockquote><p><strong>Lección de Threat Intelligence</strong></p>El debug mode activo en producción no es solo una vulnerabilidad: es una <strong>fuente de inteligencia</strong>. Permitió mapear la estructura de la base de datos, identificar la lógica de negocio del backend (Fortify, SwiftMailer, WelcomeEmail) y obtener las rutas absolutas del servidor. En la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a> documento cómo este tipo de errores de configuración son una constante en campañas de fraude: desde OpenSSH 7.4 en servidores de Hong Kong hasta captchas con claves en el JSON del lado del cliente. La lección para desarrolladores es clara: <strong>nunca despliegues a producción con APP_DEBUG=true</strong>. Un simple flag en el .env puede exponer toda la arquitectura de tu backend.</blockquote>
+        <!-- BYPASS DE CAPTCHA -->
+        <h2>16. Evasión de Controles y Automatización de la Recolección</h2>
+        <p>
+            El formulario de registro implementaba un captcha trivial de evadir. El HTML contenía un input oculto con el valor de confirmación:
+        </p>
+        <pre><code>&lt;input type='hidden' name='captcha_confirmation' value='61416'&gt;</code></pre>
+        <p>
+            Este patrón —delegar la validación del captcha a un valor estático en el cliente— es el mismo tipo de error que documenté en el análisis de la <a href="pigbutchering-bybsusd.html">red de Pig Butchering</a>, donde el backend devolvía la clave de validación del captcha en el propio JSON de respuesta. En ambos casos, la inteligencia obtenida permite automatizar la recolección de datos del adversario sin interacción humana.
+        </p>
+        <figure><img src="img/cmdxcapital-bypass-captcha-flujo-logico.png" alt="Diagrama de flujo del bypass de captcha" loading="lazy"></figure>
+        <p>
+            La siguiente captura muestra la ejecución real del script de auditoría que desarrollé para validar la evasión:
+        </p>
+        <figure><img src="img/cmdxcapital-poc-automatizacion-terminal.jpg" alt="Salida de terminal del script PoC automatizado" loading="lazy"></figure>
+        <!-- BLOCKCHAIN -->
+        <h2>17. Inteligencia en Blockchain y Suplantación Corporativa</h2>
+        <h3>Migración de Wallets</h3>
+        <p>
+            Durante el monitoreo, los atacantes migraron su infraestructura de pagos: eliminaron Litecoin, mantuvieron USDT y reemplazaron la dirección de Bitcoin por una billetera <strong>Bech32 nativa sin historial previo</strong>:
+        </p>
+        <pre><code>bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa</code></pre>
+        <figure><img src="img/cmdxcapital-wallet-bitcoin-monitoreo-blockchain.jpg" alt="Monitoreo de la wallet Bitcoin de cmdxcapital" loading="lazy"></figure>
+        <figure><img src="img/fraude-blockchain-flujo-lavado-activos.png" alt="Diagrama de flujo de lavado de activos en blockchain" loading="lazy"></figure>
+        <h3>Suplantación de Companies House UK</h3>
+        <p>
+            La campaña utilizaba identidades clonadas de empresas británicas disueltas. El registro oficial de <strong>Companies House</strong> (Empresa N° 13699699) muestra que la entidad cesó operaciones en 2023. Los atacantes clonaron su estructura antes de la disolución. Esta técnica de <strong>legal spoofing</strong> es recurrente en campañas de fraude financiero: los atacantes buscan entidades disueltas en jurisdicciones con registros públicos accesibles (UK, Singapur, Hong Kong) para robar su identidad corporativa y proyectar una falsa sensación de respaldo legal ante las víctimas.
+        </p>
+        <figure><img src="img/companies-house-suplantacion-empresa-disuelta.jpg" alt="Registro de Companies House UK de la empresa disuelta" loading="lazy"></figure>
+        <!-- GRAFO DE RELACIONES -->
+        <h2>18. Correlación de Actores e Infraestructura</h2>
+        <p>
+            El siguiente grafo une la capa de ingeniería social con la infraestructura on-chain, asociando las identidades de Telegram de los operadores con las carteras que recibieron los fondos.
+        </p>
+        <figure><img src="img/cmdxcapital-grafo-relaciones-actores-amenaza.png" alt="Grafo de relaciones entre actores e infraestructura" loading="lazy"></figure>
+        <!-- RECOMENDACIONES DE CAZA -->
+        <h2>19. Recomendaciones de Caza (Threat Hunting)</h2>
+        <ol>
+            <li><strong>Bloquear el dominio core y todos los satélites</strong> en firewalls, proxies y sistemas de filtrado DNS.</li>
+            <li><strong>Monitorear la wallet Bitcoin</strong> bc1qqqr0r2ts5m6n8av46z7g7t0v3eeakvtnffelsa para detectar nuevas transacciones y posibles víctimas.</li>
+            <li><strong>Buscar nuevos dominios</strong> que compartan la misma plantilla HTML, canales de Telegram u hojas de estilo Bootstrap.</li>
+            <li><strong>Rastrear instalaciones de Laravel con debug mode activo</strong> en dominios relacionados con trading o criptomonedas. La exposición de Ignition es un indicador de infraestructura mal configurada vinculada a campañas similares.</li>
+            <li><strong>Consultar los hashes SHA-256</strong> de los archivos asociados contra VirusTotal, Maltiverse y Hybrid Analysis.</li>
+            <li><strong>Implementar reglas para formularios con captcha vulnerable:</strong> buscar patrones HTML donde el valor de confirmación viaje como input oculto estático en el cliente.</li>
+            <li><strong>Monitorear plataformas de tracking de HYIP</strong> como InvestorsStartPage, hyiptank.net y list4hyip.com para identificar nuevos dominios que repliquen el patrón de Bremby/CMDX Capital.</li>
+            <li><strong>Correlacionar registros de Companies House</strong> con dominios de trading e inversión para detectar suplantación de entidades disueltas.</li>
+        </ol>
+        <!-- CONCLUSIÓN -->
+        <h2>20. Conclusión</h2>
+        <p>
+            La Operación FakeWealth demuestra que la inteligencia de amenazas no depende de zero-days ni de accesos privilegiados. Depende de saber leer lo que el adversario deja expuesto. Un debug mode activo en producción, un captcha con valor estático en el HTML, una wallet Bech32 recién creada, una empresa británica disuelta en 2023 y un historial de fraude documentado en plataformas públicas de monitoreo de HYIP son piezas que, correlacionadas, dibujan el mapa completo de una campaña que ha estado operando desde al menos 2020 bajo diferentes nombres.
+        </p>
+        <p>
+            La trazabilidad entre Bremby y CMDX Capital —confirmada por el mismo registrador, el mismo CDN, el mismo rango de IPs y la misma plantilla— revela que no estamos ante un atacante oportunista, sino ante un grupo que opera de forma continua, reciclando infraestructura y cambiando de marca cuando la anterior se quema. Los <strong>$174,664 en depósitos fraudulentos</strong> documentados en Bremby son solo la punta del iceberg de lo que esta operación ha generado desde 2020.
+        </p>
+        <p>
+            Este caso es la versión extendida de la investigación que menciono brevemente en la <a href="threat-hunter-recollection.html">Threat Hunter Recollection</a>, donde conecto cinco investigaciones reales con sus TTPs, IoCs y lecciones aprendidas. La metodología de pivoting sobre infraestructura es la misma que apliqué en el análisis de la <a href="pigbutchering-bybsusd.html">red de Pig Butchering bybsusd.com</a>: en ambos casos, los atacantes usan Cloudflare como escudo, rotan dominios y reciclan plantillas. La diferencia es que cmdxcapital cometió el error de dejar Laravel hablando solo en producción, y tuvo la mala suerte de heredar un historial de fraude perfectamente documentado en plataformas públicas de monitoreo.
+        </p>
+        <!-- ==================== CTA DE CIERRE ==================== -->
+            <h3>/¿Te interesa la inteligencia de amenazas aplicada a fraudes financieros?</h3>
+            <p>Este caso es parte de una serie de investigaciones de threat hunting que abarcan OSINT, blockchain forensics y deconstrucción de infraestructura criminal. Cada investigación revela un patrón: los errores de configuración del adversario son la mejor fuente de inteligencia.</p>
+                <a href="threat-hunter-recollection.html" class="cta-btn primary">Threat Hunter Recollection →</a>
+                <a href="pigbutchering-bybsusd.html" class="cta-btn">Pig Butchering: bybsusd →</a>
+                <a href="web-api-pentesting2024.html" class="cta-btn">Pentesting Web API →</a>
+        <!-- Referencias -->
+        <h2>21. Referencias</h2>
+        <ul>
+            <li><a href="threat-hunter-recollection.html">Threat Hunter Recollection — Crónica completa de cinco investigaciones reales (tty503.com)</a></li>
+            <li><a href="pigbutchering-bybsusd.html">Red de Estafa "Pig Butchering" — Fake Crypto Exchange Multi-Dominio (tty503.com)</a></li>
+            <li><a href="web-api-pentesting2024.html">Pentesting a Web API Financiera: IDOR por Validación Incompleta de JWT (tty503.com)</a></li>
+            <li><a href="plc.html">PLC Siemens S5/S7: Ingeniería Inversa y la Deficiencia Estructural de Logs (tty503.com)</a></li>
+            <li><a href="https://find-and-update.company-information.service.gov.uk/company/13699699/filing-history" target="_blank" rel="noopener noreferrer">Companies House UK — Registro de la empresa N° 13699699 (disuelta 2023)</a></li>
+            <li><a href="https://investorsstartpage.com/queue.aspx?mod=check&d=bremby.biz" target="_blank" rel="noopener noreferrer">InvestorsStartPage — Registro de Bremby (bremby.biz) como scam confirmado. Dominio registrado en NameCheap (2020-2023), alojado tras Cloudflare, con 13 reportes de estafa y $174,664 en depósitos fraudulentos. Plantilla clonada posteriormente por CMDX Capital.</a></li>
+            <li><a href="https://brokersrecomendados.com/bremby-valoracion-y-comentarios/" target="_blank" rel="noopener noreferrer">Reporte de fraude — Bremby (plataforma clonada predecesora de CMDX Capital)</a></li>
+            <li><a href="https://www.php.net/manual/es/function.proc-open.php" target="_blank" rel="noopener noreferrer">PHP Manual — Función proc_open()</a></li>
+            <li><a href="https://www.blockchain.com/explorer" target="_blank" rel="noopener noreferrer">Blockchain.com Explorer — Trazabilidad de wallets Bitcoin</a></li>
+        </ul>

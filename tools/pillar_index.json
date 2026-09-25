@@ -1,0 +1,118 @@
+{
+  "sinks-preauth-daemons-c": {
+    "sections": 37,
+    "words": 6988,
+    "denamed": true,
+    "sources": [
+      "caza-autonoma-e2e-serie",
+      "cadena-portal-cautivo-rce",
+      "fw-host-header-rce",
+      "http-el conversor de fecha a timestamp-stackoverflow",
+      "autopsia-streaming-http-minimo",
+      "suite-paneles-tunel-spooler"
+    ]
+  },
+  "cazar-con-ia-local": {
+    "sections": 58,
+    "words": 10211,
+    "denamed": false,
+    "sources": [
+      "sherlock-caza-autonoma-ia-local",
+      "7zip-isfolderencrypted-oob-read",
+      "ffmpeg-demuxers-dos-vpk-vqf-smacker",
+      "libwebp-vp8l-lossless-decode-dos",
+      "pcre2-jit-compile-hang-recursion",
+      "libarchive-cab-lzx-uninitialized-memory"
+    ]
+  },
+  "agentes-ia-locales": {
+    "sections": 12,
+    "words": 1123,
+    "denamed": false,
+    "sources": [
+      "agentes-locales-arquitectura",
+      "agentes-memoria-aprendizaje",
+      "agentes-resultados-progreso"
+    ]
+  },
+  "exploit-development-y-reversing": {
+    "sections": 33,
+    "words": 8805,
+    "denamed": false,
+    "sources": [
+      "exploit-development-lab",
+      "assembly"
+    ]
+  },
+  "seguridad-ot-ics": {
+    "sections": 42,
+    "words": 17215,
+    "denamed": false,
+    "sources": [
+      "plc",
+      "exploit-development-ot-awl-arm"
+    ]
+  },
+  "deteccion-blue-team": {
+    "sections": 51,
+    "words": 11089,
+    "denamed": false,
+    "sources": [
+      "arte-de-la-paciencia-sudo-cache",
+      "myPracticalShellcodeC2",
+      "evasion-estatica-asm-mirai"
+    ]
+  },
+  "fraude-cripto-y-phishing": {
+    "sections": 21,
+    "words": 4098,
+    "denamed": false,
+    "sources": [
+      "pigbutchering-bybsusd",
+      "fakewealth-cmdxcapital"
+    ]
+  },
+  "phishing-campanas-y-busqueda": {
+    "sections": 16,
+    "words": 6652,
+    "denamed": false,
+    "sources": [
+      "operation-general-jp-silentwarn",
+      "threat-hunter-recollection"
+    ]
+  },
+  "laboratorio-de-seguridad": {
+    "sections": 21,
+    "words": 4055,
+    "denamed": false,
+    "sources": [
+      "infra-soc",
+      "infraestructura-tunel-ofuscado"
+    ]
+  },
+  "saint-grail": {
+    "sections": 15,
+    "words": 4148,
+    "denamed": false,
+    "sources": [
+      "saint-grail-go",
+      "saint-grail"
+    ]
+  },
+  "analystty": {
+    "sections": 11,
+    "words": 1697,
+    "denamed": false,
+    "sources": [
+      "analystty"
+    ]
+  },
+  "pentest-api-jwt-idor": {
+    "sections": 8,
+    "words": 1677,
+    "denamed": false,
+    "sources": [
+      "web-api-pentesting2024"
+    ]
+  }
+}

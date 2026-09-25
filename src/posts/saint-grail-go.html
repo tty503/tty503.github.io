@@ -1,9 +1,0 @@
-<p class="resumen"><strong>Resumen.</strong> Continuación de SAINT GRAIL: migración del orquestador de Python a Go por rendimiento, concurrencia real y memoria — el prototipo Flask tocó techo al escalar nodos y JSONs. Go gana: JSON tipado ~15× más rápido, goroutines de ~2 KB (sin GIL), 60-70% menos RAM (crítico con Ollama/Llama 3.2B local), parser AST con tree-sitter y binario único estático. Resultado tangible: dos pruebas de concepto funcionales validadas manualmente sobre proyectos de código abierto, y compartidas con sus responsables. El detalle de cada prueba se coordina con la divulgación responsable de los proyectos afectados.</p>
-
-<h2>Resumen</h2>
-<p>El prototipo Flask funcionaba pero escalaba mal: serialización JSON, memoria y GIL frenaban el ciclo de investigación. La reescritura en Go convirtió el orquestador en un motor de alto rendimiento que libera CPU/RAM para el agente y la ejecución de PoCs. La prueba de fuego son los dos PoCs funcionales generados por el agente y validados a mano: un TOCTOU en el DownloadManager de Chromium y un CRC-bypass con SFX en 7-Zip.</p>
-
-<h2>Ficha</h2>
-<p class="ficha"><strong>Ficha técnica.</strong> Migración: Flask → Go (orquestador). Ganancias: JSON ~15× · goroutines ~2 KB · −60-70% RAM. Parser: tree-sitter AST &lt;4K tokens. PoC 1: TOCTOU — DownloadManager de Chromium. PoC 2: CRC bypass + SFX 7-Zip (9.20–25.01) · RCE asistida · Startup. Output: github.com/tty503/saint-grail-pocs-output.</p>
-
-<p class="veredicto"><strong>Veredicto.</strong> Continuación con resultados concretos y verificables (dos PoCs validados, output público). Roadmap: modelos locales especializados, indización vectorial, fuzzing por cobertura y encadenado automático de hallazgos.</p>

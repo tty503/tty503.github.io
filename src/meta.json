@@ -3,346 +3,238 @@
     "url": "https://tty503.com",
     "name": "tty503 — Christian Márquez",
     "lang": "es",
-    "time": "2026-09-24T00:00:00Z",
+    "time": "2026-09-25T00:00:00Z",
     "ga": "G-RZVNG112YY"
   },
   "social": [
-    ["GitHub", "https://github.com/tty503"],
-    ["LinkedIn", "https://linkedin.com/in/tty503"],
-    ["X / Twitter", "https://x.com/tty_503"],
-    ["RSS", "https://tty503.com/feed.xml"]
+    [
+      "GitHub",
+      "https://github.com/tty503"
+    ],
+    [
+      "LinkedIn",
+      "https://linkedin.com/in/tty503"
+    ],
+    [
+      "X / Twitter",
+      "https://x.com/tty_503"
+    ],
+    [
+      "RSS",
+      "https://tty503.com/feed.xml"
+    ]
   ],
   "pages": {
-    "cadena-portal-cautivo-rce": {
-      "title": "el daemon de portal cautivo RCE pre-auth: EAP-Identity → conup (CWE-78)",
-      "desc": "Un valor EAP-Response/Identity pre-auth viaja sin saneado por la cadena EAP→RADIUS→env→script y termina en una evaluación. Ejecución validada con ASAN+gdb: sink y evidencia E2E.",
+    "sinks-preauth-daemons-c": {
+      "title": "Cinco clases de sink pre-auth en daemons C embebidos",
+      "desc": "Del primer paquete de un handshake a un interprete de comandos: cinco cadenas reales de inyeccion en daemons C de firmware de router, con la clase de vulnerabilidad, el punto de entrada y el alcance honesto de cada una. Sin nombres de proyecto: el metodo es lo que se publica.",
       "date": "2026-09-02",
       "cat": "Vulnerability Research",
-      "tags": ["CWE-78", "RCE pre-auth", "Captive Portal"],
+      "tags": [
+        "CWE-78",
+        "CWE-121",
+        "CWE-125",
+        "RCE pre-auth",
+        "Auditoría"
+      ],
       "badge": "rce",
-      "read": "18 min",
-      "related": ["fw-host-header-rce", "http-el conversor de fecha a timestamp-stackoverflow", "suite-paneles-tunel-spooler"],
-      "series": "caza-autonoma-e2e-serie"
+      "related": [
+        "cazar-con-ia-local",
+        "deteccion-blue-team",
+        "agentes-ia-locales"
+      ]
     },
-    "fw-host-header-rce": {
-      "title": "el daemon de autenticacion y redireccion: inyección de comandos por la cabecera Host (CWE-78)",
-      "desc": "Request HTTP pre-auth con una cabecera Host maliciosa termina en ejecución de comandos como administrador al construir una regla de iptables. Ejecución verificada con evidencia. Sink fw_iptables.c:596 → util.c:96.",
-      "date": "2026-09-02",
-      "cat": "Vulnerability Research",
-      "tags": ["CWE-78", "iptables", "Análisis"],
-      "badge": "rce",
-      "read": "17 min",
-      "related": ["cadena-portal-cautivo-rce", "http-el conversor de fecha a timestamp-stackoverflow", "autopsia-streaming-http-minimo"],
-      "series": "caza-autonoma-e2e-serie"
-    },
-    "http-el conversor de fecha a timestamp-stackoverflow": {
-      "title": "el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)",
-      "desc": "Un If-Modified-Since de 220 bytes desborda un buffer de 128 y permite tomar control parcial del contador de programa con un descifrado en pila. Disparidad nativo/gdb (+0xC0) documentada y reproducción incluida.",
-      "date": "2026-09-02",
-      "cat": "Vulnerability Research",
-      "tags": ["CWE-121", "Stack Overflow", "HTTP", "RIP control"],
-      "badge": "rce",
-      "read": "16 min",
-      "related": ["cadena-portal-cautivo-rce", "fw-host-header-rce", "autopsia-streaming-http-minimo"],
-      "series": "caza-autonoma-e2e-serie"
-    },
-    "autopsia-streaming-http-minimo": {
-      "title": "la biblioteca cliente del protocolo de streaming AMF3 + el servidor HTTP minimo el gestor de credenciales: primitivas reales sin cadena a RCE",
-      "desc": "OOB read en el decoder AMF3 de la biblioteca cliente del protocolo de streaming y command injection en el gestor de credenciales de el servidor HTTP minimo. Cuándo una primitiva real no llega a ejecución de código: análisis honesto del alcance.",
-      "date": "2026-09-02",
-      "cat": "Vulnerability Research",
-      "tags": ["CWE-125", "CWE-78", "la biblioteca cliente del protocolo de streaming", "el servidor HTTP minimo"],
-      "badge": "infra",
-      "read": "12 min",
-      "related": ["suite-paneles-tunel-spooler", "fw-host-header-rce", "http-el conversor de fecha a timestamp-stackoverflow"],
-      "series": "caza-autonoma-e2e-serie"
-    },
-    "suite-paneles-tunel-spooler": {
-      "title": "Suite de scripting servers: el panel web de administracion del servidor, el panel web de administracion restringida, el daemon de tunel L2TP/IPsec y el spooler de impresion",
-      "desc": "Cuatro sinks de inyección en la familia miniserv + L2TP + el spooler de impresion, y el bypass de confianza X-SSL-Client-* con su alcance real: tres prerrequisitos que no son default.",
-      "date": "2026-09-02",
-      "cat": "Vulnerability Research",
-      "tags": ["CWE-78", "Trust bypass", "Scripting servers", "el panel web de administracion del servidor"],
-      "badge": "rce",
-      "read": "20 min",
-      "related": ["autopsia-streaming-http-minimo", "cadena-portal-cautivo-rce", "fw-host-header-rce"],
-      "series": "caza-autonoma-e2e-serie"
-    },
-    "caza-autonoma-e2e-serie": {
-      "title": "Caza autónoma E2E con IA local: 5 cadenas RCE reales",
-      "desc": "Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, evidencia ASAN y la doctrina de la divulgación responsable.",
-      "date": "2026-09-02",
-      "cat": "Serie",
-      "tags": ["Bug Hunting", "RCE", "Divulgación responsable", "E2E"],
-      "badge": "rce",
-      "read": "25 min",
-      "related": ["sherlock-caza-autonoma-ia-local", "libarchive-cab-lzx-uninitialized-memory", "7zip-isfolderencrypted-oob-read"]
-    },
-    "sherlock-caza-autonoma-ia-local": {
-      "title": "Sherlock: caza autónoma de vulnerabilidades con IA local",
-      "desc": "Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con validación doble e índice de siete hallazgos contra 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.",
-      "date": "2026-08-21",
-      "cat": "Serie",
-      "tags": ["Bug Hunting", "IA Local", "Fuzzing", "Vulnerability Research"],
-      "badge": "rce",
-      "read": "20 min",
-      "related": ["7zip-isfolderencrypted-oob-read", "ffmpeg-demuxers-dos-vpk-vqf-smacker", "libwebp-vp8l-lossless-decode-dos"]
-    },
-    "7zip-isfolderencrypted-oob-read": {
-      "title": "7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente",
-      "desc": "El flag 0x10 que ReadFolder consume e IsFolderEncrypted ignora provoca lecturas fuera del heap controlables de 1–6 bytes en 7-Zip 26.00–26.02. Desync byte a byte, doble parser, reproducción estructural y evidencia ASAN + valgrind.",
+    "cazar-con-ia-local": {
+      "title": "Cazar con IA local: pipeline, triaje y seis hallazgos verificados",
+      "desc": "Arquitectura de un sistema de caza autonomo sobre hardware propio, el metodo de triaje con doble validacion, y seis hallazgos con reproduccion en bibliotecas y demultiplexadores del sistema.",
       "date": "2026-08-21",
       "cat": "Vulnerability Research",
-      "tags": ["CWE-125", "Heap OOB", "7-Zip", "Desync"],
+      "tags": [
+        "Automatización",
+        "Triaje",
+        "ASAN",
+        "IA local"
+      ],
       "badge": "rce",
-      "read": "18 min",
-      "related": ["libarchive-cab-lzx-uninitialized-memory", "ffmpeg-demuxers-dos-vpk-vqf-smacker", "sherlock-caza-autonoma-ia-local"]
+      "related": [
+        "sinks-preauth-daemons-c",
+        "agentes-ia-locales",
+        "analystty"
+      ]
     },
-    "ffmpeg-demuxers-dos-vpk-vqf-smacker": {
-      "title": "FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)",
-      "desc": "Tres bugs de DoS por fuzzing autónomo: división por cero con 21 bytes (CWE-369, parcheada), leak escalable hasta ~677 MB (CWE-401) y bucle de 13,5M frames con input de 105 bytes (CWE-400).",
-      "date": "2026-08-21",
-      "cat": "Vulnerability Research",
-      "tags": ["CWE-369", "CWE-401", "CWE-400", "FFmpeg", "DoS"],
-      "badge": "dos",
-      "read": "16 min",
-      "related": ["libwebp-vp8l-lossless-decode-dos", "pcre2-jit-compile-hang-recursion", "sherlock-caza-autonoma-ia-local"]
-    },
-    "libwebp-vp8l-lossless-decode-dos": {
-      "title": "libwebp: DoS por área de imagen no validada en VP8L lossless",
-      "desc": "Un WebP lossless de 34 bytes declara hasta 16384×16384 píxeles sin comprobar MAX_IMAGE_AREA, el guardia que el path lossy sí aplica. Amplificación 34 B → 256M píxeles con evidencia reproducible.",
-      "date": "2026-08-21",
-      "cat": "Vulnerability Research",
-      "tags": ["CWE-400", "DoS", "libwebp", "Amplificación"],
-      "badge": "dos",
-      "read": "12 min",
-      "related": ["ffmpeg-demuxers-dos-vpk-vqf-smacker", "pcre2-jit-compile-hang-recursion", "sherlock-caza-autonoma-ia-local"]
-    },
-    "pcre2-jit-compile-hang-recursion": {
-      "title": "PCRE2: hang en compilación JIT por recursión (?0) en negative lookahead",
-      "desc": "El intérprete compila el patrón en 0 ms; pcre2_jit_compile se cuelga eternamente en get_framesize. Diagnóstico diferencial JIT vs intérprete: el bug vive en la compilación, no en el matching.",
-      "date": "2026-08-21",
-      "cat": "Vulnerability Research",
-      "tags": ["CWE-400", "PCRE2", "JIT", "Regex"],
-      "badge": "dos",
-      "read": "13 min",
-      "related": ["ffmpeg-demuxers-dos-vpk-vqf-smacker", "libwebp-vp8l-lossless-decode-dos", "sherlock-caza-autonoma-ia-local"]
-    },
-    "libarchive-cab-lzx-uninitialized-memory": {
-      "title": "libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing",
-      "desc": "Mismo CAB, dos builds: la vulnerable extrae leyendo un history guard sin inicializar; la parcheada rechaza con LZX_CORRUPT. El patch-diffing como radar de zonas calientes y una clasificación honesta: DUP-RACE.",
-      "date": "2026-08-21",
-      "cat": "Vulnerability Research",
-      "tags": ["CWE-457", "libarchive", "Patch-diffing", "LZX"],
-      "badge": "rce",
-      "read": "11 min",
-      "related": ["7zip-isfolderencrypted-oob-read", "ffmpeg-demuxers-dos-vpk-vqf-smacker", "sherlock-caza-autonoma-ia-local"]
-    },
-    "analystty": {
-      "title": "analystty: triage automatizado de malware PE con Python",
-      "desc": "Herramienta que extrae imports, detecta TTPs con MITRE ATT&CK, desensambla la sección .text y genera breakpoints para x64dbg automáticamente. Stack: Capstone, pefile, malapi.json. Caso real: un dropper con API hashing.",
-      "date": "2026-05-15",
-      "cat": "Herramientas propias",
-      "tags": ["Python", "Malware Analysis", "Capstone", "Automatización"],
-      "badge": "ti",
-      "read": "12 min",
-      "related": ["threat-hunter-recollection", "myPracticalShellcodeC2", "evasion-estatica-asm-mirai"]
-    },
-    "evasion-estatica-asm-mirai": {
-      "title": "Evasión estática: por qué cambia la firma de un binario (ASM x86)",
-      "desc": "Medición en laboratorio sobre una muestra pública: las detecciones cayeron de 16 a cero al reescribir los opcodes con la misma lógica, sin empaquetar y con entropía normal. Lectura defensiva incluida.",
-      "date": "2026-06-01",
-      "cat": "Malware Analysis",
-      "tags": ["Assembly x86", "Detección estática", "Mirai", "Análisis"],
-      "badge": "ti",
-      "read": "25 min",
-      "related": ["analystty", "threat-hunter-recollection", "infraestructura-tunel-ofuscado"]
-    },
-    "threat-hunter-recollection": {
-      "title": "Threat Hunter Recollection: cinco investigaciones reales de caza",
-      "desc": "Bitácora de un año de caza: mapeo OSINT de una red de estafa piramidal, fraude con Lumma Stealer, deconstrucción de NetSupport RAT y un dropper multi-etapa. El hilo metodológico que conecta las cinco.",
-      "date": "2026-05-24",
-      "cat": "Threat Intelligence",
-      "tags": ["Threat Hunting", "Malware Analysis", "OSINT", "Reversing"],
-      "badge": "ti",
-      "read": "45 min",
-      "related": ["pigbutchering-bybsusd", "fakewealth-cmdxcapital", "operation-general-jp-silentwarn"]
-    },
-    "pigbutchering-bybsusd": {
-      "title": "Pig butchering: deconstrucción de un exchange falso en Vue3 con WebSocket",
-      "desc": "Análisis forense de un exchange falso con frontend Vue3, WebSocket real-time en Hong Kong y el backend que entrega la clave del captcha en el propio JSON. IoCs, diagramas y referencias FBI, DOJ y Europol.",
-      "date": "2026-05-26",
-      "cat": "Threat Intelligence",
-      "tags": ["Pig Butchering", "OSINT", "Crypto scam", "Forense"],
-      "badge": "ti",
-      "read": "30 min",
-      "related": ["fakewealth-cmdxcapital", "operation-general-jp-silentwarn", "threat-hunter-recollection"]
-    },
-    "fakewealth-cmdxcapital": {
-      "title": "cmdxcapital: fuga de datos en Laravel por appDebug activo",
-      "desc": "El modo depuración de Laravel en producción expuso consultas SQL, tokens y rutas del servidor. Diez dominios satélite bajo Cloudflare, bypass de captcha y smurfing hacia wallets Bitcoin Bech32.",
-      "date": "2025-10-15",
-      "cat": "Threat Intelligence",
-      "tags": ["Threat Intelligence", "Fraude financiero", "Blockchain", "Laravel"],
-      "badge": "ti",
-      "read": "60 min",
-      "related": ["pigbutchering-bybsusd", "operation-general-jp-silentwarn", "threat-hunter-recollection"]
-    },
-    "operation-general-jp-silentwarn": {
-      "title": "General JP y SilentWarn: dos campañas de phishing conectadas",
-      "desc": "General JP: redirección multi-capa, Google Cloud Storage y kit PHP con exfiltración a Telegram. SilentWarn: SPA React con geofencing a Vietnam. IoCs, patrones de infraestructura y correlación entre campañas.",
-      "date": "2025-06-15",
-      "cat": "Threat Intelligence",
-      "tags": ["Phishing", "OSINT", "Infraestructura", "Threat Intelligence"],
-      "badge": "ti",
-      "read": "15 min",
-      "related": ["pigbutchering-bybsusd", "fakewealth-cmdxcapital", "threat-hunter-recollection"]
-    },
-    "infraestructura-tunel-ofuscado": {
-      "title": "Túnel ofuscado: WireGuard sobre TCP falso y proxy residencial",
-      "desc": "Túnel WireGuard encapsulado en TCP falso mediante udp2raw, enmascaramiento con redsocks + SOCKS5 residencial y DNS blindado con dnscrypt-proxy. Arquitectura completa y despliegue automatizado.",
-      "date": "2026-05-22",
-      "cat": "Infraestructura",
-      "tags": ["WireGuard", "udp2raw", "Redes", "Laboratorio"],
-      "badge": "infra",
-      "read": "30 min",
-      "related": ["infra-soc", "saint-grail-go", "exploit-development-lab"]
-    },
-    "infra-soc": {
-      "title": "Laboratorio SOC con honeypots: aislamiento y automatización",
-      "desc": "Laboratorio Blue Team con Proxmox, OPNsense, T-Pot, Tailscale, Podman rootless, Terraform, Ansible y stack de monitoreo: Wazuh, Zabbix, Prometheus y Grafana. Arquitectura y operación completas.",
-      "date": "2026-05-24",
-      "cat": "Infraestructura",
-      "tags": ["Blue Team", "SOC", "Honeypot", "IaC"],
-      "badge": "infra",
-      "read": "35 min",
-      "related": ["infraestructura-tunel-ofuscado", "web-api-pentesting2024", "plc"]
-    },
-    "web-api-pentesting2024": {
-      "title": "Pentesting a web API financiera: IDOR por validación incompleta de JWT",
-      "desc": "Auditoría a una API financiera cuyos mecanismos de protección quedaron sin efecto por una falla de autorización: el backend validaba la firma JWT pero no la pertenencia del recurso, y permitía acceder a datos ajenos.",
-      "date": "2024-08-15",
-      "cat": "Pentesting",
-      "tags": ["Pentesting", "Web API", "JWT", "IDOR"],
-      "badge": "infra",
-      "read": "25 min",
-      "related": ["infra-soc", "arte-de-la-paciencia-sudo-cache", "saint-grail"]
-    },
-    "exploit-development-ot-awl-arm": {
-      "title": "Exploit development OT: del AWL al shellcode en PLC Siemens",
-      "desc": "De reversing de AWL/MC7/MC7+ al exploit development: CVE-2020-15782 (Claroty Team82), sandbox escape con ejecución nativa ARM/MIPS en kernel ADONIS, ROP sobre MC7 y cuatro workshops sobre S7-1200.",
-      "date": "2026-06-05",
-      "cat": "Exploit Development",
-      "tags": ["OT Security", "PLC Siemens", "Shellcode", "Sandbox escape"],
-      "badge": "infra",
-      "read": "90 min",
-      "related": ["plc", "exploit-development-lab", "evasion-estatica-asm-mirai"]
-    },
-    "plc": {
-      "title": "PLC Siemens S5/S7 por dentro: AWL, bytecode MC7 y el silencio forense",
-      "desc": "Fundamentos de STEP5/AWL, transición a STEP7, la máquina virtual MC7, ingeniería inversa de bytecodes, hallazgos en infraestructuras venezolanas y la ausencia estructural de logs de auditoría en ICS.",
-      "date": "2026-05-14",
-      "cat": "Seguridad OT",
-      "tags": ["PLC Siemens", "Ingeniería Inversa", "MC7", "Infraestructura crítica"],
-      "badge": "infra",
-      "read": "40 min",
-      "related": ["exploit-development-ot-awl-arm", "infra-soc", "assembly"]
-    },
-    "assembly": {
-      "title": "Assembly x86/x64 para ingeniería inversa: guía de campo",
-      "desc": "Stack frames, variables globales y locales, clases vs structs, malloc/new, pilas y listas enlazadas, convenciones de llamada (cdecl/stdcall/SystemV/Windows x64) y heurísticas para identificar funciones en Ghidra.",
-      "date": "2026-05-14",
-      "cat": "Guías",
-      "tags": ["Assembly", "Ingeniería Inversa", "Calling conventions", "Ghidra"],
+    "agentes-ia-locales": {
+      "title": "Cómo trabajo con agentes de IA locales: arquitectura, memoria y resultados",
+      "desc": "Dos o mas analistas especializados en paralelo sobre la misma pregunta, un registro de memoria compartido que indexa hechos y lecciones, y un modelo pequeno haciendo el trabajo repetitivo en la propia maquina.",
+      "date": "2026-09-24",
+      "cat": "Agentes",
+      "tags": [
+        "Agentes",
+        "Memoria",
+        "IA local",
+        "Automatización"
+      ],
       "badge": "guide",
-      "read": "120 min",
-      "related": ["exploit-development-lab", "analystty", "plc"]
+      "related": [
+        "cazar-con-ia-local",
+        "saint-grail",
+        "sinks-preauth-daemons-c"
+      ]
     },
-    "myPracticalShellcodeC2": {
-      "title": "Inyección y persistencia en Windows: notas para la detección",
-      "desc": "Apuntes documentados en laboratorio propio sobre técnicas clásicas de inyección y persistencia en Windows: qué hace cada una y qué indicadores dejan en el sistema para detectarla.",
-      "date": "2026-05-22",
-      "cat": "Análisis",
-      "tags": ["Windows Internals", "Detección", "Estudio"],
-      "badge": "ti",
-      "read": "120 min",
-      "related": ["exploit-development-lab", "evasion-estatica-asm-mirai", "analystty"]
-    },
-    "exploit-development-lab": {
-      "title": "Laboratorio de exploit development: kernel de Windows y ROP",
-      "desc": "Bitácora de un mes de laboratorio: Windows internals, drivers KMDF/UMDF, formatos PE/ELF/DEX, Assembly x86/AMD64/ARM64, shellcode, ROP en 64 bits y disección de CVEs reales en Chrome V8 y WebRTC.",
+    "exploit-development-y-reversing": {
+      "title": "Exploit development y reversing: kernel de Windows, ROP de 64 bits y Assembly",
+      "desc": "Bitacora de un mes de laboratorio: internals de Windows, drivers KMDF y UMDF, formatos PE/ELF/DEX, convenciones de llamada, construccion de shellcode, ROP en 64 bits y heuristicas para identificar funciones.",
       "date": "2026-06-04",
       "cat": "Exploit Development",
-      "tags": ["Windows Internals", "ROP", "Shellcode", "Binary exploitation"],
+      "tags": [
+        "ROP",
+        "Windows internals",
+        "x86-64",
+        "Drivers"
+      ],
       "badge": "infra",
-      "read": "90 min",
-      "related": ["myPracticalShellcodeC2", "assembly", "evasion-estatica-asm-mirai"]
+      "related": [
+        "seguridad-ot-ics",
+        "deteccion-blue-team",
+        "pentest-api-jwt-idor"
+      ]
     },
-    "arte-de-la-paciencia-sudo-cache": {
-      "title": "El arte de la paciencia: un script de 15 líneas puede iniciar una brecha",
-      "desc": "Ejemplo que abusa del mecanismo de caché de sudo (T1548.003), con las reglas de auditd para detectarlo del lado del Blue Team.",
-      "date": "2026-05-29",
-      "cat": "Red Team",
-      "tags": ["Privilege escalation", "MITRE ATT&CK", "sudo", "Bash"],
+    "seguridad-ot-ics": {
+      "title": "Seguridad OT: S5/S7, la maquina virtual MC7 y la ausencia de logs en ICS",
+      "desc": "De STEP5/AWL a STEP7, la maquina virtual MC7 y su reversing de bytecodes, exploit development sobre PLC, un sandbox escape con ejecucion nativa en kernel, ROP sobre MC7 y por que las ICS carecen estructuralmente de registro de auditoria.",
+      "date": "2026-06-05",
+      "cat": "Seguridad OT",
+      "tags": [
+        "ICS",
+        "PLC",
+        "AWL",
+        "MC7",
+        "Firmware"
+      ],
       "badge": "infra",
-      "read": "15 min",
-      "related": ["web-api-pentesting2024", "infra-soc", "exploit-development-lab"]
+      "related": [
+        "exploit-development-y-reversing",
+        "deteccion-blue-team"
+      ]
+    },
+    "deteccion-blue-team": {
+      "title": "Tres tecnicas clasicas y como se detectan: sudo, Windows y evasion de opcodes",
+      "desc": "El mecanismo de cache de sudo como via de persistencia, inyeccion y persistencia en Windows, y la reescritura de opcodes que llevo las detecciones de 16 a cero con la misma logica. Cada tecnica con los indicadores que deja y la regla de deteccion del lado defensivo.",
+      "date": "2026-06-01",
+      "cat": "Blue Team",
+      "tags": [
+        "Detección",
+        "T1548.003",
+        "Auditoría",
+        "MITRE ATT&CK"
+      ],
+      "badge": "ti",
+      "related": [
+        "fraude-cripto-y-phishing",
+        "phishing-campanas-y-busqueda",
+        "exploit-development-y-reversing"
+      ]
+    },
+    "fraude-cripto-y-phishing": {
+      "title": "Fraude cripto y phishing: dos casos con IoCs y grafo de infraestructura",
+      "desc": "Deconstruccion de un exchange falso con frontend SPA, WebSocket en tiempo real y la clave del captcha entregada en el propio JSON, y de una fuga de datos por modo depuracion activo en produccion. IoCs, dominios y wallets.",
+      "date": "2026-10-15",
+      "cat": "Threat Intelligence",
+      "tags": [
+        "IoC",
+        "Phishing",
+        "Fraude",
+        "Cloudflare"
+      ],
+      "badge": "ti",
+      "related": [
+        "phishing-campanas-y-busqueda",
+        "deteccion-blue-team"
+      ]
+    },
+    "phishing-campanas-y-busqueda": {
+      "title": "Campanas de phishing conectadas y el metodo de busqueda de amenazas: cuatro investigaciones",
+      "desc": "Redireccion multi-capa con exfiltracion a canales de mensajeria, una SPA con geofencing, y la bitacora de un ano de caza: mapa OSINT de una red de estafa, fraude con un stealer, un RAT comercial y un dropper multi-etapa. Lo que conecta las cuatro.",
+      "date": "2026-05-24",
+      "cat": "Threat Intelligence",
+      "tags": [
+        "OSINT",
+        "Phishing",
+        "Malware",
+        "IoC"
+      ],
+      "badge": "ti",
+      "related": [
+        "fraude-cripto-y-phishing",
+        "laboratorio-de-seguridad"
+      ]
+    },
+    "laboratorio-de-seguridad": {
+      "title": "Laboratorio de seguridad: SOC con honeypots y tuneles ofuscados",
+      "desc": "Montaje completo de un laboratorio Blue Team sobre Proxmox con honeypots, contenedores rootless y monitoreo, mas el montaje de un tunel que se camufla como TCP con enmascaramiento de IP y DNS cifrado. Arquitectura y despliegue automatizado.",
+      "date": "2026-05-24",
+      "cat": "Infraestructura",
+      "tags": [
+        "SOC",
+        "Honeypots",
+        "Túneles",
+        "Proxmox"
+      ],
+      "badge": "infra",
+      "related": [
+        "phishing-campanas-y-busqueda",
+        "cazar-con-ia-local"
+      ]
     },
     "saint-grail": {
-      "title": "SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA",
-      "desc": "Sistema que integra DeepSeek, DeepWiki y un agente híbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB y grafo interactivo.",
-      "date": "2026-06-25",
-      "cat": "Herramientas propias",
-      "tags": ["AI", "Bug Hunting", "DeepSeek", "Open Source"],
-      "badge": "guide",
-      "read": "25 min",
-      "related": ["saint-grail-go", "sherlock-caza-autonoma-ia-local", "analystty"]
-    },
-    "saint-grail-go": {
-      "title": "SAINT GRAIL en Go: resultados concretos y bug hunting autónomo",
-      "desc": "Migración a Go por rendimiento y concurrencia nativa: dos hallazgos reproducibles generados por IA, una condición de carrera en Chromium y una validación débil en 7-Zip (9.20–25.01). Código público.",
+      "title": "SAINT GRAIL: plataforma modular de investigacion de seguridad con IA",
+      "desc": "La version reescrita en Go por rendimiento y concurrencia nativa, con dos hallazgos reproducibles generados por IA y una validacion debil en un gestor de archivos. Codigo publico: arquitectura, integraciones y lo que costo reescribirlo.",
       "date": "2026-07-05",
       "cat": "Herramientas propias",
-      "tags": ["Go", "Bug Hunting", "AI"],
+      "tags": [
+        "Go",
+        "Automatización",
+        "Código abierto"
+      ],
       "badge": "guide",
-      "read": "15 min",
-      "related": ["saint-grail", "sherlock-caza-autonoma-ia-local", "7zip-isfolderencrypted-oob-read"]
+      "related": [
+        "agentes-ia-locales",
+        "analystty",
+        "cazar-con-ia-local"
+      ]
     },
-    "agentes-locales-arquitectura": {
-      "title": "Cómo organizo el trabajo con agentes de IA locales",
-      "desc": "La arquitectura detrás de mis flujos automatizados: dos o más agentes especializados trabajando a la vez sobre la misma pregunta, un registro de memoria compartido y un modelo pequeño que hace el trabajo repetitivo en mi propia máquina.",
-      "date": "2026-09-24",
-      "cat": "Agentes",
-      "tags": ["Agentes de IA", "Arquitectura", "Automatización", "Flujo de trabajo"],
-      "read": "7 min",
-      "related": ["agentes-memoria-aprendizaje", "agentes-resultados-progreso", "divulgacion-responsable"]
+    "analystty": {
+      "title": "analystty: triaje automatizado de ejecutables PE con Python",
+      "desc": "Extrae imports, correlaciona TTPs con MITRE ATT&CK, desensambla la seccion .text y genera breakpoints para el depurador. Un caso real: un dropper que ocultaba sus imports con hashing de API.",
+      "date": "2026-05-15",
+      "cat": "Herramientas propias",
+      "tags": [
+        "Python",
+        "Capstone",
+        "Triaje",
+        "ATT&CK"
+      ],
+      "badge": "ti",
+      "related": [
+        "saint-grail",
+        "cazar-con-ia-local"
+      ]
     },
-    "agentes-memoria-aprendizaje": {
-      "title": "La memoria de mis agentes: cómo aprenden de cada sesión",
-      "desc": "Cada sesión de trabajo termina con apuntes: hechos, lecciones y patrones. Esos apuntes se indexan y se consultan antes de empezar, de modo que el error de ayer pesa en la decisión de hoy.",
-      "date": "2026-09-24",
-      "cat": "Agentes",
-      "tags": ["Memoria", "Aprendizaje", "RAG", "Mejora continua"],
-      "read": "8 min",
-      "related": ["agentes-locales-arquitectura", "agentes-resultados-progreso", "divulgacion-responsable"]
-    },
-    "agentes-resultados-progreso": {
-      "title": "Qué he logrado con agentes locales y cómo lo mido",
-      "desc": "Resultados verificables de mis flujos con IA local: hallazgos reproducibles en proyectos de código abierto, un embudo de triaje honesto y la regla de no afirmar nada que no pueda mostrar.",
-      "date": "2026-09-24",
-      "cat": "Agentes",
-      "tags": ["Agentes de IA", "Resultados", "Medición", "Código abierto"],
-      "read": "8 min",
-      "related": ["sherlock-caza-autonoma-ia-local", "caza-autonoma-e2e-serie", "agentes-locales-arquitectura"]
-    },
-    "divulgacion-responsable": {
-      "title": "Por qué no publico todo lo que encuentro",
-      "desc": "La diferencia entre una primitiva y una cadena explotable, y por qué este sitio omite deliberadamente los detalles que podrían usarse para atacar sistemas.",
-      "date": "2026-09-24",
-      "cat": "Notas",
-      "tags": ["Divulgación responsable", "Ética", "Investigación"],
-      "read": "5 min",
-      "related": ["caza-autonoma-e2e-serie", "agentes-resultados-progreso", "agentes-locales-arquitectura"]
+    "pentest-api-jwt-idor": {
+      "title": "Pentest a API financiera: IDOR por validacion incompleta de JWT",
+      "desc": "Auditoria donde el backend validaba la firma del token pero no la pertenencia del recurso: la criptografia estaba bien, la autorizacion no. Recorrido del hallazgo, impacto y como se corrige.",
+      "date": "2024-08-15",
+      "cat": "Pentesting",
+      "tags": [
+        "JWT",
+        "IDOR",
+        "API",
+        "Autorización"
+      ],
+      "badge": "infra",
+      "related": [
+        "exploit-development-y-reversing",
+        "deteccion-blue-team"
+      ]
     }
   }
 }

@@ -2,93 +2,19 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<link rel="icon" type="image/png" href="hat.png">
-<link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#ffffff">
-<meta name="color-scheme" content="light">
-<title>SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</title>
-<meta name="description" content="Migración a Go por rendimiento y concurrencia nativa: dos hallazgos reproducibles generados por IA, una condición de carrera en Chromium y una validación débil en 7-Zip (9.20–25.01). Código público.">
-<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
-<meta name="author" content="Christian Márquez">
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-<meta name="googlebot" content="index, follow">
-<link rel="canonical" href="https://tty503.com/saint-grail-go.html">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="tty503">
-<meta property="og:locale" content="es_ES">
-<meta property="og:title" content="SAINT GRAIL en Go: resultados concretos y bug hunting autónomo">
-<meta property="og:description" content="Migración a Go por rendimiento y concurrencia nativa: dos hallazgos reproducibles generados por IA, una condición de carrera en Chromium y una validación débil en 7-Zip (9.20–25.01). Código público.">
-<meta property="og:url" content="https://tty503.com/saint-grail-go.html">
-<meta property="og:image" content="https://tty503.com/p1.jpg">
-<meta property="og:image:alt" content="tty503 — Christian Márquez">
-<meta property="article:published_time" content="2026-07-05">
-<meta property="article:modified_time" content="2026-07-05">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@tty_503">
-<meta name="twitter:creator" content="@tty_503">
-<meta name="twitter:title" content="SAINT GRAIL en Go: resultados concretos y bug hunting autónomo">
-<meta name="twitter:description" content="Migración a Go por rendimiento y concurrencia nativa: dos hallazgos reproducibles generados por IA, una condición de carrera en Chromium y una validación débil en 7-Zip (9.20–25.01). Código ">
-<meta name="twitter:image" content="https://tty503.com/p1.jpg">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
-
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="0; url=https://tty503.com/saint-grail.html">
+<title>Movido — tty503</title>
+<link rel="canonical" href="https://tty503.com/saint-grail.html">
 <link rel="stylesheet" href="assets/css/style.css">
-<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
-
 </head>
 <body>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
-<main class="post container">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="saint-grail-go.html">SAINT GRAIL en Go: resultados concretos y bu</a><span class="sep">/</span></nav>
-<header class="post-head">
-  <div class="post-tags"><span class="chip">Go</span><span class="chip">Bug Hunting</span><span class="chip">AI</span></div>
-  <h1>SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</h1>
-  <p class="lede">Migración a Go por rendimiento y concurrencia nativa: dos hallazgos reproducibles generados por IA, una condición de carrera en Chromium y una validación débil en 7-Zip (9.20–25.01). Código público.</p>
-  <div class="post-meta"><span>2026-07-05</span><span>15 min</span><span>Herramientas propias</span></div>
-</header>
-<article class="post-body">
-<p class="resumen"><strong>Resumen.</strong> Continuación de SAINT GRAIL: migración del orquestador de Python a Go por rendimiento, concurrencia real y memoria — el prototipo Flask tocó techo al escalar nodos y JSONs. Go gana: JSON tipado ~15× más rápido, goroutines de ~2 KB (sin GIL), 60-70% menos RAM (crítico con Ollama/Llama 3.2B local), parser AST con tree-sitter y binario único estático. Resultado tangible: dos pruebas de concepto funcionales validadas manualmente sobre proyectos de código abierto, y compartidas con sus responsables. El detalle de cada prueba se coordina con la divulgación responsable de los proyectos afectados.</p>
-
-<h2>Resumen</h2>
-<p>El prototipo Flask funcionaba pero escalaba mal: serialización JSON, memoria y GIL frenaban el ciclo de investigación. La reescritura en Go convirtió el orquestador en un motor de alto rendimiento que libera CPU/RAM para el agente y la ejecución de PoCs. La prueba de fuego son los dos PoCs funcionales generados por el agente y validados a mano: un TOCTOU en el DownloadManager de Chromium y un CRC-bypass con SFX en 7-Zip.</p>
-
-<h2>Ficha</h2>
-<p class="ficha"><strong>Ficha técnica.</strong> Migración: Flask → Go (orquestador). Ganancias: JSON ~15× · goroutines ~2 KB · −60-70% RAM. Parser: tree-sitter AST &lt;4K tokens. PoC 1: TOCTOU — DownloadManager de Chromium. PoC 2: CRC bypass + SFX 7-Zip (9.20–25.01) · RCE asistida · Startup. Output: github.com/tty503/saint-grail-pocs-output.</p>
-
-<p class="veredicto"><strong>Veredicto.</strong> Continuación con resultados concretos y verificables (dos PoCs validados, output público). Roadmap: modelos locales especializados, indización vectorial, fuzzing por cobertura y encadenado automático de hallazgos.</p>
-
-</article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-06-25 · Herramientas propias</span><a href="saint-grail.html">SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA</a></div><div class="post-item"><span class="meta">2026-08-21 · Serie</span><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: caza autónoma de vulnerabilidades con IA local</a></div><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="7zip-isfolderencrypted-oob-read.html">7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente</a></div></div></section>
+<main class="err">
+  <p class="err-code">Movido</p>
+  <h1>Este artículo se integró en otro más largo</h1>
+  <p>El contenido de esta página se conservó dentro de un artículo más
+     completo, sin fragmentar y sin duplicar. La lectura continúa aquí:</p>
+  <p><a class="btn" href="https://tty503.com/saint-grail.html">Leer el artículo</a></p>
 </main>
-<footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
-</div></footer>
-<button class="to-top" aria-label="Volver arriba">↑</button>
-<script src="assets/js/main.js"></script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Article",
-      "headline": "SAINT GRAIL en Go: resultados concretos y bug hunting aut\u00f3nomo",
-      "description": "Migraci\u00f3n a Go por rendimiento y concurrencia nativa: dos hallazgos reproducibles generados por IA, una condici\u00f3n de carrera en Chromium y una validaci\u00f3n d\u00e9bil en 7-Zip (9.20\u201325.01). C\u00f3digo p\u00fablico.",
-      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
-      "publisher": { "@type": "Organization", "name": "tty503" },
-      "datePublished": "2026-07-05",
-      "dateModified": "2026-07-05",
-      "mainEntityOfPage": "https://tty503.com/saint-grail-go.html",
-      "inLanguage": "es",
-      "keywords": "Go, Bug Hunting, AI"
-    },
-    {
-      "@type": "BreadcrumbList",
-      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/saint-grail-go.html", "name": "SAINT GRAIL en Go: resultados concretos y bug hunting autónomo"}}]
-    }
-  ]
-}
-</script>
 </body>
 </html>

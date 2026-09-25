@@ -2,94 +2,19 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<link rel="icon" type="image/png" href="hat.png">
-<link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#ffffff">
-<meta name="color-scheme" content="light">
-<title>Caza autónoma E2E con IA local: 5 cadenas RCE reales</title>
-<meta name="description" content="Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, evidencia ASAN y la doctrina de la divulgación responsable.">
-<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
-<meta name="author" content="Christian Márquez">
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-<meta name="googlebot" content="index, follow">
-<link rel="canonical" href="https://tty503.com/caza-autonoma-e2e-serie.html">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="tty503">
-<meta property="og:locale" content="es_ES">
-<meta property="og:title" content="Caza autónoma E2E con IA local: 5 cadenas RCE reales">
-<meta property="og:description" content="Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, evidencia ASAN y la doctrina de la divulgación responsable.">
-<meta property="og:url" content="https://tty503.com/caza-autonoma-e2e-serie.html">
-<meta property="og:image" content="https://tty503.com/p1.jpg">
-<meta property="og:image:alt" content="tty503 — Christian Márquez">
-<meta property="article:published_time" content="2026-09-02">
-<meta property="article:modified_time" content="2026-09-02">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@tty_503">
-<meta name="twitter:creator" content="@tty_503">
-<meta name="twitter:title" content="Caza autónoma E2E con IA local: 5 cadenas RCE reales">
-<meta name="twitter:description" content="Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, evidencia ASAN y la doctrina de la divulgación respons">
-<meta name="twitter:image" content="https://tty503.com/p1.jpg">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
-
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="0; url=https://tty503.com/sinks-preauth-daemons-c.html">
+<title>Movido — tty503</title>
+<link rel="canonical" href="https://tty503.com/sinks-preauth-daemons-c.html">
 <link rel="stylesheet" href="assets/css/style.css">
-<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
-
 </head>
 <body>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
-<main class="post container">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="caza-autonoma-e2e-serie.html">Caza autónoma E2E con IA local: 5 cadenas RC</a><span class="sep">/</span></nav>
-<header class="post-head">
-  <div class="post-tags"><span class="chip">Bug Hunting</span><span class="chip">RCE</span><span class="chip">Divulgación responsable</span><span class="chip">E2E</span></div>
-  <h1>Caza autónoma E2E con IA local: 5 cadenas RCE reales</h1>
-  <p class="lede">Índice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks línea a línea, evidencia ASAN y la doctrina de la divulgación responsable.</p>
-  <div class="post-meta"><span>2026-09-02</span><span>25 min</span><span>Serie</span></div>
-</header>
-<article class="post-body">
-<p class="resumen"><strong>Resumen.</strong> Índice de la serie: caza de bugs autónoma con IA local (motor en Metal, sin red, coste ≈ 0) con validación E2E de cada hallazgo. Serie de 6 hallazgos: RCE verificados en el daemon de portal cautivo, el daemon de autenticacion y redireccion y el servidor HTTP embebido; suite el panel web de administracion del servidor (post-auth + trust-bypass condicional); la biblioteca cliente del protocolo de streaming/el servidor HTTP minimo como primitivas. Doctrina aplicada: sin crash reproducible no hay hallazgo; gates pre-auth/default-config/internet-facing aplicados antes de madurar. Divulgación responsable: cada caso con su estado de fix y su alcance honesto.</p>
-
-<h2>Resumen</h2>
-<p>Esta serie documenta el pipeline completo de una cacería de vulnerabilidades ejecutada por un agente de IA local: selección de targets, barrido por familias de ataque, análisis adversarial de cada candidato y <b>validación E2E con reproducción en el entorno</b>. Cada entrega enlaza a la investigación individual con su archivo:línea, evidencia y clasificación.</p>
-<p>El resultado neto sobre la serie: tres RCE pre-auth demostrados (2 con ejecución de comandos como administrador), una suite de sinks post-auth documentados y dos primitivas de bajo impacto — cada uno con su truthful scope.</p>
-
-<h2>Mapa de la serie</h2>
-<p class="ficha"><strong>Ficha técnica.</strong> </p>
-
-<p class="veredicto"><strong>Veredicto.</strong> Serie que demuestra el método: la IA local genera candidatos y el pipeline E2E los convierte en hallazgos reales. Los RCE pre-auth de la serie son los que abren esta carpeta del portafolio.</p>
-
-</article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-08-21 · Serie</span><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: caza autónoma de vulnerabilidades con IA local</a></div><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="libarchive-cab-lzx-uninitialized-memory.html">libarchive: uninitialized heap read en CAB/LZX cazado con patch-diffing</a></div><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="7zip-isfolderencrypted-oob-read.html">7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente</a></div></div></section>
+<main class="err">
+  <p class="err-code">Movido</p>
+  <h1>Este artículo se integró en otro más largo</h1>
+  <p>El contenido de esta página se conservó dentro de un artículo más
+     completo, sin fragmentar y sin duplicar. La lectura continúa aquí:</p>
+  <p><a class="btn" href="https://tty503.com/sinks-preauth-daemons-c.html">Leer el artículo</a></p>
 </main>
-<footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
-</div></footer>
-<button class="to-top" aria-label="Volver arriba">↑</button>
-<script src="assets/js/main.js"></script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Article",
-      "headline": "Caza aut\u00f3noma E2E con IA local: 5 cadenas RCE reales",
-      "description": "\u00cdndice de la serie: el daemon de portal cautivo, el daemon de autenticacion y redireccion, el servidor HTTP embebido, la biblioteca cliente del protocolo de streaming+el servidor HTTP minimo y el panel web de administracion del servidor/el panel web de administracion restringida/el daemon de tunel L2TP/IPsec/el spooler de impresion. Pipeline, sinks l\u00ednea a l\u00ednea, evidencia ASAN y la doctrina de la divulgaci\u00f3n responsable.",
-      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
-      "publisher": { "@type": "Organization", "name": "tty503" },
-      "datePublished": "2026-09-02",
-      "dateModified": "2026-09-02",
-      "mainEntityOfPage": "https://tty503.com/caza-autonoma-e2e-serie.html",
-      "inLanguage": "es",
-      "keywords": "Bug Hunting, RCE, Divulgaci\u00f3n responsable, E2E"
-    },
-    {
-      "@type": "BreadcrumbList",
-      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/caza-autonoma-e2e-serie.html", "name": "Caza autónoma E2E con IA local: 5 cadenas RCE reales"}}]
-    }
-  ]
-}
-</script>
 </body>
 </html>

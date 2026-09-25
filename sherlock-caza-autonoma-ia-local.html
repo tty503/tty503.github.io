@@ -2,94 +2,19 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<link rel="icon" type="image/png" href="hat.png">
-<link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#ffffff">
-<meta name="color-scheme" content="light">
-<title>Sherlock: caza autónoma de vulnerabilidades con IA local</title>
-<meta name="description" content="Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con validación doble e índice de siete hallazgos contra 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.">
-<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
-<meta name="author" content="Christian Márquez">
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-<meta name="googlebot" content="index, follow">
-<link rel="canonical" href="https://tty503.com/sherlock-caza-autonoma-ia-local.html">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="tty503">
-<meta property="og:locale" content="es_ES">
-<meta property="og:title" content="Sherlock: caza autónoma de vulnerabilidades con IA local">
-<meta property="og:description" content="Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con validación doble e índice de siete hallazgos contra 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.">
-<meta property="og:url" content="https://tty503.com/sherlock-caza-autonoma-ia-local.html">
-<meta property="og:image" content="https://tty503.com/p1.jpg">
-<meta property="og:image:alt" content="tty503 — Christian Márquez">
-<meta property="article:published_time" content="2026-08-21">
-<meta property="article:modified_time" content="2026-08-21">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@tty_503">
-<meta name="twitter:creator" content="@tty_503">
-<meta name="twitter:title" content="Sherlock: caza autónoma de vulnerabilidades con IA local">
-<meta name="twitter:description" content="Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con validación doble e índice de siete hallazgos contra 7-Zip, FFmpeg, libwebp,">
-<meta name="twitter:image" content="https://tty503.com/p1.jpg">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
-
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="0; url=https://tty503.com/cazar-con-ia-local.html">
+<title>Movido — tty503</title>
+<link rel="canonical" href="https://tty503.com/cazar-con-ia-local.html">
 <link rel="stylesheet" href="assets/css/style.css">
-<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
-
 </head>
 <body>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
-<main class="post container">
-<nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: caza autónoma de vulnerabilidades </a><span class="sep">/</span></nav>
-<header class="post-head">
-  <div class="post-tags"><span class="chip">Bug Hunting</span><span class="chip">IA Local</span><span class="chip">Fuzzing</span><span class="chip">Vulnerability Research</span></div>
-  <h1>Sherlock: caza autónoma de vulnerabilidades con IA local</h1>
-  <p class="lede">Sistema de caza autónomo sobre hardware local: arquitectura, modelos pequeños especializados, método de triage con validación doble e índice de siete hallazgos contra 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.</p>
-  <div class="post-meta"><span>2026-08-21</span><span>20 min</span><span>Serie</span></div>
-</header>
-<article class="post-body">
-<p class="resumen"><strong>Resumen.</strong> SHERLOCK: motor de caza de bugs autónomo con IA 100% local (MLX/Metal en Mac), sin conexión a la nube y con coste de inferencia ≈ 0. Disciplina de orquestación: máximo 2 herramientas por ola (evita derivas) + un juez que audita cada veredicto antes de cerrar. Cosecha reportada: 201 hallazgos, 8 comprobados, 4 candidatos a CVE y 1 PoC E2E. Filosofía de honestidad: severidad medida, no publicitada.</p>
-
-<h2>Resumen</h2>
-<p>SHERLOCK es el motor que soporta las cacerías de la serie local: un agente que barre código, propone candidatos con archivo:línea y re-audita sus propias conclusiones dentro de un presupuesto de herramientas por ola. La regla de 2 herramientas obliga a pensar el siguiente paso en vez de enumerarlo, y el juez independiente evita que el optimismo del hallazgo cierre la ola sin verificación.</p>
-<p>El resultado agregado (201 hallazgos → 8 comprobados → 4 candidatos CVE → 1 PoC E2E) ilustra el embudo real de la caza: la mayoría del output es ruido; lo que sobrevive al juez y al E2E es material.</p>
-
-<h2>Ficha</h2>
-<p class="ficha"><strong>Ficha técnica.</strong> Motor: IA local — MLX/Metal (Mac), sin red, coste ≈ 0. Regla núcleo: ≤2 herramientas por ola + juez de veredicto. Cosecha: 201 hallazgos · 8 comprobados · 4 candidatos CVE · 1 PoC E2E. Relación: Motor usado por la serie E2E.</p>
-
-<p class="veredicto"><strong>Veredicto.</strong> Proyecto metodológico: demuestra que un motor local sin coste puede sostener el ciclo candidato→comprobación→madurado con el embudo honesto de rigor. El valor está en el pipeline y sus gates, no en la cifra bruta.</p>
-
-</article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="7zip-isfolderencrypted-oob-read.html">7-Zip: heap OOB read en IsFolderEncrypted por re-parse divergente</a></div><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="ffmpeg-demuxers-dos-vpk-vqf-smacker.html">FFmpeg: DoS en demuxers VPK, VQF y Smacker (SIGFPE, leak y hang)</a></div><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="libwebp-vp8l-lossless-decode-dos.html">libwebp: DoS por área de imagen no validada en VP8L lossless</a></div></div></section>
+<main class="err">
+  <p class="err-code">Movido</p>
+  <h1>Este artículo se integró en otro más largo</h1>
+  <p>El contenido de esta página se conservó dentro de un artículo más
+     completo, sin fragmentar y sin duplicar. La lectura continúa aquí:</p>
+  <p><a class="btn" href="https://tty503.com/cazar-con-ia-local.html">Leer el artículo</a></p>
 </main>
-<footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
-</div></footer>
-<button class="to-top" aria-label="Volver arriba">↑</button>
-<script src="assets/js/main.js"></script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Article",
-      "headline": "Sherlock: caza aut\u00f3noma de vulnerabilidades con IA local",
-      "description": "Sistema de caza aut\u00f3nomo sobre hardware local: arquitectura, modelos peque\u00f1os especializados, m\u00e9todo de triage con validaci\u00f3n doble e \u00edndice de siete hallazgos contra 7-Zip, FFmpeg, libwebp, PCRE2 y libarchive.",
-      "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
-      "publisher": { "@type": "Organization", "name": "tty503" },
-      "datePublished": "2026-08-21",
-      "dateModified": "2026-08-21",
-      "mainEntityOfPage": "https://tty503.com/sherlock-caza-autonoma-ia-local.html",
-      "inLanguage": "es",
-      "keywords": "Bug Hunting, IA Local, Fuzzing, Vulnerability Research"
-    },
-    {
-      "@type": "BreadcrumbList",
-      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/sherlock-caza-autonoma-ia-local.html", "name": "Sherlock: caza autónoma de vulnerabilidades con IA local"}}]
-    }
-  ]
-}
-</script>
 </body>
 </html>

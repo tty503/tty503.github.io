@@ -1,9 +1,0 @@
-<p class="resumen"><strong>Resumen.</strong> A veces la escalada no fuerza la cerradura, espera a que el administrador abra la puerta con sus llaves: PoC de Bash que abusa del caché de credenciales de sudo — T1548.003: Sudo and Sudo Caching. sudo -n comprueba el ticket sin pedir contraseña; timeout por defecto 15 min (timestamp_timeout). El script sondea cada 5 segundos y actúa cuando aparece el ticket — sin prompt, sin logs de fallo, sin alertas. Casos reales: Baron Samedit (CVE-2021-3156), el patrón Emulation Monkey (22 min de espera, invisible al EDR), SudoKiller y APT28 escalando tras el login del admin. Mitigación defendible: timestamp_timeout=0, auditoría de sudo -n con auditd y alertas sobre /var/run/sudo/ts/.</p>
-
-<h2>Resumen</h2>
-<p>Investigación post-explotación sobre "low-tech" ofensivo: en vez de exploits de kernel, abusar de un mecanismo documentado. La PoC es una máquina de estados de tres fases (esperar, sondear, actuar) contra el ticket de sudo, y se escala a escenario realista con ofuscación y evasión. Todo se ejecutó en laboratorio aislado (Proxmox) sobre la infraestructura propia de la casa.</p>
-
-<h2>Ficha</h2>
-<p class="ficha"><strong>Ficha técnica.</strong> Clase: Privilege escalation (post-explotación) · T1548.003. Mecanismo: sudo -n + timestamp_timeout (15 min). PoC: Bash · sondeo 5 s · 3 fases (esperar/sondear/actuar). Casos: Baron Samedit · Emulation Monkey · SudoKiller · APT28. Mitigación: timestamp_timeout=0 + auditd + alertas ts/.</p>
-
-<p class="veredicto"><strong>Veredicto.</strong> Investigación documentada del patrón de simplicidad letal; la mitad defensiva (detección y mitigación) está incluida. Uso práctico solo en laboratorio/red team autorizado.</p>

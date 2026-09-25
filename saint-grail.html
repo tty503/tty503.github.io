@@ -7,8 +7,8 @@
 <link rel="apple-touch-icon" href="hat.png">
 <meta name="theme-color" content="#ffffff">
 <meta name="color-scheme" content="light">
-<title>SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA</title>
-<meta name="description" content="Sistema que integra DeepSeek, DeepWiki y un agente híbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB y grafo interactivo.">
+<title>SAINT GRAIL: plataforma modular de investigacion de seguridad con IA</title>
+<meta name="description" content="La version reescrita en Go por rendimiento y concurrencia nativa, con dos hallazgos reproducibles generados por IA y una validacion debil en un gestor de archivos. Codigo publico: arquitectura, integraciones y lo que costo reescribirlo.">
 <meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
 <meta name="author" content="Christian Márquez">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
@@ -17,18 +17,18 @@
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="tty503">
 <meta property="og:locale" content="es_ES">
-<meta property="og:title" content="SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA">
-<meta property="og:description" content="Sistema que integra DeepSeek, DeepWiki y un agente híbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB y grafo interactivo.">
+<meta property="og:title" content="SAINT GRAIL: plataforma modular de investigacion de seguridad con IA">
+<meta property="og:description" content="La version reescrita en Go por rendimiento y concurrencia nativa, con dos hallazgos reproducibles generados por IA y una validacion debil en un gestor de archivos. Codigo publico: arquitectura, integraciones y lo que costo reescribirlo.">
 <meta property="og:url" content="https://tty503.com/saint-grail.html">
 <meta property="og:image" content="https://tty503.com/p1.jpg">
 <meta property="og:image:alt" content="tty503 — Christian Márquez">
-<meta property="article:published_time" content="2026-06-25">
-<meta property="article:modified_time" content="2026-06-25">
+<meta property="article:published_time" content="2026-07-05">
+<meta property="article:modified_time" content="2026-07-05">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@tty_503">
 <meta name="twitter:creator" content="@tty_503">
-<meta name="twitter:title" content="SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA">
-<meta name="twitter:description" content="Sistema que integra DeepSeek, DeepWiki y un agente híbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB y grafo interactivo.">
+<meta name="twitter:title" content="SAINT GRAIL: plataforma modular de investigacion de seguridad con IA">
+<meta name="twitter:description" content="La version reescrita en Go por rendimiento y concurrencia nativa, con dos hallazgos reproducibles generados por IA y una validacion debil en un gestor de archivos. Codigo publico: arquitectu">
 <meta name="twitter:image" content="https://tty503.com/p1.jpg">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
@@ -42,25 +42,384 @@
 <main class="post container">
 <nav class="breadcrumb"><a href="index.html">tty503</a><span class="sep">/</span><a href="saint-grail.html">SAINT GRAIL: plataforma modular de investiga</a><span class="sep">/</span></nav>
 <header class="post-head">
-  <div class="post-tags"><span class="chip">AI</span><span class="chip">Bug Hunting</span><span class="chip">DeepSeek</span><span class="chip">Open Source</span></div>
-  <h1>SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA</h1>
-  <p class="lede">Sistema que integra DeepSeek, DeepWiki y un agente híbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB y grafo interactivo.</p>
-  <div class="post-meta"><span>2026-06-25</span><span>25 min</span><span>Herramientas propias</span></div>
+  <div class="post-tags"><span class="chip">Go</span><span class="chip">Automatización</span><span class="chip">Código abierto</span></div>
+  <h1>SAINT GRAIL: plataforma modular de investigacion de seguridad con IA</h1>
+  <p class="lede">La version reescrita en Go por rendimiento y concurrencia nativa, con dos hallazgos reproducibles generados por IA y una validacion debil en un gestor de archivos. Codigo publico: arquitectura, integraciones y lo que costo reescribirlo.</p>
+  <div class="post-meta"><span>2026-07-05</span><span>21 min</span><span>Herramientas propias</span></div>
 </header>
 <article class="post-body">
-<p class="resumen"><strong>Resumen.</strong> SAINT GRAIL: plataforma modular para documentar, visualizar y ejecutar investigaciones ofensivas — Flask + SurrealDB embebida, grafo interactivo (Canvas + vanilla JS), dashboard y CLI. Integra DeepWiki para preguntas contextuales de componentes y DeepSeek para clasificar riesgo — el agente híbrido donde IA y analista se complementan. Respuestas de riesgo alto crean nodos primitive automáticamente, generan y ejecutan un PoC, todo en un grafo con taxonomía (phase ▢, vector ○, primitive △, barrier ◇, research ▭). KISS + filosofía Unix, orquestador con control de presupuesto de tokens. Capturas de prueba con datos "GenericApp"; sin versión pública por ahora.</p>
+<h2>1. Retomando el Camino</h2>
+        <p>
+            Hace unas semanas publiqué el artículo sobre <a href="https://tty503.com/saint-grail.html">SAINT GRAIL</a>, la plataforma modular para investigación de seguridad ofensiva que construí en Python con Flask, SurrealDB y un agente híbrido que integraba DeepSeek y DeepWiki. La respuesta fue buena y el sistema demostró ser funcional, pero rápidamente me topé con los límites del enfoque.
+        </p>
+        <p>
+            El prototipo en Python era ágil para desarrollar, pero al escalar el número de vectores, nodos y la cantidad de datos JSON que se movían entre los módulos, el cuello de botella se hizo evidente. La latencia en la serialización/deserialización, el consumo de memoria y la imposibilidad de aprovechar el paralelismo real (GIL) empezaron a frenar el ciclo de investigación. <strong>Necesitaba un motor que pudiera procesar cientos de vectores en paralelo, parsear estructuras pesadas en milisegundos y liberar recursos para el LLM local.</strong>
+        </p>
+        <p>
+            La respuesta fue <strong>Go</strong>. No por moda, sino por razones técnicas muy concretas. Y los resultados no tardaron en llegar.
+        </p>
+        <blockquote><p><strong>Contexto</strong></p>Este artículo es la continuación directa de <a href="https://tty503.com/saint-grail.html">SAINT GRAIL: Una Plataforma Modular para Investigación de Seguridad Ofensiva con IA</a>. Si no has leído el anterior, te recomiendo hacerlo para entender el origen del proyecto.</blockquote>
+        <h2>2. ¿Por qué Migrar a Go?</h2>
+        <p>
+            La decisión de migrar el orquestador central de Python a Go no fue trivial. Implicó reescribir cientos de líneas de código, adaptar la lógica de concurrencia y rediseñar la interacción con la base de datos. Pero los beneficios superaron con creces el esfuerzo.
+        </p>
+        <p>
+            Estas son las razones clave que me llevaron a dar el salto, basadas en las conclusiones de la investigación y la experiencia con el prototipo:
+        </p>
+        <ul>
+            <li><strong>Rendimiento en serialización JSON:</strong> Python convierte cada clave de un JSON en un diccionario dinámico, lo que ralentiza la manipulación de grandes estructuras. Go, con sus structs tipados, parsea y rearma JSON hasta <strong>15 veces más rápido</strong>, reduciendo drásticamente la latencia en el intercambio de nodos y aristas entre el agente y la API.</li>
+            <li><strong>Concurrencia nativa sin bloqueos:</strong> Las goroutines de Go consumen apenas 2 KB de memoria y permiten ejecutar miles de tareas simultáneas sin el overhead de los hilos del sistema. El agente híbrido puede ahora procesar decenas de vectores en paralelo, lanzar consultas DeepWiki mientras ejecuta PoCs y sincronizar P2P sin bloqueos.</li>
+            <li><strong>Menor consumo de memoria:</strong> En arquitecturas de alto volumen, Go puede consumir entre un 60% y 70% menos de RAM que Python, al no duplicar procesos y tener objetos más ligeros. Esto es crítico cuando ejecutas <strong>Ollama/Llama 3.2B</strong> en la misma máquina, porque libera recursos para la inferencia del LLM.</li>
+            <li><strong>Parser AST eficiente:</strong> Con tree-sitter integrado, Go extrae el contexto de código fuente (funciones, dependencias, comentarios) en menos de 4K tokens, reduciendo las alucinaciones del LLM y acelerando la validación de DeepWiki.</li>
+            <li><strong>Binario único y portabilidad:</strong> Go compila a un único binario estático, sin dependencias de Python, lo que facilita el despliegue de workers P2P y elimina los problemas de versiones de librerías.</li>
+        </ul>
+        <p>
+            En resumen: <strong>Go convierte el orquestador en un motor de alto rendimiento que libera a la CPU y la RAM para lo que realmente importa: la inteligencia del agente y la ejecución de exploits.</strong>
+        </p>
+        <figure><img src="img/saint-grail-go-cli-status-tiempo-real.jpg" alt="Consola CLI mostrando estado de API y flujo de trabajo" loading="lazy"></figure>
+        <h2>3. Arquitectura en Go</h2>
+        <p>
+            La versión en Go mantiene la misma filosofía modular, pero con una estructura mucho más desacoplada y eficiente. El orquestador central (orchestrator.go) coordina todos los subsistemas mediante canales y goroutines, sin bloqueos ni esperas innecesarias.
+        </p>
+        <h3>2.1 Componentes Clave</h3>
+        <pre><code>// Estructura simplificada del orquestador en Go
+            type Orchestrator struct {
+                store       storage.GraphStore
+                llm         llm.Router        // enruta entre DeepSeek, Ollama, etc.
+                deepwiki    *deepwiki.Client
+                fuzzing     *fuzzing.Fuzzer
+                executor    *executor.BinaryExecutor
+                tracker     *utils.ExploitTracker
+                vectorSem   chan struct{}     // semáforo para concurrencia
+                wg          sync.WaitGroup
+            }</code></pre>
+        <ul>
+            <li><strong>Router LLM:</strong> Soporta múltiples proveedores (DeepSeek, Ollama, y pronto Claude) con conmutación en caliente.</li>
+            <li><strong>Parser AST:</strong> Utiliza tree-sitter para C++ y JavaScript, extrayendo contexto relevante de los repositorios objetivo.</li>
+            <li><strong>Fuzzing inteligente:</strong> Mutación guiada por patrones CVE y feedback de cobertura (cuando está disponible).</li>
+            <li><strong>Executor:</strong> Ejecuta binarios con distintos tipos de entrada (stdin, file, argument) y detecta crashes mediante análisis de señales y ASAN.</li>
+            <li><strong>Exploit Tracker:</strong> Registra el progreso RCE → SBX → LPE para cada target, con ventanas de reintento y persistencia.</li>
+        </ul>
+        <h3>2.2 Flujo de Trabajo Mejorado</h3>
+        <p>
+            El bucle principal del agente ahora opera en ciclos de 5 segundos, ejecutando en paralelo:
+        </p>
+        <ul>
+            <li>Escaneo de nuevos PoCs y logs generados.</li>
+            <li>Procesamiento de vectores pendientes (investigación con DeepWiki + LLM).</li>
+            <li>Fuzzing automático de componentes activos.</li>
+            <li>Pruebas de primitivas existentes.</li>
+            <li>Calibración de prompts basada en resultados previos.</li>
+        </ul>
+        <p>
+            Gracias a las goroutines, cada target se procesa de forma independiente, y el semáforo vectorSem limita el número de vectores concurrentes para no saturar el sistema.
+        </p>
+        <figure><img src="img/saint-grail-go-dashboard-workflow-tiempo-real.jpg" alt="Dashboard principal mostrando fases y estado global" loading="lazy"></figure>
+        <h2>4. Resultados Concretos: Dos PoCs Funcionales</h2>
+        <p>
+            La migración a Go no solo mejoró el rendimiento; también permitió que el sistema generara <strong>dos pruebas de concepto (PoCs) funcionales</strong> que demuestran el valor real del enfoque. Estos PoCs fueron descubiertos automáticamente por el agente durante sus ciclos de investigación y fuzzing, y posteriormente validados manualmente.
+        </p>
+        <h3>3.1 PoC #1: TOCTOU en DownloadManager de Chromium</h3>
+        <p>
+            <strong>Vulnerabilidad:</strong> Condición de carrera TOCTOU (Time-Of-Check-Time-Of-Use) en el gestor de descargas de Chromium. El sistema detectó que dos descargas con el mismo nombre, iniciadas casi simultáneamente, pueden colisionar y hacer que una trunque a la otra. Chromium reporta ambas como completadas, pero en disco solo queda un archivo.
+        </p>
+        <p>
+            <strong>Impacto:</strong> Suplantación de archivos descargados. Un atacante puede reemplazar un binario legítimo por uno malicioso durante la descarga, y la víctima ejecutará el archivo confiando en el gestor de descargas.
+        </p>
+        <p>
+            <strong>Cómo lo encontró SAINT GRAIL:</strong> El agente, al analizar el flujo de descargas en Chromium (a través de su parser AST y el análisis de código fuente), identificó la ventana de sincronización entre el hilo UI y el hilo de descarga. Generó un vector de ataque y, tras validar con DeepWiki, creó un PoC en Python que demostraba la colisión.
+        </p>
+        <blockquote><p><strong>Nota sobre la inestabilidad</strong></p>La condición de carrera depende del timing y la carga del sistema. En entornos con SSD rápido, la colisión es menos probable. Sin embargo, en discos HDD o con payloads grandes (50 MB+), la probabilidad aumenta significativamente.</blockquote>
+        <h3>3.2 PoC #2: CRC Bypass + SFX en 7‑Zip</h3>
+        <p>
+            <strong>Vulnerabilidad:</strong> Bypass de integridad (CRC) en el formato 7z. El sistema descubrió que eliminando el bloque kCRC del header del archivo, la bandera CrcDefined se vuelve false y la extracción se realiza sin verificar el CRC. Combinado con el mecanismo SFX (autoextraíble), se puede ejecutar código arbitrario al ejecutar el SFX.
+        </p>
+        <p>
+            <strong>Impacto:</strong> Ejecución de código asistida por el usuario (User-Assisted RCE) y persistencia a nivel de usuario (Startup folder). Afecta a 7-Zip 9.20 – 25.01 en Windows.
+        </p>
+        <p>
+            <strong>Cómo lo encontró SAINT GRAIL:</strong> El agente, durante un ciclo de fuzzing sobre el formato 7z, generó un archivo malformado que pasaba todas las pruebas de integridad (7z t). Al analizar el código fuente de 7-Zip (vía DeepWiki + AST), identificó que el CRC del folder se omitía si el bloque kCRC no estaba presente. El sistema construyó automáticamente un SFX que embebería el payload y lo ejecutaría.
+        </p>
+        <p>
+            Este hallazgo es especialmente relevante porque el bypass de integridad permite que un atacante distribuya un archivo malicioso que parece legítimo, y el mecanismo SFX asegura que el payload se ejecute sin interacción adicional. La persistencia en el Startup folder convierte el ataque en una amenaza duradera, ideal para campañas de spear‑phishing o distribución de malware.
+        </p>
+        <blockquote><p><strong>Validación en vivo</strong></p>Ejecuté poc_7zip.py en mi máquina Debian y generó un KB5012345_Installer.exe que, al ejecutarse en Windows, lanza calc.exe. El archivo .7z embebido pasa 7z t sin errores.</blockquote>
+        <h3>3.3 El Sistema Detrás de los PoCs</h3>
+        <p>
+            Estos dos PoCs no son scripts aislados; son el resultado directo del flujo de trabajo de SAINT GRAIL. El orquestador en Go orquesta el descubrimiento, la validación y la generación de exploits de forma autónoma. Cada PoC viene acompañado de un README.md que documenta el hallazgo, el mecanismo y las instrucciones de ejecución.
+        </p>
+        <p>
+            Todo el código generado, incluyendo los PoCs y el orquestador, está disponible en el repositorio público:
+        </p>
+        <p>
+            <a href="https://github.com/tty503/saint-grail-pocs-output" target="_blank" rel="noopener noreferrer">github.com/tty503/saint-grail-pocs-output</a>
+        </p>
+        <p>
+            Ahí encontrarás los scripts, la documentación y las instrucciones para replicar los hallazgos.
+        </p>
+        <figure><img src="img/saint-grail-go-poc-ejecucion-terminal-verificacion.jpg" alt="Ejecución de PoC y verificación en /tmp" loading="lazy"></figure>
+        <figure><img src="img/saint-grail-go-motor-ejecucion-poc-navegador.jpg" alt="Motor de PoC en el navegador" loading="lazy"></figure>
+        <h2>5. Galería de Capturas</h2>
+        <p>
+            A continuación, una selección de capturas de pantalla que muestran diferentes aspectos del sistema en funcionamiento, desde la interfaz web hasta la línea de comandos y la validación de exploits.
+        </p>
+        <figure><img src="img/saint-grail-go-vista-jerarquica-fases-grafo.jpg" alt="Vista jerárquica del grafo y ficha técnica de fase" loading="lazy"></figure>
+        <figure><img src="img/saint-grail-go-grafo-fuerza-mapeo-mitre.jpg" alt="Grafo de red interactivo y mapeo MITRE" loading="lazy"></figure>
+        <h2>6. Estado Actual y Próximos Pasos</h2>
+        <p>
+            La versión en Go de SAINT GRAIL es completamente funcional y ha demostrado su capacidad generando dos PoCs reales. Sin embargo, el sistema sigue siendo un work in progress. Estas son las áreas en las que estoy trabajando actualmente:
+        </p>
+        <ul>
+            <li><strong>Integración de modelos locales uncensored:</strong> Ya tengo una rama que usa Dolphin-Mistral con Ollama para generar exploits sin censura, reduciendo la dependencia de APIs externas.</li>
+            <li><strong>Memoria persistente con Qdrant:</strong> Estoy implementando un sistema de vectores embebidos para almacenar payloads exitosos y patrones de crashes, permitiendo al agente aprender de experiencias pasadas.</li>
+            <li><strong>Calibración automática de prompts:</strong> El módulo calibrator.go ya está integrado y comienza a ajustar los prompts en función de los fallos de los PoCs.</li>
+            <li><strong>Mejora del frontend:</strong> El grafo y el dashboard están siendo migrados a una SPA con React + D3 para una experiencia más fluida, aunque el HTML/JS actual sigue funcionando perfectamente.</li>
+        </ul>
+        <p>
+            Pero más allá de estas mejoras, el camino por recorrer es largo y apasionante. A continuación, detallo los principales desafíos y funcionalidades que aún están pendientes:
+        </p>
+        <ul>
+            <li><strong>Detección de vulnerabilidades en tiempo real:</strong> Actualmente el agente opera en ciclos programados. El objetivo es convertirlo en un sistema continuo que reaccione ante nuevos commits o cambios en los repositorios objetivo.</li>
+            <li><strong>Cobertura de código y fuzzing guiado por cobertura:</strong> La integración con herramientas como AFL++ o libFuzzer para medir la cobertura de código y dirigir las mutaciones hacia áreas no exploradas es una prioridad.</li>
+            <li><strong>Explotación automática de la cadena completa (RCE → SBX → LPE):</strong> Aunque el sistema ya genera primitivas, la conexión entre ellas para formar un exploit de cadena completa todavía es manual. Estoy diseñando un módulo que encadene automáticamente los pasos necesarios para lograr LPE a partir de un RCE inicial.</li>
+            <li><strong>Integración con más fuentes de inteligencia:</strong> Además de DeepWiki, quiero incorporar feeds de CVE, boletines de seguridad y bases de datos de exploits para enriquecer el contexto del agente.</li>
+            <li><strong>Mejora del sistema de aprendizaje por refuerzo (RL):</strong> El agente RL (DreamerV2) está en fase experimental. Necesito ajustar la función de recompensa y el entorno para que realmente aprenda a priorizar los vectores más prometedores.</li>
+            <li><strong>Interfaz de usuario para investigadores:</strong> Actualmente el dashboard es funcional, pero carece de herramientas de análisis como filtros avanzados, comparación de resultados entre ejecuciones y exportación de informes.</li>
+            <li><strong>Red P2P robusta:</strong> La comunicación maestro‑worker funciona en modo básico. Falta autenticación, cifrado de extremo a extremo y reequilibrio de carga entre workers.</li>
+            <li><strong>Pruebas de estabilidad y rendimiento a largo plazo:</strong> El sistema ha funcionado durante horas, pero necesito ejecutar campañas de varios días para identificar fugas de memoria, cuellos de botella y comportamientos inesperados.</li>
+            <li><strong>Documentación exhaustiva:</strong> Aunque tengo un README y comentarios en el código, la documentación para usuarios y desarrolladores es aún insuficiente. Quiero generar una wiki completa con ejemplos de uso y guías de contribución.</li>
+            <li><strong>Auditoría y cumplimiento:</strong> Para que el sistema pueda ser utilizado en entornos corporativos, debo implementar políticas de privacidad, anonimización de datos y controles de acceso más granulares.</li>
+        </ul>
+        <p>
+            El objetivo a medio plazo es <strong>publicar el código completo como open-source</strong>, una vez que la documentación esté al día y los tests cubran las funcionalidades críticas. Mientras tanto, puedes seguir el progreso en el repositorio de PoCs y en mi blog.
+        </p>
+        <blockquote><p><strong>¿Cuándo estará disponible?</strong></p>Estoy apuntando a finales de 2026 para una versión beta pública. La prioridad es estabilizar el orquestador, completar la integración con modelos locales y documentar el flujo de trabajo para que otros investigadores puedan usarlo fácilmente.</blockquote>
+            <h3>/Resultados tangibles, tecnología de vanguardia</h3>
+            <p>SAINT GRAIL demuestra que la combinación de IA, fuzzing y análisis estático puede generar hallazgos de seguridad reales. La migración a Go ha sido un acierto, y los dos PoCs son solo el comienzo.</p>
+                <a href="https://github.com/tty503/saint-grail-pocs-output" target="_blank" rel="noopener noreferrer" class="cta-btn primary">Ver PoCs en GitHub →</a>
+                <a href="https://tty503.com/saint-grail.html" class="cta-btn">Artículo anterior →</a>
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer" class="cta-btn">GitHub/tty503 →</a>
+        <!-- NUEVA SECCIÓN: Explicación detallada de los PoCs -->
+        <h2>7. Explicación Detallada de los PoCs</h2>
+        <p>Para entender a fondo cómo SAINT GRAIL materializa sus hallazgos, desglosamos los mecanismos internos de cada exploit. Se incluyen fragmentos de código relevantes extraídos directamente de los scripts generados.</p>
+        <h3>6.1 Chromium TOCTOU: Anatomía de la carrera</h3>
+        <p>
+            El PoC explota la separación entre el hilo de UI (que decide el nombre del archivo) y el hilo de descarga (que lo crea físicamente). En condiciones normales, si el archivo ya existe, Chromium añade un sufijo incremental (<code>(1)</code>, <code>(2)</code>…). El fallo aparece cuando dos descargas con idéntico nombre pasan la verificación al mismo tiempo.
+        </p>
+        <p>
+            <strong>Flujo del ataque:</strong>
+        </p>
+        <ol>
+            <li>Se inyecta un HTML con dos <code>&lt;a&gt;</code> ocultos en iframes, ambos apuntando a descargas diferentes pero con el mismo atributo <code>download</code>.</li>
+            <li>Mediante <code>BroadcastChannel</code> se sincronizan ambos contextos: cada iframe confirma que está listo y, al recibir la orden de fuego, dispara el clic en el enlace.</li>
+            <li>Ambas descargas se inician en el mismo instante, sorteando la verificación de existencia y forzando la colisión en <code>DownloadFileImpl::Initialize</code>.</li>
+            <li>Se monitorizan los eventos de descarga vía Chrome DevTools Protocol (CDP) para detectar cuántas se reportan como completadas y cuántos archivos reales aparecen en disco.</li>
+        </ol>
+        <pre><code>// Fragmento del HTML inyectado: sincronización vía BroadcastChannel
+            const bc = new BroadcastChannel("race");
+            bc.onmessage = (e) => {
+              if (e.data === "FIRE") {
+                document.getElementById("d").click();
+              }
+            };</code></pre>
+        <p>
+            <strong>Métrica de éxito:</strong> CDP reporta ≥2 descargas completadas, pero en disco aparece exactamente 1 archivo con el nombre objetivo. Se comprueba el SHA256 del archivo superviviente: si corresponde al payload malicioso (payload B), la suplantación es efectiva.
+        </p>
+        <h3>6.2 7‑Zip CRC Bypass: Disección del formato y el parche</h3>
+        <p>
+            El formato 7z organiza la información en varios bloques. El <em>NextHeader</em> contiene la definición de los <em>folders</em> (unidades de compresión) y, opcionalmente, un bloque <code>kCRC</code> que almacena el CRC32 esperado para cada folder.
+        </p>
+        <p>
+            <strong>El bypass se logra en tres pasos:</strong>
+        </p>
+        <ol>
+            <li><strong>Localizar el bloque <code>kCRC</code></strong> dentro del NextHeader. Su identificador es <code>0x0A</code>, seguido de un byte que indica si todos los folders comparten CRC (<code>0x01</code>) o si hay un vector de bits (<code>0x00</code>).</li>
+            <li><strong>Eliminar el bloque completo</strong> (identificador + flags + datos CRC). Esto deja el array <code>FolderCRCs</code> vacío y fuerza <code>CrcDefined = false</code>.</li>
+            <li><strong>Recalcular los CRCs de integridad del header</strong> para que el archivo siga siendo sintácticamente válido. El <code>NextHeaderCRC</code> (CRC32 del nuevo NextHeader) y el <code>StartHeaderCRC</code> (CRC32 de los bytes 12-31 del archivo) se actualizan con los nuevos valores.</li>
+        </ol>
+        <pre><code>// Fragmento del parche: eliminación de kCRC y recálculo
+            pos = header.find(b"\x0a\x01")  // Caso AllAreDefined=1
+            if pos>= 0:
+                del header[pos:pos+6]   // NID(1) + flag(1) + CRC32(4)
+            // Recalcular NextHeaderCRC
+            next_crc = calc_crc32(header)
+            struct.pack_into("<I", new_data, 28, next_crc)</code></pre>
+        <p>
+            Después del parche, <code>7z t</code> devuelve OK porque la estructura sigue siendo correcta. Al extraer, <code>_calcCrc</code> se evalúa como <code>false</code> y la verificación nunca se ejecuta. El código de 7‑Zip <code>CloseFile()</code> devuelve <code>S_OK</code> aunque los datos extraídos no coincidan con el CRC original (inexistente).
+        </p>
+        <h3>6.3 Construcción del SFX malicioso</h3>
+        <p>
+            Para convertir la debilidad en ejecución de código, se aprovecha el modo SFX de 7‑Zip. Un ejecutable SFX estándar está formado por tres partes concatenadas:
+        </p>
+        <ol>
+            <li><strong>Stub SFX (7z.sfx):</strong> un pequeño binario PE que contiene la lógica de extracción.</li>
+            <li><strong>Archivo .7z parcheado:</strong> el payload empaquetado sin CRC.</li>
+            <li><strong>Configuración SFX:</strong> un bloque de texto que declara <code>RunProgram</code> y, opcionalmente, <code>Directory</code> para persistencia.</li>
+        </ol>
+        <pre><code>// Construcción del SFX en el PoC
+            with open(output_exe, "wb") as f:
+                f.write(stub_data)          # 7z.sfx
+                f.write(archive_patched)    # .7z sin CRC
+                f.write(sfx_config)         # RunProgram="payload.bat"</code></pre>
+        <p>
+            La opción <code>--persistence</code> cambia el bloque de configuración para incluir <code>Directory="%APPDATA%\...\Startup"</code>. De este modo, el payload se copia en la carpeta de inicio automático, garantizando ejecución en cada arranque.
+        </p>
+        <blockquote><p><strong>Nota sobre la cadena de explotación</strong></p>La combinación de bypass de integridad + SFX permite que un atacante distribuya un “instalador de seguridad” que extrae y ejecuta código arbitrario sin levantar sospechas. Al no modificar los tamaños ni la estructura de directorios, el archivo .7z contenido es indistinguible de uno legítimo a nivel de firma.</blockquote>
+        <p>
+            Ambos PoCs están públicamente disponibles en el repositorio <a href="https://github.com/tty503/saint-grail-pocs-output">saint-grail-pocs-output</a>, donde se incluyen los scripts completos, instrucciones de uso y referencias a las secciones exactas del código fuente de Chromium y 7‑Zip que confirman las vulnerabilidades.
+        </p>
+        <h2>8. Referencias y Enlaces</h2>
+        <ul>
+            <li><a href="https://tty503.com/saint-grail.html" target="_blank">SAINT GRAIL: Plataforma Modular para Investigación de Seguridad Ofensiva con IA</a> — Artículo anterior.</li>
+            <li><a href="https://github.com/tty503/saint-grail-pocs-output" target="_blank">Repositorio de PoCs generados</a> — Contiene los scripts y documentación de los hallazgos.</li>
+            <li><a href="https://go.dev" target="_blank" rel="noopener noreferrer">Go</a> — Lenguaje de programación utilizado para el orquestador.</li>
+            <li><a href="https://tree-sitter.github.io/tree-sitter/" target="_blank" rel="noopener noreferrer">Tree-sitter</a> — Parser AST para extraer contexto de código fuente.</li>
+            <li><a href="https://github.com/ollama/ollama" target="_blank" rel="noopener noreferrer">Ollama</a> — Ejecución local de modelos LLM.</li>
+        </ul>
 
-<h2>Resumen</h2>
-<p>SAINT GRAIL nació de la inquietud de multiplicar la capacidad de investigación: documentar cada paso, visualizar relaciones y acelerar con IA. La idea fundacional es que la IA no reemplaza al analista — lo potencia: genera vectores desde hallazgos open-source, clasifica respuestas y arma primitivas explotables en un grafo trazable.</p>
-<p>El proyecto está funcional pero no es público: las capturas mostradas usan un programa ficticio ("GenericApp") para no exponer investigación real.</p>
+<p class="resumen"><strong>Continuidad.</strong> La version original y el diseño modular que la precedio.</p>
 
-<h2>Ficha</h2>
-<p class="ficha"><strong>Ficha técnica.</strong> Stack: Flask · SurrealDB embebida · Canvas/vanilla JS · CLI. IA: DeepWiki (preguntas) + DeepSeek (clasificación de riesgo). Grafo: phase ▢ · vector ○ · primitive △ · barrier ◇ · research ▭. Estado: Funcional, no público · datos de prueba. Continuación: Migrado a Go → SAINT GRAIL Go.</p>
-
-<p class="veredicto"><strong>Veredicto.</strong> Plataforma de investigación propia (copiloto de bug hunting) con arquitectura documentada. La continuación en Go ya produjo PoCs concretos — ver la siguiente entrega.</p>
+<h2>9. Motivación: El Bug Hunting No Es un Sprint</h2>
+        <p>
+            Durante años, colegas y amigos me han sugerido que me meta de lleno al <strong>bug hunting</strong>. "Con lo que sabes, deberías estar reportando CVEs todas las semanas", me dicen. Y sí, la idea es tentadora. Pero cualquiera que haya intentado vivir de esto sabe que <strong>los años de investigación no siempre se traducen en ingresos mensuales estables</strong>. Entre la fuga de cerebros hacia las FAANG, la competencia feroz y el hecho de que un solo bug puede llevarte semanas de trabajo sin garantía de recompensa... la ecuación no es sencilla.
+        </p>
+        <p>
+            Sin embargo, la inquietud por explorar vulnerabilidades nunca desapareció. Lo que necesitaba era <strong>un sistema que multiplicara mi capacidad de investigación</strong>. Algo que me permitiera documentar cada paso, visualizar las relaciones entre componentes y, sobre todo, <strong>integrar inteligencia artificial para acelerar el proceso</strong>. Así nació SAINT GRAIL.
+        </p>
+        <blockquote><p><strong>Nota sobre los datos</strong></p>Todas las capturas de pantalla y datos mostrados en este artículo son de <strong>prueba</strong>. Utilicé un conjunto de datos genérico (un programa ficticio llamado "GenericApp") para no exponer mi investigación real. La plataforma es completamente funcional, pero los vectores, fases y primitivas que se ven aquí son placeholders.</blockquote>
+        <h2>10. ¿Qué es SAINT GRAIL?</h2>
+        <p>
+            SAINT GRAIL es una <strong>plataforma modular para documentar, visualizar y ejecutar investigaciones de seguridad ofensiva</strong>. Combina un backend API REST con base de datos SurrealDB embebida, un frontend de grafo interactivo (HTML5 Canvas + vanilla JS), un dashboard administrativo y utilidades de línea de comandos. Todo el código es editable directamente, sin dependencias de frameworks pesados.
+        </p>
+        <p>
+            El objetivo es simple: <strong>tener un "copiloto" de investigación que no reemplace al analista, sino que lo potencie</strong>. La plataforma te permite:
+        </p>
+        <ul>
+            <li>Crear <strong>vectores de ataque</strong> a partir de hallazgos en proyectos open-source.</li>
+            <li>Generar <strong>preguntas contextuales</strong> con DeepWiki para profundizar en componentes específicos.</li>
+            <li>Clasificar respuestas con IA (DeepSeek en mis pruebas) y <strong>crear automáticamente primitivas explotables</strong>.</li>
+            <li>Ejecutar PoCs y registrar resultados en un ciclo de mejora continua.</li>
+            <li>Visualizar todo el progreso en un <strong>grafo interactivo</strong> que muestra fases, vectores, brechas y primitivas.</li>
+        </ul>
+        <blockquote><p><strong>¿Por qué no es público todavía?</strong></p>El sistema aún no está lo suficientemente maduro para liberarlo como open-source. Hay piezas que necesitan pulirse, documentación que completar y pruebas de estrés que realizar. Pero estoy compartiendo los avances porque creo que la comunidad puede beneficiarse de las ideas, incluso si el código no está listo para consumo masivo.</blockquote>
+        <h2>11. Arquitectura y Componentes</h2>
+        <p>
+            La plataforma sigue los principios <strong>KISS (Keep It Simple, Stupid)</strong> y <strong>filosofía Unix</strong>: cada módulo tiene una responsabilidad única y se comunica mediante APIs bien definidas.
+        </p>
+        <h3>2.1 Estructura del Proyecto</h3>
+        <pre><code># Árbol simplificado de SAINT GRAIL
+            saint-grail/
+            ├── api/                    # Backend Flask + SurrealDB
+            │   ├── server.py           # Arranque de la app Flask
+            │   ├── storage.py          # Capa de persistencia (SurrealDB)
+            │   ├── llm.py              # Cliente DeepSeek, token budget
+            │   ├── deepwiki.py         # Generación de preguntas DeepWiki
+            │   └── routes/
+            │       ├── agent.py        # Agente híbrido (bucle DeepWiki)
+            │       ├── ingest.py       # Ingesta de datos, PoC
+            │       └── ...
+            ├── graph/                  # Frontend del grafo (HTML5 Canvas)
+            ├── admin/                  # Dashboard de administración
+            ├── utils/                  # Scripts auxiliares (fetch_commits, etc.)
+            ├── config/
+            │   └── saint-grail.conf    # Configuración global (tokens, GitHub)
+            └── data/                   # Base de datos SurrealDB + JSONs</code></pre>
+        <figure><img src="img/saint-grail-arquitectura-componentes-api-dashboard.png" alt="Resumen de la arquitectura de componentes de SAINT GRAIL" loading="lazy"></figure>
+        <h3>2.2 Backend y Base de Datos</h3>
+        <p>
+            La API está construida con <strong>Flask</strong> y utiliza <strong>SurrealDB</strong> en modo embebido. Esto significa que no necesitas instalar un servidor de base de datos externo; todo se almacena en un archivo local. La taxonomía de nodos incluye:
+        </p>
+        <table>
+                <tr><th>Kind</th><th>Forma en el grafo</th><th>Descripción</th></tr>
+                <tr><td>phase</td><td>Cuadrado</td><td>Fases de la cadena de ataque</td></tr>
+                <tr><td>vector</td><td>Círculo</td><td>Vectores de ataque específicos</td></tr>
+                <tr><td>primitive</td><td>Triángulo</td><td>Primitivas explotables (addr_of, fake_obj, etc.)</td></tr>
+                <tr><td>barrier</td><td>Rombo</td><td>Brechas o bloqueantes</td></tr>
+                <tr><td>research</td><td>Rectángulo</td><td>Preguntas DeepWiki o referencias externas</td></tr>
+            </table>
+        <p>
+            La API expone endpoints para CRUD de datos, ingesta de hallazgos desde DeepWiki, creación y ejecución de PoCs, sincronización P2P entre instancias, y todo el ciclo de trabajo del agente híbrido.
+        </p>
+        <figure><img src="img/saint-grail-documentacion-api-endpoints-rest.png" alt="Documentación de la API con Swagger" loading="lazy"></figure>
+        <h3>2.3 Orquestador y Línea de Comandos</h3>
+        <p>
+            Todo se controla desde un script Bash llamado saint_grail.sh que actúa como orquestador. Desde aquí puedo iniciar los servicios, ver el estado, ejecutar el agente y monitorear el presupuesto de tokens de DeepSeek.
+        </p>
+        <figure><img src="img/saint-grail-consola-comandos-orquestador.png" alt="Menú de comandos del orquestador" loading="lazy"></figure>
+        <figure><img src="img/saint-grail-status-orquestador-presupuesto-tokens.png" alt="Estado de la API y presupuesto de tokens" loading="lazy"></figure>
+        <h2>12. El Agente Híbrido y DeepWiki</h2>
+        <p>
+            Una de las características más potentes es el <strong>agente híbrido de investigación</strong>. La idea es crear un ciclo donde la IA y el analista humano se complementan:
+        </p>
+        <ol>
+            <li><strong>Selección automática:</strong> el bucle toma el primer vector activo que no esté en un estado final.</li>
+            <li><strong>Generación de preguntas DeepWiki:</strong> usando el módulo deepwiki.py, se crean preguntas contextuales en español basadas en el componente, archivos de auditoría y tipo de vector. Por ejemplo: <em>"En el canal IPC, ¿se validan los tamaños de los mensajes antes de asignar buffers? ¿Es posible enviar un mensaje manipulado que provoque una corrupción de memoria?"</em></li>
+            <li><strong>Intervención humana:</strong> el nodo se pausa en estado AWAITING_DEEPWIKI y las preguntas aparecen en el dashboard. El analista investiga y responde.</li>
+            <li><strong>Clasificación y acción:</strong> el endpoint /api/agent/deepwiki/answer clasifica el riesgo usando DeepSeek (o mediante palabras clave si el presupuesto de tokens está agotado). Si el riesgo es <strong>alto</strong>, se crea automáticamente un nuevo nodo primitive, se genera un PoC y se ejecuta.</li>
+        </ol>
+        <blockquote><p><strong>DeepSeek como LLM de pruebas</strong></p>Utilicé <strong>DeepSeek</strong> (modelo gratuito con límite diario de tokens) para todas las pruebas de integración. La plataforma está diseñada para ser agnóstica al proveedor: puedes configurar cualquier API compatible con OpenAI en saint-grail.conf.</blockquote>
+        <figure><img src="img/saint-grail-dashboard-flujo-hibrido-agentes.png" alt="Dashboard mostrando el flujo híbrido de investigación" loading="lazy"></figure>
+        <h2>13. Dashboard y Flujo de Trabajo</h2>
+        <p>
+            El dashboard es el centro de mando. Desde aquí gestiono todo el ciclo de investigación, desde la creación de vectores hasta la validación de integridad.
+        </p>
+        <h3>4.1 Visión General y Progreso</h3>
+        <p>
+            La pantalla principal muestra el progreso global del proyecto, con fases que van desde "Reconocimiento" hasta "Escape Lógico". Cada fase tiene sus vectores y primitivas asociados.
+        </p>
+        <figure><img src="img/saint-grail-progreso-global-fases-dashboard.png" alt="Vista general del progreso de fases" loading="lazy"></figure>
+        <h3>4.2 Grafo Interactivo</h3>
+        <p>
+            El frontend del grafo es una de las partes que más tiempo me llevó. Renderiza los nodos según su kind (cuadrados para fases, círculos para vectores, triángulos para primitivas, rombos para barreras) y colorea según el estado. El panel de detalles muestra información exhaustiva: auditoría, PoC, logs, preguntas DeepWiki respondidas, etc.
+        </p>
+        <figure><img src="img/saint-grail-grafo-interfaz-principal-fases.png" alt="Interfaz principal del grafo con nodos y detalles" loading="lazy"></figure>
+        <figure><img src="img/saint-grail-detalle-tecnico-nodo-mitre.png" alt="Vista detallada de un nodo vector" loading="lazy"></figure>
+        <h3>4.3 Editor de Datos y Carga de JSON</h3>
+        <p>
+            Para crear vectores rápidamente, hay un formulario que te permite definir ID, componente, tipo de vector y descripción. También se pueden cargar y descargar datasets completos en formato JSON.
+        </p>
+        <figure><img src="img/saint-grail-editor-vectores-ataque.png" alt="Editor para crear y gestionar vectores de ataque" loading="lazy"></figure>
+        <figure><img src="img/saint-grail-gestion-configuracion-json.png" alt="Panel de carga y descarga de archivos JSON" loading="lazy"></figure>
+        <h3>4.4 Validación de Integridad</h3>
+        <p>
+            Con el tiempo, los nodos pueden acumular referencias a archivos de log o commits que ya no existen. El panel de validación escanea y limpia estas referencias rotas, manteniendo la base de datos consistente.
+        </p>
+        <figure><img src="img/saint-grail-panel-validacion-integridad-referencias.png" alt="Panel de validación de integridad" loading="lazy"></figure>
+        <h2>14. Estado Actual y Próximos Pasos</h2>
+        <p>
+            SAINT GRAIL ya es funcional en mi entorno de desarrollo. El agente híbrido genera preguntas, el dashboard permite responderlas, se crean primitivas automáticamente y los PoCs se ejecutan. Pero <strong>aún no está listo para producción ni para un repositorio público</strong>.
+        </p>
+        <p>
+            Las tareas pendientes incluyen:
+        </p>
+        <ul>
+            <li>Completar la <strong>ejecución real de PoCs</strong> (ahora es simulada en muchos endpoints).</li>
+            <li>Migrar de los scripts generadores Bash (gen_*.sh) a una estructura de proyecto estable, aunque los generadores han sido increíblemente útiles para prototipado rápido.</li>
+            <li>Mejorar la UI/UX del dashboard para hacer el flujo de investigación más intuitivo.</li>
+            <li>Añadir tests automatizados para el ciclo completo del agente híbrido.</li>
+            <li>Explorar integraciones con otros modelos de IA más allá de DeepSeek.</li>
+        </ul>
+        <blockquote><p><strong>¿Cuándo será público?</strong></p>Cuando considere que el código está en un estado digno de ser compartido. No me gusta liberar proyectos a medias. Mientras tanto, este artículo y las futuras actualizaciones en el blog serán el canal para compartir avances.</blockquote>
+        <p>
+            Lo que más me entusiasma es el potencial de <strong>DeepWiki como fuente de contexto</strong>. La capacidad de generar preguntas específicas sobre archivos de código fuente, commits y componentes abre una puerta a una investigación semi-automatizada que no había visto en otras herramientas. No se trata de reemplazar al analista, sino de <strong>darle superpoderes</strong>.
+        </p>
+        <!-- CTA de cierre -->
+            <h3>/¿Te interesa la investigación de seguridad y la integración con IA?</h3>
+            <p>Este proyecto se alinea con otras áreas de mi portafolio: exploit development, reversing y automatización de análisis.</p>
+                <a href="exploit-development-lab.html" class="cta-btn primary">Laboratorio de Exploit Dev →</a>
+                <a href="analystty.html" class="cta-btn">Triage de Malware PE →</a>
+                <a href="plc.html" class="cta-btn">Reversing PLC Siemens →</a>
+                <a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer" class="cta-btn">GitHub/tty503 →</a>
+        <h2>15. Referencias y Enlaces</h2>
+        <ul>
+            <li><a href="https://deepseek.com" target="_blank" rel="noopener noreferrer">DeepSeek API</a> — Modelo de lenguaje utilizado en las pruebas.</li>
+            <li><a href="https://surrealdb.com" target="_blank" rel="noopener noreferrer">SurrealDB</a> — Base de datos multimodelo embebida.</li>
+            <li><a href="https://flask.palletsprojects.com" target="_blank" rel="noopener noreferrer">Flask</a> — Microframework web para Python.</li>
+            <li>MITRE ATT&CK — Framework de tácticas y técnicas utilizado en la taxonomía de nodos.</li>
+        </ul>
 
 </article>
-<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-07-05 · Herramientas propias</span><a href="saint-grail-go.html">SAINT GRAIL en Go: resultados concretos y bug hunting autónomo</a></div><div class="post-item"><span class="meta">2026-08-21 · Serie</span><a href="sherlock-caza-autonoma-ia-local.html">Sherlock: caza autónoma de vulnerabilidades con IA local</a></div><div class="post-item"><span class="meta">2026-05-15 · Herramientas propias</span><a href="analystty.html">analystty: triage automatizado de malware PE con Python</a></div></div></section>
+<section class="related"><h2>Sigue leyendo</h2><div class="grid-2"><div class="post-item"><span class="meta">2026-09-24 · Agentes</span><a href="agentes-ia-locales.html">Cómo trabajo con agentes de IA locales: arquitectura, memoria y resultados</a></div><div class="post-item"><span class="meta">2026-05-15 · Herramientas propias</span><a href="analystty.html">analystty: triaje automatizado de ejecutables PE con Python</a></div><div class="post-item"><span class="meta">2026-08-21 · Vulnerability Research</span><a href="cazar-con-ia-local.html">Cazar con IA local: pipeline, triaje y seis hallazgos verificados</a></div></div></section>
 </main>
 <footer class="site-footer"><div class="footer-inner">
 <div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
@@ -74,19 +433,19 @@
   "@graph": [
     {
       "@type": "Article",
-      "headline": "SAINT GRAIL: plataforma modular de investigaci\u00f3n de seguridad ofensiva con IA",
-      "description": "Sistema que integra DeepSeek, DeepWiki y un agente h\u00edbrido para documentar, visualizar y ejecutar hallazgos de vulnerabilidades. Arquitectura Flask + SurrealDB y grafo interactivo.",
+      "headline": "SAINT GRAIL: plataforma modular de investigacion de seguridad con IA",
+      "description": "La version reescrita en Go por rendimiento y concurrencia nativa, con dos hallazgos reproducibles generados por IA y una validacion debil en un gestor de archivos. Codigo publico: arquitectura, integraciones y lo que costo reescribirlo.",
       "author": { "@type": "Person", "name": "Christian Márquez", "url": "https://tty503.com" },
       "publisher": { "@type": "Organization", "name": "tty503" },
-      "datePublished": "2026-06-25",
-      "dateModified": "2026-06-25",
+      "datePublished": "2026-07-05",
+      "dateModified": "2026-07-05",
       "mainEntityOfPage": "https://tty503.com/saint-grail.html",
       "inLanguage": "es",
-      "keywords": "AI, Bug Hunting, DeepSeek, Open Source"
+      "keywords": "Go, Automatizaci\u00f3n, C\u00f3digo abierto"
     },
     {
       "@type": "BreadcrumbList",
-      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/saint-grail.html", "name": "SAINT GRAIL: plataforma modular de investigación de seguridad ofensiva con IA"}}]
+      "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://tty503.com/index.html", "name": "tty503"}}, {"@type": "ListItem", "position": 2, "item": {"@id": "https://tty503.com/saint-grail.html", "name": "SAINT GRAIL: plataforma modular de investigacion de seguridad con IA"}}]
     }
   ]
 }
