@@ -1,118 +1,326 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<link rel="icon" type="image/png" href="hat.png">
-<link rel="apple-touch-icon" href="hat.png">
-<meta name="theme-color" content="#ffffff">
-<meta name="color-scheme" content="light">
-<title>tty503 — Christian Márquez, investigación en seguridad y agentes de IA locales</title>
-<meta name="description" content="Christian Márquez (tty503): investigación en seguridad informática, ingeniería inversa y agentes de IA locales. Documento trabajo verificado, con divulgación responsable, desde Venezuela.">
-<meta name="keywords" content="tty503, Christian Márquez, seguridad informática, threat intelligence, ingeniería inversa, malware analysis, vulnerability research, seguridad OT, agentes de IA locales, automatización, blog técnico">
+<title>tty503 — Christian Márquez | Security Researcher</title>
+<meta name="description" content="Christian Márquez (tty503) — self-taught security researcher based in Venezuela. Reverse engineering, malware analysis, vulnerability research, OT/ICS security.">
 <meta name="author" content="Christian Márquez">
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-<meta name="googlebot" content="index, follow">
-<link rel="canonical" href="https://tty503.com/">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="tty503">
-<meta property="og:locale" content="es_ES">
-<meta property="og:title" content="tty503 — Christian Márquez, investigación en seguridad y agentes de IA locales">
-<meta property="og:description" content="Christian Márquez (tty503): investigación en seguridad informática, ingeniería inversa y agentes de IA locales. Documento trabajo verificado, con divulgación responsable, desde Venezuela.">
-<meta property="og:url" content="https://tty503.com/">
-<meta property="og:image" content="https://tty503.com/p1.jpg">
-<meta property="og:image:alt" content="tty503 — Christian Márquez">
-
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@tty_503">
-<meta name="twitter:creator" content="@tty_503">
-<meta name="twitter:title" content="tty503 — Christian Márquez, investigación en seguridad y agentes de IA locales">
-<meta name="twitter:description" content="Christian Márquez (tty503): investigación en seguridad informática, ingeniería inversa y agentes de IA locales. Documento trabajo verificado, con divulgación responsable, desde Venezuela.">
-<meta name="twitter:image" content="https://tty503.com/p1.jpg">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZVNG112YY"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-RZVNG112YY');</script>
-
-<link rel="stylesheet" href="assets/css/style.css">
-<link rel="alternate" type="application/rss+xml" title="tty503 — blog" href="https://tty503.com/feed.xml">
-
+<meta property="og:title" content="tty503 — Christian Márquez | Security Researcher">
+<meta property="og:description" content="Christian Márquez (tty503) — self-taught security researcher based in Venezuela. Reverse engineering, malware analysis, vulnerability research, OT/ICS security.">
+<meta property="og:url" content="https://tty503.github.io/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="tty503 — Christian Márquez | Security Researcher">
+<meta name="twitter:description" content="Christian Márquez (tty503) — self-taught security researcher based in Venezuela. Reverse engineering, malware analysis, vulnerability research, OT/ICS security.">
+<style>
+:root {
+  --bg: #050805;
+  --green: #00ff41;
+  --dim: #008f11;
+  --font: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono", "Courier New", monospace;
+}
+*,
+*::before,
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: #000; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--green);
+  font-size: clamp(0.85rem, 2.6vw, 1rem);
+  line-height: 1.65;
+  min-height: 100vh;
+  padding: clamp(1rem, 4vw, 3rem);
+  -webkit-font-smoothing: antialiased;
+}
+#rain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.12;
+  pointer-events: none;
+}
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.banner-wrap {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+.banner {
+  color: var(--green);
+  font-size: clamp(0.32rem, 1.65vw, 0.85rem);
+  line-height: 1.2;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.35);
+}
+.status {
+  display: inline-block;
+  color: var(--green);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  border: 1px solid var(--dim);
+  padding: 0.45rem 0.8rem;
+  margin: 0.4rem 0 0.9rem;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.45);
+}
+.notice {
+  color: var(--dim);
+  max-width: 62ch;
+  margin-bottom: 2.2rem;
+}
+section { margin-bottom: 2.2rem; }
+h2 {
+  font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+  font-weight: 400;
+  color: var(--green);
+  margin-bottom: 0.45rem;
+}
+.prompt { color: var(--dim); margin-right: 0.5ch; }
+.output {
+  color: var(--green);
+  max-width: 78ch;
+  padding-left: 1.2ch;
+  border-left: 1px solid rgba(0, 143, 17, 0.45);
+}
+.log-wrap { overflow-x: auto; }
+.log {
+  color: var(--green);
+  font-size: clamp(0.55rem, 2.1vw, 0.85rem);
+  line-height: 1.55;
+  padding-left: 1.2ch;
+  border-left: 1px solid rgba(0, 143, 17, 0.45);
+}
+.redact-notice {
+  margin-top: 1.1rem;
+  color: var(--dim);
+  max-width: 78ch;
+  padding-left: 1.2ch;
+}
+.censor {
+  background: var(--green);
+  color: var(--green);
+  padding: 0 0.25ch;
+}
+.redact-label {
+  color: var(--green);
+  font-weight: 700;
+}
+.contact-list { list-style: none; }
+.contact-list li { margin: 0.3rem 0; }
+.contact-list .name {
+  display: inline-block;
+  min-width: 10ch;
+  color: var(--dim);
+}
+.contact-list a {
+  color: var(--green);
+  text-decoration: none;
+  border-bottom: 1px solid var(--dim);
+  word-break: break-all;
+}
+.contact-list a:hover,
+.contact-list a:focus-visible {
+  border-bottom-color: var(--green);
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.55);
+  outline: none;
+}
+footer {
+  margin-top: 3rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(0, 143, 17, 0.45);
+}
+.footer-line {
+  font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+}
+.cursor {
+  display: inline-block;
+  color: var(--green);
+  animation: blink 1.05s steps(1, end) infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.copyright {
+  color: var(--dim);
+  margin-top: 0.55rem;
+  font-size: 0.85em;
+}
+::selection {
+  background: rgba(0, 255, 65, 0.28);
+  color: #eaffef;
+}
+</style>
 </head>
 <body>
-<nav class="site-nav"><div class="nav-inner"><a class="brand" href="index.html"><span class="dot"></span>tty503</a><nav class="nav-links"><a href="index.html">Inicio</a><a href="index.html#escritos">Escritos</a><a href="aboutme.html">Sobre mí</a><a class="cta" href="https://github.com/tty503" target="_blank" rel="noopener">GitHub</a></nav><button class="nav-toggle" aria-label="Abrir menú">Menú</button></div></nav>
-<header class="hero">
-  <div class="hero-inner">
-    <img class="avatar" src="p1.jpg" alt="Foto de Christian Márquez (tty503)">
-    <h1>Christian Márquez, <br>tty503</h1>
-    <p class="lead">Investigación en seguridad informática y agentes de IA locales, documentada con honestidad. Work in progress, medido y verificado.</p>
+<canvas id="rain" aria-hidden="true"></canvas>
+<main>
+
+  <h1 class="visually-hidden">tty503 — Christian Márquez, security researcher</h1>
+
+  <div class="banner-wrap" aria-hidden="true">
+<pre class="banner">█████████╗█████████╗██╗   ██╗ ██████╗ ██████╗ ████████╗
+╚══██╔═══╝╚══██╔═══╝╚██╗ ██╔╝██╔═══██╗██╔═══██╗╚══██╔══╝
+   ██║       ██║     ╚████╔╝ ██║   ██║██║   ██║    ██║
+   ██║       ██║      ╚██╔╝  ██║   ██║██║   ██║    ██║
+   ██║       ██║       ██║   ╚██████╔╝╚██████╔╝    ██║
+   ╚═╝       ╚═╝       ╚═╝    ╚═════╝ ╚═════╝     ╚═╝</pre>
   </div>
-</header>
 
-<section class="container">
-  <div class="stats">
-    <div><span class="num">33</span><span class="lbl">publicaciones</span></div>
-    <div><span class="num">12</span><span class="lbl">hallazgos con repro</span></div>
-    <div><span class="num">+1.000</span><span class="lbl">entradas de memoria</span></div>
-    <div><span class="num">3</span><span class="lbl">hosts en laboratorio</span></div>
-  </div>
-</section>
+  <p class="status">SITE TEMPORARILY INACTIVE</p>
+  <p class="notice">This site is offline while it is restructured. Nothing is broken — there is simply nothing to serve right now.</p>
 
-<section class="section container" id="escritos">
-  <h2>Escritos</h2>
-  <p class="sec-sub">Artículos técnicos, series de investigación y notas de proceso. Sin artificios: cada afirmación tiene evidencia o no está.</p>
-  <ul class="posts"><li><a href="fraude-cripto-y-phishing.html"><div class="meta"><span class="cat">Threat Intelligence</span> · 2026-10-15 · 20 min</div><div class="t">Fraude cripto y phishing: dos casos con IoCs y grafo de infraestructura</div><div class="d">Deconstruccion de un exchange falso con frontend SPA, WebSocket en tiempo real y la clave del captcha entregada en el propio JSON, y de una fuga de datos por modo depuracion activo en produccion. IoCs, dominios y wallets.</div><span class="badge">ti</span></a></li><li><a href="agentes-ia-locales.html"><div class="meta"><span class="cat">Agentes</span> · 2026-09-24 · 6 min</div><div class="t">Cómo trabajo con agentes de IA locales: arquitectura, memoria y resultados</div><div class="d">Dos o mas analistas especializados en paralelo sobre la misma pregunta, un registro de memoria compartido que indexa hechos y lecciones, y un modelo pequeno haciendo el trabajo repetitivo en la propia maquina.</div><span class="badge">guide</span></a></li><li><a href="sinks-preauth-daemons-c.html"><div class="meta"><span class="cat">Vulnerability Research</span> · 2026-09-02 · 35 min</div><div class="t">Cinco clases de sink pre-auth en daemons C embebidos</div><div class="d">Del primer paquete de un handshake a un interprete de comandos: cinco cadenas reales de inyeccion en daemons C de firmware de router, con la clase de vulnerabilidad, el punto de entrada y el alcance honesto de cada una. Sin nombres de proyecto: el metodo es lo que se publica.</div><span class="badge">rce</span></a></li><li><a href="cazar-con-ia-local.html"><div class="meta"><span class="cat">Vulnerability Research</span> · 2026-08-21 · 51 min</div><div class="t">Cazar con IA local: pipeline, triaje y seis hallazgos verificados</div><div class="d">Arquitectura de un sistema de caza autonomo sobre hardware propio, el metodo de triaje con doble validacion, y seis hallazgos con reproduccion en bibliotecas y demultiplexadores del sistema.</div><span class="badge">rce</span></a></li><li><a href="saint-grail.html"><div class="meta"><span class="cat">Herramientas propias</span> · 2026-07-05 · 21 min</div><div class="t">SAINT GRAIL: plataforma modular de investigacion de seguridad con IA</div><div class="d">La version reescrita en Go por rendimiento y concurrencia nativa, con dos hallazgos reproducibles generados por IA y una validacion debil en un gestor de archivos. Codigo publico: arquitectura, integraciones y lo que costo reescribirlo.</div><span class="badge">guide</span></a></li><li><a href="seguridad-ot-ics.html"><div class="meta"><span class="cat">Seguridad OT</span> · 2026-06-05 · 86 min</div><div class="t">Seguridad OT: S5/S7, la maquina virtual MC7 y la ausencia de logs en ICS</div><div class="d">De STEP5/AWL a STEP7, la maquina virtual MC7 y su reversing de bytecodes, exploit development sobre PLC, un sandbox escape con ejecucion nativa en kernel, ROP sobre MC7 y por que las ICS carecen estructuralmente de registro de auditoria.</div><span class="badge">infra</span></a></li><li><a href="exploit-development-y-reversing.html"><div class="meta"><span class="cat">Exploit Development</span> · 2026-06-04 · 44 min</div><div class="t">Exploit development y reversing: kernel de Windows, ROP de 64 bits y Assembly</div><div class="d">Bitacora de un mes de laboratorio: internals de Windows, drivers KMDF y UMDF, formatos PE/ELF/DEX, convenciones de llamada, construccion de shellcode, ROP en 64 bits y heuristicas para identificar funciones.</div><span class="badge">infra</span></a></li><li><a href="deteccion-blue-team.html"><div class="meta"><span class="cat">Blue Team</span> · 2026-06-01 · 55 min</div><div class="t">Tres tecnicas clasicas y como se detectan: sudo, Windows y evasion de opcodes</div><div class="d">El mecanismo de cache de sudo como via de persistencia, inyeccion y persistencia en Windows, y la reescritura de opcodes que llevo las detecciones de 16 a cero con la misma logica. Cada tecnica con los indicadores que deja y la regla de deteccion del lado defensivo.</div><span class="badge">ti</span></a></li><li><a href="phishing-campanas-y-busqueda.html"><div class="meta"><span class="cat">Threat Intelligence</span> · 2026-05-24 · 33 min</div><div class="t">Campanas de phishing conectadas y el metodo de busqueda de amenazas: cuatro investigaciones</div><div class="d">Redireccion multi-capa con exfiltracion a canales de mensajeria, una SPA con geofencing, y la bitacora de un ano de caza: mapa OSINT de una red de estafa, fraude con un stealer, un RAT comercial y un dropper multi-etapa. Lo que conecta las cuatro.</div><span class="badge">ti</span></a></li><li><a href="laboratorio-de-seguridad.html"><div class="meta"><span class="cat">Infraestructura</span> · 2026-05-24 · 20 min</div><div class="t">Laboratorio de seguridad: SOC con honeypots y tuneles ofuscados</div><div class="d">Montaje completo de un laboratorio Blue Team sobre Proxmox con honeypots, contenedores rootless y monitoreo, mas el montaje de un tunel que se camufla como TCP con enmascaramiento de IP y DNS cifrado. Arquitectura y despliegue automatizado.</div><span class="badge">infra</span></a></li><li><a href="analystty.html"><div class="meta"><span class="cat">Herramientas propias</span> · 2026-05-15 · 8 min</div><div class="t">analystty: triaje automatizado de ejecutables PE con Python</div><div class="d">Extrae imports, correlaciona TTPs con MITRE ATT&amp;CK, desensambla la seccion .text y genera breakpoints para el depurador. Un caso real: un dropper que ocultaba sus imports con hashing de API.</div><span class="badge">ti</span></a></li><li><a href="pentest-api-jwt-idor.html"><div class="meta"><span class="cat">Pentesting</span> · 2024-08-15 · 8 min</div><div class="t">Pentest a API financiera: IDOR por validacion incompleta de JWT</div><div class="d">Auditoria donde el backend validaba la firma del token pero no la pertenencia del recurso: la criptografia estaba bien, la autorizacion no. Recorrido del hallazgo, impacto y como se corrige.</div><span class="badge">infra</span></a></li></ul>
-</section>
+  <section>
+    <h2><span class="prompt">$</span>whoami</h2>
+    <p class="output">Christian Márquez (tty503) — self-taught security researcher based in Venezuela. Reverse engineering, malware analysis, vulnerability research, OT/ICS security. Builds his own research tooling, including local AI-agent systems running on his own hardware.</p>
+  </section>
 
-<section class="section container" id="proyectos">
-  <h2>Proyectos</h2>
-  <p class="sec-sub">Herramientas propias y flujos automatizados que mantengo y documento.</p>
-  <div class="grid-2">
-    <div>
-      <p>Sherlock: caza autónoma de vulnerabilidades con IA local, con un embudo de triaje honesto y hallazgos reproducibles en proyectos conocidos.</p>
-      <p><a class="btn btn-ghost" href="sherlock-caza-autonoma-ia-local.html">Leer la serie</a></p>
+  <section>
+    <h2><span class="prompt">$</span>cat trajectory.log</h2>
+    <p class="output">I started by taking software apart to see how it works. Years studying how software is built, broken, and defended followed. Today the method is the point: no claim is worth anything without reproducible evidence behind it — the compiled tool, the input that breaks it, the trace that proves it. I practice responsible disclosure; exploit-level details that would enable attacks are never published.</p>
+  </section>
+
+  <section>
+    <h2><span class="prompt">$</span>cat achievements.log</h2>
+    <div class="log-wrap">
+<pre class="log">TARGETS AUDITED ............. 15 codebases          [names REDACTED]
+COMPLETED AUDIT PACKAGES .... 6
+DOCUMENTED FINDINGS ......... 10
+  ├─ pre-auth, lab-validated .  5   [mechanisms REDACTED]
+  ├─ version-diff discovered .  3
+  └─ undetermined .............  2
+PRIOR ARTIFACTS TRIAGED ..... 42 → 7-class evidence taxonomy
+BUG CLASSES ................. memory safety · integrity bypass ·
+                               auth bypass · SSRF · injection ·
+                               traversal · XSS/CSRF · deserialization ·
+                               credential leakage · DoS
+RESEARCH INFRASTRUCTURE ..... custom MCP servers: 4 ·
+                               deterministic self-test: 77 checks ·
+                               measurement tools: 25 ·
+                               methodology docs: 11 ·
+                               reproducible PoC labs: 7 (Docker)</pre>
     </div>
-    <div>
-      <p>Agentes de IA con memoria propia: dos o más analistas en paralelo, un registro central de lecciones y un modelo local para el trabajo repetitivo.</p>
-      <p><a class="btn btn-ghost" href="agentes-locales-arquitectura.html">Leer sobre ellos</a></p>
-    </div>
-  </div>
-</section>
+    <p class="redact-notice"><span class="censor" title="REDACTED">████████████████████████</span> <span class="redact-label">REDACTED</span> — <strong>[REDACTED BY POLICY]</strong> target names, versions, payloads, vulnerability mechanics and PoC source. Responsible disclosure: details that could enable attacks are never published.</p>
+  </section>
 
-<section class="section container" id="sobre">
-  <h2>Sobre este sitio</h2>
-  <p>Aprendo en público, sin prometer lo que no he medido. Aquí se explica la arquitectura de mis agentes, se muestran hallazgos verificados y se omite lo que no debe publicarse aún.</p>
-  <p><a class="btn" href="aboutme.html">Sobre mí</a></p>
-</section>
-<footer class="site-footer"><div class="footer-inner">
-<div class="social"><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">X / Twitter</a><a href="https://tty503.com/feed.xml" target="_blank" rel="noopener noreferrer">RSS</a></div>
-<p class="footer-note">© <span data-year></span> Christian Márquez (tty503). Investigación en seguridad y herramientas propias, documentadas con honestidad. Los detalles explotables de los hallazgos se omiten por política de divulgación responsable.</p>
-</div></footer>
-<button class="to-top" aria-label="Volver arriba">↑</button>
-<script src="assets/js/main.js"></script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Person",
-      "@id": "https://tty503.com/#person",
-      "name": "Christian Márquez",
-      "alternateName": ["tty503", "Christian Marquez"],
-      "url": "https://tty503.com",
-      "image": "https://tty503.com/p1.jpg",
-      "sameAs": ["https://github.com/tty503", "https://linkedin.com/in/tty503", "https://x.com/tty_503"],
-      "jobTitle": "Investigador en seguridad informática",
-      "description": "Investiga y documenta seguridad de software, ingeniería inversa, análisis de malware y el trabajo con agentes de IA locales."
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://tty503.com/#website",
-      "url": "https://tty503.com",
-      "name": "tty503",
-      "inLanguage": "es",
-      "publisher": { "@id": "https://tty503.com/#person" }
+  <section>
+    <h2><span class="prompt">$</span>ls ./contact</h2>
+    <ul class="contact-list">
+      <li><span class="name">GitHub</span><a href="https://github.com/tty503" target="_blank" rel="noopener noreferrer">https://github.com/tty503</a></li>
+      <li><span class="name">LinkedIn</span><a href="https://linkedin.com/in/tty503" target="_blank" rel="noopener noreferrer">https://linkedin.com/in/tty503</a></li>
+      <li><span class="name">X</span><a href="https://x.com/tty_503" target="_blank" rel="noopener noreferrer">https://x.com/tty_503</a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <p class="footer-line"><span class="prompt">$</span><span class="cursor" aria-hidden="true">█</span></p>
+    <p class="copyright">© 2026 Christian Márquez (tty503).</p>
+  </footer>
+
+</main>
+<script>
+(function () {
+  'use strict';
+  var canvas = document.getElementById('rain');
+  if (!canvas || !canvas.getContext) { return; }
+  var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (motionQuery.matches) {
+    canvas.parentNode.removeChild(canvas);
+    return;
+  }
+  var ctx = canvas.getContext('2d');
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var fontSize = 14;
+  var width = 0;
+  var height = 0;
+  var drops = [];
+  var running = false;
+  var timer = null;
+
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var columns = Math.ceil(width / fontSize) + 1;
+    drops = new Array(columns);
+    for (var i = 0; i < columns; i++) {
+      drops[i] = Math.random() * -60;
     }
-  ]
-}
+  }
+
+  function frame() {
+    ctx.fillStyle = 'rgba(5, 8, 5, 0.09)';
+    ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = fontSize + 'px ui-monospace, monospace';
+    for (var i = 0; i < drops.length; i++) {
+      var glyph = String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96));
+      ctx.fillText(glyph, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+    timer = window.setTimeout(function () {
+      window.requestAnimationFrame(frame);
+    }, 66);
+  }
+
+  function start() {
+    if (running) { return; }
+    running = true;
+    frame();
+  }
+
+  function stop() {
+    running = false;
+    if (timer !== null) {
+      window.clearTimeout(timer);
+      timer = null;
+    }
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      stop();
+    } else {
+      start();
+    }
+  });
+
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    if (resizeTimer !== null) { window.clearTimeout(resizeTimer); }
+    resizeTimer = window.setTimeout(resize, 150);
+  });
+
+  resize();
+  start();
+})();
 </script>
 </body>
 </html>
