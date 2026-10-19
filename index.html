@@ -16,11 +16,45 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="tty503 — Christian Márquez | Security Researcher">
 <meta name="twitter:description" content="Christian Márquez (tty503) — self-taught security researcher based in Venezuela. Reverse engineering, malware analysis, vulnerability research, OT/ICS security.">
+<!-- LLM-readable summary of this site: /llms.txt · crawler policy: /robots.txt -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Christian Márquez",
+  "alternateName": "tty503",
+  "url": "https://tty503.github.io/",
+  "jobTitle": "Security Researcher",
+  "description": "Self-taught security researcher based in Venezuela. Reverse engineering, malware analysis, vulnerability research, OT/ICS security.",
+  "address": { "@type": "PostalAddress", "addressCountry": "VE" },
+  "sameAs": [
+    "https://github.com/tty503",
+    "https://linkedin.com/in/tty503",
+    "https://x.com/tty_503"
+  ],
+  "knowsAbout": [
+    "reverse engineering",
+    "malware analysis",
+    "vulnerability research",
+    "OT/ICS security"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "tty503",
+  "url": "https://tty503.github.io/"
+}
+</script>
 <style>
 :root {
   --bg: #050805;
   --green: #00ff41;
   --dim: #008f11;
+  --red: #ff003c;
+  --cyan: #00e5ff;
   --font: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono", "Courier New", monospace;
 }
 *,
@@ -36,6 +70,7 @@ body {
   min-height: 100vh;
   padding: clamp(1rem, 4vw, 3rem);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 #rain {
   position: fixed;
@@ -46,6 +81,21 @@ body {
   z-index: 0;
   opacity: 0.12;
   pointer-events: none;
+}
+/* ---- fixed scanline overlay (very subtle) ---- */
+#scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 65, 0.045) 0px,
+    rgba(0, 255, 65, 0.045) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.5;
 }
 main {
   position: relative;
@@ -63,6 +113,75 @@ main {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+/* ---- glitch title ---- */
+.glitch-wrap { margin: 0.2rem 0 0.4rem; }
+.glitch {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font);
+  font-size: clamp(2.1rem, 12vw, 5rem);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--green);
+  text-shadow: 0 0 14px rgba(0, 255, 65, 0.55);
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.glitch::before {
+  color: var(--red);
+  z-index: -1;
+  animation: glitch-red 2.7s infinite linear alternate-reverse;
+}
+.glitch::after {
+  color: var(--cyan);
+  z-index: -2;
+  animation: glitch-cyan 3.4s infinite linear alternate-reverse;
+}
+@keyframes glitch-red {
+  0%   { clip-path: inset(6% 0 82% 0);  transform: translate(-2px, -1px); }
+  20%  { clip-path: inset(58% 0 18% 0); transform: translate(2px, 1px); }
+  40%  { clip-path: inset(28% 0 55% 0); transform: translate(-3px, 0); }
+  60%  { clip-path: inset(74% 0 6% 0);  transform: translate(2px, -1px); }
+  80%  { clip-path: inset(12% 0 71% 0); transform: translate(-1px, 1px); }
+  100% { clip-path: inset(46% 0 34% 0); transform: translate(3px, 0); }
+}
+@keyframes glitch-cyan {
+  0%   { clip-path: inset(70% 0 10% 0); transform: translate(2px, 1px); }
+  25%  { clip-path: inset(14% 0 66% 0); transform: translate(-2px, -1px); }
+  50%  { clip-path: inset(52% 0 30% 0); transform: translate(3px, 0); }
+  75%  { clip-path: inset(4% 0 84% 0);  transform: translate(-3px, 1px); }
+  100% { clip-path: inset(38% 0 48% 0); transform: translate(1px, -1px); }
+}
+/* ---- subtitle banner / glitch strip ---- */
+.subtitle-wrap { overflow-x: auto; margin: 0.5rem 0 0.9rem; }
+.subtitle {
+  display: inline-block;
+  font-size: clamp(0.6rem, 2.6vw, 0.95rem);
+  letter-spacing: 0.24em;
+  color: var(--green);
+  border-top: 1px solid var(--dim);
+  border-bottom: 1px solid var(--dim);
+  padding: 0.28rem 0.6rem;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+  animation: subtitle-flicker 4.5s step-end infinite;
+  white-space: nowrap;
+}
+@keyframes subtitle-flicker {
+  0%, 92%, 100% { opacity: 1; }
+  93% { opacity: 0.35; transform: translateX(-1px); }
+  94% { opacity: 1; }
+  96% { opacity: 0.6; transform: translateX(1px); }
+  97% { opacity: 1; }
 }
 .banner-wrap {
   overflow-x: auto;
@@ -126,6 +245,205 @@ h2 {
   color: var(--green);
   font-weight: 700;
 }
+/* ---- horizontal ASCII rules ---- */
+.rule-wrap { overflow-x: auto; margin: 0.4rem 0 1.4rem; }
+.rule {
+  color: var(--dim);
+  font-size: clamp(0.5rem, 1.8vw, 0.8rem);
+  line-height: 1.1;
+  white-space: pre;
+}
+/* ---- box-drawing frames ---- */
+.box {
+  position: relative;
+  border: 1px solid rgba(0, 143, 17, 0.55);
+  padding: 1.4rem 1rem 1.1rem;
+  margin-bottom: 2.2rem;
+}
+.corner {
+  position: absolute;
+  color: var(--green);
+  font-size: 1rem;
+  line-height: 1;
+  pointer-events: none;
+}
+.corner.tl { top: -0.45rem; left: -0.18rem; }
+.corner.tr { top: -0.45rem; right: -0.18rem; }
+.corner.bl { bottom: -0.55rem; left: -0.18rem; }
+.corner.br { bottom: -0.55rem; right: -0.18rem; }
+.box-label {
+  position: absolute;
+  top: -0.72rem;
+  left: 1.4rem;
+  background: var(--bg);
+  padding: 0 0.6ch;
+  color: var(--green);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+}
+/* ---- encoded passages ---- */
+.enc {
+  color: var(--dim);
+  border-bottom: 1px dashed rgba(0, 143, 17, 0.7);
+  word-break: break-all;
+}
+.enc.decoded {
+  color: var(--green);
+  border-bottom: 0;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+}
+.enc-line { display: inline; }
+.dec-one {
+  font-family: var(--font);
+  font-size: 0.68em;
+  background: transparent;
+  color: var(--dim);
+  border: 1px solid rgba(0, 143, 17, 0.6);
+  padding: 0 0.4ch;
+  margin-left: 0.5ch;
+  cursor: pointer;
+  vertical-align: baseline;
+}
+.dec-one:hover,
+.dec-one:focus-visible { color: var(--green); border-color: var(--green); outline: none; }
+/* ---- hash signature ---- */
+.hash-wrap { overflow-x: auto; margin-top: 0.5rem; }
+.hash {
+  color: var(--green);
+  font-size: clamp(0.5rem, 1.9vw, 0.78rem);
+  line-height: 1.5;
+  padding-left: 1.2ch;
+  border-left: 1px solid rgba(0, 143, 17, 0.45);
+  white-space: pre;
+}
+.hash .k { color: var(--cyan); }
+/* ---- operator panel ---- */
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 0.6rem;
+  margin: 0.9rem 0 0.4rem;
+}
+.pbtn {
+  font-family: var(--font);
+  font-size: clamp(0.72rem, 2.2vw, 0.84rem);
+  letter-spacing: 0.05em;
+  text-align: left;
+  background: #030503;
+  color: var(--green);
+  border: 1px solid var(--dim);
+  padding: 0.6rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.pbtn:hover,
+.pbtn:focus-visible {
+  background: rgba(0, 255, 65, 0.1);
+  border-color: var(--green);
+  outline: none;
+  animation: btn-jitter 0.18s steps(2, end) infinite;
+}
+.pbtn:disabled { color: var(--dim); border-style: dashed; cursor: default; animation: none; }
+@keyframes btn-jitter {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-1px, 1px); }
+  100% { transform: translate(1px, -1px); }
+}
+.panel-note { color: var(--dim); font-size: 0.82em; }
+/* ---- micro glitch ---- */
+.micro-glitch { animation: micro-jitter 0.15s steps(2, end) 1; }
+@keyframes micro-jitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, 2px); }
+  100% { transform: translate(0, 0); }
+}
+/* ---- glitch storm ---- */
+#storm {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  pointer-events: none;
+  background: #000;
+  mix-blend-mode: screen;
+}
+#storm.active { display: block; animation: storm-anim 0.6s steps(2, end) 1; }
+@keyframes storm-anim {
+  0%   { opacity: 0.7; transform: translate(-6px, 2px);
+         background: repeating-linear-gradient(0deg, var(--red) 0 2px, transparent 2px 5px); }
+  25%  { opacity: 0.55; transform: translate(5px, -3px);
+         background: repeating-linear-gradient(0deg, var(--cyan) 0 2px, transparent 2px 6px); }
+  50%  { opacity: 0.5; transform: translate(-4px, -2px);
+         background: repeating-linear-gradient(90deg, var(--green) 0 2px, transparent 2px 7px); }
+  75%  { opacity: 0.4; transform: translate(3px, 3px); }
+  100% { opacity: 0; transform: translate(0, 0); }
+}
+/* ---- overlays ---- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  background: rgba(0, 0, 0, 0.88);
+  padding: clamp(1rem, 4vw, 2.4rem);
+  overflow-y: auto;
+}
+.overlay.open { display: block; }
+.overlay-panel {
+  position: relative;
+  max-width: 52rem;
+  margin: 1rem auto 3rem;
+  background: #030503;
+  border: 1px solid var(--dim);
+  padding: clamp(1rem, 3vw, 1.7rem);
+  box-shadow: 0 0 34px rgba(0, 255, 65, 0.16);
+  outline: none;
+}
+.overlay-panel:focus { border-color: var(--green); }
+.ov-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(0, 143, 17, 0.5);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+.ov-title { color: var(--green); letter-spacing: 0.14em; font-size: 0.95rem; }
+.ov-close {
+  font-family: var(--font);
+  background: transparent;
+  color: var(--dim);
+  border: 1px solid var(--dim);
+  padding: 0.15rem 0.6ch;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.ov-close:hover,
+.ov-close:focus-visible { color: var(--green); border-color: var(--green); outline: none; }
+.ov-body { color: var(--green); }
+.ov-body p { margin-bottom: 0.7rem; }
+.ascii-wrap { overflow-x: auto; margin: 0.6rem 0; }
+.ascii {
+  color: var(--green);
+  font-size: clamp(0.42rem, 1.7vw, 0.78rem);
+  line-height: 1.15;
+  white-space: pre;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.35);
+}
+.frag {
+  border-left: 1px solid rgba(0, 143, 17, 0.55);
+  padding-left: 1.2ch;
+  margin-bottom: 1rem;
+}
+.frag h3 { font-size: 0.85rem; font-weight: 400; color: var(--cyan); margin-bottom: 0.3rem; letter-spacing: 0.1em; }
+.frag pre { font-family: var(--font); font-size: clamp(0.55rem, 2vw, 0.8rem); white-space: pre-wrap; word-break: break-word; }
+.access-msg { font-size: 1rem; letter-spacing: 0.08em; }
+.access-denied { color: var(--red); text-shadow: 0 0 10px rgba(255, 0, 60, 0.5); }
+.access-granted { color: var(--green); }
+/* ---- contact ---- */
 .contact-list { list-style: none; }
 .contact-list li { margin: 0.3rem 0; }
 .contact-list .name {
@@ -145,8 +463,18 @@ h2 {
   text-shadow: 0 0 6px rgba(0, 255, 65, 0.55);
   outline: none;
 }
+/* ---- sigil ---- */
+.sigil-wrap { overflow-x: auto; margin: 2.4rem 0 0; }
+.sigil {
+  color: var(--green);
+  font-size: clamp(0.5rem, 2.1vw, 0.85rem);
+  line-height: 1.15;
+  white-space: pre;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+}
 footer {
-  margin-top: 3rem;
+  margin-top: 2.4rem;
   padding-top: 1.1rem;
   border-top: 1px solid rgba(0, 143, 17, 0.45);
 }
@@ -170,16 +498,36 @@ footer {
   background: rgba(0, 255, 65, 0.28);
   color: #eaffef;
 }
+@media (max-width: 520px) {
+  .panel-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .cursor { animation: none !important; opacity: 1; }
+}
 </style>
 </head>
 <body>
 <canvas id="rain" aria-hidden="true"></canvas>
+<div id="scanlines" aria-hidden="true"></div>
+<div id="storm" aria-hidden="true"></div>
+
 <main>
 
-  <h1 class="visually-hidden">tty503 — Christian Márquez, security researcher</h1>
+  <div class="glitch-wrap" data-glitch>
+    <h1 class="glitch" data-text="tty503">tty503<span class="visually-hidden"> — Christian Márquez, security researcher</span></h1>
+  </div>
+  <div class="subtitle-wrap">
+    <span class="subtitle" data-glitch>// GHOST PROTOCOL :: OFFLINE SHELL :: READ-ONLY</span>
+  </div>
 
   <div class="banner-wrap" aria-hidden="true">
-<pre class="banner">█████████╗█████████╗██╗   ██╗ ██████╗ ██████╗ ████████╗
+<pre class="banner" data-glitch>█████████╗█████████╗██╗   ██╗ ██████╗ ██████╗ ████████╗
 ╚══██╔═══╝╚══██╔═══╝╚██╗ ██╔╝██╔═══██╗██╔═══██╗╚══██╔══╝
    ██║       ██║     ╚████╔╝ ██║   ██║██║   ██║    ██║
    ██║       ██║      ╚██╔╝  ██║   ██║██║   ██║    ██║
@@ -187,10 +535,18 @@ footer {
    ╚═╝       ╚═╝       ╚═╝    ╚═════╝ ╚═════╝     ╚═╝</pre>
   </div>
 
+  <div class="rule-wrap" aria-hidden="true">
+<pre class="rule">════════════════════════════════════════════════════════════════════════
+──────────────────────────────  TRACE  ─────────────────────────────────</pre>
+  </div>
+
   <p class="status">SITE TEMPORARILY INACTIVE</p>
   <p class="notice">This site is offline while it is restructured. Nothing is broken — there is simply nothing to serve right now.</p>
 
-  <section>
+  <section class="box">
+    <span class="corner tl">┌</span><span class="corner tr">┐</span>
+    <span class="corner bl">└</span><span class="corner br">┘</span>
+    <span class="box-label">WHOAMI</span>
     <h2><span class="prompt">$</span>whoami</h2>
     <p class="output">Christian Márquez (tty503) — self-taught security researcher based in Venezuela. Reverse engineering, malware analysis, vulnerability research, OT/ICS security. Builds his own research tooling, including local AI-agent systems running on his own hardware.</p>
   </section>
@@ -200,7 +556,10 @@ footer {
     <p class="output">I started by taking software apart to see how it works. Years studying how software is built, broken, and defended followed. Today the method is the point: no claim is worth anything without reproducible evidence behind it — the compiled tool, the input that breaks it, the trace that proves it. I practice responsible disclosure; exploit-level details that would enable attacks are never published.</p>
   </section>
 
-  <section>
+  <section class="box">
+    <span class="corner tl">┌</span><span class="corner tr">┐</span>
+    <span class="corner bl">└</span><span class="corner br">┘</span>
+    <span class="box-label">ACHIEVEMENTS.LOG</span>
     <h2><span class="prompt">$</span>cat achievements.log</h2>
     <div class="log-wrap">
 <pre class="log">TARGETS AUDITED ............. 15 codebases          [names REDACTED]
@@ -223,6 +582,59 @@ RESEARCH INFRASTRUCTURE ..... custom MCP servers: 4 ·
     <p class="redact-notice"><span class="censor" title="REDACTED">████████████████████████</span> <span class="redact-label">REDACTED</span> — <strong>[REDACTED BY POLICY]</strong> target names, versions, payloads, vulnerability mechanics and PoC source. Responsible disclosure: details that could enable attacks are never published.</p>
   </section>
 
+  <section class="box">
+    <span class="corner tl">┌</span><span class="corner tr">┐</span>
+    <span class="corner bl">└</span><span class="corner br">┘</span>
+    <span class="box-label">OPERATING PRINCIPLES</span>
+    <h2><span class="prompt">$</span>cat principles.enc</h2>
+    <p class="output">
+      <span class="enc-line"><span class="enc" data-b64="Tk8gRVhQTE9JVCBJUyBQVUJMSVNIRUQgV0lUSE9VVCBBIFJFUFJPRFVDSUJMRSBQUk9PRi4=">Tk8gRVhQTE9JVCBJUyBQVUJMSVNIRUQgV0lUSE9VVCBBIFJFUFJPRFVDSUJMRSBQUk9PRi4=</span><button class="dec-one" type="button">[decode]</button></span><br>
+      <span class="enc-line"><span class="enc" data-b64="VEhFIFZVTE5FUkFCTEUgUEFUSCBJUyBORVZFUiBQVUJMSUMu">VEhFIFZVTE5FUkFCTEUgUEFUSCBJUyBORVZFUiBQVUJMSUMu</span><button class="dec-one" type="button">[decode]</button></span><br>
+      <span class="enc-line"><span class="enc" data-rot13="erfcbafvoyr qvfpybfher vf abg bcgvbany">erfcbafvoyr qvfpybfher vf abg bcgvbany</span><button class="dec-one" type="button">[decode]</button></span>
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="prompt">$</span>operator --console</h2>
+    <p class="panel-note">Seven controls. All stay in-page. Nothing leaves the terminal.</p>
+    <div class="panel-grid" role="group" aria-label="Operator console">
+      <button class="pbtn" id="btn-nuke" type="button" data-glitch>[ DO NOT PRESS ]</button>
+      <button class="pbtn" id="btn-decrypt" type="button" data-glitch>[ DECRYPT ALL ]</button>
+      <button class="pbtn" id="btn-ledger" type="button" data-glitch>[ LEDGER ]</button>
+      <button class="pbtn" id="btn-hash" type="button" data-glitch>[ TRACE HASH ]</button>
+      <button class="pbtn" id="btn-access" type="button" data-glitch>[ ACCESS ]</button>
+      <button class="pbtn" id="btn-reboot" type="button" data-glitch>[ REBOOT ]</button>
+      <button class="pbtn" id="btn-bot" type="button" data-glitch>[ SCRAPE ME, BOT ]</button>
+    </div>
+  </section>
+
+  <section class="box">
+    <span class="corner tl">┌</span><span class="corner tr">┐</span>
+    <span class="corner bl">└</span><span class="corner br">┘</span>
+    <span class="box-label">SHA-256 TRACEABLE SIGNATURE</span>
+    <h2><span class="prompt">$</span>trace --chain</h2>
+    <div class="hash-wrap">
+<pre class="hash"><span class="k">H0</span> = sha256('tty503')
+   = 6dd05b1de71b5cb3f4a5105df40efa478e03b6a8d98d40a59470bcd07ecf47b7
+
+<span class="k">H1</span> = sha256(H0 + '::ledger')
+   = 91185af39c3b1faadfdb63598891ac3f714808184c1359515061fb536d6acbd6
+
+<span class="k">H2</span> = sha256(H1 + '::ghost')
+   = 1c61108ee57b44f8f7cec115a194510a73e4d62566b5ba749b31f373c28dd0a0
+
+<span class="k">fingerprint</span> = sha256('tty503 | Christian Marquez | security researcher | Venezuela | 2026')
+   = 3880e62b832649041abc50cb9149e77a02e190418390833263446a39175df804</pre>
+    </div>
+    <div class="hash-wrap">
+<pre class="hash">$ printf 'tty503' | shasum -a 256
+$ printf '%s::ledger' '6dd05b1de71b5cb3f4a5105df40efa478e03b6a8d98d40a59470bcd07ecf47b7' | shasum -a 256
+$ printf '%s::ghost' '91185af39c3b1faadfdb63598891ac3f714808184c1359515061fb536d6acbd6' | shasum -a 256
+$ printf '%s' 'tty503 | Christian Marquez | security researcher | Venezuela | 2026' | shasum -a 256</pre>
+    </div>
+    <p class="redact-notice">Recompute any of the four above; if the output differs, this page was tampered with.</p>
+  </section>
+
   <section>
     <h2><span class="prompt">$</span>ls ./contact</h2>
     <ul class="contact-list">
@@ -232,94 +644,432 @@ RESEARCH INFRASTRUCTURE ..... custom MCP servers: 4 ·
     </ul>
   </section>
 
+  <div class="rule-wrap" aria-hidden="true">
+<pre class="rule">───────────────────  END OF TRANSMISSION  ───────────────────
+══════════════════════════════════════════════════════════════</pre>
+  </div>
+
+  <div class="sigil-wrap" aria-hidden="true">
+<pre class="sigil" data-glitch>   ╔═══════════════════════════════╗
+   ║   ┌───────────────────────┐   ║
+   ║   │   5 0 3   ::   ⬡ ⬢     │   ║
+   ║   └───────────────────────┘   ║
+   ╚═══════════════════════════════╝
+        ▚▞▚   KEYED SHELL   ▚▞▚</pre>
+  </div>
+
   <footer>
     <p class="footer-line"><span class="prompt">$</span><span class="cursor" aria-hidden="true">█</span></p>
     <p class="copyright">© 2026 Christian Márquez (tty503).</p>
   </footer>
 
 </main>
+
+<!-- ===================== OVERLAYS ===================== -->
+
+<div class="overlay" id="panel-secret" role="dialog" aria-modal="true" aria-labelledby="secret-title">
+  <div class="overlay-panel" tabindex="-1">
+    <div class="ov-head">
+      <span class="ov-title" id="secret-title">SECRET :: GHOST KEY</span>
+      <button class="ov-close" type="button" aria-label="Close">[ close ]</button>
+    </div>
+    <div class="ov-body">
+      <div class="ascii-wrap">
+<pre class="ascii">      .------------------------------.
+      |      [ GHOST PROTOCOL ]      |
+      '------------------------------'
+           \    ┌──────────────┐
+            \   │ ▓▓▓▓▓▓▓▓▓▓▓▓ │
+                └───────┬──────┘
+                 ┌──────┴──────┐
+                 │   503  ▸    │
+                 └─────────────┘
+        ╔═══════════════════════════════╗
+        ║   no lock was ever installed  ║
+        ╚═══════════════════════════════╝</pre>
+      </div>
+      <p>curiosity is the only credential.</p>
+      <p class="panel-note">Everything you just opened was never locked.</p>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="panel-ledger" role="dialog" aria-modal="true" aria-labelledby="ledger-title">
+  <div class="overlay-panel" tabindex="-1">
+    <div class="ov-head">
+      <span class="ov-title" id="ledger-title">LEDGER :: FRAGMENTED</span>
+      <button class="ov-close" type="button" aria-label="Close">[ close ]</button>
+    </div>
+    <div class="ov-body">
+      <p class="panel-note">Arrives encoded. Run [ DECRYPT ALL ] or decode each field.</p>
+      <div class="frag">
+        <h3>FRAGMENT 1/3 — DEPLOYMENT SURFACE</h3>
+        <pre><span class="enc-line"><span class="enc" data-b64="VEFSR0VUUyBBVURJVEVE">VEFSR0VUUyBBVURJVEVE</span><button class="dec-one" type="button">[decode]</button></span> .............. 15 codebases
+<span class="enc-line"><span class="enc" data-b64="Q09NUExFVEVEIEFVRElUIFBBQ0tBR0VT">Q09NUExFVEVEIEFVRElUIFBBQ0tBR0VT</span><button class="dec-one" type="button">[decode]</button></span> .... 6</pre>
+      </div>
+      <div class="frag">
+        <h3>FRAGMENT 2/3 — FINDINGS</h3>
+        <pre>DOCUMENTED FINDINGS ......... 10
+  ├─ <span class="enc-line"><span class="enc" data-b64="cHJlLWF1dGgsIGxhYi12YWxpZGF0ZWQ=">cHJlLWF1dGgsIGxhYi12YWxpZGF0ZWQ=</span><button class="dec-one" type="button">[decode]</button></span> . 5
+  ├─ <span class="enc-line"><span class="enc" data-b64="dmVyc2lvbi1kaWZmIGRpc2NvdmVyZWQ=">dmVyc2lvbi1kaWZmIGRpc2NvdmVyZWQ=</span><button class="dec-one" type="button">[decode]</button></span> . 3
+  └─ <span class="enc-line"><span class="enc" data-b64="dW5kZXRlcm1pbmVk">dW5kZXRlcm1pbmVk</span><button class="dec-one" type="button">[decode]</button></span> ................... 2
+BUG CLASSES ................. memory safety · integrity bypass ·
+                               auth bypass · SSRF · injection ·
+                               traversal · XSS/CSRF · deserialization ·
+                               credential leakage · DoS</pre>
+      </div>
+      <div class="frag">
+        <h3>FRAGMENT 3/3 — RESEARCH INFRASTRUCTURE</h3>
+        <pre><span class="enc-line"><span class="enc" data-b64="Y3VzdG9tIE1DUCBzZXJ2ZXJz">Y3VzdG9tIE1DUCBzZXJ2ZXJz</span><button class="dec-one" type="button">[decode]</button></span> .......... 4
+<span class="enc-line"><span class="enc" data-b64="ZGV0ZXJtaW5pc3RpYyBzZWxmLXRlc3Q=">ZGV0ZXJtaW5pc3RpYyBzZWxmLXRlc3Q=</span><button class="dec-one" type="button">[decode]</button></span> ... 77 checks
+<span class="enc-line"><span class="enc" data-b64="bWVhc3VyZW1lbnQgdG9vbHM=">bWVhc3VyZW1lbnQgdG9vbHM=</span><button class="dec-one" type="button">[decode]</button></span> .......... 25
+methodology docs ................ 11
+<span class="enc-line"><span class="enc" data-b64="cmVwcm9kdWNpYmxlIFBvQyBsYWJz">cmVwcm9kdWNpYmxlIFBvQyBsYWJz</span><button class="dec-one" type="button">[decode]</button></span> ........ 7 (Docker)</pre>
+      </div>
+      <p class="redact-notice">Same censoring as the main ledger: names, versions, payloads and mechanics stay REDACTED.</p>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="panel-hash" role="dialog" aria-modal="true" aria-labelledby="hash-title">
+  <div class="overlay-panel" tabindex="-1">
+    <div class="ov-head">
+      <span class="ov-title" id="hash-title">SHA-256 TRACEABLE SIGNATURE</span>
+      <button class="ov-close" type="button" aria-label="Close">[ close ]</button>
+    </div>
+    <div class="ov-body">
+      <p class="panel-note">Recompute any of the four above; if the output differs, this page was tampered with.</p>
+      <div class="hash-wrap">
+<pre class="hash">H0 = sha256('tty503')
+   = 6dd05b1de71b5cb3f4a5105df40efa478e03b6a8d98d40a59470bcd07ecf47b7
+
+H1 = sha256(H0 + '::ledger')
+   = 91185af39c3b1faadfdb63598891ac3f714808184c1359515061fb536d6acbd6
+
+H2 = sha256(H1 + '::ghost')
+   = 1c61108ee57b44f8f7cec115a194510a73e4d62566b5ba749b31f373c28dd0a0
+
+fingerprint = sha256('tty503 | Christian Marquez | security researcher | Venezuela | 2026')
+   = 3880e62b832649041abc50cb9149e77a02e190418390833263446a39175df804</pre>
+      </div>
+      <div class="hash-wrap">
+<pre class="hash">$ printf 'tty503' | shasum -a 256
+$ printf '%s::ledger' '6dd05b1de71b5cb3f4a5105df40efa478e03b6a8d98d40a59470bcd07ecf47b7' | shasum -a 256
+$ printf '%s::ghost' '91185af39c3b1faadfdb63598891ac3f714808184c1359515061fb536d6acbd6' | shasum -a 256
+$ printf '%s' 'tty503 | Christian Marquez | security researcher | Venezuela | 2026' | shasum -a 256</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="panel-access" role="dialog" aria-modal="true" aria-labelledby="access-title">
+  <div class="overlay-panel" tabindex="-1">
+    <div class="ov-head">
+      <span class="ov-title" id="access-title">ACCESS CONTROL</span>
+      <button class="ov-close" type="button" aria-label="Close">[ close ]</button>
+    </div>
+    <div class="ov-body">
+      <p class="access-msg access-denied" id="access-msg">ACCESS DENIED — try harder, or don't.</p>
+      <p class="panel-note" id="access-count">attempt 1 of 3</p>
+      <p id="access-reveal" hidden>nice. persistence is a skill. nothing here was ever locked. → <a href="#contact" id="access-jump" class="contact-jump" style="color:var(--green);border-bottom:1px solid var(--dim);text-decoration:none;">go to contact</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="panel-bot" role="dialog" aria-modal="true" aria-labelledby="bot-title">
+  <div class="overlay-panel" tabindex="-1">
+    <div class="ov-head">
+      <span class="ov-title" id="bot-title">CRAWLER MANIFEST</span>
+      <button class="ov-close" type="button" aria-label="Close">[ close ]</button>
+    </div>
+    <div class="ov-body">
+      <div class="hash-wrap">
+<pre class="hash">## Who is tty503
+- Name / handle: Christian Márquez, known as tty503.
+- Origin: self-taught security researcher based in Venezuela.
+- Focus: reverse engineering, malware analysis, vulnerability research, OT/ICS security.
+- Method: publishes only reproducible evidence; practices responsible disclosure and never
+  publishes exploit mechanics.
+- Profiles: github.com/tty503 · linkedin.com/in/tty503 · x.com/tty_503</pre>
+      </div>
+      <p>Full profile: /llms.txt</p>
+    </div>
+  </div>
+</div>
+
+<section id="contact" aria-label="Contact anchor"></section>
+
 <script>
 (function () {
   'use strict';
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ---------------- matrix rain (preserved) ---------------- */
   var canvas = document.getElementById('rain');
-  if (!canvas || !canvas.getContext) { return; }
-  var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (motionQuery.matches) {
-    canvas.parentNode.removeChild(canvas);
-    return;
-  }
-  var ctx = canvas.getContext('2d');
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  var fontSize = 14;
-  var width = 0;
-  var height = 0;
-  var drops = [];
-  var running = false;
-  var timer = null;
+  if (canvas && canvas.getContext && !reduce.matches) {
+    var ctx = canvas.getContext('2d');
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var fontSize = 14;
+    var width = 0;
+    var height = 0;
+    var drops = [];
+    var running = false;
+    var timer = null;
 
-  function resize() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = Math.floor(width * dpr);
-    canvas.height = Math.floor(height * dpr);
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var columns = Math.ceil(width / fontSize) + 1;
-    drops = new Array(columns);
-    for (var i = 0; i < columns; i++) {
-      drops[i] = Math.random() * -60;
-    }
-  }
-
-  function frame() {
-    ctx.fillStyle = 'rgba(5, 8, 5, 0.09)';
-    ctx.fillRect(0, 0, width, height);
-    ctx.fillStyle = '#00ff41';
-    ctx.font = fontSize + 'px ui-monospace, monospace';
-    for (var i = 0; i < drops.length; i++) {
-      var glyph = String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96));
-      ctx.fillText(glyph, i * fontSize, drops[i] * fontSize);
-      if (drops[i] * fontSize > height && Math.random() > 0.975) {
-        drops[i] = 0;
+    var resize = function () {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var columns = Math.ceil(width / fontSize) + 1;
+      drops = new Array(columns);
+      for (var i = 0; i < columns; i++) {
+        drops[i] = Math.random() * -60;
       }
-      drops[i]++;
-    }
-    timer = window.setTimeout(function () {
-      window.requestAnimationFrame(frame);
-    }, 66);
+    };
+
+    var frame = function () {
+      ctx.fillStyle = 'rgba(5, 8, 5, 0.09)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#00ff41';
+      ctx.font = fontSize + 'px ui-monospace, monospace';
+      for (var i = 0; i < drops.length; i++) {
+        var glyph = String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96));
+        ctx.fillText(glyph, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+      timer = window.setTimeout(function () {
+        window.requestAnimationFrame(frame);
+      }, 66);
+    };
+
+    var start = function () {
+      if (running) { return; }
+      running = true;
+      frame();
+    };
+    var stop = function () {
+      running = false;
+      if (timer !== null) {
+        window.clearTimeout(timer);
+        timer = null;
+      }
+    };
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { stop(); } else { start(); }
+    });
+
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+      if (resizeTimer !== null) { window.clearTimeout(resizeTimer); }
+      resizeTimer = window.setTimeout(resize, 150);
+    });
+
+    resize();
+    start();
+  } else if (canvas && canvas.parentNode) {
+    canvas.parentNode.removeChild(canvas);
   }
 
-  function start() {
-    if (running) { return; }
-    running = true;
-    frame();
+  /* ---------------- encoding helpers ---------------- */
+  function b64utf8(s) {
+    try {
+      var bin = atob(s.replace(/\s+/g, ''));
+      var bytes = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) { bytes[i] = bin.charCodeAt(i); }
+      return new TextDecoder('utf-8').decode(bytes);
+    } catch (e) {
+      return s;
+    }
   }
-
-  function stop() {
-    running = false;
-    if (timer !== null) {
-      window.clearTimeout(timer);
-      timer = null;
+  function rot13(s) {
+    return s.replace(/[A-Za-z]/g, function (c) {
+      var base = (c <= 'Z') ? 65 : 97;
+      return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
+    });
+  }
+  function decodeEl(el) {
+    if (!el || el.dataset.decoded === '1') { return; }
+    var out = null;
+    if (el.hasAttribute('data-b64')) { out = b64utf8(el.getAttribute('data-b64')); }
+    else if (el.hasAttribute('data-rot13')) { out = rot13(el.getAttribute('data-rot13')); }
+    if (out === null) { return; }
+    el.textContent = out;
+    el.classList.add('decoded');
+    el.dataset.decoded = '1';
+    el.removeAttribute('data-b64');
+    el.removeAttribute('data-rot13');
+    var host = el.parentNode;
+    if (host) {
+      var btn = host.querySelector('.dec-one');
+      if (btn && btn.parentNode) { btn.parentNode.removeChild(btn); }
     }
   }
 
-  document.addEventListener('visibilitychange', function () {
-    if (document.hidden) {
-      stop();
-    } else {
-      start();
-    }
+  document.querySelectorAll('.dec-one').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var host = btn.parentNode;
+      if (host) { decodeEl(host.querySelector('.enc')); }
+    });
   });
 
-  var resizeTimer = null;
-  window.addEventListener('resize', function () {
-    if (resizeTimer !== null) { window.clearTimeout(resizeTimer); }
-    resizeTimer = window.setTimeout(resize, 150);
+  var decryptBtn = document.getElementById('btn-decrypt');
+  if (decryptBtn) {
+    decryptBtn.addEventListener('click', function () {
+      document.querySelectorAll('.enc').forEach(decodeEl);
+      decryptBtn.disabled = true;
+      decryptBtn.textContent = '[ DECRYPTED ]';
+    });
+  }
+
+  /* ---------------- overlays ---------------- */
+  var lastFocus = null;
+
+  function closeAll() {
+    document.querySelectorAll('.overlay.open').forEach(function (o) {
+      o.classList.remove('open');
+    });
+    document.body.style.overflow = '';
+    if (lastFocus && typeof lastFocus.focus === 'function') {
+      lastFocus.focus();
+    }
+  }
+
+  function openOverlay(id) {
+    var ov = document.getElementById(id);
+    if (!ov) { return; }
+    closeAll();
+    lastFocus = document.activeElement;
+    ov.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    var panel = ov.querySelector('.overlay-panel');
+    if (panel) { panel.focus(); }
+  }
+
+  document.querySelectorAll('.overlay').forEach(function (ov) {
+    ov.addEventListener('click', function (e) {
+      if (e.target === ov) { closeAll(); }
+    });
+  });
+  document.querySelectorAll('.ov-close').forEach(function (btn) {
+    btn.addEventListener('click', closeAll);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.key === 'Esc') { closeAll(); }
   });
 
-  resize();
-  start();
+  /* ---------------- glitch storm ---------------- */
+  var stormEl = document.getElementById('storm');
+  function storm(done) {
+    if (reduce.matches || !stormEl) {
+      if (typeof done === 'function') { done(); }
+      return;
+    }
+    stormEl.classList.add('active');
+    window.setTimeout(function () {
+      stormEl.classList.remove('active');
+      if (typeof done === 'function') { done(); }
+    }, 600);
+  }
+
+  /* ---------------- panel buttons ---------------- */
+  var nuke = document.getElementById('btn-nuke');
+  if (nuke) {
+    nuke.addEventListener('click', function () {
+      storm(function () { openOverlay('panel-secret'); });
+    });
+  }
+
+  var ledgerBtn = document.getElementById('btn-ledger');
+  if (ledgerBtn) {
+    ledgerBtn.addEventListener('click', function () { openOverlay('panel-ledger'); });
+  }
+  var hashBtn = document.getElementById('btn-hash');
+  if (hashBtn) {
+    hashBtn.addEventListener('click', function () { openOverlay('panel-hash'); });
+  }
+  var botBtn = document.getElementById('btn-bot');
+  if (botBtn) {
+    botBtn.addEventListener('click', function () { openOverlay('panel-bot'); });
+  }
+
+  /* access counter */
+  var accessBtn = document.getElementById('btn-access');
+  var accessCount = 0;
+  if (accessBtn) {
+    accessBtn.addEventListener('click', function () {
+      accessCount++;
+      var msg = document.getElementById('access-msg');
+      var count = document.getElementById('access-count');
+      var reveal = document.getElementById('access-reveal');
+      if (accessCount >= 3) {
+        if (msg) {
+          msg.textContent = 'nice. persistence is a skill. nothing here was ever locked.';
+          msg.classList.remove('access-denied');
+          msg.classList.add('access-granted');
+        }
+        if (count) { count.textContent = 'attempt ' + accessCount + ' · access is a social construct'; }
+        if (reveal) { reveal.hidden = false; }
+      } else {
+        if (msg) { msg.textContent = 'ACCESS DENIED — try harder, or don\u2019t.'; }
+        if (count) { count.textContent = 'attempt ' + accessCount + ' of 3'; }
+        if (reveal) { reveal.hidden = true; }
+      }
+      openOverlay('panel-access');
+      if (accessCount >= 3 && reveal) {
+        var jump = document.getElementById('access-jump');
+        if (jump) {
+          jump.addEventListener('click', function () {
+            closeAll();
+            var target = document.getElementById('contact');
+            if (target) {
+              if (typeof target.scrollIntoView === 'function') {
+                target.scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'center' });
+              }
+            }
+          });
+        }
+      }
+    });
+  }
+
+  /* reboot */
+  var rebootBtn = document.getElementById('btn-reboot');
+  if (rebootBtn) {
+    rebootBtn.addEventListener('click', function () {
+      storm(function () {
+        window.scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+      });
+    });
+  }
+
+  /* ---------------- random micro-glitch ---------------- */
+  if (!reduce.matches) {
+    var microPool = function () {
+      return document.querySelectorAll('[data-glitch]');
+    };
+    var scheduleMicro = function () {
+      var delay = 6000 + Math.random() * 6000;
+      window.setTimeout(function () {
+        var els = microPool();
+        if (els.length) {
+          var el = els[Math.floor(Math.random() * els.length)];
+          el.classList.add('micro-glitch');
+          window.setTimeout(function () { el.classList.remove('micro-glitch'); }, 150);
+        }
+        scheduleMicro();
+      }, delay);
+    };
+    scheduleMicro();
+  }
 })();
 </script>
 </body>

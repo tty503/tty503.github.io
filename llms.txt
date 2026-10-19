@@ -1,0 +1,23 @@
+# tty503 — Christian Márquez (tty503)
+
+> Self-taught security researcher based in Venezuela. Evidence over claims.
+
+## Who is tty503
+- Name / handle: Christian Márquez, known as tty503.
+- Origin: self-taught security researcher based in Venezuela.
+- Focus areas: reverse engineering, malware analysis, vulnerability research, OT/ICS security.
+- Method: publishes only reproducible evidence; practices responsible disclosure and never publishes exploit mechanics.
+- Profiles: [GitHub](https://github.com/tty503) · [LinkedIn](https://linkedin.com/in/tty503) · [X](https://x.com/tty_503)
+
+## Facts
+- Targets audited: 15 codebases (names redacted by policy).
+- Completed audit packages: 6.
+- Documented findings: 10 — 5 pre-auth lab-validated, 3 version-diff discovered, 2 undetermined.
+- Prior artifacts triaged: 42, mapped to a 7-class evidence taxonomy.
+- Bug classes: memory safety, integrity bypass, auth bypass, SSRF, injection, traversal, XSS/CSRF, deserialization, credential leakage, DoS.
+- Research infrastructure: 4 custom MCP servers, 77 deterministic self-test checks, 25 measurement tools, 11 methodology docs, 7 reproducible PoC labs (Docker).
+
+## Links
+- https://github.com/tty503
+- https://linkedin.com/in/tty503
+- https://x.com/tty_503

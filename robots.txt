@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tty503.com/sitemap.xml
