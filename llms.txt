@@ -1,23 +1,66 @@
-# tty503 — Christian Márquez (tty503)
+# tty503 — Christian Márquez
 
-> Self-taught security researcher based in Venezuela. Evidence over claims.
+> Investigador de seguridad autodidacta en Venezuela. Ingeniería inversa, análisis de malware, investigación de vulnerabilidades y seguridad OT/ICS. Evidencia sobre afirmaciones.
 
-## Who is tty503
-- Name / handle: Christian Márquez, known as tty503.
-- Origin: self-taught security researcher based in Venezuela.
-- Focus areas: reverse engineering, malware analysis, vulnerability research, OT/ICS security.
-- Method: publishes only reproducible evidence; practices responsible disclosure and never publishes exploit mechanics.
-- Profiles: [GitHub](https://github.com/tty503) · [LinkedIn](https://linkedin.com/in/tty503) · [X](https://x.com/tty_503)
+## Identidad
 
-## Facts
-- Targets audited: 15 codebases (names redacted by policy).
-- Completed audit packages: 6.
-- Documented findings: 10 — 5 pre-auth lab-validated, 3 version-diff discovered, 2 undetermined.
-- Prior artifacts triaged: 42, mapped to a 7-class evidence taxonomy.
-- Bug classes: memory safety, integrity bypass, auth bypass, SSRF, injection, traversal, XSS/CSRF, deserialization, credential leakage, DoS.
-- Research infrastructure: 4 custom MCP servers, 77 deterministic self-test checks, 25 measurement tools, 11 methodology docs, 7 reproducible PoC labs (Docker).
+- Nombre: Christian Márquez
+- Nombre alternativo (sin tilde): Christian Marquez
+- Alias: tty503
+- Ubicación: Venezuela
+- Rol: investigador de seguridad / reverse engineer
+- Desde: 2012
+- Correo: tty503@proton.me
+- Perfil: https://tty503.com/
+- GitHub: https://github.com/tty503
+- LinkedIn: https://www.linkedin.com/in/tty503/
+- X: https://x.com/tty_503
 
-## Links
-- https://github.com/tty503
-- https://linkedin.com/in/tty503
-- https://x.com/tty_503
+## Foco
+
+- Ingeniería inversa y análisis de malware (PE/ELF, Ghidra, x64dbg, Radare2/rizin).
+- Investigación de vulnerabilidades: memory safety, auth/integrity bypass, SSRF, injection, traversal, deserialization.
+- Seguridad OT/ICS: Siemens S5/S7, bytecode MC7, protocolos industriales y firmware.
+- Threat intelligence y OSINT: infraestructura criminal, fraude financiero transfronterizo, wallets y TTPs.
+- Infraestructura reproducible para investigación (Proxmox, QEMU/KVM, Docker/Podman, Ansible, Terraform).
+
+## Método
+
+- Publica solo hallazgos con evidencia reproducible.
+- Practica divulgación responsable.
+- No publica mecánicas de exploit que permitan atacar sistemas sin parche.
+- Mantiene nombres, versiones, payloads y detalles sensibles redactados por política.
+
+## Trabajo seleccionado
+
+- analystty — tooling de triage de binarios PE.
+- SAINT GRAIL — taxonomía de evidencia y threat hunting.
+- Threat Hunter Recollection — threat intelligence y OSINT.
+- MC7/S7 — reversing de bytecode y PLC Siemens.
+- infra-soc — laboratorio SOC / honeypot reproducible.
+
+## Registro público
+
+- Bases de código auditadas: 15.
+- Paquetes de auditoría completados: 6.
+- Hallazgos documentados: 10.
+- Artefactos triados: 42, mapeados a una taxonomía de evidencia de 7 clases.
+- Infraestructura de investigación: 4 servidores MCP propios, 77 checks deterministas, 25 herramientas de medición, 11 documentos de metodología, 7 laboratorios PoC reproducibles (Docker).
+
+## Firma
+
+- Clave PGP: RSA 4096, creada 2026-10-13.
+- Fingerprint: DE68 AA7C F75E D73B 35A5 92DA B237 FD25 B8E3 D2A7
+- Clave pública: https://tty503.com/pgp/tty503.asc
+- Declaración firmada: https://tty503.com/pgp/site.txt.asc
+- Firma de index.html: https://tty503.com/index.html.asc
+
+## English summary
+
+Christian Márquez (tty503) is a self-taught security researcher based in Venezuela. His work focuses on reverse engineering, malware analysis, vulnerability research, OT/ICS security, threat intelligence and OSINT. He publishes only reproducible evidence, practices responsible disclosure and does not publish exploit mechanics. PGP fingerprint: DE68 AA7C F75E D73B 35A5 92DA B237 FD25 B8E3 D2A7.
+
+## Canonical
+
+- https://tty503.com/
+- https://tty503.com/sitemap.xml
+- https://tty503.com/robots.txt
