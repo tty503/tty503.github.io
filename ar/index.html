@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>tty503 — Christian Márquez | هندسة عكسية وبرمجيات خبيثة وOT/ICS</title>
+<meta name="description" content="كريستيان ماركيز (tty503)، باحث أمني عصامي في فنزويلا. هندسة عكسية، تحليل برمجيات خبيثة، بحث الثغرات وأمن OT/ICS." />
+<meta name="author" content="Christian Márquez (tty503)" />
+<meta name="keywords" content="tty503, Christian Márquez, Christian Marquez, security research, reverse engineering, reversing, malware analysis, vulnerability research, threat intelligence, OSINT, OT security, ICS, Siemens S5/S7, MC7, PLC, Venezuela" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+<meta name="googlebot" content="index, follow, max-image-preview:large" />
+<meta name="theme-color" content="#0A0A0A" />
+<meta name="color-scheme" content="dark" />
+<link rel="canonical" href="https://tty503.com/ar/" />
+<link rel="alternate" hreflang="es" href="https://tty503.com/es/" />
+<link rel="alternate" hreflang="en" href="https://tty503.com/en/" />
+<link rel="alternate" hreflang="zh" href="https://tty503.com/zh/" />
+<link rel="alternate" hreflang="ru" href="https://tty503.com/ru/" />
+<link rel="alternate" hreflang="he" href="https://tty503.com/he/" />
+<link rel="alternate" hreflang="ar" href="https://tty503.com/ar/" />
+<link rel="alternate" hreflang="x-default" href="https://tty503.com/" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<link rel="alternate" type="application/pgp-keys" href="../pgp/tty503.asc" />
+<link rel="me" href="https://github.com/tty503" />
+<link rel="me" href="https://www.linkedin.com/in/tty503/" />
+<link rel="me" href="https://x.com/tty_503" />
+
+<meta property="og:type" content="profile" />
+<meta property="og:site_name" content="tty503" />
+<meta property="og:locale" content="ar_SA" />
+<meta property="og:locale:alternate" content="es_VE" />
+<meta property="og:locale:alternate" content="en_US" />
+<meta property="og:locale:alternate" content="zh_CN" />
+<meta property="og:locale:alternate" content="ru_RU" />
+<meta property="og:locale:alternate" content="he_IL" />
+<meta property="og:title" content="tty503 — Christian Márquez | هندسة عكسية وبرمجيات خبيثة وOT/ICS" />
+<meta property="og:description" content="كريستيان ماركيز (tty503)، باحث أمني عصامي في فنزويلا. هندسة عكسية، تحليل برمجيات خبيثة، بحث الثغرات وأمن OT/ICS." />
+<meta property="og:url" content="https://tty503.com/ar/" />
+<meta property="og:image" content="https://tty503.com/img/tty503.jpg" />
+<meta property="og:image:width" content="1066" />
+<meta property="og:image:height" content="1076" />
+<meta property="og:image:alt" content="tty503 — Christian Márquez" />
+<meta property="profile:username" content="tty503" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@tty_503" />
+<meta name="twitter:creator" content="@tty_503" />
+<meta name="twitter:title" content="tty503 — Christian Márquez | هندسة عكسية وبرمجيات خبيثة وOT/ICS" />
+<meta name="twitter:description" content="كريستيان ماركيز (tty503)، باحث أمني عصامي في فنزويلا. هندسة عكسية، تحليل برمجيات خبيثة، بحث الثغرات وأمن OT/ICS." />
+<meta name="twitter:image" content="https://tty503.com/img/tty503.jpg" />
+<meta name="twitter:image:alt" content="tty503 — Christian Márquez" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://tty503.com/#person",
+      "name": "Christian Márquez",
+      "alternateName": [
+        "tty503",
+        "Christian Marquez"
+      ],
+      "url": "https://tty503.com/",
+      "image": "https://tty503.com/img/tty503.jpg",
+      "jobTitle": "Security researcher",
+      "description": "كريستيان ماركيز (tty503)، باحث أمني عصامي في فنزويلا. هندسة عكسية، تحليل برمجيات خبيثة، بحث الثغرات وأمن OT/ICS.",
+      "email": "tty503@proton.me",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "VE"
+      },
+      "sameAs": [
+        "https://github.com/tty503",
+        "https://www.linkedin.com/in/tty503/",
+        "https://x.com/tty_503",
+        "https://t.me/tty503"
+      ],
+      "knowsAbout": [
+        "reverse engineering",
+        "malware analysis",
+        "vulnerability research",
+        "OT/ICS security",
+        "threat intelligence",
+        "OSINT",
+        "Siemens S5/S7",
+        "MC7 bytecode",
+        "firmware analysis",
+        "responsible disclosure"
+      ],
+      "knowsLanguage": [
+        "es",
+        "en"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://tty503.com/#website",
+      "url": "https://tty503.com/ar/",
+      "name": "tty503",
+      "alternateName": "tty503 — Christian Márquez",
+      "inLanguage": "ar",
+      "publisher": {
+        "@id": "https://tty503.com/#person"
+      }
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": "https://tty503.com/ar/#page",
+      "url": "https://tty503.com/ar/",
+      "name": "tty503 — Christian Márquez",
+      "description": "كريستيان ماركيز (tty503)، باحث أمني عصامي في فنزويلا. هندسة عكسية، تحليل برمجيات خبيثة، بحث الثغرات وأمن OT/ICS.",
+      "isPartOf": {
+        "@id": "https://tty503.com/#website"
+      },
+      "about": {
+        "@id": "https://tty503.com/#person"
+      },
+      "mainEntity": {
+        "@id": "https://tty503.com/#person"
+      },
+      "inLanguage": "ar",
+      "dateModified": "2026-10-25"
+    }
+  ]
+}
+</script>
+
+<style>
+/* ============================================================
+     BASE / PALETA (escala de grises, estética terminal)
+     ============================================================ */
+  :root{
+    --bg:#0A0A0A;
+    --line:#2E2E2E;
+    --dim:#787878;
+    --mid:#949494;
+    --light:#C2C2C2;
+    --white:#F0F0F0;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+            "Liberation Mono", "Courier New",
+            "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+            "Noto Sans CJK SC", "Geeza Pro", "Noto Naskh Arabic",
+            "SF Arabic", "Noto Sans Hebrew", "Arial Hebrew", monospace;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; background:#000; }
+
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--light);
+    font-family:var(--mono);
+    font-size:14px;
+    line-height:1.7;
+    letter-spacing:.015em;
+    padding-bottom:78px;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-shadow:0 0 8px rgba(240,240,240,.05);
+  }
+
+  ::selection{ background:var(--light); color:var(--bg); }
+
+  .dim{ color:var(--dim); }
+  .mid{ color:var(--mid); }
+  .white{ color:var(--white); }
+
+  /* ============================================================
+     FX: grano + scanlines + viñeta
+     ============================================================ */
+  .fx{ position:fixed; inset:0; pointer-events:none; }
+
+  .fx.grain{
+    inset:-10%;
+    z-index:90;
+    opacity:.075;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+    animation:grainShift .7s steps(3) infinite;
+  }
+  @keyframes grainShift{
+    0%  { transform:translate(0,0); }
+    33% { transform:translate(-3px,2px); }
+    66% { transform:translate(2px,-3px); }
+    100%{ transform:translate(0,0); }
+  }
+
+  .fx.scanlines{
+    z-index:91;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(240,240,240,.03) 0 1px,
+      rgba(0,0,0,0) 1px 3px
+    );
+  }
+
+  .fx.vignette{
+    z-index:92;
+    background:radial-gradient(
+      ellipse at 50% 40%,
+      rgba(0,0,0,0) 35%,
+      rgba(0,0,0,.5) 78%,
+      rgba(0,0,0,.84) 100%
+    );
+  }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .skip-link{
+    position:absolute;
+    inset-inline-start:-9999px;
+    top:0;
+    z-index:200;
+    background:var(--white);
+    color:var(--bg);
+    padding:8px 12px;
+    font-size:12px;
+  }
+  .skip-link:focus{ inset-inline-start:12px; top:12px; }
+
+  .page{
+    position:relative;
+    z-index:1;
+    max-width:1180px;
+    margin:0 auto;
+    padding:22px 20px 48px;
+  }
+
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+    padding-bottom:10px;
+    margin-bottom:20px;
+    border-bottom:1px solid var(--line);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .topbar .prompt{ color:var(--dim); margin-inline-end:.6ch; }
+  .topbar .right{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+
+  .langs{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:6px;
+    font-size:10px;
+    letter-spacing:.08em;
+  }
+  .langs a{ color:var(--dim); border-bottom:0; padding:2px 4px; }
+  .langs a:hover{ color:var(--white); }
+  .langs a[aria-current="page"]{
+    color:var(--bg);
+    background:var(--light);
+  }
+  .langs .sep{ color:var(--line); }
+
+  .cursor{
+    display:inline-block;
+    color:var(--white);
+    animation:blink 1.05s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .boot{
+    margin:0 0 18px;
+    min-height:8.2em;
+    font-family:var(--mono);
+    font-size:12.5px;
+    line-height:1.65;
+    color:var(--mid);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+
+  .jump{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 16px;
+    margin:0 0 26px;
+    padding:10px 0;
+    border-top:1px dotted rgba(46,46,46,.8);
+    border-bottom:1px dotted rgba(46,46,46,.8);
+    font-size:10.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  .jump a{ color:var(--dim); }
+  .jump a:hover{ color:var(--white); }
+
+  .grid{
+    display:grid;
+    grid-template-columns:350px minmax(0,1fr);
+    gap:34px;
+    align-items:start;
+  }
+  .col-img{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    min-width:0;
+    position:sticky;
+    top:20px;
+  }
+  .col-txt{
+    display:flex;
+    flex-direction:column;
+    gap:32px;
+    min-width:0;
+  }
+
+  /* ============================================================
+     MARCOS
+     ============================================================ */
+  .frame{
+    position:relative;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.008);
+    padding:22px 20px;
+  }
+  .frame[id]{ scroll-margin-top:20px; }
+
+  .frame::before{
+    content:attr(data-label);
+    position:absolute;
+    top:-.72em;
+    inset-inline-start:12px;
+    max-width:calc(100% - 24px);
+    padding:0 8px;
+    background:var(--bg);
+    color:var(--dim);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* ============================================================
+     IMAGEN
+     ============================================================ */
+  .imgbox{ margin:0; }
+
+  .imgbox img{
+    display:block;
+    width:100%;
+    height:auto;
+    filter:grayscale(1) contrast(1.06);
+    border:1px solid var(--line);
+  }
+
+  .imgbox figcaption{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    margin-top:12px;
+    font-size:10.5px;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:var(--mid);
+  }
+
+  .meta{
+    display:grid;
+    grid-template-columns:8.2rem minmax(0,1fr);
+    gap:8px 14px;
+    margin:0;
+    font-size:11.5px;
+    line-height:1.55;
+  }
+  .meta dt{
+    color:var(--dim);
+    text-transform:uppercase;
+    letter-spacing:.12em;
+  }
+  .meta dd{ margin:0; color:var(--light); }
+
+  .aside-note{
+    margin:0;
+    font-size:11.5px;
+    line-height:1.65;
+    color:var(--dim);
+  }
+
+  /* ============================================================
+     IDIOMAS / RTL
+     ============================================================ */
+  [dir="rtl"]{ direction:rtl; }
+  [dir="rtl"] body{ letter-spacing:0; }
+  [dir="rtl"] .topbar,
+  [dir="rtl"] .jump,
+  [dir="rtl"] .langs,
+  [dir="rtl"] h2,
+  [dir="rtl"] .ts,
+  [dir="rtl"] .meta dt,
+  [dir="rtl"] .stack dt,
+  [dir="rtl"] .ledger .label,
+  [dir="rtl"] .now-label,
+  [dir="rtl"] .contact .k,
+  [dir="rtl"] .eof,
+  [dir="rtl"] .statusbar,
+  [dir="rtl"] .btn,
+  [dir="rtl"] .copy-btn,
+  [dir="rtl"] summary{
+    letter-spacing:0;
+  }
+  [dir="rtl"] .pgp,
+  [dir="rtl"] .verify{
+    direction:ltr;
+    text-align:left;
+  }
+  [dir="rtl"] .skip-link{ inset-inline-start:-9999px; }
+  [dir="rtl"] .skip-link:focus{ inset-inline-start:12px; }
+
+  /* ============================================================
+     TEXTO
+     ============================================================ */
+  h1{
+    margin:0 0 10px;
+    font-size:clamp(21px, 3.2vw, 32px);
+    font-weight:400;
+    line-height:1.2;
+    color:var(--white);
+    letter-spacing:-.01em;
+  }
+  h1 .slash{ color:var(--dim); }
+  h1 .handle{ color:var(--white); }
+
+  h2{
+    margin:0 0 14px;
+    font-size:12px;
+    font-weight:400;
+    line-height:1.4;
+    color:var(--dim);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  h2::before{ content:"// "; color:var(--line); }
+
+  h3{
+    margin:0 0 6px;
+    font-size:15px;
+    font-weight:400;
+    line-height:1.35;
+    color:var(--white);
+  }
+
+  p{ margin:0 0 14px; }
+  p:last-child{ margin-bottom:0; }
+
+  .lede{
+    margin:0 0 16px;
+    font-size:clamp(14px, 1.8vw, 16px);
+    line-height:1.55;
+    color:var(--light);
+  }
+  .intro{ max-width:72ch; }
+  .small{ font-size:11px; line-height:1.6; color:var(--dim); }
+
+  .now{
+    display:grid;
+    grid-template-columns:8.2rem minmax(0,1fr);
+    gap:14px;
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px dotted rgba(46,46,46,.8);
+    font-size:12.5px;
+    color:var(--mid);
+  }
+  .now-label{
+    color:var(--dim);
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  .now p{ margin:0; }
+
+  /* ============================================================
+     TRAYECTORIA
+     ============================================================ */
+  .log{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    font-size:12.5px;
+    color:var(--mid);
+  }
+  .log li{
+    display:grid;
+    grid-template-columns:5.8rem minmax(0,1fr);
+    gap:16px;
+    align-items:baseline;
+    padding:11px 0;
+    border-bottom:1px dotted rgba(46,46,46,.7);
+  }
+  .log li:first-child{ padding-top:0; }
+  .log li:last-child{ padding-bottom:0; border-bottom:0; }
+  .log .ts{
+    color:var(--dim);
+    font-size:10.5px;
+    letter-spacing:.1em;
+    white-space:nowrap;
+  }
+  .log .entry-title{ color:var(--white); }
+  .log .entry-desc{ color:var(--mid); }
+
+  /* ============================================================
+     FOCO
+     ============================================================ */
+  .focus-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:20px 24px;
+  }
+  .focus-item{
+    border-inline-start:1px solid var(--line);
+    padding-inline-start:16px;
+    min-width:0;
+  }
+  .focus-item h3{ font-size:14px; }
+  .focus-item p{
+    margin:0;
+    font-size:12.5px;
+    line-height:1.65;
+    color:var(--mid);
+  }
+
+  /* ============================================================
+     REGISTRO / LEDGER
+     ============================================================ */
+  .ledger{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .ledger li{
+    background:var(--bg);
+    padding:14px 12px;
+    min-width:0;
+  }
+  .ledger .n{
+    display:block;
+    font-size:22px;
+    line-height:1.1;
+    color:var(--white);
+    letter-spacing:-.02em;
+  }
+  .ledger .label{
+    display:block;
+    margin-top:4px;
+    font-size:10.5px;
+    line-height:1.45;
+    color:var(--dim);
+    text-transform:uppercase;
+    letter-spacing:.1em;
+  }
+  .bug-classes{
+    margin-top:16px;
+    font-size:11.5px;
+    line-height:1.7;
+    color:var(--mid);
+  }
+  .bug-classes strong{ color:var(--light); font-weight:400; }
+
+  /* ============================================================
+     STACK
+     ============================================================ */
+  .stack{
+    display:grid;
+    grid-template-columns:8.2rem minmax(0,1fr);
+    gap:10px 16px;
+    margin:0;
+    font-size:12.5px;
+    line-height:1.6;
+  }
+  .stack dt{
+    color:var(--dim);
+    font-size:10.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    padding-top:2px;
+  }
+  .stack dd{ margin:0; color:var(--light); }
+
+  /* ============================================================
+     PGP / FIRMA
+     ============================================================ */
+  .pgp{
+    margin:0 0 14px;
+    font-family:var(--mono);
+    font-size:11px;
+    line-height:1.6;
+    color:var(--mid);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .pgp.sig{
+    white-space:pre;
+    overflow-x:auto;
+    color:var(--dim);
+    padding:14px;
+    border:1px dashed rgba(46,46,46,.9);
+    background:rgba(255,255,255,.01);
+  }
+  .pgp.key{
+    max-height:320px;
+    overflow:auto;
+    padding:14px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.01);
+    color:var(--mid);
+    font-size:10.5px;
+  }
+  .pgp:last-child{ margin-bottom:0; }
+
+  details{
+    margin:14px 0;
+    border:1px solid var(--line);
+    padding:12px 14px;
+  }
+  summary{
+    cursor:pointer;
+    color:var(--light);
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  summary:hover{ color:var(--white); }
+  details[open] summary{ margin-bottom:12px; }
+
+  .pgp-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:16px 0;
+  }
+  .btn{
+    display:inline-block;
+    padding:6px 10px;
+    border:1px solid var(--line);
+    color:var(--light);
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    text-decoration:none;
+    background:transparent;
+  }
+  .btn:hover{ color:var(--white); border-color:var(--mid); }
+  .btn:focus-visible,
+  .copy-btn:focus-visible,
+  a:focus-visible,
+  summary:focus-visible{
+    outline:1px solid var(--white);
+    outline-offset:3px;
+  }
+
+  .copy-btn{
+    flex:0 0 auto;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--dim);
+    background:transparent;
+    border:1px solid var(--line);
+    padding:4px 8px;
+    cursor:pointer;
+  }
+  .copy-btn:hover{ color:var(--white); border-color:var(--mid); }
+
+  .verify{
+    margin:0 0 14px;
+    padding:14px;
+    border-inline-start:1px solid var(--line);
+    color:var(--light);
+    font-family:var(--mono);
+    font-size:11px;
+    line-height:1.7;
+    white-space:pre-wrap;
+    word-break:break-word;
+    background:rgba(255,255,255,.01);
+  }
+
+  /* ============================================================
+     CONTACTO
+     ============================================================ */
+  .contact{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .contact li{
+    display:grid;
+    grid-template-columns:7.2rem minmax(0,1fr);
+    gap:14px;
+    align-items:baseline;
+    padding-bottom:10px;
+    border-bottom:1px dotted rgba(46,46,46,.7);
+  }
+  .contact li:last-child{ padding-bottom:0; border-bottom:0; }
+  .contact .k{
+    color:var(--dim);
+    font-size:10.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  .contact a{ color:var(--light); }
+
+  a{
+    color:var(--white);
+    text-decoration:none;
+    border-bottom:1px solid var(--line);
+  }
+  a:hover{ border-bottom-color:var(--white); }
+
+  /* ============================================================
+     PIE
+     ============================================================ */
+  .page-footer{
+    margin-top:34px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+  }
+  .eof{
+    margin:0 0 8px;
+    color:var(--dim);
+    font-size:10.5px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .copyright{
+    margin:0 0 6px;
+    color:var(--light);
+    font-size:12px;
+  }
+
+  .statusbar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    z-index:80;
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    padding:9px 18px;
+    background:rgba(10,10,10,.94);
+    border-top:1px solid var(--line);
+    backdrop-filter:blur(2px);
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--mid);
+  }
+  .statusbar .dot{
+    display:inline-block;
+    width:6px; height:6px;
+    margin-inline-end:7px;
+    border-radius:50%;
+    background:var(--light);
+    vertical-align:middle;
+    animation:pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:.3; }
+    50%    { opacity:1;  }
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width:960px){
+    .grid{ grid-template-columns:1fr; }
+    .col-img{ position:static; max-width:440px; }
+  }
+  @media (max-width:700px){
+    .focus-grid{ grid-template-columns:1fr; }
+    .ledger{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  }
+  @media (max-width:560px){
+    body{ font-size:13px; }
+    .page{ padding:16px 14px 40px; }
+    .topbar{ font-size:11px; }
+    .hide-sm{ display:none; }
+    .frame{ padding:18px 14px; }
+    .log li{ grid-template-columns:4.8rem minmax(0,1fr); gap:10px; }
+    .meta, .stack{ grid-template-columns:1fr; gap:3px; }
+    .meta dd, .stack dd{ margin-bottom:8px; }
+    .now{ grid-template-columns:1fr; gap:5px; }
+    .contact li{ grid-template-columns:1fr; gap:2px; }
+    .statusbar{ font-size:9.5px; padding:8px 12px; }
+  }
+
+  /* ============================================================
+     ACCESIBILIDAD / IMPRESIÓN
+     ============================================================ */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation:none !important;
+      transition:none !important;
+    }
+    .cursor{ opacity:1; }
+  }
+
+  @media print{
+    @page{ margin:16mm; }
+    html, body{ background:#fff; color:#000; }
+    body{ padding:0; font-size:10.5pt; text-shadow:none; }
+    .fx, .statusbar, .topbar, .boot, .jump, .copy-btn, .pgp-actions, .no-print{ display:none !important; }
+    .page{ max-width:none; padding:0; }
+    .grid{ grid-template-columns:1fr; gap:18px; }
+    .col-img{ position:static; max-width:48%; }
+    .frame{ border-color:#bbb; background:transparent; break-inside:avoid; }
+    .frame::before{ background:#fff; color:#555; }
+    .lede, .intro, .now, .log .entry-desc, .focus-item p, .stack dd, .meta dd{ color:#222; }
+    .dim, .mid, .small, .log .ts, .ledger .label, .contact .k{ color:#555; }
+    h1, h2, h3, .log .entry-title, .ledger .n, .contact a, .copyright{ color:#000; }
+    a{ color:#000; border:0; }
+    .pgp.sig, .pgp.key, .verify{ border-color:#bbb; background:#fafafa; color:#222; }
+    .ledger{ border-color:#bbb; background:#bbb; }
+    .ledger li{ background:#fff; }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#whoami">تخطَّ إلى المحتوى</a>
+
+<div class="fx grain" aria-hidden="true"></div>
+<div class="fx scanlines" aria-hidden="true"></div>
+<div class="fx vignette" aria-hidden="true"></div>
+
+<div class="page">
+
+  <!-- ============ TOPBAR ============ -->
+  <header class="topbar">
+    <div>
+      <span class="prompt">tty503@home:~$</span>
+      <span class="white">./session --whoami</span>
+    </div>
+    <div class="right">
+      <nav class="langs" aria-label="اللغات">
+      <a href="/es/" hreflang="es" lang="es" title="Español">es</a>
+      <a href="/en/" hreflang="en" lang="en" title="English">en</a>
+      <a href="/zh/" hreflang="zh" lang="zh" title="中文">zh</a>
+      <a href="/ru/" hreflang="ru" lang="ru" title="Русский">ru</a>
+      <a href="/he/" hreflang="he" lang="he" title="עברית">he</a>
+      <a href="/ar/" hreflang="ar" lang="ar" aria-current="page" title="العربية">ar</a>
+      <span class="sep" aria-hidden="true">/</span>
+      <a href="/?stay=1" title="اختيار اللغة" aria-label="اختيار اللغة">lang</a>
+    </nav>
+      <span class="dim">[ utc <span id="clock2">--:--:--</span> ]</span>
+      <span class="cursor" aria-hidden="true">█</span>
+    </div>
+  </header>
+
+  <!-- ============ BOOT ============ -->
+  <pre class="boot" aria-label="tty503"><span id="bootText"></span><span class="cursor" aria-hidden="true">█</span></pre>
+
+  <!-- ============ NAVEGACIÓN ============ -->
+  <nav class="jump" aria-label="الأقسام">
+        <a href="#whoami">whoami</a>
+        <a href="#trayectoria">المسار</a>
+        <a href="#foco">التركيز</a>
+        <a href="#registro">السجل</a>
+        <a href="#stack">التقنيات</a>
+        <a href="#firma">التوقيع</a>
+        <a href="#contacto">التواصل</a>
+  </nav>
+
+  <!-- ============ CONTENIDO ============ -->
+  <main class="grid">
+
+    <!-- ---------- COLUMNA IZQUIERDA ---------- -->
+    <aside class="col-img">
+      <figure class="frame imgbox" data-label="[ tty503.jpg ]">
+        <img src="../img/tty503.jpg"
+             width="1066" height="1076"
+             alt="tty503 — Christian Márquez"
+             loading="eager"
+             decoding="async"
+             fetchpriority="high" />
+        <figcaption>
+          <span>// tty503.jpg — 1066 × 1076 px — jpeg</span>
+          <span>pgp DE68 AA7C F75E D73B · B237 FD25 B8E3 D2A7</span>
+        </figcaption>
+      </figure>
+
+      <div class="frame" data-label="// ficha">
+        <dl class="meta">
+          <dt>الاسم</dt>
+          <dd>Christian Márquez</dd>
+          <dt>اللقب</dt>
+          <dd>tty503</dd>
+          <dt>الموقع</dt>
+          <dd>فنزويلا</dd>
+          <dt>منذ</dt>
+          <dd>2012</dd>
+          <dt>التركيز</dt>
+          <dd>هندسة عكسية · برمجيات خبيثة · OT/ICS</dd>
+          <dt>الحالة</dt>
+          <dd>بحث تطبيقي</dd>
+        </dl>
+      </div>
+    </aside>
+
+    <!-- ---------- COLUMNA DERECHA ---------- -->
+    <section class="col-txt">
+
+      <!-- ============ WHOAMI ============ -->
+      <div class="frame" id="whoami" data-label="// whoami">
+        <h1>Christian Márquez <span class="slash">/</span> <span class="handle">tty503</span></h1>
+        <p class="lede">باحث أمني عصامي. فنزويلا.</p>
+        <p class="intro">أعمل حيث يتوقف البرنامج عن كونه صندوقًا أسود: الهندسة العكسية، تحليل البرمجيات الخبيثة، بحث الثغرات وأمن الأنظمة الصناعية. بدأت في 2012 بسؤال كيف تعمل الأشياء من الداخل؛ وما زلت أسأله.</p>
+        <p class="intro">تهمني الأدلة لا الاستعراض: الملف الثنائي، المدخل الذي يكسر النظام، والأثر الذي يثبته. الاكتشاف الذي لا يمكن إعادة إنتاجه لا يُنشر.</p>
+        <div class="now">
+          <span class="now-label">الآن</span>
+          <p>هندسة عكسية للبرمجيات الخبيثة والثغرات وOT/ICS. أدوات خاصة للفرز والأدلة والمختبرات القابلة لإعادة الإنتاج. تعاون تقني وإفصاح مسؤول عبر البريد أو PGP.</p>
+        </div>
+      </div>
+
+      <!-- ============ TRAYECTORIA ============ -->
+      <div class="frame" id="trayectoria" data-label="// المسار">
+        <h2>المسار</h2>
+        <ul class="log">
+          <li>
+            <span class="ts">2012</span>
+            <span><span class="entry-title">أول احتكاك.</span> <span class="entry-desc">Batch وVBScript. السؤال عن المستوى المنخفض: ما الذي تحت الشاشة.</span></span>
+          </li>
+          <li>
+            <span class="ts">2014</span>
+            <span><span class="entry-title">C/C++ · GNU/Linux.</span> <span class="entry-desc">المترجم والذاكرة والملفات الثنائية. أول عمل مختبري ومرحلة استكشاف واسعة.</span></span>
+          </li>
+          <li>
+            <span class="ts">2017</span>
+            <span><span class="entry-title">ReldSec.</span> <span class="entry-desc">مدونة أمن سيبراني مع باحثين آخرين. أول المقالات والكتابة التقنية.</span></span>
+          </li>
+          <li>
+            <span class="ts">2019–2020</span>
+            <span><span class="entry-title">الجامعة · Arch · Assembly.</span> <span class="entry-desc">x86 وARM وshellcode والهندسة العكسية. VX-Underground يعيد التركيز على البرمجيات الخبيثة.</span></span>
+          </li>
+          <li>
+            <span class="ts">2022</span>
+            <span><span class="entry-title">البرمجيات الثابتة · CENDIT.</span> <span class="entry-desc">PIC 18/24 وI2C وUART في مشاريع طبية وتعليمية. البرمجيات تلمس عتادًا حقيقيًا.</span></span>
+          </li>
+          <li>
+            <span class="ts">2022–2023</span>
+            <span><span class="entry-title">الخلفية · التركيز.</span> <span class="entry-desc">انحراف مهني، فريق أفضل ودرس عن التشتت والتركيز.</span></span>
+          </li>
+          <li>
+            <span class="ts">اليوم</span>
+            <span><span class="entry-title">بحث تطبيقي.</span> <span class="entry-desc">برمجيات خبيثة، ثغرات، OT/ICS، استخبارات التهديدات وأدوات خاصة.</span></span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ============ FOCO ============ -->
+      <div class="frame" id="foco" data-label="// التركيز">
+        <h2>التركيز</h2>
+        <div class="focus-grid">
+          <article class="focus-item">
+            <h3>الهندسة العكسية والبرمجيات الخبيثة</h3>
+            <p>تحليل ساكن وديناميكي لملفات PE/ELF. فك التغليف، تحديد الروتين، إعادة بناء المنطق واستخراج IoC. Ghidra، x64dbg، Radare2/rizin، Capstone.</p>
+          </article>
+          <article class="focus-item">
+            <h3>بحث الثغرات</h3>
+            <p>تدقيق الشيفرة وأسطح الهجوم. أمان الذاكرة، تجاوز المصادقة/السلامة، SSRF، الحقن، اجتياز المسار، إلغاء التسلسل. النتائج تُتحقق في المختبر وتُفصح بمسؤولية.</p>
+          </article>
+          <article class="focus-item">
+            <h3>OT / ICS</h3>
+            <p>Siemens S5/S7، بايت كود MC7، بروتوكولات صناعية وواجهات بلا مصادقة. برمجيات ثابتة وأنظمة حيث العطل ليس مجرد خطأ برمجي بل انقطاع مادي.</p>
+          </article>
+          <article class="focus-item">
+            <h3>استخبارات التهديدات وOSINT</h3>
+            <p>رسم البنية التحتية الإجرامية، الاحتيال المالي العابر للحدود، ربط المحافظ وTTP. من الخيط المفتوح إلى تقرير قائم على الأدلة.</p>
+          </article>
+        </div>
+      </div>
+
+      <!-- ============ REGISTRO ============ -->
+      <div class="frame" id="registro" data-label="// السجل">
+        <h2>سجل البحث</h2>
+        <ul class="ledger">
+          <li><span class="n">15</span><span class="label">قاعدة شيفرة مدققة</span></li>
+          <li><span class="n">6</span><span class="label">حزم تدقيق مكتملة</span></li>
+          <li><span class="n">10</span><span class="label">نتائج موثقة</span></li>
+          <li><span class="n">42</span><span class="label">عنصرًا مصنفًا</span></li>
+          <li><span class="n">4</span><span class="label">خوادم MCP خاصة</span></li>
+          <li><span class="n">77</span><span class="label">فحصًا حتميًا</span></li>
+          <li><span class="n">25</span><span class="label">أداة قياس</span></li>
+          <li><span class="n">11</span><span class="label">وثيقة منهجية</span></li>
+          <li><span class="n">7</span><span class="label">مختبرات PoC قابلة لإعادة الإنتاج</span></li>
+        </ul>
+        <p class="bug-classes">
+          <strong>أصناف الأخطاء:</strong> أمان الذاكرة · تجاوز المصادقة · تجاوز السلامة · SSRF · الحقن · اجتياز المسار · XSS/CSRF · إلغاء التسلسل · تسريب بيانات الاعتماد · DoS.
+        </p>
+        <p class="bug-classes">
+          <strong>أعمال مختارة:</strong> analystty (فرز PE) · SAINT GRAIL (تصنيف الأدلة) · Threat Hunter Recollection (استخبارات التهديدات / OSINT) · MC7/S7 (هندسة عكسية للبايت كود وPLC) · infra-soc (مختبر SOC / honeypot).
+        </p>
+      </div>
+
+      <!-- ============ STACK ============ -->
+      <div class="frame" id="stack" data-label="// التقنيات">
+        <h2>التقنيات</h2>
+        <dl class="stack">
+          <dt>اللغات</dt>
+          <dd>C · C++ · Python · Bash · Go (tooling) · Assembly x86/x86_64/ARM64</dd>
+          <dt>الهندسة العكسية</dt>
+          <dd>Ghidra · x64dbg · Radare2/rizin · Capstone · JADX · pefile</dd>
+          <dt>البنية التحتية</dt>
+          <dd>Proxmox VE · QEMU/KVM · Docker/Podman · Ansible · Terraform · WireGuard</dd>
+          <dt>الدفاع</dt>
+          <dd>Wazuh · Zabbix · Grafana · OPNsense · T-Pot · Tailscale</dd>
+          <dt>OT / ICS</dt>
+          <dd>Siemens S5/S7 · MC7 · بروتوكولات صناعية · تحليل البرمجيات الثابتة</dd>
+          <dt>المنهج</dt>
+          <dd>قابلية إعادة الإنتاج · الأدلة · الإفصاح المسؤول · OpSec</dd>
+        </dl>
+      </div>
+
+      <!-- ============ FIRMA PGP ============ -->
+      <div class="frame" id="firma" data-label="// pgp">
+        <h2>التوقيع</h2>
+        <pre class="pgp sig" dir="ltr" aria-label="بيان موقّع بـ PGP">-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+tty503 — Christian Márquez
+Sitio: https://tty503.com/
+Contacto: tty503@proton.me
+Telegram: https://t.me/tty503
+Fecha: 2026-10-25
+Clave: DE68AA7CF75ED73B35A592DAB237FD25B8E3D2A7
+-----BEGIN PGP SIGNATURE-----
+
+iQJPBAEBCgA5FiEE3miqfPde1zs1pZLasjf9Jbjj0qcFAmrebTIbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMCwzAAoJELI3/SW449KnaCgP/iDlGTeQfuJgLeKXY319
+yUpVBQSgg6rshDJnff+bjqVOq4ClHljXItasRSu4g/9Wq+gUE2gnK3AElGsQiK8+
+hjU1YFOvEwlxnoI+1+Bey7zxJaPfa8MgfPXEBIYFhvFarwIV5ZTBcuW7aieZzW1+
+K8YOJBHZYZMpyjJm7WzJV2xz5re9KMtyupmladyfdYee9iV1K/my42U9DH8f9m16
+3uGtNyyFipMtGXK0WBIeim4YyHM12luUQc5rTK+YzAm3Tbk4XZVeysFap9lEAt6M
+sSpA5YC0OcdTxZi3clx3k4aTUlI+dXc2UMbJT1YX+mNT97gBuASmdRrh87tBjnU/
+Qr44M1ND+0hWRw7fZhhbBFNLMPqVV4+naszB/7Cg5QsAtng8qA/5VxyJY07VVf2l
+Xcg1EsFGyY3BsWUgJtPUvNeS/6lWCzZ1GzL017udJBMUK/lLg1iY1Hm9P334EIh3
+wD27/9YK0BWWY0A2G4tQHclFlnXhVAuE+7hCFHx0+tL87786iqqulPdc1Av9ybGt
+9J/v1HulyQEvHqA7oTNONi7QxTCxrGPDpD54NhTi1UCjW3tnBwvaUH9sIB4fVADf
+Tp81cAiov7WP1zYIM3qnT07lRcAJxWIh1UZ8CXUGIvdL7bBz2z1V5tnCMGHEKS8a
+g0TuIwpRS6HgZiZYlsPQbObC
+=DBtb
+-----END PGP SIGNATURE-----</pre>
+
+        <details>
+          <summary>المفتاح العام</summary>
+<pre class="pgp key" id="pgp-key" dir="ltr">-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=DPLe
+-----END PGP PUBLIC KEY BLOCK-----</pre>
+        </details>
+
+        <div class="pgp-actions">
+          <a class="btn" href="../pgp/tty503.asc">المفتاح</a>
+          <a class="btn" href="../pgp/site.txt.asc">البيان الموقّع</a>
+          <a class="btn" href="index.html.asc">توقيع هذه الصفحة</a>
+          <button class="copy-btn" type="button" data-copy-target="#pgp-key" aria-label="نسخ المفتاح">نسخ المفتاح</button>
+        </div>
+
+        <pre class="verify" dir="ltr">gpg --import ../pgp/tty503.asc
+gpg --verify &lt; ../pgp/site.txt.asc
+gpg --verify index.html.asc index.html</pre>
+      </div>
+
+      <!-- ============ CONTACTO ============ -->
+      <div class="frame" id="contacto" data-label="// التواصل">
+        <h2>التواصل</h2>
+        <ul class="contact">
+          <li><span class="k">البريد</span><a href="mailto:tty503@proton.me">tty503@proton.me</a></li>
+          <li><span class="k">telegram</span><a href="https://t.me/tty503" rel="me noopener noreferrer" target="_blank">t.me/tty503</a></li>
+          <li><span class="k">القناة</span><a href="https://t.me/kr0pl0its" rel="me noopener noreferrer" target="_blank">t.me/kr0pl0its</a></li>
+          <li><span class="k">github</span><a href="https://github.com/tty503" rel="me noopener noreferrer" target="_blank">github.com/tty503</a></li>
+          <li><span class="k">linkedin</span><a href="https://www.linkedin.com/in/tty503/" rel="me noopener noreferrer" target="_blank">linkedin.com/in/tty503</a></li>
+          <li><span class="k">x</span><a href="https://x.com/tty_503" rel="me noopener noreferrer" target="_blank">x.com/tty_503</a></li>
+          <li><span class="k">pgp</span><a href="../pgp/tty503.asc">pgp/tty503.asc</a></li>
+        </ul>
+      </div>
+
+      <!-- ============ PIE DE PÁGINA ============ -->
+      <footer class="page-footer">
+        <p class="eof">[ EOF ]</p>
+        <p class="copyright">© <span id="year">2026</span> Christian Márquez (tty503). Venezuela.</p>
+        <p class="small">آخر تحديث: 2026-10-25 · <a href="../sitemap.xml">sitemap</a> · <a href="../llms.txt">llms.txt</a></p>
+      </footer>
+
+    </section>
+  </main>
+
+</div>
+
+<!-- ============ STATUS BAR ============ -->
+<footer class="statusbar">
+  <span><span class="dot" aria-hidden="true"></span>pgp: verified · DE68 AA7C</span>
+  <span>utc <span id="clock">--:--:--</span></span>
+</footer>
+
+<script type="application/json" id="boot-lines">["tty503@home:~$ ./session --whoami", "[ ok ] المستخدم: Christian Márquez / tty503", "[ ok ] الموقع: فنزويلا", "[ ok ] التركيز: هندسة عكسية · برمجيات خبيثة · OT/ICS", "[ ok ] pgp: DE68 AA7C F75E D73B", "tty503@home:~$ "]</script>
+<script>
+(function () {
+  'use strict';
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Recordar el idioma elegido para el gateway */
+  try {
+    var pageLang = document.documentElement.getAttribute('lang');
+    if (pageLang) localStorage.setItem('tty503-lang', pageLang);
+  } catch (e) {}
+
+  /* ============================================================
+     1. SECUENCIA DE ARRANQUE
+     ============================================================ */
+  var bootTarget = document.getElementById('bootText');
+  var bootData = document.getElementById('boot-lines');
+  var bootLines = [];
+  try { bootLines = JSON.parse(bootData.textContent); } catch (e) { bootLines = []; }
+  var bootFull = bootLines.join('\n');
+
+  if (bootTarget) {
+    if (reduceMotion) {
+      bootTarget.textContent = bootFull;
+    } else {
+      var bi = 0;
+      (function type() {
+        if (bi >= bootFull.length) return;
+        var ch = bootFull.charAt(bi++);
+        bootTarget.textContent = bootFull.slice(0, bi);
+        setTimeout(type, ch === '\n' ? 120 : 10);
+      })();
+    }
+  }
+
+  /* ============================================================
+     2. RELOJ UTC
+     ============================================================ */
+  var clocks = [
+    document.getElementById('clock'),
+    document.getElementById('clock2')
+  ].filter(Boolean);
+
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+  function tickClock() {
+    var d = new Date();
+    var t = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds());
+    clocks.forEach(function (el) { el.textContent = t; });
+  }
+
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ============================================================
+     3. AÑO
+     ============================================================ */
+  var year = document.getElementById('year');
+  if (year) year.textContent = String(new Date().getUTCFullYear());
+
+  /* ============================================================
+     4. COPIAR FINGERPRINT / CLAVE
+     ============================================================ */
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    return Promise.resolve();
+  }
+
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var original = btn.textContent;
+      copyText(btn.getAttribute('data-copy')).then(function () {
+        btn.textContent = 'copiado';
+        setTimeout(function () { btn.textContent = original; }, 1400);
+      });
+    });
+  });
+
+  document.querySelectorAll('[data-copy-target]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = document.querySelector(btn.getAttribute('data-copy-target'));
+      if (!target) return;
+      var original = btn.textContent;
+      copyText(target.textContent).then(function () {
+        btn.textContent = 'copiada';
+        setTimeout(function () { btn.textContent = original; }, 1400);
+      });
+    });
+  });
+
+  /* Mantener el ancla al cambiar de idioma */
+  document.querySelectorAll('.langs a[hreflang]').forEach(function (a) {
+    a.addEventListener('click', function () {
+      if (!window.location.hash) return;
+      var href = a.getAttribute('href').split('#')[0];
+      a.setAttribute('href', href + window.location.hash);
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 Contact: mailto:tty503@proton.me
 Expires: 2027-10-25T00:00:00.000Z
 Encryption: https://tty503.com/pgp/tty503.asc
-Preferred-Languages: es, en
+Preferred-Languages: es, en, zh, ru, he, ar
 Canonical: https://tty503.com/.well-known/security.txt
-Policy: https://tty503.com/#firma
+Policy: https://tty503.com/es/#firma

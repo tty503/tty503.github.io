@@ -1,6 +1,6 @@
 # tty503 — Christian Márquez
 
-> Investigador de seguridad autodidacta en Venezuela. Ingeniería inversa, análisis de malware, investigación de vulnerabilidades y seguridad OT/ICS. Evidencia sobre afirmaciones.
+> Investigador de seguridad autodidacta en Venezuela. Ingeniería inversa, análisis de malware, investigación de vulnerabilidades y seguridad OT/ICS.
 
 ## Identidad
 
@@ -11,10 +11,21 @@
 - Rol: investigador de seguridad / reverse engineer
 - Desde: 2012
 - Correo: tty503@proton.me
-- Perfil: https://tty503.com/
+- Telegram: https://t.me/tty503
+- Canal: https://t.me/kr0pl0its
 - GitHub: https://github.com/tty503
 - LinkedIn: https://www.linkedin.com/in/tty503/
 - X: https://x.com/tty_503
+
+## Idiomas
+
+- Español: https://tty503.com/es/
+- English: https://tty503.com/en/
+- 中文: https://tty503.com/zh/
+- Русский: https://tty503.com/ru/
+- עברית: https://tty503.com/he/
+- العربية: https://tty503.com/ar/
+- Gateway: https://tty503.com/
 
 ## Foco
 
@@ -23,13 +34,6 @@
 - Seguridad OT/ICS: Siemens S5/S7, bytecode MC7, protocolos industriales y firmware.
 - Threat intelligence y OSINT: infraestructura criminal, fraude financiero transfronterizo, wallets y TTPs.
 - Infraestructura reproducible para investigación (Proxmox, QEMU/KVM, Docker/Podman, Ansible, Terraform).
-
-## Método
-
-- Publica solo hallazgos con evidencia reproducible.
-- Practica divulgación responsable.
-- No publica mecánicas de exploit que permitan atacar sistemas sin parche.
-- Mantiene nombres, versiones, payloads y detalles sensibles redactados por política.
 
 ## Trabajo seleccionado
 
@@ -44,8 +48,8 @@
 - Bases de código auditadas: 15.
 - Paquetes de auditoría completados: 6.
 - Hallazgos documentados: 10.
-- Artefactos triados: 42, mapeados a una taxonomía de evidencia de 7 clases.
-- Infraestructura de investigación: 4 servidores MCP propios, 77 checks deterministas, 25 herramientas de medición, 11 documentos de metodología, 7 laboratorios PoC reproducibles (Docker).
+- Artefactos triados: 42.
+- Infraestructura: 4 servidores MCP propios, 77 checks deterministas, 25 herramientas de medición, 11 documentos de metodología, 7 laboratorios PoC reproducibles.
 
 ## Firma
 
@@ -53,11 +57,11 @@
 - Fingerprint: DE68 AA7C F75E D73B 35A5 92DA B237 FD25 B8E3 D2A7
 - Clave pública: https://tty503.com/pgp/tty503.asc
 - Declaración firmada: https://tty503.com/pgp/site.txt.asc
-- Firma de index.html: https://tty503.com/index.html.asc
+- Firmas de página: `index.html.asc` dentro de cada idioma (por ejemplo, https://tty503.com/es/index.html.asc).
 
 ## English summary
 
-Christian Márquez (tty503) is a self-taught security researcher based in Venezuela. His work focuses on reverse engineering, malware analysis, vulnerability research, OT/ICS security, threat intelligence and OSINT. He publishes only reproducible evidence, practices responsible disclosure and does not publish exploit mechanics. PGP fingerprint: DE68 AA7C F75E D73B 35A5 92DA B237 FD25 B8E3 D2A7.
+Christian Márquez (tty503) is a self-taught security researcher based in Venezuela. His work focuses on reverse engineering, malware analysis, vulnerability research, OT/ICS security, threat intelligence and OSINT. The site is available in Spanish, English, Chinese, Russian, Hebrew and Arabic. PGP fingerprint: DE68 AA7C F75E D73B 35A5 92DA B237 FD25 B8E3 D2A7.
 
 ## Canonical
 

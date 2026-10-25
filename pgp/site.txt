@@ -1,9 +1,6 @@
 tty503 — Christian Márquez
 Sitio: https://tty503.com/
-Perfil: investigador de seguridad autodidacta, Venezuela.
-Foco: ingeniería inversa, análisis de malware, investigación de vulnerabilidades y seguridad OT/ICS.
-Método: evidencia reproducible y divulgación responsable; no se publican mecánicas de exploit.
+Contacto: tty503@proton.me
+Telegram: https://t.me/tty503
 Fecha: 2026-10-25
 Clave: DE68AA7CF75ED73B35A592DAB237FD25B8E3D2A7
-
-Este mensaje firma la identidad y la declaración de método del sitio.

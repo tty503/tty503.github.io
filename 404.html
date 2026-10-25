@@ -9,7 +9,9 @@
 <style>
   :root{
     --bg:#0A0A0A; --line:#2E2E2E; --dim:#6b6b6b; --mid:#7A7A7A; --light:#C2C2C2; --white:#F0F0F0;
-    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", "Courier New",
+            "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+            "Geeza Pro", "Noto Naskh Arabic", "SF Arabic", "Noto Sans Hebrew", "Arial Hebrew", monospace;
   }
   *,*::before,*::after{ box-sizing:border-box; }
   html{ background:#000; }
@@ -25,7 +27,8 @@
   p{ margin:0 0 14px; color:var(--mid); }
   a{ color:var(--white); text-decoration:none; border-bottom:1px solid var(--line); }
   a:hover{ border-bottom-color:var(--white); }
-  pre{ margin:18px 0 0; padding:12px; border-left:1px solid var(--line); color:var(--dim); font-size:12px; white-space:pre-wrap; }
+  pre{ margin:18px 0 0; padding:12px; border-inline-start:1px solid var(--line); color:var(--dim); font-size:12px; white-space:pre-wrap; }
+  .langs{ font-size:12px; line-height:2; }
 </style>
 </head>
 <body>
@@ -33,10 +36,18 @@
   <span class="label">[ tty503 ]</span>
   <h1>404 — ruta no encontrada</h1>
   <p>La ruta que buscas no existe, se movió o nunca estuvo aquí.</p>
-  <p><a href="/">Volver al inicio</a> · <a href="/#contacto">Contacto</a> · <a href="/pgp/tty503.asc">Clave PGP</a></p>
-  <pre>tty503@home:~$ cd /
+  <p class="langs">
+    <a href="/es/" hreflang="es" lang="es">Español</a> ·
+    <a href="/en/" hreflang="en" lang="en">English</a> ·
+    <a href="/zh/" hreflang="zh" lang="zh">中文</a> ·
+    <a href="/ru/" hreflang="ru" lang="ru">Русский</a> ·
+    <a href="/he/" hreflang="he" lang="he" dir="rtl">עברית</a> ·
+    <a href="/ar/" hreflang="ar" lang="ar" dir="rtl">العربية</a>
+  </p>
+  <p><a href="/?stay=1">gateway</a> · <a href="/es/#contacto">contacto</a> · <a href="/pgp/tty503.asc">PGP</a></p>
+  <pre dir="ltr">tty503@home:~$ cd /
 tty503@home:/$ ls
-whoami  trayectoria  foco  registro  stack  bitacora  firma  contacto</pre>
+whoami  trayectoria  foco  registro  stack  firma  contacto</pre>
 </main>
 </body>
 </html>
