@@ -85,8 +85,7 @@
         "OSINT",
         "Siemens S5/S7",
         "MC7 bytecode",
-        "firmware analysis",
-        "responsible disclosure"
+        "firmware analysis"
       ],
       "knowsLanguage": [
         "es",
@@ -403,7 +402,6 @@
   [dir="rtl"] .meta dt,
   [dir="rtl"] .stack dt,
   [dir="rtl"] .ledger .label,
-  [dir="rtl"] .now-label,
   [dir="rtl"] .contact .k,
   [dir="rtl"] .eof,
   [dir="rtl"] .statusbar,
@@ -464,24 +462,6 @@
   }
   .intro{ max-width:72ch; }
   .small{ font-size:11px; line-height:1.6; color:var(--dim); }
-
-  .now{
-    display:grid;
-    grid-template-columns:8.2rem minmax(0,1fr);
-    gap:14px;
-    margin-top:18px;
-    padding-top:16px;
-    border-top:1px dotted rgba(46,46,46,.8);
-    font-size:12.5px;
-    color:var(--mid);
-  }
-  .now-label{
-    color:var(--dim);
-    font-size:10.5px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-  }
-  .now p{ margin:0; }
 
   /* ============================================================
      TRAYECTORIA
@@ -804,7 +784,6 @@
     .log li{ grid-template-columns:4.8rem minmax(0,1fr); gap:10px; }
     .meta, .stack{ grid-template-columns:1fr; gap:3px; }
     .meta dd, .stack dd{ margin-bottom:8px; }
-    .now{ grid-template-columns:1fr; gap:5px; }
     .contact li{ grid-template-columns:1fr; gap:2px; }
     .statusbar{ font-size:9.5px; padding:8px 12px; }
   }
@@ -830,7 +809,7 @@
     .col-img{ position:static; max-width:48%; }
     .frame{ border-color:#bbb; background:transparent; break-inside:avoid; }
     .frame::before{ background:#fff; color:#555; }
-    .lede, .intro, .now, .log .entry-desc, .focus-item p, .stack dd, .meta dd{ color:#222; }
+    .lede, .intro, .log .entry-desc, .focus-item p, .stack dd, .meta dd{ color:#222; }
     .dim, .mid, .small, .log .ts, .ledger .label, .contact .k{ color:#555; }
     h1, h2, h3, .log .entry-title, .ledger .n, .contact a, .copyright{ color:#000; }
     a{ color:#000; border:0; }
@@ -929,12 +908,7 @@
       <div class="frame" id="whoami" data-label="// whoami">
         <h1>Christian Márquez <span class="slash">/</span> <span class="handle">tty503</span></h1>
         <p class="lede">Investigador de seguridad autodidacta. Venezuela.</p>
-        <p class="intro">Trabajo donde el software deja de ser una caja negra: ingeniería inversa, análisis de malware, investigación de vulnerabilidades y seguridad de sistemas industriales. Empecé en 2012 preguntando cómo funcionan las cosas por dentro; sigo en la misma pregunta.</p>
-        <p class="intro">Me interesa la evidencia, no el espectáculo: el binario, la entrada que rompe el sistema, la traza que lo demuestra. Un hallazgo que no se puede reproducir no se publica.</p>
-        <div class="now">
-          <span class="now-label">ahora</span>
-          <p>Reversing de malware, vulnerabilidades y OT/ICS. Herramientas propias para triage, evidencia y laboratorios reproducibles. Colaboración técnica y divulgación responsable por correo o PGP.</p>
-        </div>
+        <p class="intro">Reversing, malware, vulnerabilidades y OT/ICS.</p>
       </div>
 
       <!-- ============ TRAYECTORIA ============ -->
@@ -943,31 +917,31 @@
         <ul class="log">
           <li>
             <span class="ts">2012</span>
-            <span><span class="entry-title">Primer contacto.</span> <span class="entry-desc">Batch y VBScript. La pregunta por el nivel bajo: qué hay debajo de la pantalla.</span></span>
+            <span><span class="entry-title">Batch · VBScript.</span> <span class="entry-desc">Automatización en Windows y primeros scripts.</span></span>
           </li>
           <li>
             <span class="ts">2014</span>
-            <span><span class="entry-title">C/C++ · GNU/Linux.</span> <span class="entry-desc">Compilador, memoria y binarios. Primeros laboratorios y una etapa amplia de exploración.</span></span>
+            <span><span class="entry-title">C/C++ · GNU/Linux.</span> <span class="entry-desc">Programación de bajo nivel, memoria y análisis de binarios.</span></span>
           </li>
           <li>
             <span class="ts">2017</span>
-            <span><span class="entry-title">ReldSec.</span> <span class="entry-desc">Blog de ciberseguridad con otros investigadores. Primeros artículos y divulgación técnica.</span></span>
+            <span><span class="entry-title">ReldSec.</span> <span class="entry-desc">Coautor de un blog técnico de ciberseguridad.</span></span>
           </li>
           <li>
             <span class="ts">2019–2020</span>
-            <span><span class="entry-title">Universidad · Arch · Assembly.</span> <span class="entry-desc">x86, ARM, shellcode y reversing. VX-Underground reaviva el foco en malware.</span></span>
+            <span><span class="entry-title">x86 · ARM · Assembly.</span> <span class="entry-desc">Shellcode, reversing y análisis de malware.</span></span>
           </li>
           <li>
             <span class="ts">2022</span>
-            <span><span class="entry-title">Firmware · CENDIT.</span> <span class="entry-desc">PIC 18/24, I2C y UART en proyectos médicos y educativos. Software tocando hardware real.</span></span>
+            <span><span class="entry-title">Firmware · CENDIT.</span> <span class="entry-desc">PIC 18/24 e I2C/UART en proyectos médicos y educativos.</span></span>
           </li>
           <li>
             <span class="ts">2022–2023</span>
-            <span><span class="entry-title">Backend · foco.</span> <span class="entry-desc">Un desvío profesional, mejor equipo y una lección sobre dispersión y foco.</span></span>
+            <span><span class="entry-title">Backend.</span> <span class="entry-desc">Desarrollo backend y despliegue de servicios.</span></span>
           </li>
           <li>
             <span class="ts">hoy</span>
-            <span><span class="entry-title">Investigación aplicada.</span> <span class="entry-desc">Malware, vulnerabilidades, OT/ICS, threat intelligence y herramientas propias.</span></span>
+            <span><span class="entry-title">OT/ICS · Malware.</span> <span class="entry-desc">Reversing de bytecode MC7/S7, análisis de malware y vulnerabilidades.</span></span>
           </li>
         </ul>
       </div>
@@ -982,7 +956,7 @@
           </article>
           <article class="focus-item">
             <h3>Vulnerability research</h3>
-            <p>Auditoría de código y superficies de ataque. Memory safety, auth/integrity bypass, SSRF, injection, traversal, deserialization. Hallazgos validados en laboratorio y divulgados con responsabilidad.</p>
+            <p>Auditoría de código y superficies de ataque. Memory safety, auth/integrity bypass, SSRF, injection, traversal, deserialization. Hallazgos validados en laboratorio.</p>
           </article>
           <article class="focus-item">
             <h3>OT / ICS</h3>
@@ -990,7 +964,7 @@
           </article>
           <article class="focus-item">
             <h3>Threat intelligence &amp; OSINT</h3>
-            <p>Mapeo de infraestructura criminal, fraude financiero transfronterizo, correlación de wallets y TTPs. De la pista abierta al informe con evidencia.</p>
+            <p>Mapeo de infraestructura criminal, fraude financiero transfronterizo, correlación de wallets y TTPs. De la pista abierta al informe.</p>
           </article>
         </div>
       </div>
@@ -1006,14 +980,10 @@
           <li><span class="n">4</span><span class="label">servidores MCP propios</span></li>
           <li><span class="n">77</span><span class="label">checks deterministas</span></li>
           <li><span class="n">25</span><span class="label">herramientas de medición</span></li>
-          <li><span class="n">11</span><span class="label">documentos de metodología</span></li>
           <li><span class="n">7</span><span class="label">laboratorios PoC reproducibles</span></li>
         </ul>
         <p class="bug-classes">
           <strong>Clases de bug:</strong> memory safety · auth bypass · integrity bypass · SSRF · injection · traversal · XSS/CSRF · deserialization · credential leakage · DoS.
-        </p>
-        <p class="bug-classes">
-          <strong>Trabajo seleccionado:</strong> analystty (triage de PE) · SAINT GRAIL (taxonomía de evidencia) · Threat Hunter Recollection (threat intel / OSINT) · MC7/S7 (reversing de bytecode y PLC) · infra-soc (laboratorio SOC / honeypot).
         </p>
       </div>
 
@@ -1031,8 +1001,6 @@
           <dd>Wazuh · Zabbix · Grafana · OPNsense · T-Pot · Tailscale</dd>
           <dt>OT / ICS</dt>
           <dd>Siemens S5/S7 · MC7 · protocolos industriales · análisis de firmware</dd>
-          <dt>Método</dt>
-          <dd>Reproducibilidad · evidencia · divulgación responsable · OpSec</dd>
         </dl>
       </div>
 

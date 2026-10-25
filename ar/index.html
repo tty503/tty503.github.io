@@ -85,8 +85,7 @@
         "OSINT",
         "Siemens S5/S7",
         "MC7 bytecode",
-        "firmware analysis",
-        "responsible disclosure"
+        "firmware analysis"
       ],
       "knowsLanguage": [
         "es",
@@ -403,7 +402,6 @@
   [dir="rtl"] .meta dt,
   [dir="rtl"] .stack dt,
   [dir="rtl"] .ledger .label,
-  [dir="rtl"] .now-label,
   [dir="rtl"] .contact .k,
   [dir="rtl"] .eof,
   [dir="rtl"] .statusbar,
@@ -464,24 +462,6 @@
   }
   .intro{ max-width:72ch; }
   .small{ font-size:11px; line-height:1.6; color:var(--dim); }
-
-  .now{
-    display:grid;
-    grid-template-columns:8.2rem minmax(0,1fr);
-    gap:14px;
-    margin-top:18px;
-    padding-top:16px;
-    border-top:1px dotted rgba(46,46,46,.8);
-    font-size:12.5px;
-    color:var(--mid);
-  }
-  .now-label{
-    color:var(--dim);
-    font-size:10.5px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-  }
-  .now p{ margin:0; }
 
   /* ============================================================
      TRAYECTORIA
@@ -804,7 +784,6 @@
     .log li{ grid-template-columns:4.8rem minmax(0,1fr); gap:10px; }
     .meta, .stack{ grid-template-columns:1fr; gap:3px; }
     .meta dd, .stack dd{ margin-bottom:8px; }
-    .now{ grid-template-columns:1fr; gap:5px; }
     .contact li{ grid-template-columns:1fr; gap:2px; }
     .statusbar{ font-size:9.5px; padding:8px 12px; }
   }
@@ -830,7 +809,7 @@
     .col-img{ position:static; max-width:48%; }
     .frame{ border-color:#bbb; background:transparent; break-inside:avoid; }
     .frame::before{ background:#fff; color:#555; }
-    .lede, .intro, .now, .log .entry-desc, .focus-item p, .stack dd, .meta dd{ color:#222; }
+    .lede, .intro, .log .entry-desc, .focus-item p, .stack dd, .meta dd{ color:#222; }
     .dim, .mid, .small, .log .ts, .ledger .label, .contact .k{ color:#555; }
     h1, h2, h3, .log .entry-title, .ledger .n, .contact a, .copyright{ color:#000; }
     a{ color:#000; border:0; }
@@ -929,12 +908,7 @@
       <div class="frame" id="whoami" data-label="// whoami">
         <h1>Christian Márquez <span class="slash">/</span> <span class="handle">tty503</span></h1>
         <p class="lede">باحث أمني عصامي. فنزويلا.</p>
-        <p class="intro">أعمل حيث يتوقف البرنامج عن كونه صندوقًا أسود: الهندسة العكسية، تحليل البرمجيات الخبيثة، بحث الثغرات وأمن الأنظمة الصناعية. بدأت في 2012 بسؤال كيف تعمل الأشياء من الداخل؛ وما زلت أسأله.</p>
-        <p class="intro">تهمني الأدلة لا الاستعراض: الملف الثنائي، المدخل الذي يكسر النظام، والأثر الذي يثبته. الاكتشاف الذي لا يمكن إعادة إنتاجه لا يُنشر.</p>
-        <div class="now">
-          <span class="now-label">الآن</span>
-          <p>هندسة عكسية للبرمجيات الخبيثة والثغرات وOT/ICS. أدوات خاصة للفرز والأدلة والمختبرات القابلة لإعادة الإنتاج. تعاون تقني وإفصاح مسؤول عبر البريد أو PGP.</p>
-        </div>
+        <p class="intro">هندسة عكسية، برمجيات خبيثة، ثغرات وOT/ICS.</p>
       </div>
 
       <!-- ============ TRAYECTORIA ============ -->
@@ -943,31 +917,31 @@
         <ul class="log">
           <li>
             <span class="ts">2012</span>
-            <span><span class="entry-title">أول احتكاك.</span> <span class="entry-desc">Batch وVBScript. السؤال عن المستوى المنخفض: ما الذي تحت الشاشة.</span></span>
+            <span><span class="entry-title">Batch · VBScript.</span> <span class="entry-desc">أتمتة Windows وأول السكربتات.</span></span>
           </li>
           <li>
             <span class="ts">2014</span>
-            <span><span class="entry-title">C/C++ · GNU/Linux.</span> <span class="entry-desc">المترجم والذاكرة والملفات الثنائية. أول عمل مختبري ومرحلة استكشاف واسعة.</span></span>
+            <span><span class="entry-title">C/C++ · GNU/Linux.</span> <span class="entry-desc">برمجة منخفضة المستوى، الذاكرة وتحليل الملفات الثنائية.</span></span>
           </li>
           <li>
             <span class="ts">2017</span>
-            <span><span class="entry-title">ReldSec.</span> <span class="entry-desc">مدونة أمن سيبراني مع باحثين آخرين. أول المقالات والكتابة التقنية.</span></span>
+            <span><span class="entry-title">ReldSec.</span> <span class="entry-desc">مشارك في مدونة تقنية للأمن السيبراني.</span></span>
           </li>
           <li>
             <span class="ts">2019–2020</span>
-            <span><span class="entry-title">الجامعة · Arch · Assembly.</span> <span class="entry-desc">x86 وARM وshellcode والهندسة العكسية. VX-Underground يعيد التركيز على البرمجيات الخبيثة.</span></span>
+            <span><span class="entry-title">x86 · ARM · Assembly.</span> <span class="entry-desc">Shellcode والهندسة العكسية وتحليل البرمجيات الخبيثة.</span></span>
           </li>
           <li>
             <span class="ts">2022</span>
-            <span><span class="entry-title">البرمجيات الثابتة · CENDIT.</span> <span class="entry-desc">PIC 18/24 وI2C وUART في مشاريع طبية وتعليمية. البرمجيات تلمس عتادًا حقيقيًا.</span></span>
+            <span><span class="entry-title">البرمجيات الثابتة · CENDIT.</span> <span class="entry-desc">PIC 18/24 وI2C/UART في مشاريع طبية وتعليمية.</span></span>
           </li>
           <li>
             <span class="ts">2022–2023</span>
-            <span><span class="entry-title">الخلفية · التركيز.</span> <span class="entry-desc">انحراف مهني، فريق أفضل ودرس عن التشتت والتركيز.</span></span>
+            <span><span class="entry-title">الخلفية.</span> <span class="entry-desc">تطوير الخلفية ونشر الخدمات.</span></span>
           </li>
           <li>
             <span class="ts">اليوم</span>
-            <span><span class="entry-title">بحث تطبيقي.</span> <span class="entry-desc">برمجيات خبيثة، ثغرات، OT/ICS، استخبارات التهديدات وأدوات خاصة.</span></span>
+            <span><span class="entry-title">OT/ICS · برمجيات خبيثة.</span> <span class="entry-desc">هندسة عكسية لبايت كود MC7/S7، تحليل البرمجيات الخبيثة والثغرات.</span></span>
           </li>
         </ul>
       </div>
@@ -982,7 +956,7 @@
           </article>
           <article class="focus-item">
             <h3>بحث الثغرات</h3>
-            <p>تدقيق الشيفرة وأسطح الهجوم. أمان الذاكرة، تجاوز المصادقة/السلامة، SSRF، الحقن، اجتياز المسار، إلغاء التسلسل. النتائج تُتحقق في المختبر وتُفصح بمسؤولية.</p>
+            <p>تدقيق الشيفرة وأسطح الهجوم. أمان الذاكرة، تجاوز المصادقة/السلامة، SSRF، الحقن، اجتياز المسار، إلغاء التسلسل. النتائج تُتحقق في المختبر.</p>
           </article>
           <article class="focus-item">
             <h3>OT / ICS</h3>
@@ -990,7 +964,7 @@
           </article>
           <article class="focus-item">
             <h3>استخبارات التهديدات وOSINT</h3>
-            <p>رسم البنية التحتية الإجرامية، الاحتيال المالي العابر للحدود، ربط المحافظ وTTP. من الخيط المفتوح إلى تقرير قائم على الأدلة.</p>
+            <p>رسم البنية التحتية الإجرامية، الاحتيال المالي العابر للحدود، ربط المحافظ وTTP. من الخيط المفتوح إلى تقرير.</p>
           </article>
         </div>
       </div>
@@ -1006,14 +980,10 @@
           <li><span class="n">4</span><span class="label">خوادم MCP خاصة</span></li>
           <li><span class="n">77</span><span class="label">فحصًا حتميًا</span></li>
           <li><span class="n">25</span><span class="label">أداة قياس</span></li>
-          <li><span class="n">11</span><span class="label">وثيقة منهجية</span></li>
           <li><span class="n">7</span><span class="label">مختبرات PoC قابلة لإعادة الإنتاج</span></li>
         </ul>
         <p class="bug-classes">
           <strong>أصناف الأخطاء:</strong> أمان الذاكرة · تجاوز المصادقة · تجاوز السلامة · SSRF · الحقن · اجتياز المسار · XSS/CSRF · إلغاء التسلسل · تسريب بيانات الاعتماد · DoS.
-        </p>
-        <p class="bug-classes">
-          <strong>أعمال مختارة:</strong> analystty (فرز PE) · SAINT GRAIL (تصنيف الأدلة) · Threat Hunter Recollection (استخبارات التهديدات / OSINT) · MC7/S7 (هندسة عكسية للبايت كود وPLC) · infra-soc (مختبر SOC / honeypot).
         </p>
       </div>
 
@@ -1031,8 +1001,6 @@
           <dd>Wazuh · Zabbix · Grafana · OPNsense · T-Pot · Tailscale</dd>
           <dt>OT / ICS</dt>
           <dd>Siemens S5/S7 · MC7 · بروتوكولات صناعية · تحليل البرمجيات الثابتة</dd>
-          <dt>المنهج</dt>
-          <dd>قابلية إعادة الإنتاج · الأدلة · الإفصاح المسؤول · OpSec</dd>
         </dl>
       </div>
 

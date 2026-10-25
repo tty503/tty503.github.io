@@ -35,21 +35,13 @@
 - Threat intelligence y OSINT: infraestructura criminal, fraude financiero transfronterizo, wallets y TTPs.
 - Infraestructura reproducible para investigación (Proxmox, QEMU/KVM, Docker/Podman, Ansible, Terraform).
 
-## Trabajo seleccionado
-
-- analystty — tooling de triage de binarios PE.
-- SAINT GRAIL — taxonomía de evidencia y threat hunting.
-- Threat Hunter Recollection — threat intelligence y OSINT.
-- MC7/S7 — reversing de bytecode y PLC Siemens.
-- infra-soc — laboratorio SOC / honeypot reproducible.
-
 ## Registro público
 
 - Bases de código auditadas: 15.
 - Paquetes de auditoría completados: 6.
 - Hallazgos documentados: 10.
 - Artefactos triados: 42.
-- Infraestructura: 4 servidores MCP propios, 77 checks deterministas, 25 herramientas de medición, 11 documentos de metodología, 7 laboratorios PoC reproducibles.
+- Infraestructura: 4 servidores MCP propios, 77 checks deterministas, 25 herramientas de medición, 7 laboratorios PoC reproducibles.
 
 ## Firma
 

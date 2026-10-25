@@ -85,8 +85,7 @@
         "OSINT",
         "Siemens S5/S7",
         "MC7 bytecode",
-        "firmware analysis",
-        "responsible disclosure"
+        "firmware analysis"
       ],
       "knowsLanguage": [
         "es",
@@ -403,7 +402,6 @@
   [dir="rtl"] .meta dt,
   [dir="rtl"] .stack dt,
   [dir="rtl"] .ledger .label,
-  [dir="rtl"] .now-label,
   [dir="rtl"] .contact .k,
   [dir="rtl"] .eof,
   [dir="rtl"] .statusbar,
@@ -464,24 +462,6 @@
   }
   .intro{ max-width:72ch; }
   .small{ font-size:11px; line-height:1.6; color:var(--dim); }
-
-  .now{
-    display:grid;
-    grid-template-columns:8.2rem minmax(0,1fr);
-    gap:14px;
-    margin-top:18px;
-    padding-top:16px;
-    border-top:1px dotted rgba(46,46,46,.8);
-    font-size:12.5px;
-    color:var(--mid);
-  }
-  .now-label{
-    color:var(--dim);
-    font-size:10.5px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-  }
-  .now p{ margin:0; }
 
   /* ============================================================
      TRAYECTORIA
@@ -804,7 +784,6 @@
     .log li{ grid-template-columns:4.8rem minmax(0,1fr); gap:10px; }
     .meta, .stack{ grid-template-columns:1fr; gap:3px; }
     .meta dd, .stack dd{ margin-bottom:8px; }
-    .now{ grid-template-columns:1fr; gap:5px; }
     .contact li{ grid-template-columns:1fr; gap:2px; }
     .statusbar{ font-size:9.5px; padding:8px 12px; }
   }
@@ -830,7 +809,7 @@
     .col-img{ position:static; max-width:48%; }
     .frame{ border-color:#bbb; background:transparent; break-inside:avoid; }
     .frame::before{ background:#fff; color:#555; }
-    .lede, .intro, .now, .log .entry-desc, .focus-item p, .stack dd, .meta dd{ color:#222; }
+    .lede, .intro, .log .entry-desc, .focus-item p, .stack dd, .meta dd{ color:#222; }
     .dim, .mid, .small, .log .ts, .ledger .label, .contact .k{ color:#555; }
     h1, h2, h3, .log .entry-title, .ledger .n, .contact a, .copyright{ color:#000; }
     a{ color:#000; border:0; }
@@ -929,12 +908,7 @@
       <div class="frame" id="whoami" data-label="// whoami">
         <h1>Christian Márquez <span class="slash">/</span> <span class="handle">tty503</span></h1>
         <p class="lede">חוקר אבטחה אוטודידקט. ונצואלה.</p>
-        <p class="intro">אני עובד במקום שבו התוכנה מפסיקה להיות קופסה שחורה: הנדסה הפוכה, ניתוח נוזקות, מחקר פגיעויות ואבטחת מערכות תעשייתיות. התחלתי ב-2012 בשאלה איך הדברים עובדים מבפנים; אני עדיין שואל אותה.</p>
-        <p class="intro">מעניינות אותי ראיות, לא מופע: הבינרי, הקלט ששובר את המערכת, העקבה שמוכיחה זאת. ממצא שאי אפשר לשחזר לא מתפרסם.</p>
-        <div class="now">
-          <span class="now-label">עכשיו</span>
-          <p>הנדסה הפוכה של נוזקות, פגיעויות ו-OT/ICS. כלים עצמאיים למיון, ראיות ומעבדות ניתנות לשחזור. שיתוף פעולה טכני וגילוי אחראי בדוא"ל או ב-PGP.</p>
-        </div>
+        <p class="intro">הנדסה הפוכה, נוזקות, פגיעויות ו-OT/ICS.</p>
       </div>
 
       <!-- ============ TRAYECTORIA ============ -->
@@ -943,31 +917,31 @@
         <ul class="log">
           <li>
             <span class="ts">2012</span>
-            <span><span class="entry-title">מגע ראשון.</span> <span class="entry-desc">Batch ו-VBScript. השאלה על הרמה הנמוכה: מה נמצא מתחת למסך.</span></span>
+            <span><span class="entry-title">Batch · VBScript.</span> <span class="entry-desc">אוטומציה ב-Windows וסקריפטים ראשונים.</span></span>
           </li>
           <li>
             <span class="ts">2014</span>
-            <span><span class="entry-title">C/C++ · GNU/Linux.</span> <span class="entry-desc">מהדר, זיכרון ובינריים. עבודת מעבדה ראשונה ושלב חקר רחב.</span></span>
+            <span><span class="entry-title">C/C++ · GNU/Linux.</span> <span class="entry-desc">תכנות ברמה נמוכה, זיכרון וניתוח בינריים.</span></span>
           </li>
           <li>
             <span class="ts">2017</span>
-            <span><span class="entry-title">ReldSec.</span> <span class="entry-desc">בלוג סייבר עם חוקרים נוספים. מאמרים ראשונים וכתיבה טכנית.</span></span>
+            <span><span class="entry-title">ReldSec.</span> <span class="entry-desc">שותף לכתיבה בבלוג טכני לאבטחת סייבר.</span></span>
           </li>
           <li>
             <span class="ts">2019–2020</span>
-            <span><span class="entry-title">אוניברסיטה · Arch · Assembly.</span> <span class="entry-desc">x86, ARM, shellcode והנדסה הפוכה. VX-Underground מחזיר את הפוקוס לנוזקות.</span></span>
+            <span><span class="entry-title">x86 · ARM · Assembly.</span> <span class="entry-desc">Shellcode, הנדסה הפוכה וניתוח נוזקות.</span></span>
           </li>
           <li>
             <span class="ts">2022</span>
-            <span><span class="entry-title">קושחה · CENDIT.</span> <span class="entry-desc">PIC 18/24, I2C ו-UART בפרויקטים רפואיים וחינוכיים. תוכנה שנוגעת בחומרה אמיתית.</span></span>
+            <span><span class="entry-title">קושחה · CENDIT.</span> <span class="entry-desc">PIC 18/24 ו-I2C/UART בפרויקטים רפואיים וחינוכיים.</span></span>
           </li>
           <li>
             <span class="ts">2022–2023</span>
-            <span><span class="entry-title">Backend · מיקוד.</span> <span class="entry-desc">סטייה מקצועית, צוות טוב יותר ולקח על פיזור ומיקוד.</span></span>
+            <span><span class="entry-title">Backend.</span> <span class="entry-desc">פיתוח backend ופריסת שירותים.</span></span>
           </li>
           <li>
             <span class="ts">היום</span>
-            <span><span class="entry-title">מחקר יישומי.</span> <span class="entry-desc">נוזקות, פגיעויות, OT/ICS, מודיעין איומים וכלים עצמאיים.</span></span>
+            <span><span class="entry-title">OT/ICS · נוזקות.</span> <span class="entry-desc">הנדסה הפוכה של בייט-קוד MC7/S7, ניתוח נוזקות ומחקר פגיעויות.</span></span>
           </li>
         </ul>
       </div>
@@ -982,7 +956,7 @@
           </article>
           <article class="focus-item">
             <h3>מחקר פגיעויות</h3>
-            <p>ביקורת קוד ומשטחי תקיפה. בטיחות זיכרון, עקיפת אימות/שלמות, SSRF, הזרקה, מעבר נתיבים, דה-סריאליזציה. ממצאים מאומתים במעבדה ונחשפים באחריות.</p>
+            <p>ביקורת קוד ומשטחי תקיפה. בטיחות זיכרון, עקיפת אימות/שלמות, SSRF, הזרקה, מעבר נתיבים, דה-סריאליזציה. ממצאים מאומתים במעבדה.</p>
           </article>
           <article class="focus-item">
             <h3>OT / ICS</h3>
@@ -990,7 +964,7 @@
           </article>
           <article class="focus-item">
             <h3>מודיעין איומים ו-OSINT</h3>
-            <p>מיפוי תשתיות פליליות, הונאה פיננסית חוצת גבולות, קישור ארנקים ו-TTP. מרמז פתוח לדוח מבוסס ראיות.</p>
+            <p>מיפוי תשתיות פליליות, הונאה פיננסית חוצת גבולות, קישור ארנקים ו-TTP. מרמז פתוח לדוח.</p>
           </article>
         </div>
       </div>
@@ -1006,14 +980,10 @@
           <li><span class="n">4</span><span class="label">שרתי MCP עצמאיים</span></li>
           <li><span class="n">77</span><span class="label">בדיקות דטרמיניסטיות</span></li>
           <li><span class="n">25</span><span class="label">כלי מדידה</span></li>
-          <li><span class="n">11</span><span class="label">מסמכי מתודולוגיה</span></li>
           <li><span class="n">7</span><span class="label">מעבדות PoC ניתנות לשחזור</span></li>
         </ul>
         <p class="bug-classes">
           <strong>סוגי באגים:</strong> בטיחות זיכרון · עקיפת אימות · עקיפת שלמות · SSRF · הזרקה · מעבר נתיבים · XSS/CSRF · דה-סריאליזציה · דליפת פרטי גישה · DoS.
-        </p>
-        <p class="bug-classes">
-          <strong>עבודות נבחרות:</strong> analystty (מיון PE) · SAINT GRAIL (טקסונומיית ראיות) · Threat Hunter Recollection (מודיעין איומים / OSINT) · MC7/S7 (הנדסה הפוכה של בייט-קוד ו-PLC) · infra-soc (מעבדת SOC / honeypot).
         </p>
       </div>
 
@@ -1031,8 +1001,6 @@
           <dd>Wazuh · Zabbix · Grafana · OPNsense · T-Pot · Tailscale</dd>
           <dt>OT / ICS</dt>
           <dd>Siemens S5/S7 · MC7 · פרוטוקולים תעשייתיים · ניתוח קושחה</dd>
-          <dt>שיטה</dt>
-          <dd>שחזור · ראיות · גילוי אחראי · OpSec</dd>
         </dl>
       </div>
 

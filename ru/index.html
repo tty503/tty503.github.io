@@ -85,8 +85,7 @@
         "OSINT",
         "Siemens S5/S7",
         "MC7 bytecode",
-        "firmware analysis",
-        "responsible disclosure"
+        "firmware analysis"
       ],
       "knowsLanguage": [
         "es",
@@ -403,7 +402,6 @@
   [dir="rtl"] .meta dt,
   [dir="rtl"] .stack dt,
   [dir="rtl"] .ledger .label,
-  [dir="rtl"] .now-label,
   [dir="rtl"] .contact .k,
   [dir="rtl"] .eof,
   [dir="rtl"] .statusbar,
@@ -464,24 +462,6 @@
   }
   .intro{ max-width:72ch; }
   .small{ font-size:11px; line-height:1.6; color:var(--dim); }
-
-  .now{
-    display:grid;
-    grid-template-columns:8.2rem minmax(0,1fr);
-    gap:14px;
-    margin-top:18px;
-    padding-top:16px;
-    border-top:1px dotted rgba(46,46,46,.8);
-    font-size:12.5px;
-    color:var(--mid);
-  }
-  .now-label{
-    color:var(--dim);
-    font-size:10.5px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-  }
-  .now p{ margin:0; }
 
   /* ============================================================
      TRAYECTORIA
@@ -804,7 +784,6 @@
     .log li{ grid-template-columns:4.8rem minmax(0,1fr); gap:10px; }
     .meta, .stack{ grid-template-columns:1fr; gap:3px; }
     .meta dd, .stack dd{ margin-bottom:8px; }
-    .now{ grid-template-columns:1fr; gap:5px; }
     .contact li{ grid-template-columns:1fr; gap:2px; }
     .statusbar{ font-size:9.5px; padding:8px 12px; }
   }
@@ -830,7 +809,7 @@
     .col-img{ position:static; max-width:48%; }
     .frame{ border-color:#bbb; background:transparent; break-inside:avoid; }
     .frame::before{ background:#fff; color:#555; }
-    .lede, .intro, .now, .log .entry-desc, .focus-item p, .stack dd, .meta dd{ color:#222; }
+    .lede, .intro, .log .entry-desc, .focus-item p, .stack dd, .meta dd{ color:#222; }
     .dim, .mid, .small, .log .ts, .ledger .label, .contact .k{ color:#555; }
     h1, h2, h3, .log .entry-title, .ledger .n, .contact a, .copyright{ color:#000; }
     a{ color:#000; border:0; }
@@ -929,12 +908,7 @@
       <div class="frame" id="whoami" data-label="// whoami">
         <h1>Christian Márquez <span class="slash">/</span> <span class="handle">tty503</span></h1>
         <p class="lede">Исследователь безопасности-самоучка. Венесуэла.</p>
-        <p class="intro">Я работаю там, где софт перестаёт быть чёрным ящиком: реверс-инжиниринг, анализ вредоносного кода, исследование уязвимостей и безопасность промышленных систем. Начал в 2012 году с вопроса, как всё устроено внутри; продолжаю его задавать.</p>
-        <p class="intro">Мне важны доказательства, а не шоу: бинарник, вход, который ломает систему, трассировка, которая это подтверждает. Находка, которую нельзя воспроизвести, не публикуется.</p>
-        <div class="now">
-          <span class="now-label">сейчас</span>
-          <p>Реверс вредоносного кода, уязвимости и OT/ICS. Собственные инструменты для триажа, доказательств и воспроизводимых лабораторий. Техническое сотрудничество и ответственное раскрытие по почте или PGP.</p>
-        </div>
+        <p class="intro">Реверс-инжиниринг, вредоносный код, уязвимости и OT/ICS.</p>
       </div>
 
       <!-- ============ TRAYECTORIA ============ -->
@@ -943,31 +917,31 @@
         <ul class="log">
           <li>
             <span class="ts">2012</span>
-            <span><span class="entry-title">Первый контакт.</span> <span class="entry-desc">Batch и VBScript. Вопрос о низком уровне: что находится под экраном.</span></span>
+            <span><span class="entry-title">Batch · VBScript.</span> <span class="entry-desc">Автоматизация Windows и первые скрипты.</span></span>
           </li>
           <li>
             <span class="ts">2014</span>
-            <span><span class="entry-title">C/C++ · GNU/Linux.</span> <span class="entry-desc">Компилятор, память и бинарники. Первые лабораторные работы и широкий этап исследования.</span></span>
+            <span><span class="entry-title">C/C++ · GNU/Linux.</span> <span class="entry-desc">Низкоуровневое программирование, память и анализ бинарников.</span></span>
           </li>
           <li>
             <span class="ts">2017</span>
-            <span><span class="entry-title">ReldSec.</span> <span class="entry-desc">Блог о кибербезопасности с другими исследователями. Первые статьи и технические публикации.</span></span>
+            <span><span class="entry-title">ReldSec.</span> <span class="entry-desc">Соавтор технического блога по кибербезопасности.</span></span>
           </li>
           <li>
             <span class="ts">2019–2020</span>
-            <span><span class="entry-title">Университет · Arch · Assembly.</span> <span class="entry-desc">x86, ARM, shellcode и реверс. VX-Underground возвращает фокус к вредоносному коду.</span></span>
+            <span><span class="entry-title">x86 · ARM · Assembly.</span> <span class="entry-desc">Shellcode, реверс и анализ вредоносного кода.</span></span>
           </li>
           <li>
             <span class="ts">2022</span>
-            <span><span class="entry-title">Прошивки · CENDIT.</span> <span class="entry-desc">PIC 18/24, I2C и UART в медицинских и образовательных проектах. Софт касается реального железа.</span></span>
+            <span><span class="entry-title">Прошивки · CENDIT.</span> <span class="entry-desc">PIC 18/24 и I2C/UART в медицинских и образовательных проектах.</span></span>
           </li>
           <li>
             <span class="ts">2022–2023</span>
-            <span><span class="entry-title">Бэкенд · фокус.</span> <span class="entry-desc">Профессиональное ответвление, лучшая команда и урок о распылении и концентрации.</span></span>
+            <span><span class="entry-title">Бэкенд.</span> <span class="entry-desc">Разработка бэкенда и развёртывание сервисов.</span></span>
           </li>
           <li>
             <span class="ts">сегодня</span>
-            <span><span class="entry-title">Прикладные исследования.</span> <span class="entry-desc">Вредоносный код, уязвимости, OT/ICS, threat intelligence и собственные инструменты.</span></span>
+            <span><span class="entry-title">OT/ICS · Вредоносный код.</span> <span class="entry-desc">Реверс байткода MC7/S7, анализ вредоносного кода и уязвимостей.</span></span>
           </li>
         </ul>
       </div>
@@ -982,7 +956,7 @@
           </article>
           <article class="focus-item">
             <h3>Исследование уязвимостей</h3>
-            <p>Аудит кода и поверхностей атаки. Memory safety, обход аутентификации/целостности, SSRF, инъекции, traversal, десериализация. Находки проверяются в лаборатории и раскрываются ответственно.</p>
+            <p>Аудит кода и поверхностей атаки. Memory safety, обход аутентификации/целостности, SSRF, инъекции, traversal, десериализация. Находки проверяются в лаборатории.</p>
           </article>
           <article class="focus-item">
             <h3>OT / ICS</h3>
@@ -990,7 +964,7 @@
           </article>
           <article class="focus-item">
             <h3>Threat intelligence и OSINT</h3>
-            <p>Картирование криминальной инфраструктуры, трансграничное финансовое мошенничество, корреляция кошельков и TTP. От открытой зацепки к отчёту с доказательствами.</p>
+            <p>Картирование криминальной инфраструктуры, трансграничное финансовое мошенничество, корреляция кошельков и TTP. От открытой зацепки к отчёту.</p>
           </article>
         </div>
       </div>
@@ -1006,14 +980,10 @@
           <li><span class="n">4</span><span class="label">собственных MCP-сервера</span></li>
           <li><span class="n">77</span><span class="label">детерминированных проверок</span></li>
           <li><span class="n">25</span><span class="label">инструментов измерения</span></li>
-          <li><span class="n">11</span><span class="label">методологических документов</span></li>
           <li><span class="n">7</span><span class="label">воспроизводимых PoC-лабораторий</span></li>
         </ul>
         <p class="bug-classes">
           <strong>Классы ошибок:</strong> memory safety · обход аутентификации · обход целостности · SSRF · инъекции · traversal · XSS/CSRF · десериализация · утечка учётных данных · DoS.
-        </p>
-        <p class="bug-classes">
-          <strong>Избранные работы:</strong> analystty (триаж PE) · SAINT GRAIL (таксономия доказательств) · Threat Hunter Recollection (threat intel / OSINT) · MC7/S7 (реверс байткода и PLC) · infra-soc (лаборатория SOC / honeypot).
         </p>
       </div>
 
@@ -1031,8 +1001,6 @@
           <dd>Wazuh · Zabbix · Grafana · OPNsense · T-Pot · Tailscale</dd>
           <dt>OT / ICS</dt>
           <dd>Siemens S5/S7 · MC7 · промышленные протоколы · анализ прошивок</dd>
-          <dt>Метод</dt>
-          <dd>Воспроизводимость · доказательства · ответственное раскрытие · OpSec</dd>
         </dl>
       </div>
 
