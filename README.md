@@ -1,6 +1,6 @@
 # tty503.com
 
-Sitio personal de Christian Márquez (tty503): investigador de seguridad autodidacta en Venezuela. Reversing, malware, vulnerabilidades y OT/ICS.
+Sitio personal de Christian Márquez (tty503): Investigador de Ciberseguridad - Autodidacta en Venezuela. Reversing, malware, vulnerabilidades y OT/ICS.
 
 ## Estructura
 
